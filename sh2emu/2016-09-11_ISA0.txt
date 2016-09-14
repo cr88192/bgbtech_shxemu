@@ -1,0 +1,300 @@
+0---
+	0--0 RES (32-bit ops)
+	0--1 RES (32-bit ops)
+	0--2
+		0n02 STC Rn, SR
+		0n12 STC Rn, GBR
+		0n22 STC Rn, VBR
+		0n32 STC Rn, SSR
+		0n42 STC Rn, SPC
+		0n52 STC Rn, DBR
+		0-62 -
+		0-72 -
+		0nM2 STC Rn, Rm_B
+	0--3
+		0m03 BSRF Rm
+		0-13 -
+		0m23 BSAF Rm
+
+		0n83 PREF @Rn
+		0n93 OCBI @Rn
+		0nA3 OCBP @Rn
+		0nB3 OCBWB @Rn
+		0nC3 MOVCA.L R0, Rn
+	0nm4 MOV.B Rm, @(R0,Rn)
+	0nm5 MOV.W Rm, @(R0,Rn)
+	0nm6 MOV.L Rm, @(R0,Rn)
+	0nm7 MULL Rm, Rn
+	0--8
+		0008 CLRT
+		0018 SETT
+		0028 CLRMAC
+		0038 LDTLB
+		0048 CLRS
+		0058 SETS
+	0--9
+		0009 NOP
+		0019 DIV0U
+		0n29 MOVT Rn
+	0--A
+		0n0A STS Rn, MACH
+		0n1A STS Rn, MACL
+		0n2A STS Rn, PR
+		0-3A -
+		0-4A -
+		0n5A STS Rn, FPUL
+		0n6A STS Rn, FPSCR
+	0--B
+		000B RTS
+		001B SLEEP
+		002B RTE
+	0nmC MOV.B @(R0,Rm), Rn
+	0nmD MOV.W @(R0,Rm), Rn
+	0nmE MOV.L @(R0,Rm), Rn
+	0nmF MACL @Rm, @Rn
+1nmd MOV Rm, @(Rn,disp)
+2---
+	2nm0 MOV.B Rm, @Rn
+	2nm1 MOV.W Rm, @Rn
+	2nm2 MOV.L Rm, @Rn
+	2nm3 CAS.L Rm, Rn, @R0
+	2nm4 MOV.B Rm, @-Rn
+	2nm5 MOV.W Rm, @-Rn
+	2nm6 MOV.L Rm, @-Rn
+	2nm7 DIV0S Rm, Rn
+	2nm8 TST Rm, Rn
+	2nm9 AND Rm, Rn
+	2nmA XOR Rm, Rn
+	2nmB OR Rm, Rn
+	2nmC CMPSTR Rm, Rn
+	2nmD XTRCT Rm, Rn
+	2nmE MULUW Rm, Rn
+	2nmF MULSW Rm, Rn
+3---
+	3nm0 CMPEQ Rm, Rn
+	3--1 RES (32-bit ops)
+	3nm2 CMPHS Rm, Rn
+	3nm3 CMPGE Rm, Rn
+	3nm4 DIV1 Rm, Rn
+	3nm5 DMULU Rm, Rn
+	3nm6 CMPHI Rm, Rn
+	3nm7 CMPGT Rm, Rn
+	3nm8 SUB Rm, Rn
+	3--9 RES (32-bit ops)
+	3nmA SUBC Rm, Rn
+	3nmB SUBV Rm, Rn
+	3nmC ADD Rm, Rn
+	3nmD DMULS Rm, Rn
+	3nmE ADDC Rm, Rn
+	3nmF ADDV Rm, Rn
+4---
+	4--0
+		4n00 SHLL Rn
+		4n10 DT Rn
+		4n20 SHAL Rn
+	4--1
+		4n01 SHLR Rn
+		4n11 CMPPZ Rn
+		4n21 SHAR Rn
+	4--2
+		4n02 STS.L MACH, @-Rn
+		4n12 STS.L MACL, @-Rn
+		4n22 STS.L PR, @-Rn
+		4-32 -
+		4-42 -
+		4n52 STS.L FPUL, @-Rn
+		4n62 STS.L FPSCR, @-Rn
+		4-72 -
+		..
+		4-F2 -
+	4--3
+		4n03 STC.L SR, @-Rn
+		4n13 STC.L GBR, @-Rn
+		4n23 STC.L VBR, @-Rn
+		4n43 STC.L SSR, @-Rn
+		4n53 STC.L SPC, @-Rn
+		4n63 STC.L DBR, @-Rn
+		4-63 -
+		4-73 -
+		4nM3 STC.L Rm_B, @-Rn
+	4--4
+		4n04 ROTL Rn
+		4-14 -
+		4-24 ROTCL Rn
+		4-34
+		..
+		4-F4
+	4--5
+		4n05 ROTR Rn
+		4n15 CMPPL Rn
+		4n25 ROTCR Rn
+	4--6
+		4m06 LDS.L @Rm+, MACH
+		4m16 LDS.L @Rm+, MACL
+		4m26 LDS.L @Rm+, PR
+		4m36 -
+		4m46 -
+		4m56 LDS.L @Rm+, FPUL
+		4m66 LDS.L @Rm+, FPSCR
+		4-76 -
+		..
+		4-F6 -
+	4--7
+		4m07 LDC.L @Rm+, SR
+		4m17 LDC.L @Rm+, GBR
+		4m27 LDC.L @Rm+, VBR
+		4m37 LDC.L @Rm+, SSR
+		4m47 LDC.L @Rm+, SPC
+		4m57 LDC.L @Rm+, DBR
+		4-67 -
+		4-77 -
+		4mN7 LDC.L @Rm+, Rm_B
+	4--8
+		4n08 SHLL2 Rn
+		4n18 SHLL8 Rn
+		4n28 SHLL16 Rn
+	4--9
+		4n09 SHLR2 Rn
+		4n19 SHLR8 Rn
+		4n29 SHLR16 Rn
+	4--A
+		4m0A LDS Rm, MACH
+		4m1A LDS Rm, MACL
+		4m2A LDS Rm, PR
+		4m3A -
+		4m4A -
+		4m5A LDS Rm, FPUL
+		4m6A LDS Rm, FPSCR
+		4-7A -
+		..
+		4-FA -
+	4--B
+		4m0B JSR Rm
+		4m1B TAS.B Rm
+		4m2B JMP Rm
+	4nmC SHAD Rm, Rn
+	4nmD SHLD Rm, Rn
+	4--E
+		4m0E LDC Rm, SR
+		4m1E LDC Rm, GBR
+		4m2E LDC Rm, VBR
+		4m3E LDC Rm, SSR
+		4m4E LDC Rm, SPC
+		4m5E LDC Rm, DBR
+		4-6E -
+		4-7E -
+		4mNE LDC Rm, Rm_B
+	4nmF MAC.W Rm, Rn
+5nmd MOV.L @(Rm,disp), Rn
+6---
+	6nm0 MOV.B @Rm, Rn
+	6nm1 MOV.W @Rm, Rn
+	6nm2 MOV.L @Rm, Rn
+	6nm3 MOV Rm, Rn
+	6nm4 MOV.B @Rm+, Rn
+	6nm5 MOV.W @Rm+, Rn
+	6nm6 MOV.L @Rm+, Rn
+	6nm7 NOT Rm, Rn
+	6nm8 SWAP.B @Rm, Rn
+	6nm9 SWAP.W @Rm, Rn
+	6nmA NEGC Rm, Rn
+	6nmB NEG Rm, Rn
+	6nmC EXTU.B Rm, Rn
+	6nmD EXTS.B Rm, Rn
+	6nmE EXTU.W Rm, Rn
+	6nmF EXTS.W Rm, Rn
+7nii ADD #imm, Rn
+8---
+	80nd MOV.B R0, @(Rn,disp)
+	81nd MOV.W R0, @(Rn,disp)
+	82-- -
+	83-- -
+	84md MOV.B @(Rm,disp), R0
+	85md MOV.W @(Rm,disp), R0
+	86-- -
+	87-- -
+	88ii CMPEQ #imm, R0
+	89dd BT label
+	8A--
+	8Bdd BF label
+	8C--
+	8Ddd BTS label
+	8E--
+	8Fdd BFS label
+9nmd MOV.W @(Rm,disp), Rn
+Addd BRA label
+Bddd BSR label
+C---
+	C0dd MOV.B R0, @(GBR,disp)
+	C1dd MOV.W R0, @(GBR,disp)
+	C2dd MOV.L R0, @(GBR,disp)
+	C3ii TRAPA #imm
+	C4dd MOV.B @(GBR,disp), R0
+	C5dd MOV.W @(GBR,disp), R0
+	C6dd MOV.L @(GBR,disp), R0
+	C7dd MOVA @(PC,disp), R0
+	C8ii TST #imm, R0
+	C9ii AND #imm, R0
+	CAii XOR #imm, R0
+	CBii OR #imm, R0
+	CCii TST.B #imm, @(GBR,R0)
+	CDii AND.B #imm, @(GBR,R0)
+	CEii XOR.B #imm, @(GBR,R0)
+	CFii OR.B #imm, @(GBR,R0)
+Dndd MOV.L @(PC,disp), Rn
+Enii MOV #imm, Rn
+F---
+	Fnm0 FADD FRm, FRn
+	Fnm1 FSUB FRm, FRn
+	Fnm2 FMUL FRm, FRn
+	Fnm3 FDIV FRm, FRn
+	Fnm4 FCMPEQ FRm, FRn
+	Fnm5 FCMPGT FRm, FRn
+	Fnm6 FMOV.S @(R0,Rm), FRn
+	Fnm7 FMOV.S FRm, @(R0,Rn)
+	Fnm8 FMOV.S @Rm, FRn
+	Fnm9 FMOV.S @Rm+, FRn
+	FnmA FMOV.S FRm, @Rn
+	FnmB FMOV.S FRm, @-Rn
+	Fnm8 FMOV.S @Rm, FRn
+	FnmC FMOV FRm, FRn
+	F--D
+		Fn0D FSTS FRn
+		Fm1D FLDS FRm
+		Fn2D FLOAT FRn
+		Fm3D FTRC FRm
+		Fn4D FNEG FRn
+		Fn5D FABS FRn
+		Fn6D FSQRT FRn
+		F-7D / FTRV
+		Fn8D FLDI0 FRn
+		Fn9D FLDI1 FRn
+		FnAD FCNVSD FRn
+		FnBD FCNVDS FRm
+		F-CD -
+		F-DD -
+		F-ED / FIPR
+		F-FD
+			F3FD FSCHG
+			FBFD / FRCHG
+	FnmE FMAC FRm, FRn
+	F--F
+
+
+BJ0 Features
+	MMU: Explicit TLB and Cache: Deprecated
+	FPU: Some features omitted.
+
+64-bit Mode
+	Registers are extended to 64 bits.
+	Most MOV.L forms are sign-extending
+	Most MOV.W forms become MOV.Q
+		9nm0: MOV.W @Rm, Rn		//Special Case
+		81n0 MOV.W R0, @Rn		//Special Case
+		85m0 MOV.W @Rm, R0		//Special Case
+
+	4n44 EXTU.L Rn        //zero extend 32 -> 64
+	4n54 EXTS.L Rn        //sign extend 32 -> 64
+	4n64 BSWAP.L Rn        //swap bytes for 32-bit value
+	4n74 BSWAP.Q Rn        //swap bytes for 64-bit value
+	4n84 SWAP.L Rn        //swap high and low 32-bits 

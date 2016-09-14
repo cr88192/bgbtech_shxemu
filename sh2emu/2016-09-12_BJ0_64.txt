@@ -1,0 +1,459 @@
+Registers:
+	Registers will be 64 bits.
+		If operating in 32-bit mode, only the low 32 bits are accessible.
+
+	R0..R14: General-Purpose Registers
+	SP: Stack Pointer
+
+	SR: Status Register
+	GBR: Global Base Register
+	VBR: Vector Base Register
+	SSR: Saved Status Register
+	SPC: Saved PC
+	DBR: Debug Base Register
+	
+	MACH: Multiply-Accumulate High
+	MACL: Multiply-Accumulate Low
+	PR: Procedure Register
+	FPSCR: FPU Control Register
+	FPUL: FPU Load Register
+
+	FR0..FR15: FPU Registers
+
+	R0_A..R7_A: R0..R7 (Bank A, User)
+	R0_B..R7_B: R0..R7 (Bank B, Super)
+		Transistions between user and supervisor mode Flip Banks A and B.
+		User or Supervisor mode determines which bank R0..R7 map to.
+
+Interrupt:
+	Saves PC in SPC
+	Saves SR in SSR
+	Sets supervisor mode.
+		This swaps the register banks.
+	Loads address from its offset relative to VBR into PC.
+
+	Return from ISR swaps register banks, and restores SR and PC.
+
+SR Bits:
+	0000_0001: T	//True/False Bit
+	0000_0002: S	//Specifies MAC Saturation
+	0000_00F0: IM	//Interrupt Level Mask
+	0000_0100: Q	//Q Bit (Divide)
+	0000_0200: M	//M Bit (Divide)
+	0000_8000: FD	//FPU Disable
+
+	0010_0000: DQ	//Data Quad (Sets data/register size)
+	0020_0000: AQ	//Address Quad (Sets address/register size)
+	0040_0000: LE	//Local Endian (XORed with ME)
+	0080_0000: ME	//Machine Endian (0=BE, 1=LE)
+	1000_0000: BL	//Block Interrupts
+	2000_0000: RB	//Register Bank Select
+	4000_0000: MD	//User/Supervisor
+
+FPSCR bits:
+	0000_0003: RM	//Rounding Mode
+	0004_0000: DN	//Denormalization Mode
+	0008_0000: PR	//Precision
+	0010_0000: SZ	//Load/Store Size
+	0020_0000: FR	//Float Register Bank
+
+Address Space:
+	Signed 32 or 64 bit.
+	AQ=0, Use 32-bit addresses, sign-extended to 64-bits.
+	AQ=1, Use 64-bit addresses.
+	Positive addresses will be used for userspace addresses.
+	Negative addresses will be used for system addresses.
+	If AD is set, DQ must also be set.
+
+DQ|AQ: Selects between 32 and 64 bit registers.
+	If both are clear, the upper 32-bits of registers are ignored.
+		For GPRs, the high-order bits following an operation are undefined.
+		For system and control registers, the prior bits are retained.
+
+DQ: Selects the operating size for data operations.
+	DQ=0: Selects the use of Word and DWord operations.
+	DQ=1: Selects the use of QWord and DWord operations.
+
+DQ,AQ=00: Only low 32 bits of registers are used and preserved.
+DQ,AQ=10: Uses 64-bit registers with 32-bit addressing.
+DQ,AQ=01: Uses 64-bit registers, but Word access rather than Quad.
+DQ,AQ=11: Uses 64-bit registers, loads/stores in Quad mode.
+
+FPU:
+When AQ=0:
+	FPU Registers are 32-bit and hold single or split-double values
+	The FPUSCR.SZ bit controls whether to copy a single or register pair.
+	The FPUSCR.PR bit selects between Single and Split-Double calculations.
+When AQ=1:
+	FPU Registers are 64-bit and hold double values.
+	The FPUSCR.SZ bit controls whether a value is loaded/stored as double.
+	The FPUSCR.PR bit is reserved and set to 0 for double.
+
+
+MMU: An MMU may be used. It will be based on page-tables.
+
+Page-Tables may come in 32 and 64 bit forms.
+
+When using a 32-bit page table, memory addressing will behave as if AQ were 0. AQ Will instead simply indicate the internal use of 64-bit registers.
+
+A 32-bit page table will be two level, with each page consisting of 1024 entries (1024*1024*4096=4GB).
+
+The use of 64-bit page tables will be different. Each table will have 512 entries, each being 64 bits. There will be a 4-level page table structure, giving a 48 bit effective address space.
+
+
+Delay Slot:
+For branches, the instruction immediately following the branch is located in a "delay slot". This instruction will execute prior to the jump landing at the target. Branches and PC relative operations are not allowed in this space. However, BT and BF will not execute the delay-slot instruction.
+
+For PC relative instructions, the calculation will be performed relative to 4 bytes after the PC of the instruction.
+
+
+Control Registers and Cache:
+
+Certain flags will influence the interpretation and behavior of operations, in particular SR.DQ, SR.AQ, SR.LE, SR.ME, FPSCR.PR, and FPSCR.SZ. Although modifiable at runtime, these features are not dynamic. Once code at a given PC has been executed with a given combination of these flags, it may not be executed again with different values (without first invalidating the cache). The result of doing so is undefined.
+
+A similar rule applies for the use of self-modifying code. Behavior is undefined if a previously executed block is executed again after its instructions have been modified without first flushing caches.
+
+Note that this does not apply after reloading page-tables, as this will perform an implicit flush.
+
+
+Memory Map(48 bit):
+0000_0000_0000..7FFF_FFFF_FFFF: Reserved for RAM.
+8000_0000_0000..BFFF_FFFF_FFFF: Reserved for ROM and HW/Storage.
+C000_0000_0000..FFFF_7FFF_FFFF: Reserved (General)
+FFFF_8000_0000..FFFF_EFFF_FFFF: ROM and HW/Storage (-2GB Range)
+FFFF_F000_0000..FFFF_FFFE_FFFF: Processor Internal Ranges
+FFFF_FFFF_0000..FFFF_FFFF_FFFF: Memory-Mapped Registers
+
+/ ROM will start at -2GB, and the QWORD address at this location will be taken as the start address. This address is required to point within the -2GB range.
+
+Initial Start Up:
+The initial starting conditions will be loaded from FFFF_A000_0000.
+	FFFF_A000_0000: DWORD giving starting PC.
+	FFFF_A000_0004: DWORD giving starting SP.
+	FFFF_A000_0008: DWORD giving starting SR.
+	FFFF_A000_000C: DWORD giving the magic value 0x424A3041.
+		The magic will serve both to verify the arch and also as a BOM.
+
+
+Note that the byte-order of this value will determine the initial byte-order of the CPU.
+
+
+Opcode Size Suffixes:
+	.B		Byte (8-bit)
+	.W		Word (16-bit)
+	.L		DWord (32-bit)
+	.Q		QWord (64-bit)
+	.W/Q	Word or QWord depending on SR.DQ
+	.L/Q	DWord or QWord depending on (SR.DQ|SR.AQ)
+	.W/L	Word or DWord depending on SR.DQ
+
+
+Normal instructions will be 16 bit, and are expressed in nibbles.
+0..9, A..F: Expresses a literal hex value.
+m: Expresses a source register.
+n: Expresses a destination register.
+M: Expresses a source register as 0-7 with high-bit set.
+N: Expresses a destination register as 0-7 with high-bit set.
+d: Expresses a displacement.
+i: Expresses an immediate value (signed)
+j: Expresses an immediate value (unsigned)
+
+The endianess of instructions and PC-relative loads will always match the machine endianess. Loads performed relative to registers will use the local endianess.
+
+
+0---
+	0--0 RES (32-bit ops)
+	0--1 RES (32-bit ops)
+	0--2
+		0n02 STC Rn, SR			//Copy Rn to SR
+		0n12 STC Rn, GBR		//Copy Rn to GBR
+		0n22 STC Rn, VBR		//Copy Rn to VBR
+		0n32 STC Rn, SSR		//Copy Rn to SSR
+		0n42 STC Rn, SPC		//Copy Rn to SPC
+		0n52 STC Rn, DBR		//Copy Rn to DBR
+		0-62 -
+		0-72 -
+		0nM2 STC Rn, Rm_B		//Copy Rn to Rm_B (Other Bank)
+	0--3
+		0m03 BSRF Rm			//Branch to Subroutine (PC+Rm+4)
+		0-13 -
+		0m23 BSAF Rm			//Branch to Label (PC+Rn+4)
+
+		0n83 PREF @Rn			//Prefetch memory for address
+		0n93 / OCBI @Rn			//Invalidate cache address without writeback
+		0nA3 / OCBP @Rn			//
+		0nB3 / OCBWB @Rn
+		0nC3 MOVCA.L R0, Rn
+	0nm4 MOV.B Rm, @(R0,Rn)		//Move Byte Rm to R0+Rn
+	0nm5 MOV.W/Q Rm, @(R0,Rn)	//Move Word/Quad Rm to R0+Rn
+	0nm6 MOV.L Rm, @(R0,Rn)		//Move DWord Rm to R0+Rn
+	0nm7 MUL.L/Q Rm, Rn			//Multiply Rm and Rn and store MACL
+	0--8						//Operations without arguments
+		0008 CLRT				//Clear SR.T
+		0018 SETT				//Set SR.T
+		0028 CLRMAC				//Clear MACH and MACL
+		0038 / LDTLB			//LDTLB (Not Used)
+		0048 CLRS				//Clear SR.S
+		0058 SETS				//Set SR.S
+		0068 CLRDQ				//Clear SR.DQ
+		0078 SETDQ				//Set SR.DQ
+		0088 FLUSHTLB			//Flush TLBs and caches.
+		0098 INVTLB				//Invalidate TLBs and caches.
+	0--9
+		0009 NOP				//NOP
+		0019 DIV0U				//Unsigned Divide
+		0n29 MOVT Rn			//Copy T bit to Rn
+	0--A
+		0n0A STS Rn, MACH		//Copy Rn to MACH
+		0n1A STS Rn, MACL		//Copy Rn to MACL
+		0n2A STS Rn, PR			//Copy Rn to PR
+		0-3A -
+		0-4A -
+		0n5A STS Rn, FPUL		//Copy Rn to FPUL
+		0n6A STS Rn, FPSCR		//Copy Rn to FPSCR
+	0--B
+		000B RTS				//Return from Function
+		001B SLEEP				//Sleep until interrupt
+		002B RTE				//Return From Exception
+	0nmC MOV.B @(R0,Rm), Rn		//Load Byte From R0+Rm into Rn
+	0nmD MOV.W/Q @(R0,Rm), Rn	//Load Word/Quad From R0+Rm into Rn
+	0nmE MOV.L @(R0,Rm), Rn		//Load DWord From R0+Rm into Rn
+	0nmF MAC.L @Rm, @Rn			//Load/Mul Rm and Rn and add to MACH/MACL
+1nmd MOV.L Rm, @(Rn,disp)		//Store DWord Rm to Rn+4*Disp
+2---
+	2nm0 MOV.B Rm, @Rn			//Store Byte Rm to @Rn
+	2nm1 MOV.W/Q Rm, @Rn		//Store Word/Quad Rm to @Rn
+	2nm2 MOV.L Rm, @Rn			//Store Rm to @Rn
+	2nm3 CAS.L Rm, Rn, @R0		//Compare and Exchange
+	2nm4 MOV.B Rm, @-Rn			//Store Rm to Byte @Rn then Rn=Rn-1
+	2nm5 MOV.W/Q Rm, @-Rn		//Store Rm to Word/Quad @Rn then Rn=Rn-2|8
+	2nm6 MOV.L Rm, @-Rn			//Store Rm to DWord @Rn then Rn=Rn-4
+	2nm7 DIV0S Rm, Rn			//Setup for signed division
+	2nm8 TST Rm, Rn				//Test Rm&Rn, updating SR.T
+	2nm9 AND Rm, Rn				//And Rm and Rn, Storing result in Rn
+	2nmA XOR Rm, Rn				//Xor Rm and Rn, Storing result in Rn
+	2nmB OR Rm, Rn				//Or Rm and Rn, Storing result in Rn
+	2nmC CMPSTR Rm, Rn			//Compare Rm and Rn for matching bytes
+	2nmD XTRCT Rm, Rn			//Low bits from Rm and High bits from Rn
+	2nmE MULU.W/L Rm, Rn		//Multiply Unsigned Word/DWord, Dst=MACL
+	2nmF MULS.W/L Rm, Rn		//Multiply Signed Word/DWord, Dst=MACL
+3---
+	3nm0 CMPEQ Rm, Rn			//Compare for Equality
+	3--1 RES (32-bit ops)
+	3nm2 CMPHS Rm, Rn			//Compare for unsigned Greater/Equal
+	3nm3 CMPGE Rm, Rn			//Compare for signed Greater/Equal
+	3nm4 DIV1 Rm, Rn			//Inner part of divide
+	3nm5 DMULU.L/Q Rm, Rn		//Unsigned Multiply, result in MACH:MACL
+	3nm6 CMPHI Rm, Rn			//Compare for unsigned Greater
+	3nm7 CMPGT Rm, Rn			//Compare for signed Greater
+	3nm8 SUB Rm, Rn				//Subtract
+	3--9 RES (32-bit ops)
+	3nmA SUBC Rm, Rn			//Subtract, Carry -> T
+	3nmB SUBV Rm, Rn			//Subtract, Overflow -> T
+	3nmC ADD Rm, Rn				//Add
+	3nmD DMULS.L/Q Rm, Rn		//Signed Multiply, result in MACH:MACL
+	3nmE ADDC Rm, Rn			//Add with Carry, Carry -> T
+	3nmF ADDV Rm, Rn			//Add, Overflow -> T
+4---
+	4--0
+		4n00 SHLL Rn
+		4n10 DT Rn
+		4n20 SHAL Rn
+	4--1
+		4n01 SHLR Rn
+		4n11 CMPPZ Rn
+		4n21 SHAR Rn
+	4--2
+		4n02 STS.L/Q MACH, @-Rn
+		4n12 STS.L/Q MACL, @-Rn
+		4n22 STS.L/Q PR, @-Rn
+		4-32 -
+		4-42 -
+		4n52 STS.L/Q FPUL, @-Rn
+		4n62 STS.L/Q FPSCR, @-Rn
+		4-72 -
+		..
+		4-F2 -
+	4--3
+		4n03 STC.L/Q SR, @-Rn
+		4n13 STC.L/Q GBR, @-Rn
+		4n23 STC.L/Q VBR, @-Rn
+		4n43 STC.L/Q SSR, @-Rn
+		4n53 STC.L/Q SPC, @-Rn
+		4n63 STC.L/Q DBR, @-Rn
+		4-63 -
+		4-73 -
+		4nM3 STC.L/Q Rm_B, @-Rn
+	4--4
+		4n04 ROTL Rn
+		4-14 -
+		4-24 ROTCL Rn
+		4-34
+		4n44 EXTU.L Rn			//zero extend 32 -> 64
+		4n54 EXTS.L Rn			//sign extend 32 -> 64
+		4n64 BSWAP.L Rn			//swap bytes for 32-bit value
+		4n74 BSWAP.Q Rn			//swap bytes for 64-bit value
+		4n84 SWAP.L Rn			//swap high and low 32-bits 
+		4-94
+		..
+		4-F4
+	
+	4--5
+		4n05 ROTR Rn
+		4n15 CMPPL Rn
+		4n25 ROTCR Rn
+	4--6
+		4m06 LDS.L/Q @Rm+, MACH
+		4m16 LDS.L/Q @Rm+, MACL
+		4m26 LDS.L/Q @Rm+, PR
+		4m36 -
+		4m46 -
+		4m56 LDS.L/Q @Rm+, FPUL
+		4m66 LDS.L/Q @Rm+, FPSCR
+		4-76 -
+		..
+		4-F6 -
+	4--7
+		4m07 LDC.L/Q @Rm+, SR
+		4m17 LDC.L/Q @Rm+, GBR
+		4m27 LDC.L/Q @Rm+, VBR
+		4m37 LDC.L/Q @Rm+, SSR
+		4m47 LDC.L/Q @Rm+, SPC
+		4m57 LDC.L/Q @Rm+, DBR
+		4-67 -
+		4-77 -
+		4mN7 LDC.L/Q @Rm+, Rm_B
+	4--8
+		4n08 SHLL2 Rn
+		4n18 SHLL8 Rn
+		4n28 SHLL16 Rn
+	4--9
+		4n09 SHLR2 Rn
+		4n19 SHLR8 Rn
+		4n29 SHLR16 Rn
+	4--A
+		4m0A LDS Rm, MACH
+		4m1A LDS Rm, MACL
+		4m2A LDS Rm, PR
+		4m3A -
+		4m4A -
+		4m5A LDS Rm, FPUL
+		4m6A LDS Rm, FPSCR
+		4-7A -
+		..
+		4-FA -
+	4--B
+		4m0B JSR Rm
+		4m1B TAS.B Rm
+		4m2B JMP Rm
+	4nmC SHAD Rm, Rn
+	4nmD SHLD Rm, Rn
+	4--E
+		4m0E LDC Rm, SR
+		4m1E LDC Rm, GBR
+		4m2E LDC Rm, VBR
+		4m3E LDC Rm, SSR
+		4m4E LDC Rm, SPC
+		4m5E LDC Rm, DBR
+		4-6E -
+		4-7E -
+		4mNE LDC Rm, Rm_B
+	4nmF MAC.W/Q Rm, Rn
+5nmd MOV.L @(Rm,disp), Rn
+6---
+	6nm0 MOV.B @Rm, Rn
+	6nm1 MOV.W/Q @Rm, Rn
+	6nm2 MOV.L @Rm, Rn
+	6nm3 MOV Rm, Rn
+	6nm4 MOV.B @Rm+, Rn
+	6nm5 MOV.W/Q @Rm+, Rn
+	6nm6 MOV.L @Rm+, Rn
+	6nm7 NOT Rm, Rn
+	6nm8 SWAP.B @Rm, Rn
+	6nm9 SWAP.W @Rm, Rn
+	6nmA NEGC Rm, Rn
+	6nmB NEG Rm, Rn
+	6nmC EXTU.B Rm, Rn
+	6nmD EXTS.B Rm, Rn
+	6nmE EXTU.W Rm, Rn
+	6nmF EXTS.W Rm, Rn
+7nii ADD #imm, Rn
+8---
+	80nd MOV.B R0, @(Rn,disp)
+	81nd MOV.W/Q R0, @(Rn,disp)
+		81n0 MOV.W R0, @Rn		//Special Case
+	82-- -
+	83-- -
+	84md MOV.B @(Rm,disp), R0
+	85md MOV.W/Q @(Rm,disp), R0
+		85m0 MOV.W @Rm, R0		//Special Case
+	86-- -
+	87-- -
+	88ii CMPEQ #imm, R0
+	89dd BT label
+	8A--
+	8Bdd BF label
+	8C--
+	8Ddd BTS label
+	8E--
+	8Fdd BFS label
+9nmd MOV.W/Q @(Rm,disp), Rn
+	9nm0: MOV.W @Rm, Rn		//Special Case
+Addd BRA label
+Bddd BSR label
+C---
+	C0dd MOV.B R0, @(GBR,disp)
+	C1dd MOV.W/Q R0, @(GBR,disp)
+	C2dd MOV.L R0, @(GBR,disp)
+	C3jj TRAPA #imm
+	C4dd MOV.B @(GBR,disp), R0
+	C5dd MOV.W/Q @(GBR,disp), R0
+	C6dd MOV.L @(GBR,disp), R0
+	C7dd MOVA @(PC,disp), R0		//Load Address into R0, Dword aligned.
+	C8jj TST #imm, R0
+	C9jj AND #imm, R0
+	CAjj XOR #imm, R0
+	CBjj OR #imm, R0
+	CCjj TST.B #imm, @(GBR,R0)
+	CDjj AND.B #imm, @(GBR,R0)
+	CEjj XOR.B #imm, @(GBR,R0)
+	CFjj OR.B #imm, @(GBR,R0)
+Dndd MOV.L/Q @(PC,disp), Rn			//Load DWord or QWord, DWord aligned.
+Enii MOV #imm, Rn					//Load immediate into register.
+F---
+	Fnm0 FADD FRm, FRn
+	Fnm1 FSUB FRm, FRn
+	Fnm2 FMUL FRm, FRn
+	Fnm3 FDIV FRm, FRn
+	Fnm4 FCMPEQ FRm, FRn
+	Fnm5 FCMPGT FRm, FRn
+	Fnm6 FMOV.S @(R0,Rm), FRn
+	Fnm7 FMOV.S FRm, @(R0,Rn)
+	Fnm8 FMOV.S @Rm, FRn
+	Fnm9 FMOV.S @Rm+, FRn
+	FnmA FMOV.S FRm, @Rn
+	FnmB FMOV.S FRm, @-Rn
+	Fnm8 FMOV.S @Rm, FRn
+	FnmC FMOV FRm, FRn
+	F--D
+		Fn0D FSTS FRn
+		Fm1D FLDS FRm
+		Fn2D FLOAT FRn
+		Fm3D FTRC FRm
+		Fn4D FNEG FRn
+		Fn5D FABS FRn
+		Fn6D FSQRT FRn
+		F-7D / FTRV
+		Fn8D FLDI0 FRn		//Load 0.0
+		Fn9D FLDI1 FRn		//Load 1.0
+		FnAD FCNVSD FRn
+		FnBD FCNVDS FRm
+		F-CD -
+		F-DD -
+		F-ED / FIPR
+		F-FD
+			F3FD FSCHG			//Flips FPSCR.SZ
+			FBFD / FRCHG
+	FnmE FMAC FRm, FRn
+	F--F
+
