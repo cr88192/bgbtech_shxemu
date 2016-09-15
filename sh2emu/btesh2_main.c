@@ -243,6 +243,10 @@ int main(int argc, char *argv[])
 			imgname=argv[i];
 	}
 	
+	/* Memory Map in SH4 Mode
+	 * 0BCD0000: Peripheral
+	 */
+	
 	if(sh4)
 	{
 		if(!imgname)
@@ -256,7 +260,7 @@ int main(int argc, char *argv[])
 //		BTESH2_MemoryDefineSpan(img, 0x00000000, 0x0000FFFF, NULL, "SRAM");
 //		BTESH2_MemoryDefineSpan(img, 0x10000000, 0x17FFFFFF, NULL, "DRAM");
 
-		BTESH2_MemoryDefineSpan(img, 0x0c000000, 0x17FFFFFF, NULL, "DRAM");
+		BTESH2_MemoryDefineSpan(img, 0x0C000000, 0x17FFFFFF, NULL, "DRAM");
 
 		BTESH2_MemoryDefineSpan(img, 0xF4000000, 0xF400FFFF, NULL, "OCA");
 		BTESH2_MemoryDefineSpan(img, 0xF5000000, 0xF500FFFF, NULL, "OCD");
@@ -265,6 +269,7 @@ int main(int argc, char *argv[])
 
 		cpu=BTESH2_AllocCpuState();
 		cpu->memory=img;
+		cpu->arch=BTESH2_ARCH_SH4;
 
 		cpu->GetAddrByte=BTESH2_GetAddrByteFMMU;
 		cpu->GetAddrWord=BTESH2_GetAddrWordFMMU;
@@ -277,6 +282,7 @@ int main(int argc, char *argv[])
 		cpu->regs[BTESH2_REG_SR]=0x000003F3U;
 
 		cpu->regs[BTESH2_REG_SP]=0x8C00FFFC;
+//		cpu->regs[BTESH2_REG_SP]=0x0000FFFC;
 	}else
 	{
 		img=BTESH2_AllocMemoryImage(0);
@@ -286,6 +292,7 @@ int main(int argc, char *argv[])
 
 		cpu=BTESH2_AllocCpuState();
 		cpu->memory=img;
+		cpu->arch=BTESH2_ARCH_SH2;
 
 		if(!imgname)
 		{
@@ -316,6 +323,8 @@ int main(int argc, char *argv[])
 		tbuf=malloc(1024);
 		sp=BTESH2_AllocPhysSpan();
 		sp->base=0xABCD0000;	sp->limit=0xABCDFFFF;
+		if(cpu->arch==BTESH2_ARCH_SH4)
+			{ sp->base=0x0BCD0000;	sp->limit=0x0BCDFFFF; }
 		sp->data=tbuf;			sp->name="MMIO";
 		sp->GetB=btesh2_spanmmio_GetB;	sp->GetW=btesh2_spanmmio_GetW;
 		sp->GetD=btesh2_spanmmio_GetD;	sp->SetB=btesh2_spanmmio_SetB;

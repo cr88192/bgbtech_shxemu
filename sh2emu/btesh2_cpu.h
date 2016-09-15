@@ -1,6 +1,9 @@
 #ifndef BTESH2_CPU_H
 #define BTESH2_CPU_H
 
+#define BTESH2_ARCH_SH2		1
+#define BTESH2_ARCH_SH4		2
+
 #define BTESH2_REG_SP		15
 
 #define BTESH2_REG_SR		16
@@ -56,6 +59,8 @@
 #define BTESH2_SRFL_S			0x00000002	//
 
 #define BTESH2_SRFL_BL			0x10000000	//Block Ints
+#define BTESH2_SRFL_RB			0x20000000	//Register Bank
+#define BTESH2_SRFL_MD			0x40000000	//Mode (User/Super)
 
 #define BTESH2_FPSCR_RM0		0x00000000	//
 #define BTESH2_FPSCR_RM1		0x00000001	//
@@ -341,6 +346,8 @@ int tr_dtot;
 int tr_dcol;
 u64 tr_tops;
 byte csfl;		//control state flags
+byte arch;		//arch ID
+byte ctfl;		//control temp flags (don't effect control flow)
 
 BTESH2_Trace *cur_trace;
 u32 *smcdbm[128];		//SMC detection bitmap

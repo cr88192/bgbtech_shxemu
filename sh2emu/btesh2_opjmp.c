@@ -133,9 +133,64 @@ void BTSH_Op_SLEEP_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	printf("Sleep\n");
 }
 
+void BTSH_Op_SetRegBankSwap(BTESH2_CpuState *cpu)
+{
+	u32 i0, i1, i2, i3;
+	u32 j0, j1, j2, j3;
+	
+	i0=cpu->regs[0];	j0=cpu->regs[BTESH2_REG_RBANK+0];
+	i1=cpu->regs[1];	j1=cpu->regs[BTESH2_REG_RBANK+1];
+	i2=cpu->regs[2];	j2=cpu->regs[BTESH2_REG_RBANK+2];
+	i3=cpu->regs[3];	j3=cpu->regs[BTESH2_REG_RBANK+3];
+	cpu->regs[0]=j0;	cpu->regs[BTESH2_REG_RBANK+0]=i0;
+	cpu->regs[1]=j1;	cpu->regs[BTESH2_REG_RBANK+1]=i1;
+	cpu->regs[2]=j2;	cpu->regs[BTESH2_REG_RBANK+2]=i2;
+	cpu->regs[3]=j3;	cpu->regs[BTESH2_REG_RBANK+3]=i3;
+	i0=cpu->regs[4];	j0=cpu->regs[BTESH2_REG_RBANK+4];
+	i1=cpu->regs[5];	j1=cpu->regs[BTESH2_REG_RBANK+5];
+	i2=cpu->regs[6];	j2=cpu->regs[BTESH2_REG_RBANK+6];
+	i3=cpu->regs[7];	j3=cpu->regs[BTESH2_REG_RBANK+7];
+	cpu->regs[4]=j0;	cpu->regs[BTESH2_REG_RBANK+4]=i0;
+	cpu->regs[5]=j1;	cpu->regs[BTESH2_REG_RBANK+5]=i1;
+	cpu->regs[6]=j2;	cpu->regs[BTESH2_REG_RBANK+6]=i2;
+	cpu->regs[7]=j3;	cpu->regs[BTESH2_REG_RBANK+7]=i3;
+}
+
+void BTSH_Op_SetRegBank(BTESH2_CpuState *cpu, int rb)
+{
+//	rb=(rb!=0);
+
+	if(rb)
+	{
+		if(!(cpu->ctfl&1))
+		{
+			BTSH_Op_SetRegBankSwap(cpu);
+			cpu->ctfl|=1;
+		}
+	}else
+	{
+		if(cpu->ctfl&1)
+		{
+			BTSH_Op_SetRegBankSwap(cpu);
+			cpu->ctfl&=~1;
+		}
+	}
+}
+
 void BTSH_Op_RTE_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	int sp;
+	
+	if(cpu->arch==BTESH2_ARCH_SH4)
+//	if(0)
+	{
+		BTSH_Op_SetRegBank(cpu,
+			cpu->regs[BTESH2_REG_SSR]&BTESH2_SRFL_RB);
+		cpu->regs[BTESH2_REG_PC]=cpu->regs[BTESH2_REG_SPC];
+		cpu->regs[BTESH2_REG_SR]=cpu->regs[BTESH2_REG_SSR];
+		return;
+	}
+	
 	sp=cpu->regs[BTESH2_REG_SP];
 	cpu->regs[BTESH2_REG_SP]=sp+8;
 	cpu->regs[BTESH2_REG_PC]=BTESH2_GetAddrDWord(cpu, sp+0);
@@ -144,8 +199,34 @@ void BTSH_Op_RTE_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 
 void BTSH_Op_TRAPA_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
-	u32 pc;
+	u32 pc, sr;
 	int sp, vbr;
+
+	if(cpu->arch==BTESH2_ARCH_SH4)
+//	if(0)
+	{
+		vbr=cpu->regs[BTESH2_REG_VBR];
+		pc=BTESH2_GetAddrDWord(cpu, vbr+(op->ro<<2));
+
+		if(!pc)
+		{
+			BTESH2_ThrowTrap(cpu, op->ro);
+			return;
+		}
+
+		sr=cpu->regs[BTESH2_REG_SR];
+		sp=cpu->regs[BTESH2_REG_SP];
+		cpu->regs[BTESH2_REG_SPC]=op->imm;
+		cpu->regs[BTESH2_REG_SSR]=sr;
+		cpu->regs[BTESH2_REG_SGR]=sp;
+
+		cpu->regs[BTESH2_REG_PC]=pc;
+		cpu->regs[BTESH2_REG_SR]=sr|BTESH2_SRFL_BL|
+			BTESH2_SRFL_MD|BTESH2_SRFL_RB;
+		BTSH_Op_SetRegBank(cpu, 1);
+		return;
+	}
+
 	sp=cpu->regs[BTESH2_REG_SP]-8;
 	BTESH2_SetAddrDWord(cpu, sp+4, cpu->regs[BTESH2_REG_SR]);
 	BTESH2_SetAddrDWord(cpu, sp+0, op->imm);
@@ -196,6 +277,22 @@ void BTSH_Op_TrapInt(BTESH2_CpuState *cpu, int ro)
 	{
 //		cpu->status=ro;
 		BTESH2_ThrowTrap(cpu, ro);
+		return;
+	}
+
+	if(cpu->arch==BTESH2_ARCH_SH4)
+//	if(0)
+	{
+		sr=cpu->regs[BTESH2_REG_SR];
+		sp=cpu->regs[BTESH2_REG_SP];
+		cpu->regs[BTESH2_REG_SPC]=cpu->regs[BTESH2_REG_PC];
+		cpu->regs[BTESH2_REG_SSR]=sr;
+		cpu->regs[BTESH2_REG_SGR]=sp;
+
+		cpu->regs[BTESH2_REG_PC]=pc;
+		cpu->regs[BTESH2_REG_SR]=sr|BTESH2_SRFL_BL|
+			BTESH2_SRFL_MD|BTESH2_SRFL_RB;
+		BTSH_Op_SetRegBank(cpu, 1);
 		return;
 	}
 
@@ -254,6 +351,22 @@ void BTSH_Op_TrapIntIrq(BTESH2_CpuState *cpu, int irq)
 	pc=BTESH2_GetAddrDWord(cpu, vbr+(irq<<2));
 	if(!pc)
 		return;
+
+	if(cpu->arch==BTESH2_ARCH_SH4)
+//	if(0)
+	{
+		sr=cpu->regs[BTESH2_REG_SR];
+		sp=cpu->regs[BTESH2_REG_SP];
+		cpu->regs[BTESH2_REG_SPC]=cpu->regs[BTESH2_REG_PC];
+		cpu->regs[BTESH2_REG_SSR]=sr;
+		cpu->regs[BTESH2_REG_SGR]=sp;
+
+		cpu->regs[BTESH2_REG_PC]=pc;
+		cpu->regs[BTESH2_REG_SR]=sr|BTESH2_SRFL_BL|
+			BTESH2_SRFL_MD|BTESH2_SRFL_RB;
+		BTSH_Op_SetRegBank(cpu, 1);
+		return;
+	}
 
 	sp=cpu->regs[BTESH2_REG_SP]-8;
 	BTESH2_SetAddrDWord(cpu, sp+4, cpu->regs[BTESH2_REG_SR]);

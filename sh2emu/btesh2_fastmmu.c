@@ -39,16 +39,26 @@ u32 BTESH2_FastMapVirtToPhys(BTESH2_CpuState *cpu, u32 addr)
 	{
 		if((addr>>29)==7)
 			return(addr);
-		return(addr&0x1FFFFFFF);
+		if((addr>>29)!=6)
+		{
+//			if(addr!=(addr&0x1FFFFFFFU))
+//				{ h=-1; }
+			return(addr&0x1FFFFFFFU);
 //		return(addr);
+		}
 	}
 		
 	if(addr&0x80000000)
 	{
 		if((addr>>29)==7)
 			return(addr);
-		return(addr&0x1FFFFFFF);
+		if((addr>>29)!=6)
+		{
+			return(addr&0x1FFFFFFF);
+		}
 	}
+	
+	addr=addr&0x1FFFFFFFU;
 	
 	tlbh=(addr>>12)*65521;
 	h=(tlbh>>16)&63;
@@ -96,16 +106,16 @@ int BTESH2_GetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr)
 
 int BTESH2_GetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr)
 {
-	u32 addr2;
-	addr2=BTESH2_FastMapVirtToPhys(cpu, addr);
-	return(BTESH2_GetAddrWordPhy(cpu, addr2));
+	u32 addr1;
+	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
+	return(BTESH2_GetAddrWordPhy(cpu, addr1));
 }
 
 u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr)
 {
-	u32 addr2;
-	addr2=BTESH2_FastMapVirtToPhys(cpu, addr);
-	return(BTESH2_GetAddrDWordPhy(cpu, addr2));
+	u32 addr1;
+	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
+	return(BTESH2_GetAddrDWordPhy(cpu, addr1));
 }
 
 int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr, int val)

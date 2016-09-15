@@ -597,28 +597,30 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 	printf("MCH=%08X MCL=%08X PR =%08X PC =%08X\n",
 		cpu->regs[20], cpu->regs[21], cpu->regs[22], cpu->regs[23]);
 
-	printf("FPSCR=%08X FPUL=%08X flb =%08X MMUCR=%08X\n",
-		cpu->regs[24], cpu->regs[25], cpu->regs[26], cpu->regs[27]);
-	printf("PTEH =%08X PTEL=%08X TTB =%08X TEA  =%08X\n",
-		cpu->regs[28], cpu->regs[29], cpu->regs[30], cpu->regs[31]);
+	if(cpu->arch==BTESH2_ARCH_SH4)
+	{
+		printf("FPSCR=%08X FPUL=%08X flb =%08X MMUCR=%08X\n",
+			cpu->regs[24], cpu->regs[25], cpu->regs[26], cpu->regs[27]);
+		printf("PTEH =%08X PTEL=%08X TTB =%08X TEA  =%08X\n",
+			cpu->regs[28], cpu->regs[29], cpu->regs[30], cpu->regs[31]);
 
-	printf("R0_B =%08X R1_B=%08X R2_B=%08X R3_B =%08X\n",
-		cpu->regs[32], cpu->regs[33], cpu->regs[34], cpu->regs[35]);
-	printf("R4_B =%08X R5_B=%08X R6_B=%08X R7_B =%08X\n",
-		cpu->regs[36], cpu->regs[37], cpu->regs[38], cpu->regs[39]);
+		printf("R0_B =%08X R1_B=%08X R2_B=%08X R3_B =%08X\n",
+			cpu->regs[32], cpu->regs[33], cpu->regs[34], cpu->regs[35]);
+		printf("R4_B =%08X R5_B=%08X R6_B=%08X R7_B =%08X\n",
+			cpu->regs[36], cpu->regs[37], cpu->regs[38], cpu->regs[39]);
 
-	printf("SSR  =%08X SPC =%08X SGR =%08X DBR  =%08X\n",
-		cpu->regs[40], cpu->regs[41], cpu->regs[42], cpu->regs[43]);
+		printf("SSR  =%08X SPC =%08X SGR =%08X DBR  =%08X\n",
+			cpu->regs[40], cpu->regs[41], cpu->regs[42], cpu->regs[43]);
 
-	printf("FR0  =%08X FR1 =%08X FR2 =%08X FR3  =%08X\n",
-		cpu->fregs[ 0], cpu->fregs[ 1], cpu->fregs[ 2], cpu->fregs[ 3]);
-	printf("FR4  =%08X FR5 =%08X FR6 =%08X FR7  =%08X\n",
-		cpu->fregs[ 4], cpu->fregs[ 5], cpu->fregs[ 6], cpu->fregs[ 7]);
-	printf("FR8  =%08X FR9 =%08X FR10=%08X FR11 =%08X\n",
-		cpu->fregs[ 8], cpu->fregs[ 9], cpu->fregs[10], cpu->fregs[11]);
-	printf("FR12 =%08X FR13=%08X FR14=%08X FR15 =%08X\n",
-		cpu->fregs[12], cpu->fregs[13], cpu->fregs[14], cpu->fregs[15]);
-
+		printf("FR0  =%08X FR1 =%08X FR2 =%08X FR3  =%08X\n",
+			cpu->fregs[ 0], cpu->fregs[ 1], cpu->fregs[ 2], cpu->fregs[ 3]);
+		printf("FR4  =%08X FR5 =%08X FR6 =%08X FR7  =%08X\n",
+			cpu->fregs[ 4], cpu->fregs[ 5], cpu->fregs[ 6], cpu->fregs[ 7]);
+		printf("FR8  =%08X FR9 =%08X FR10=%08X FR11 =%08X\n",
+			cpu->fregs[ 8], cpu->fregs[ 9], cpu->fregs[10], cpu->fregs[11]);
+		printf("FR12 =%08X FR13=%08X FR14=%08X FR15 =%08X\n",
+			cpu->fregs[12], cpu->fregs[13], cpu->fregs[14], cpu->fregs[15]);
+	}
 #if 0
 	printf("Trap:\n");
 	printf("R0 =%08X R1 =%08X R2 =%08X R3 =%08X\n",

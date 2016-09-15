@@ -1,35 +1,6 @@
-#define GPIO_BASE 0xABCD0000
+#include "testkern.h"
 
-#define UART_BASE 0xABCD0100
-
-#define UART_RX		(UART_BASE+0x00)
-#define UART_TX		(UART_BASE+0x04)
-#define UART_STAT	(UART_BASE+0x08)
-#define UART_CTRL	(UART_BASE+0x0C)
-
-#define P_UART_RX	(*(u32 *)UART_RX)
-#define P_UART_TX	(*(u32 *)UART_TX)
-#define P_UART_STAT	(*(u32 *)UART_STAT)
-#define P_UART_CTRL	(*(u32 *)UART_CTRL)
-
-#ifndef NULL
-#define NULL ((void *)0)
-#endif
-
-#ifndef va_arg
-
-#ifndef _VALIST
-#define _VALIST
-typedef __builtin_va_list va_list;
-#endif
-
-#define va_start(v,l)   __builtin_va_start(v,l)
-#define va_end(v)       __builtin_va_end(v)
-#define va_arg(v,l)     __builtin_va_arg(v,l)
-
-#endif
-
-typedef unsigned int u32;
+#include "tk_mmpage.c"
 
 u32 timer_ticks;
 
@@ -125,7 +96,7 @@ void print_decimal(int val)
 		{ k=-k; s=1; }
 	
 	t=tb;
-	if(!k)*t++=0;	
+	if(!k)*t++='0';	
 	while(k>0)
 	{
 		i=k%10;
@@ -137,6 +108,60 @@ void print_decimal(int val)
 	while(t>tb)
 		{ t--; putc(*t); }
 }
+
+void print_decimal_n(int val, int num)
+{
+	char tb[256];
+	char *t;
+	int i, k, n, s;
+	
+	k=val; s=0;
+	if(k<0)
+		{ k=-k; s=1; }
+	
+	t=tb; n=num;
+//	if(!k)*t++=0;	
+	while(n>0)
+	{
+		i=k%10;
+		*t++='0'+i;
+		k=k/10;
+		n--;
+	}
+
+//	if(s)*t++='-';
+	
+	while(t>tb)
+		{ t--; putc(*t); }
+}
+
+#ifdef ARCH_HAS_FPU
+void print_float(double val)
+{
+	int ip, fp, sg;
+	
+	
+//	print_hex(((u32 *)(&val))[0]);
+//	print_hex(((u32 *)(&val))[1]);
+//	putc(' ');
+	
+	sg=0;
+	if(val<0)
+		{ val=-val; sg=1; }
+	
+//	print_hex(((u32 *)(&val))[0]);
+//	print_hex(((u32 *)(&val))[1]);
+//	putc(' ');
+
+	ip=(int)val;
+	fp=(int)((val-ip)*1000000);
+
+	if(sg)putc('-');
+	print_decimal(ip);
+	putc('.');
+	print_decimal_n(fp, 6);
+}
+#endif
 
 void printf(char *str, ...)
 {
@@ -174,6 +199,20 @@ void printf(char *str, ...)
 			s1=va_arg(lst, char *);
 			puts(s1);
 			break;
+
+		case 'p':
+			s1=va_arg(lst, char *);
+			print_hex((u32)s1);
+			break;
+
+#ifdef ARCH_HAS_FPU
+		case 'f':
+//			v=(int)(*plst++);
+//			v=va_arg(lst, int);
+			print_float(va_arg(lst, double));
+			break;
+#endif
+
 		default:
 //			plst++;
 			break;
@@ -182,14 +221,52 @@ void printf(char *str, ...)
 	va_end(lst);
 }
 
+void *malloc(int sz)
+{
+	return(TKMM_Malloc(sz));
+}
+
+int free(void *ptr)
+{
+	return(TKMM_Free(ptr));
+}
+
+#ifdef ARCH_HAS_FPU
+void float_test0()
+{
+	float f0, f1, f2, f3;
+	u32 v;
+	
+	f0=1.0;
+	f1=3.14159;
+	f2=f0+f1;
+	f3=f2*f1;
+
+	putc('.');
+	print_decimal_n(314159, 6);
+	putc('\n');
+
+	v=*(u32 *)(&f3);
+	printf("float test=%X\n", v);
+	printf("float test 1=%f\n", f1);
+	printf("float test 2=%f\n", f2);
+	printf("float test 3=%f\n", f3);
+
+//	print_hex();
+}
+#endif
+
 void tk_main()
 {
 	char tb[256];
+	void *p0, *p1;
 
 	timer_ticks=0;
 
 	setGpioOutputs(0x69);
 	puts("tk_main: puts\n");
+	tkmm_init();
+	
 	while(1)
 	{
 		puts("$ ");
@@ -202,9 +279,12 @@ void tk_main()
 		
 		if(!strcmp(tb, "quit"))
 		{
-			puts("ok, but no\n");
-			continue;
-//			break;
+//			puts("ok, but no\n");
+//			puts("ok, dying\n");
+//			*(int *)-1=-1;
+//			continue;
+			puts("ok, exiting main loop\n");
+			break;
 		}
 
 		if(!strcmp(tb, "time"))
@@ -225,6 +305,32 @@ void tk_main()
 		{
 			puts("ok, dying\n");
 			*(int *)-1=-1;
+		}
+
+#ifdef ARCH_HAS_FPU
+		if(!strcmp(tb, "float"))
+		{
+			float_test0();
+			continue;
+		}
+#endif
+
+		if(!strcmp(tb, "malloc"))
+		{
+			p0=TKMM_Malloc(256);
+			p1=TKMM_Malloc(256);
+			TKMM_Free(p0);
+			TKMM_Free(p1);
+//			p0=TKMM_PageAlloc(256);
+//			p1=TKMM_PageAlloc(256);
+			printf("got pointer A %p %p\n", p0, p1);
+
+			p0=TKMM_Malloc(256);
+			p1=TKMM_Malloc(256);
+			TKMM_Free(p0);
+			TKMM_Free(p1);
+			printf("got pointer B %p %p\n", p0, p1);
+			continue;
 		}
 		
 		printf("don't understand %s\n", tb);

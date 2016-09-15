@@ -1496,7 +1496,7 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->rn=(opw>>8)&15;
 				op->nmid=BTESH2_NMID_FCNVSD;
 				op->fmid=BTESH2_FMID_FREGRN;
-				op->Run=BTSH_Op_FCNVDS_R;
+				op->Run=BTSH_Op_FCNVSD_R;
 				break;
 			case 0xB: /* F-BD */
 				op->rm=(opw>>8)&15;
