@@ -130,7 +130,8 @@ void BTSH_Op_NOP_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 
 void BTSH_Op_SLEEP_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
-	printf("Sleep\n");
+//	printf("Sleep\n");
+	cpu->status=BTESH2_EXC_TRAPSLEEP;
 }
 
 void BTSH_Op_SetRegBankSwap(BTESH2_CpuState *cpu)

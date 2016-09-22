@@ -1,0 +1,114 @@
+Tweaks for MBR and FAT32.
+
+MBR Entries may be extended to 48 bits:
+struct MBR_Entry_s {
+	byte flag;				//0x81=bootable, 0x01=non-bootable
+	byte magic1;			//0x14
+	byte lba_start_hi[2];	//starting track/sector
+	byte fstype;			//filesystem
+	byte magic2;			//0xEB
+	byte lba_count_hi[2];	//ending track/sector
+	byte lba_start[4];		//LBA start
+	byte lba_count[4];		//LBA count
+};
+
+
+FAT32B:
+struct FAT32_Boot_s {
+	byte pad_jmp[3];			//0x00, boot JMP
+	byte oem_name[8];			//0x03
+	byte bytes_sector[2];		//0x0B
+	byte sectors_cluster;		//0x0D
+	byte reserved_sectors[2];	//0x0E
+	byte num_fats;				//0x10
+	byte root_dirents[2];		//0x11
+	byte lba_count_hi[2];		//0x13, Bits 32..47 of LBA Count (1)
+	byte media_type;			//0x15
+	byte sectors_fat_hi[2];		//0x16, Bits 32..47 of Sectors/Fat
+	byte sectors_track[2];		//0x18
+	byte heads[2];				//0x1A
+	byte hidden_sectors[4];		//0x1C
+	byte lba_count_lo[4];		//0x20, Bits 0..31 of LBA Count (1)
+	byte sectors_fat_lo[4];		//0x24, Bits 0..31 of Sectors/Fat
+	byte drive_flag2[2];		//0x28
+	byte version[2];			//0x2A
+	byte root_cluster[4];		//0x2C
+	byte fsis_sector[2];		//0x30
+	byte fsaltboot_sector[2];	//0x32
+	byte resv[12];				//0x34
+	byte drive_id;				//0x40
+	byte drive_flag;			//0x41
+	byte ebsig;					//0x42
+	byte vol_sn[4];				//0x43
+	byte vol_label[11];			//0x47
+	byte fs_tyname[8];			//0x52
+};
+
+FAT32B looks equivalent to FAT32 if the number of clusters is below 256M.
+
+If (lba_count_hi!=0) && ((lba_count_hi==0) || (ebsig!=0x29))
+	Interpret as a small volume (less than 32MB)
+If (lba_count_hi==0) && (lba_count_hi!=0)
+	Interpret as a value between up to (2^32)-1) sectors (2TB)
+If (lba_count_hi!=0) && (lba_count_hi!=0)
+	Interpret as a 48 bit value (up to 128PB).
+If (lba_count_hi==0) && (lba_count_hi==0)
+	Interpret fs_tyname (0x52) as a 64-bit sector count.
+	Interpret oem_name as an alternate fs_type.
+
+
+
+If the number of clusters is more than ((2^28)-11) but less than ((2^32)-11), then a few tweaks will come into play:
+* The full 32 bits of each FAT32 entry is used.
+* The special cluster values move:
+** 0FFFFFF0..0FFFFFFF become FFFFFFF0..FFFFFFFF
+
+struct FAT_DirEnt_s {
+	byte name[8];				//0x00
+	byte ext[3];				//0x08
+	byte attrib;				//0x0B
+	byte lncase;				//0x0C (2)
+	byte ctimems;				//0x0D
+	byte ctime[2];				//0x0E
+	byte cdate[2];				//0x10
+	byte mdate[2];				//0x12
+	byte cluster_hi[2];			//0x14
+	byte lmtime[2];				//0x16
+	byte lmdate[2];				//0x18
+	byte cluster_lo[2];			//0x1A
+	byte filesize[4];			//0x1C
+};
+
+2: lncase:
+	Bits 0-2: Length 32-34
+	Bits 3: SFN: Name is lower-case
+	Bits 4: SFN: Extension is lower-case.
+	Bits 5-7: Length 35-37
+
+If the name is of the form:
+  20 00 XX XX XX 3A XX XX
+  Interpret lncase as bits 32-39 of the length (1TB).
+
+LFN:
+struct FAT_DirLfnEnt_s {
+	byte seq;					//0x00, Sequence Number
+	byte name1[10];				//0x01
+	byte attrib;				//0x0B, 0x0F
+	byte type;					//0x0C, Entry Type
+	byte csum;					//0x0D, Checksum of SFN
+	byte name2[12];				//0x0E
+	byte cluster_lo[2];			//0x1A, 0
+	byte name3[4];				//0x1C
+};
+
+Type 0x00: Normal VFAT LFN, Holds UCS-2 codepoints.
+
+Type 0x20: Extension, ASCII LFN Entry
+	00..7F: Map to U+0000 .. U+007F
+	A0..FF: Map to U+00A0 .. U+00FF
+	80..8E: Equivalent to CP-1252
+	90..9F: Equivalent to CP-1252
+	8F: Encodes U+FFFF
+
+Sequence number is in multiples of 13 characters, however this entry encodes 26 characters. Thus, it will be functionally equivalent to two normal LFN entries.
+

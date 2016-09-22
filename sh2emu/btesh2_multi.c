@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "btesh2_cpu.h"
+#include "btesh2_fatfs.h"
 
 #include "btesh2_memimg.c"
 
@@ -15,6 +16,8 @@
 #include "btesh2_fastmmu.c"
 
 #include "btesh2_dbgmap.c"
+#include "btesh2_spimmc.c"
+#include "btesh2_sdfat.c"
 
 #include "btesh2_decode.c"
 #include "btesh2_interp.c"

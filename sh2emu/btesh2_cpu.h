@@ -39,21 +39,22 @@
 #define BTESH2_OPFL_PCADLYSLOTW	16	//adjust PC in delay slot (W)
 #define BTESH2_OPFL_PCADLYSLOTD	32	//adjust PC in delay slot (D)
 
-#define BTESH2_EXC_POWERON		0x00	//power on
-#define BTESH2_EXC_STACK1		0x01
-#define BTESH2_EXC_RESET		0x02	//reset
-#define BTESH2_EXC_STACK2		0x03
-#define BTESH2_EXC_UDINST		0x04	//illegal instruction
-#define BTESH2_EXC_SLUDINST		0x06	//slot illegal instruction
-#define BTESH2_EXC_INVADDR		0x09	//invalid address
-#define BTESH2_EXC_DMAINVADDR	0x0A	//DMAC/DTC address error
-#define BTESH2_EXC_NMI			0x0B	//NMI
-#define BTESH2_EXC_UBC			0x0C	//UBC
-#define BTESH2_EXC_PIT			0x10	//PIT
-#define BTESH2_EXC_EMAC			0x11	//EMAC interface
-#define BTESH2_EXC_UART			0x17	//UART/Console
+#define BTESH2_EXC_POWERON		0x00		//power on
+#define BTESH2_EXC_STACK1		0x01		//first stack
+#define BTESH2_EXC_RESET		0x02		//reset
+#define BTESH2_EXC_STACK2		0x03		//second stack
+#define BTESH2_EXC_UDINST		0x04		//illegal instruction
+#define BTESH2_EXC_SLUDINST		0x06		//slot illegal instruction
+#define BTESH2_EXC_INVADDR		0x09		//invalid address
+#define BTESH2_EXC_DMAINVADDR	0x0A		//DMAC/DTC address error
+#define BTESH2_EXC_NMI			0x0B		//NMI
+#define BTESH2_EXC_UBC			0x0C		//UBC
+#define BTESH2_EXC_PIT			0x10		//PIT
+#define BTESH2_EXC_EMAC			0x11		//EMAC interface
+#define BTESH2_EXC_UART			0x17		//UART/Console
 
-#define BTESH2_EXC_TRAPSMC		0x1000	//Trapped Self-Modifying Code
+#define BTESH2_EXC_TRAPSMC		0x1000		//Trapped Self-Modifying Code
+#define BTESH2_EXC_TRAPSLEEP	0x1001		//Sleep
 
 #define BTESH2_SRFL_T			0x00000001	//
 #define BTESH2_SRFL_S			0x00000002	//
@@ -100,11 +101,11 @@
 #define BTESH2_NMID_MOVW		0x03	//MOV.W
 #define BTESH2_NMID_MOVL		0x04	//MOV.L
 #define BTESH2_NMID_ADD			0x05	//ADD
-#define BTESH2_NMID_ADDC		0x06	//ADD
-#define BTESH2_NMID_ADDV		0x07	//ADD
-#define BTESH2_NMID_SUB			0x08	//ADD
-#define BTESH2_NMID_SUBC		0x09	//ADD
-#define BTESH2_NMID_SUBV		0x0A	//ADD
+#define BTESH2_NMID_ADDC		0x06	//ADDC
+#define BTESH2_NMID_ADDV		0x07	//ADDV
+#define BTESH2_NMID_SUB			0x08	//SUB
+#define BTESH2_NMID_SUBC		0x09	//SUBC
+#define BTESH2_NMID_SUBV		0x0A	//SUBV
 #define BTESH2_NMID_CMPHS		0x0B	//CMPHS
 #define BTESH2_NMID_CMPHI		0x0C	//CMPHI
 #define BTESH2_NMID_CMPEQ		0x0D	//CMPEQ
@@ -256,6 +257,13 @@ typedef signed int s32;
 typedef unsigned long long u64;
 typedef signed long long s64;
 
+#ifndef __cplusplus
+#ifndef _BOOL_T
+typedef char bool;
+#define true 1
+#define false 0
+#endif
+#endif
 
 typedef struct BTESH2_PhysSpan_s BTESH2_PhysSpan;
 typedef struct BTESH2_MemoryImage_s BTESH2_MemoryImage;
@@ -304,6 +312,7 @@ void (*Run)(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 #define BTESH2_TR_MAXOPS	14
 // #define BTESH2_TR_HASHSZ	4096
 #define BTESH2_TR_HASHSZ	512
+// #define BTESH2_TR_HASHAS	2
 
 // #define BTESH2_TR_HASHPR	524287
 // #define BTESH2_TR_HASHSHR	21
@@ -338,7 +347,7 @@ u32 trapregs[64];	//trapped registers
 u32 fregs[16];
 u32 trapfregs[16];
 
-BTESH2_Trace *icache[BTESH2_TR_HASHSZ];
+BTESH2_Trace *icache[BTESH2_TR_HASHSZ*2];
 u32 trpc[64];
 int status;
 byte trpc_rov;

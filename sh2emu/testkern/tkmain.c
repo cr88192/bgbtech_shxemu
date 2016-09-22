@@ -1,6 +1,7 @@
 #include "testkern.h"
 
 #include "tk_mmpage.c"
+#include "tk_spi.c"
 
 u32 timer_ticks;
 
@@ -11,16 +12,20 @@ void setGpioOutputs(int val)
 
 void putc(int val)
 {
+	while(P_UART_STAT&8);
 //	*(int *)(GPIO_BASE+0x104)=val;
 	P_UART_TX=val;
 }
+
+void sleep_0();
 
 int kbhit(void)
 	{ return(P_UART_STAT&1); }
 
 int getch(void)
 {
-	while(!(P_UART_STAT&1));
+	while(!(P_UART_STAT&1))
+		sleep_0();
 	return(P_UART_RX);
 }
 
@@ -42,7 +47,7 @@ void gets(char *buf)
 	while(1)
 	{
 		i=getch();
-		if(i=='\b')
+		if((i=='\b') || (i==127))
 		{
 			if(t>buf)
 			{
@@ -83,6 +88,19 @@ void print_hex(u32 v)
 	putc(chrs[(v>> 8)&15]);
 	putc(chrs[(v>> 4)&15]);
 	putc(chrs[(v    )&15]);
+}
+
+void print_hex_n(u32 v, int n)
+{
+	static char *chrs="0123456789ABCDEF";
+	if(n>7)putc(chrs[(v>>28)&15]);
+	if(n>6)putc(chrs[(v>>24)&15]);
+	if(n>5)putc(chrs[(v>>20)&15]);
+	if(n>4)putc(chrs[(v>>16)&15]);
+	if(n>3)putc(chrs[(v>>12)&15]);
+	if(n>2)putc(chrs[(v>> 8)&15]);
+	if(n>1)putc(chrs[(v>> 4)&15]);
+	if(n>0)putc(chrs[(v    )&15]);
 }
 
 void print_decimal(int val)
@@ -167,8 +185,9 @@ void printf(char *str, ...)
 {
 //	void **plst;
 	va_list lst;
+	char pcfill;
 	char *s, *s1;
-	int v;
+	int v, w;
 
 //	plst=(void **)(&str);
 //	plst++;
@@ -182,17 +201,41 @@ void printf(char *str, ...)
 		if(s[1]=='%')
 			{ s+=2; putc('%'); continue; }
 		s++;
+		
+		if(*s=='0')
+		{
+			pcfill='0';
+			s++;
+		}else
+		{
+			pcfill=' ';
+		}
+		
+		w=0;
+		if((*s>='0') && (*s<='9'))
+		{
+			while((*s>='0') && (*s<='9'))
+				w=(w*10)+((*s++)-'0');
+		}
+		
 		switch(*s++)
 		{
 		case 'd':
 //			v=(int)(*plst++);
 			v=va_arg(lst, int);
-			print_decimal(v);
+			if(w)
+			{
+				print_decimal_n(v, w);
+			}else
+			{
+				print_decimal(v);
+			}
 			break;
 		case 'X':
 //			v=(int)(*plst++);
 			v=va_arg(lst, int);
-			print_hex(v);
+//			print_hex(v);
+			print_hex_n(v, w);
 			break;
 		case 's':
 //			s1=*plst++;
@@ -258,7 +301,7 @@ void float_test0()
 
 void tk_main()
 {
-	char tb[256];
+	char tb[1024];
 	void *p0, *p1;
 
 	timer_ticks=0;
@@ -300,6 +343,14 @@ void tk_main()
 //			break;
 		}
 
+		if(!strcmp(tb, "rtc"))
+		{
+			printf("rtc ticks=%9d\n", P_AIC_RTC_NSEC);
+
+			continue;
+//			break;
+		}
+
 		if(!strcmp(tb, "die"))
 //		if(strcmp(tb, "die")==0)
 		{
@@ -330,6 +381,26 @@ void tk_main()
 			TKMM_Free(p0);
 			TKMM_Free(p1);
 			printf("got pointer B %p %p\n", p0, p1);
+			continue;
+		}
+
+		if(!strcmp(tb, "readmbr"))
+		{
+			printf("init device\n");
+			TKSPI_InitDevice();
+
+			printf("reading MBR\n");
+						
+			TKSPI_ReadSectors(tb, 0, 1);
+			
+			if((((byte)tb[510])==0x55) && (((byte)tb[511])==0xAA))
+			{
+				printf("Got 55AA\n");
+			}else
+			{
+				printf("No 55AA\n");
+			}
+			
 			continue;
 		}
 		

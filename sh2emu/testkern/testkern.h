@@ -11,17 +11,41 @@
 #endif
 
 #define GPIO_BASE 0xABCD0000
+#define SPI_BASE 0xABCD0040
 #define UART_BASE 0xABCD0100
+#define AIC_BASE 0xABCD0200
 
 #define UART_RX		(UART_BASE+0x00)
 #define UART_TX		(UART_BASE+0x04)
 #define UART_STAT	(UART_BASE+0x08)
 #define UART_CTRL	(UART_BASE+0x0C)
 
+#define SPI_CTRL	(SPI_BASE+0x00)
+#define SPI_DATA	(SPI_BASE+0x04)
+
+#define AIC_CTRL0			(AIC_BASE+0x00)
+#define AIC_BRKADD			(AIC_BASE+0x04)
+#define AIC_ILEVELS			(AIC_BASE+0x08)
+#define AIC_CTRL1			(AIC_BASE+0x0C)
+#define AIC_PIT_THROTTLE	(AIC_BASE+0x10)
+#define AIC_PIT_COUNTER		(AIC_BASE+0x14)
+#define AIC_CLK_PERIOD		(AIC_BASE+0x18)
+#define AIC_IGNORE0			(AIC_BASE+0x1C)
+#define AIC_RTC_SEC_HI		(AIC_BASE+0x20)
+#define AIC_RTC_SEC_LO		(AIC_BASE+0x24)
+#define AIC_RTC_NSEC		(AIC_BASE+0x28)
+
 #define P_UART_RX	(*(u32 *)UART_RX)
 #define P_UART_TX	(*(u32 *)UART_TX)
 #define P_UART_STAT	(*(u32 *)UART_STAT)
 #define P_UART_CTRL	(*(u32 *)UART_CTRL)
+
+#define P_SPI_CTRL	(*(u32 *)SPI_CTRL)
+#define P_SPI_DATA	(*(u32 *)SPI_DATA)
+
+#define P_AIC_RTC_SEC_HI	(*(u32 *)AIC_RTC_SEC_HI)
+#define P_AIC_RTC_SEC_LO	(*(u32 *)AIC_RTC_SEC_LO)
+#define P_AIC_RTC_NSEC		(*(u32 *)AIC_RTC_NSEC)
 
 #define MMREG_BASE 0xFF000000
 #define MMREG_PTEH	(MMREG_BASE+0x00)

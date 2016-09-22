@@ -154,6 +154,11 @@ a_tk_main: .long X(tk_main)
 isr_table: .long _vector_table
 .long 0x5C5C5C5C
 
+.global X(sleep_0)
+X(sleep_0):
+	sleep
+	rts
+
 
 #ifdef ARCH_SH2
 .global X(__ashrsi3)

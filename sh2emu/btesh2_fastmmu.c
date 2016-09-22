@@ -58,7 +58,7 @@ u32 BTESH2_FastMapVirtToPhys(BTESH2_CpuState *cpu, u32 addr)
 		}
 	}
 	
-	addr=addr&0x1FFFFFFFU;
+//	addr=addr&0x1FFFFFFFU;
 	
 	tlbh=(addr>>12)*65521;
 	h=(tlbh>>16)&63;
@@ -67,7 +67,11 @@ u32 BTESH2_FastMapVirtToPhys(BTESH2_CpuState *cpu, u32 addr)
 		return((tlbe0&(~4095))|(addr&4095));
 	tlbe1=cpu->tlbe[h+64];
 	if(((tlbe1>>32)&(~4095))==(addr&(~4095)))
+	{
+		cpu->tlbe[h+ 0]=tlbe1;
+		cpu->tlbe[h+64]=tlbe0;
 		return((tlbe1&(~4095))|(addr&4095));
+	}
 	
 	pgtab=cpu->regs[BTESH2_REG_TTB];
 	pg=addr>>12;

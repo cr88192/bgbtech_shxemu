@@ -160,6 +160,8 @@ j: Expresses an immediate value (unsigned)
 
 The endianess of instructions and PC-relative loads will always match the machine endianess. Loads performed relative to registers will use the local endianess.
 
+If an instruction is preceded with a '/', it is not implemented, but more just to say what is there.
+
 
 0---
 	0--0 RES (32-bit ops)
@@ -195,26 +197,38 @@ The endianess of instructions and PC-relative loads will always match the machin
 		0038 / LDTLB			//LDTLB (Not Used)
 		0048 CLRS				//Clear SR.S
 		0058 SETS				//Set SR.S
-		0068 CLRDQ				//Clear SR.DQ
-		0078 SETDQ				//Set SR.DQ
-		0088 FLUSHTLB			//Flush TLBs and caches.
-		0098 INVTLB				//Invalidate TLBs and caches.
+		0068 / NOTT
+
+		0088 CLRDQ				//Clear SR.DQ
+		0098 SETDQ				//Set SR.DQ
+		00A8 FLUSHTLB			//Flush TLBs and caches.
+		00B8 INVTLB				//Invalidate TLBs and caches.
 	0--9
 		0009 NOP				//NOP
 		0019 DIV0U				//Unsigned Divide
 		0n29 MOVT Rn			//Copy T bit to Rn
+		0n39 / MOVRT Rn
 	0--A
 		0n0A STS Rn, MACH		//Copy Rn to MACH
 		0n1A STS Rn, MACL		//Copy Rn to MACL
 		0n2A STS Rn, PR			//Copy Rn to PR
 		0-3A -
-		0-4A -
+		0-4A / STC TBR, Rn
 		0n5A STS Rn, FPUL		//Copy Rn to FPUL
 		0n6A STS Rn, FPSCR		//Copy Rn to FPSCR
 	0--B
 		000B RTS				//Return from Function
 		001B SLEEP				//Sleep until interrupt
 		002B RTE				//Return From Exception
+		003B BRK				//Breakpoint Exception
+		004B -
+		005B / RESBANK
+		006B / RTS/N
+		0m7B / RTV/N Rm
+		
+		008B LDFAT.L			//Start of "Fat Load" (32-bit)
+		009B LDFAT.Q			//Start of "Fat Load" (64-bit)
+
 	0nmC MOV.B @(R0,Rm), Rn		//Load Byte From R0+Rm into Rn
 	0nmD MOV.W/Q @(R0,Rm), Rn	//Load Word/Quad From R0+Rm into Rn
 	0nmE MOV.L @(R0,Rm), Rn		//Load DWord From R0+Rm into Rn
@@ -259,10 +273,17 @@ The endianess of instructions and PC-relative loads will always match the machin
 		4n00 SHLL Rn
 		4n10 DT Rn
 		4n20 SHAL Rn
+		4n80 / MULR R0, Rn
+		4mF0 / MOVMU.L Rm, @-R15
 	4--1
 		4n01 SHLR Rn
 		4n11 CMPPZ Rn
 		4n21 SHAR Rn
+		
+		4n81 / CLIPU.B
+		4n91 / CLIPS.B
+		4nE1 / STBANK r0, @Rn
+		4mF1 / MOVML.L Rm, @-R15
 	4--2
 		4n02 STS.L/Q MACH, @-Rn
 		4n12 STS.L/Q MACL, @-Rn
@@ -294,14 +315,22 @@ The endianess of instructions and PC-relative loads will always match the machin
 		4n64 BSWAP.L Rn			//swap bytes for 32-bit value
 		4n74 BSWAP.Q Rn			//swap bytes for 64-bit value
 		4n84 SWAP.L Rn			//swap high and low 32-bits 
-		4-94
+
+		4n94 / DIVU R0, Rn
+		4n94 / DIVS R0, Rn
 		..
 		4-F4
+		4nF4 / MOVMU.L @R15+, Rn
 	
 	4--5
 		4n05 ROTR Rn
 		4n15 CMPPL Rn
 		4n25 ROTCR Rn
+		
+		4n85 / CLIPU.W
+		4n95 / CLIPS.W
+		4mE5 / LDBANK
+		4nF5 / MOVML.L @R15+, Rn
 	4--6
 		4m06 LDS.L/Q @Rm+, MACH
 		4m16 LDS.L/Q @Rm+, MACL
@@ -336,7 +365,7 @@ The endianess of instructions and PC-relative loads will always match the machin
 		4m1A LDS Rm, MACL
 		4m2A LDS Rm, PR
 		4m3A -
-		4m4A -
+		4m4A / LDC Rm, TBR
 		4m5A LDS Rm, FPUL
 		4m6A LDS Rm, FPSCR
 		4-7A -
@@ -346,6 +375,16 @@ The endianess of instructions and PC-relative loads will always match the machin
 		4m0B JSR Rm
 		4m1B TAS.B Rm
 		4m2B JMP Rm
+		
+		4m4B / JSR/N
+
+		4m8B / MOV.B R0, @Rn+
+		4m9B / MOV.W R0, @Rn+
+		4mAB / MOV.L R0, @Rn+
+		4mCB / MOV.B @-Rm, R0
+		4mDB / MOV.W @-Rm, R0
+		4mEB / MOV.L @-Rm, R0
+		
 	4nmC SHAD Rm, Rn
 	4nmD SHLD Rm, Rn
 	4--E
@@ -383,12 +422,12 @@ The endianess of instructions and PC-relative loads will always match the machin
 	81nd MOV.W/Q R0, @(Rn,disp)
 		81n0 MOV.W R0, @Rn		//Special Case
 	82-- -
-	83-- -
+	83-- / JSR/N
 	84md MOV.B @(Rm,disp), R0
 	85md MOV.W/Q @(Rm,disp), R0
 		85m0 MOV.W @Rm, R0		//Special Case
-	86-- -
-	87-- -
+	86-- / BSET|BCLR #imm3, Rn 
+	87-- / BST|BLD #imm3, Rn
 	88ii CMPEQ #imm, R0
 	89dd BT label
 	8A--
@@ -457,3 +496,18 @@ F---
 	FnmE FMAC FRm, FRn
 	F--F
 
+
+Fat Load
+LDFAT=Initiates a fat-load instruction.
+
+The following instruction word is used to know what type of operation to perform with the loaded immediate.
+
+008B EnXX XXXX					//24-bit load (PC=Even|Odd)
+009B EnXX XXXX-XXXX				//40-bit load (PC=Even)
+009B EnXX-XXXX XXXX-XXXX		//56-bit load (PC=Odd)
+
+008B Addd dddd					//28-bit BRA (PC=Even|Odd)
+008B Bddd dddd					//28-bit BSR (PC=Even|Odd)
+
+/ 005B Bddd dddd-dddd				//44-bit BSR (PC=Even)
+/ 005B Bddd-dddd dddd-dddd		//60-bit BSR (PC=Odd)

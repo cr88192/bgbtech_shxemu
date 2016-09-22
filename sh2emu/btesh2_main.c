@@ -26,6 +26,7 @@ void btesh2_ttynoncanon(void)
 	tcgetattr(0, &old_termios);
 	new_termios=old_termios;
 	new_termios.c_lflag&=(~ICANON);
+	new_termios.c_lflag&=(~ECHO);
 	new_termios.c_cc[VTIME]=0;
 	new_termios.c_cc[VMIN]=1;
 	tcsetattr(0, TCSANOW, &new_termios);
@@ -74,6 +75,15 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 //	case 2: i=mmio[2]; break;
 //	case 3: i=mmio[3]; break;
 	
+	case 0x10:
+		i=mmio[0x10];
+//		printf("SPI_C(R): %08X\n", i);
+		break;
+	case 0x11:
+		i=mmio[0x11];
+//		printf("SPI_D(R): %08X\n", i);
+		break;
+
 #if 1
 	case 0x40:
 		i=0;
@@ -95,6 +105,19 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 	case 0x43: i=0; break;
 #endif
 
+//	case 0x80: i=mmio[0x80]; break;
+//	case 0x81: i=mmio[0x81]; break;
+//	case 0x82: i=mmio[0x82]; break;
+//	case 0x83: i=mmio[0x83]; break;
+//	case 0x84: i=mmio[0x84]; break;
+//	case 0x85: i=mmio[0x85]; break;
+//	case 0x86: i=mmio[0x86]; break;
+//	case 0x87: i=mmio[0x87]; break;
+	case 0x88:	i=0; break;
+	case 0x89:	i=(cpu->tr_tops>>30); break;
+	case 0x8A:	i=(cpu->tr_tops<<2); break;
+	
+
 //	default: i=-1; break;
 	default:
 		printf("MMIO_Read: %04X\n", reladdr>>2);
@@ -107,6 +130,7 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
 {
+	int v;
 	u32 *mmio;
 
 	mmio=(u32 *)(sp->data);
@@ -129,13 +153,27 @@ int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 		mmio[3]=val;
 		break;
 	
+	case 0x10:
+//		printf("SPI_C(W): %08X\n", val);
+		v=btesh2_spimmc_XrCtl(cpu, val);
+		mmio[0x10]=v&255;
+		if(v&0x10000)
+			mmio[0x11]=(v>>8)&255;
+		break;
+	case 0x11:
+//		printf("SPI_D(W): %08X\n", val);
+		v=btesh2_spimmc_XrByte(cpu, val);
+		mmio[0x11]=v;
+		break;
+	
 	case 0x41:
 //		printf("Tx: %c\n", val);
 		printf("%c", val);
+		fflush(stdout);
 		break;
 //	case 0x42:
 //		break;
-	
+
 	default:
 		printf("MMIO_Write: %04X %08X\n", reladdr>>2, val);
 		break;
@@ -212,13 +250,22 @@ int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
 	return(0);
 }
 
+int help(char *prgname)
+{
+	printf("usage: %s [options] image\n", prgname);
+	printf("  -sh2        Emulate SH-2\n");
+	printf("  -sh4        Emulate SH-4\n");
+	printf("  -map <map>  Use symbol map\n");
+	return(0);
+}
+
 int main(int argc, char *argv[])
 {
 	BTESH2_MemoryImage *img;
 	BTESH2_CpuState *cpu;
 	BTESH2_PhysSpan *sp;
 	byte *ibuf, *tbuf;
-	char *imgname, *mapname;
+	char *imgname, *mapname, *sdname, *sdclname;
 	double dt;
 	s64 tdt;
 	byte sh4;
@@ -229,13 +276,31 @@ int main(int argc, char *argv[])
 	sh4=0;
 	imgname=NULL;
 	mapname=NULL;
+	sdname=NULL;
+	sdclname=NULL;
 	
 	for(i=1; i<argc; i++)
 	{
 		if(argv[i][0]=='-')
 		{
 			if(!strcmp(argv[i], "-sh4"))
-				{ sh4=1; continue; }
+				{ sh4=BTESH2_ARCH_SH4; continue; }
+			if(!strcmp(argv[i], "-sh2"))
+				{ sh4=BTESH2_ARCH_SH2; continue; }
+
+			if(!strcmp(argv[i], "-map"))
+				{ mapname=argv[i+1]; i++; continue; }
+
+			if(!strcmp(argv[i], "-sd"))
+				{ sdname=argv[i+1]; i++; continue; }
+
+			if(!strcmp(argv[i], "-sdcl"))
+				{ sdclname=argv[i+1]; i++; continue; }
+
+			if(!strcmp(argv[i], "--help"))
+				{ sh4=127; continue; }
+				
+			printf("unrecognized option %s\n", argv[i]);
 			continue;
 		}
 		
@@ -243,17 +308,54 @@ int main(int argc, char *argv[])
 			imgname=argv[i];
 	}
 	
+	if(sh4==127)
+	{
+		help(argv[0]);
+		return(0);
+	}
+
+	if(sdclname)
+	{
+		ibuf=loadfile(sdclname, &sz);
+		if(ibuf)
+		{
+			BTESH2_ProcessSDCL(ibuf, sz);
+			free(ibuf);
+		}
+		
+		if(!imgname)
+			return(0);
+	}
+
+	if(!imgname)
+	{
+		printf("No image name given\n");
+		return(-1);
+	}
+
+	if(sdname)
+	{
+		ibuf=loadfile(sdname, &sz);
+		if(ibuf)
+		{
+			printf("Loaded MMC image, %dMB\n", (sz>>20));
+			BTESH2_SPIMMC_SetImage(ibuf, sz);
+		}
+	}
+	
 	/* Memory Map in SH4 Mode
 	 * 0BCD0000: Peripheral
 	 */
 	
-	if(sh4)
+	if(sh4==BTESH2_ARCH_SH4)
 	{
+#if 0
 		if(!imgname)
 		{
 			imgname="vmlinux_sh4";
 			mapname="System_sh4.map";
 		}
+#endif
 
 		img=BTESH2_AllocMemoryImage(0);
 //		BTESH2_MemoryDefineSpan(img, 0x00000000, 0x00003FFF, NULL, "SRAM");
@@ -294,6 +396,7 @@ int main(int argc, char *argv[])
 		cpu->memory=img;
 		cpu->arch=BTESH2_ARCH_SH2;
 
+#if 0
 		if(!imgname)
 		{
 //			imgname="boot.elf";
@@ -302,6 +405,7 @@ int main(int argc, char *argv[])
 			imgname="vmlinux";
 			mapname="System.map";
 		}
+#endif
 
 	//	cpu->regs[BTESH2_REG_VBR]=0xFAFAFAFAU;
 		cpu->regs[BTESH2_REG_SR]=0x000003F3U;
@@ -321,6 +425,7 @@ int main(int argc, char *argv[])
 	if(1)
 	{
 		tbuf=malloc(1024);
+		memset(tbuf, 0, 1024);
 		sp=BTESH2_AllocPhysSpan();
 		sp->base=0xABCD0000;	sp->limit=0xABCDFFFF;
 		if(cpu->arch==BTESH2_ARCH_SH4)
@@ -335,6 +440,8 @@ int main(int argc, char *argv[])
 	if(1)
 	{
 		tbuf=malloc(1024);
+		memset(tbuf, 0, 1024);
+
 		sp=BTESH2_AllocPhysSpan();
 		sp->base=0xFF000000;	sp->limit=0xFF00FFFF;
 		sp->data=tbuf;			sp->name="MMREG";
@@ -433,6 +540,19 @@ int main(int argc, char *argv[])
 
 //		err=BTESH2_RunCpu(cpu, 1000);
 		err=BTESH2_RunCpu(cpu, 10000);
+		
+		if(err==BTESH2_EXC_TRAPSLEEP)
+		{
+#ifdef _WIN32
+			Sleep(1);
+#endif
+#ifdef __linux
+//			usleep(1000);
+#endif
+			cpu->status=0;
+			err=0;
+			continue;
+		}
 	}
 
 //	if(err)
