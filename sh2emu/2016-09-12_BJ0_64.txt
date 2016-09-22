@@ -430,9 +430,9 @@ If an instruction is preceded with a '/', it is not implemented, but more just t
 	87-- / BST|BLD #imm3, Rn
 	88ii CMPEQ #imm, R0
 	89dd BT label
-	8A--
+	8A-- -
 	8Bdd BF label
-	8C--
+	8Cii LDSH8 #imm, R0			//R0=(R0<<8)|Imm8
 	8Ddd BTS label
 	8E--
 	8Fdd BFS label
@@ -497,7 +497,7 @@ F---
 	F--F
 
 
-Fat Load
+Fat Load (Possible)
 LDFAT=Initiates a fat-load instruction.
 
 The following instruction word is used to know what type of operation to perform with the loaded immediate.

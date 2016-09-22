@@ -42,9 +42,9 @@ byte tkspi_init_ok;
 void TKSPI_ChipSel(int chip)
 {
 	u32 rv;
-	rv = P_SPI_CTRL;
+	rv=P_SPI_CTRL;
 	while(rv&SPICTRL_XMIT)
-		{ rv = P_SPI_CTRL; }
+		{ rv=P_SPI_CTRL; }
 	if(chip)
 	{
 		if(chip==1)
@@ -66,33 +66,33 @@ void TKSPI_SetSpeed(int speed)
 		{ tkspi_ctl_speed=SPICTRL_DIVN(0); }
 }
 
-byte TKSPI_XrOneByte(byte c)
+byte TKSPI_XchByte(byte c)
 {
-	unsigned uv;
+	u32 v;
 	P_SPI_DATA=c;
 	P_SPI_CTRL=tkspi_ctl_status|SPICTRL_XMIT;
-	uv=P_SPI_CTRL;
-	while(uv&SPICTRL_BUSY) 
-		uv=P_SPI_CTRL;
-	uv=P_SPI_DATA;
-//	printf("%02XX%02X ", c, uv&255);
-	return(uv&0xFF);
+	v=P_SPI_CTRL;
+	while(v&SPICTRL_BUSY) 
+		v=P_SPI_CTRL;
+	v=P_SPI_DATA;
+//	printf("%02XX%02X ", c, v&255);
+	return(v&0xFF);
 }
 
-int TKSPI_Read(int chip, u32 addr,
+int TKSPI_ReadBasic(int chip, u32 addr,
 	byte *bufptr, u32 len)
 {
 	byte *ptr;
 
 	ptr=bufptr;
 	TKSPI_ChipSel(chip);
-	TKSPI_XrOneByte(SPI_READ);
-	TKSPI_XrOneByte(addr>>16);
-	TKSPI_XrOneByte(addr>>8);
-	TKSPI_XrOneByte(addr);
+	TKSPI_XchByte(SPI_READ);
+	TKSPI_XchByte(addr>>16);
+	TKSPI_XchByte(addr>>8);
+	TKSPI_XchByte(addr);
 	while(len)
 	{
-		*ptr++=TKSPI_XrOneByte(0);
+		*ptr++=TKSPI_XchByte(0);
 		len--;
 	}
 	TKSPI_ChipSel(0);
@@ -113,7 +113,7 @@ int TKSPI_ReadData(byte *buf, u32 len)
 	count=(1<<16);
 	while(count>0)
 	{
-		rv=TKSPI_XrOneByte(0xFF);
+		rv=TKSPI_XchByte(0xFF);
 		if(rv!=0xFF)
 			break;
 		TKSPI_DelayUSec(10);
@@ -130,14 +130,14 @@ int TKSPI_ReadData(byte *buf, u32 len)
 	ct=buf; n=len;
 	while((n--)>0)
 	{
-		rv=TKSPI_XrOneByte(0xFF);
+		rv=TKSPI_XchByte(0xFF);
 		*ct++=rv;
 	}
 
 //	printf(">\n");
 
-	TKSPI_XrOneByte(0xFF);
-	TKSPI_XrOneByte(0xFF);
+	TKSPI_XchByte(0xFF);
+	TKSPI_XchByte(0xFF);
 
 	return(0);
 }
@@ -150,7 +150,7 @@ int TKSPI_WaitReady(void)
 	count=(1<<16);
 	while(count>0)
 	{
-		rv=TKSPI_XrOneByte(0xFF);
+		rv=TKSPI_XchByte(0xFF);
 		if(rv==0xFF) {
 		       	return(1);
 		}
@@ -199,22 +199,22 @@ byte TKSPI_SendCmd(byte cmd, u32 arg)
 		return(0xFF);
 	}
 
-	TKSPI_XrOneByte(0x40|cmd);
-	TKSPI_XrOneByte((byte)(arg>>24));
-	TKSPI_XrOneByte((byte)(arg>>16));
-	TKSPI_XrOneByte((byte)(arg>>8));
-	TKSPI_XrOneByte((byte)arg);
+	TKSPI_XchByte(0x40|cmd);
+	TKSPI_XchByte((byte)(arg>>24));
+	TKSPI_XchByte((byte)(arg>>16));
+	TKSPI_XchByte((byte)(arg>>8));
+	TKSPI_XchByte((byte)arg);
 	h=0x01;
 	if(cmd==MMC_CMD0)h=0x95;
 	if(cmd==MMC_CMD8)h=0x87;
-	TKSPI_XrOneByte(h);
+	TKSPI_XchByte(h);
 
 	if (cmd==MMC_CMD12)
-		{ TKSPI_XrOneByte(0xFF); }
+		{ TKSPI_XchByte(0xFF); }
 	n=10;
 	while(n>0)
 	{
-		res=TKSPI_XrOneByte(0xFF);
+		res=TKSPI_XchByte(0xFF);
 		if(!(res&0x80))
 			break;
 		n--;
@@ -251,7 +251,7 @@ int TKSPI_InitDevice(void)
 	TKSPI_SetSpeed(0);
 	TKSPI_SendCmd(MMC_CMD52, 1);
 	for (n=0; n<10; n++)
-		TKSPI_XrOneByte(0xFF);
+		TKSPI_XchByte(0xFF);
 
 	ty=0;
 	n=TKSPI_SendCmd(MMC_CMD0, 0);
@@ -261,7 +261,7 @@ int TKSPI_InitDevice(void)
 		if(s==1)
 		{
 			for(n=0; n<4; n++)
-				ocr[n]=TKSPI_XrOneByte(0xFF);
+				ocr[n]=TKSPI_XchByte(0xFF);
 			if((ocr[2]==0x01) && (ocr[3]==0xAA))
 			{
 				n=1<<17;
@@ -277,7 +277,7 @@ int TKSPI_InitDevice(void)
 				if(n && !s)
 				{
 					for (n=0; n<4; n++) 
-						ocr[n]=TKSPI_XrOneByte(0xff);
+						ocr[n]=TKSPI_XchByte(0xff);
 //					ty=(ocr[0]&0x40)?CT_SD2|CT_BLOCK:CT_SD2;
 					ty=(ocr[0]&0x40)?0x43:0x03;
 				}

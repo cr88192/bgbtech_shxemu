@@ -110,5 +110,8 @@ Type 0x20: Extension, ASCII LFN Entry
 	90..9F: Equivalent to CP-1252
 	8F: Encodes U+FFFF
 
-Sequence number is in multiples of 13 characters, however this entry encodes 26 characters. Thus, it will be functionally equivalent to two normal LFN entries.
+Sequence number is in multiples of 13 characters, however this entry encodes 26 characters. Thus, it will be functionally equivalent to two normal LFN entries. It may be used in combination with UCS-2 entries.
 
+Type 0x21: Extension (Possible), UTF-8 LFN Entry
+	Sequence number is in terms of multiples of 26 bytes.
+	Mutually exclusive with 00 and 20.

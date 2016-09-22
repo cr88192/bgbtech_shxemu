@@ -71,8 +71,9 @@ void BTESH2_TKFAT_SetupImageMBR(BTESH2_TKFAT_ImageInfo *img)
 	img->lba_count=img->nImgBlks-8;
 	
 //	img->mbr=(BTESH2_TKFAT_MBR *)img->pImgData;
-	img->mbr=BTESH2_TKFAT_GetSectorStaticBuffer(
-		img, 0, 1|TKFAT_SFL_DIRTY);
+	img->mbr=(BTESH2_TKFAT_MBR *)
+		BTESH2_TKFAT_GetSectorStaticBuffer(
+			img, 0, 1|TKFAT_SFL_DIRTY);
 	memset(img->mbr, 0, 512);
 	img->mbr->entry[0].flag=0x00;
 	img->mbr->entry[0].fstype=fsty;
@@ -91,7 +92,7 @@ void BTESH2_TKFAT_SetupImageMBR(BTESH2_TKFAT_ImageInfo *img)
 int BTESH2_TKFAT_GetFatEntry(BTESH2_TKFAT_ImageInfo *img, int clid)
 {
 	byte *ofs;
-	int lba, frc
+	int lba;
 	int i;
 
 	if(img->isfat16)
