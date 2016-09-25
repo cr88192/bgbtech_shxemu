@@ -17,4 +17,5 @@ randbits.txt
 *.sln
 *logpc.txt
 *.vhd
+*.hd
 

@@ -1,4 +1,4 @@
-mkimage vfsimg1.vhd 63M
+mkimage vfsimg1.hd 63M
 
 // addfile System_sh4.map System_sh4.map
 addfile System_sh4.map
