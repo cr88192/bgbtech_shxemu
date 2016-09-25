@@ -1,9 +1,14 @@
 #include "testkern.h"
 
+#include "tk_clib.c"
+
 #include "tk_mmpage.c"
 #include "tk_spi.c"
+#include "tk_fat.c"
 
 u32 timer_ticks;
+
+TKFAT_ImageInfo *tkfat_fsimg;
 
 void setGpioOutputs(int val)
 {
@@ -65,16 +70,6 @@ void gets(char *buf)
 		*t++=i;
 	}
 	*t=0;
-}
-
-int strcmp(char *s1, char *s2)
-{
-	while(*s1 && *s2 && (*s1==*s2))
-		{ s1++; s2++; }
-	if(*s1>*s2)return(1);
-//	if(*s2>*s1)return(-1);
-	if(*s1<*s2)return(-1);
-	return(0);
 }
 
 void print_hex(u32 v)
@@ -399,6 +394,15 @@ void tk_main()
 			}else
 			{
 				printf("No 55AA\n");
+			}
+			
+			if(!tkfat_fsimg)
+			{
+				tkfat_fsimg=malloc(sizeof(TKFAT_ImageInfo));
+				memset(tkfat_fsimg, 0, sizeof(TKFAT_ImageInfo));
+				TKFAT_ReadImageMBR(tkfat_fsimg);
+				TKFAT_ReadImageFAT(tkfat_fsimg);
+				TKFAT_ListDir(tkfat_fsimg, tkfat_fsimg->clid_root);
 			}
 			
 			continue;

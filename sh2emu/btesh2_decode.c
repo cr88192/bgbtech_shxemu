@@ -1789,9 +1789,12 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 						break;
 					}
 #endif
-					
-					tr->ops[n++]=op1;
+
 					tr->ops[n++]=op;
+					tr->ops[n++]=op1;
+					
+//					tr->ops[n++]=op1;
+//					tr->ops[n++]=op;
 					break;
 				}
 				

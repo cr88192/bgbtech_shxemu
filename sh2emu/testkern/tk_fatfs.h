@@ -1,3 +1,5 @@
+#define TKFAT_SFL_DIRTY		0x00000200
+
 typedef struct TKFAT_MBR_Entry_s TKFAT_MBR_Entry;
 typedef struct TKFAT_MBR_s TKFAT_MBR;
 typedef struct TKFAT_FAT16_Boot_s TKFAT_FAT16_Boot;
@@ -5,13 +7,16 @@ typedef struct TKFAT_FAT32_Boot_s TKFAT_FAT32_Boot;
 typedef struct TKFAT_FAT_DirEnt_s TKFAT_FAT_DirEnt;
 typedef struct TKFAT_FAT_DirLfnEnt_s TKFAT_FAT_DirLfnEnt;
 
+typedef struct TKFAT_FAT_DirEntExt_s TKFAT_FAT_DirEntExt;
+typedef struct TKFAT_FAT_DirInfo_s TKFAT_FAT_DirInfo;
+
 struct TKFAT_MBR_Entry_s {
 	byte flag;				//0x80|=active
-	byte scyl;				//starting cylinder
-	byte ssector[2];		//starting head/sector
+	byte shead;				//starting head
+	byte ssect[2];			//starting track/sector
 	byte fstype;			//filesystem
-	byte ecyl;				//ending cylinder
-	byte esector[2];		//ending head/sector
+	byte ehead;				//ending head
+	byte esect[2];			//ending track/sector
 	byte lba_start[4];		//LBA start
 	byte lba_count[4];		//LBA count
 };
@@ -43,6 +48,8 @@ struct TKFAT_FAT16_Boot_s {
 	byte vol_sn[4];				//0x27
 	byte vol_label[11];			//0x2B
 	byte fs_tyname[8];			//0x36
+	byte boot_code[448];		//0x3E
+	byte aa55[2];				//0x1FE, should be 0xAA55	
 };
 
 struct TKFAT_FAT32_Boot_s {
@@ -61,14 +68,14 @@ struct TKFAT_FAT32_Boot_s {
 	byte hidden_sectors[4];		//0x1C
 	byte lba_count[4];			//0x20
 	byte sectors_fat32[4];		//0x24
-	byte drive_flag[2];			//0x28
+	byte drive_flag2[2];		//0x28
 	byte version[2];			//0x2A
 	byte root_cluster[4];		//0x2C
 	byte fsis_sector[2];		//0x30
 	byte fsaltboot_sector[2];	//0x32
 	byte resv[12];				//0x34
 	byte drive_id;				//0x40
-	byte drive_misc;			//0x41
+	byte drive_flag;			//0x41
 	byte ebsig;					//0x42
 	byte vol_sn[4];				//0x43
 	byte vol_label[11];			//0x47
@@ -104,4 +111,54 @@ byte name3[4];					//0x1C
 
 struct TKFAT_Volume_s {
 TKFAT_FAT32_Boot boot;
+};
+
+typedef struct TKFAT_ImageInfo_s TKFAT_ImageInfo;
+
+struct TKFAT_ImageInfo_s {
+byte *pImgData;
+int nImgBlks;
+byte fsty;			//filesystem type
+bool isfat16;		//FS is FAT16
+byte szclust;		//sectors/cluster
+byte shclust;		//shift for cluster (bytes)
+
+int lba_start;		//LBA start of FAT volume
+int lba_count;		//LBA count of FAT volume
+
+int lba_fat1;		//LBA of first FAT
+int lba_fat2;		//LBA of second FAT
+int lba_root;		//LBA of root directory
+int lba_data;		//LBA of data start
+
+int tot_clust;
+int clid_root;
+
+TKFAT_MBR *mbr;
+TKFAT_FAT16_Boot *boot16;
+TKFAT_FAT32_Boot *boot32;
+
+u32 sbc_lba[64];
+void *sbc_buf[64];
+int sbc_num;
+
+u32 tbc_lba[256];
+byte tbc_lbn[256];
+void *tbc_buf[256];
+int tbc_num;
+};
+
+
+struct TKFAT_FAT_DirEntExt_s {
+TKFAT_FAT_DirEnt deb;	//basic dirent
+TKFAT_ImageInfo *img;
+int clid;				//cluster ID of parent directory
+int idx;				//index within directory
+byte de_name[512];		//name (UTF-8, LFN)
+byte de_aname[512];		//alt name (UTF-8, LFN)
+};
+
+struct TKFAT_FAT_DirInfo_s {
+TKFAT_ImageInfo *img;
+int clid;			//cluster ID of current directory
 };

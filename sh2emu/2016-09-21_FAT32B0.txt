@@ -68,7 +68,7 @@ struct FAT_DirEnt_s {
 	byte ext[3];				//0x08
 	byte attrib;				//0x0B
 	byte lncase;				//0x0C (2)
-	byte ctimems;				//0x0D
+	byte ctime_ms;				//0x0D
 	byte ctime[2];				//0x0E
 	byte cdate[2];				//0x10
 	byte mdate[2];				//0x12
@@ -81,9 +81,10 @@ struct FAT_DirEnt_s {
 
 2: lncase:
 	Bits 0-2: Length 32-34
-	Bits 3: SFN: Name is lower-case
-	Bits 4: SFN: Extension is lower-case.
-	Bits 5-7: Length 35-37
+	Bit 3: SFN: Name is lower-case
+	Bit 4: SFN: Extension is lower-case.
+	Bit 5: NO83NAME, Set if no 8.3 name is present.
+	Bits 5-7: Length 35-37 (FAT+ Original)
 
 If the name is of the form:
   20 00 XX XX XX 3A XX XX
@@ -104,8 +105,8 @@ struct FAT_DirLfnEnt_s {
 Type 0x00: Normal VFAT LFN, Holds UCS-2 codepoints.
 
 Type 0x20: Extension, ASCII LFN Entry
-	00..7F: Map to U+0000 .. U+007F
-	A0..FF: Map to U+00A0 .. U+00FF
+	00..7F: Map to U+0000 .. U+007F (ASCII)
+	A0..FF: Map to U+00A0 .. U+00FF (Latin-1 / 1252)
 	80..8E: Equivalent to CP-1252
 	90..9F: Equivalent to CP-1252
 	8F: Encodes U+FFFF
@@ -115,3 +116,30 @@ Sequence number is in multiples of 13 characters, however this entry encodes 26 
 Type 0x21: Extension (Possible), UTF-8 LFN Entry
 	Sequence number is in terms of multiples of 26 bytes.
 	Mutually exclusive with 00 and 20.
+
+
+Extension:
+LFN Sequence numbers 0x21..0x3F will encode an alternate name.
+The alt name will be encoded prior to the normal LFN.
+
+If the file attributes are 0x18 (D+V), interpret directory entry as a symbolic link.
+Alternate name gives the link target.
+
+If the file attributes are 0x28 (A+V), interpret entry as an inline file.
+Alternate name is in ASCII format and gives the data bytes for the file, which has a maximum size of 384 bytes.
+
+
+
+I was considering possibly doing my own alternate version of the extension and extending the max FAT32 file-size possibly to 1TB or 8TB or so:
+    NO83NAME(lcase[5])=0
+        low 3 use bits of lcase used as extended size (32GB)
+    NO83NAME=1
+        if a sanity check (on the 8.3 name) passes
+            if lcase[3]=1
+                interpret byte at 0x0D as bits 32..39 of file-size, lcase[0:2] as size bits 40..42 (8TB).
+            else
+                lcase[0:2] as size bits 32..34 (32GB).
+                0x0D remains as "creation time in 10ms units".
+            also allow some other extensions.
+
+theoretical max filesystem size is extended is extended to around 256TB.

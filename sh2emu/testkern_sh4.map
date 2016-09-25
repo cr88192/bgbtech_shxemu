@@ -1,0 +1,162 @@
+
+../testkern_sh4.elf:     file format elf32-sh-linux
+
+SYMBOL TABLE:
+8c000000 l    d  .text	00000000 .text
+8c009a6c l    d  .rodata	00000000 .rodata
+8c00a09c l    d  .data	00000000 .data
+8c00a0b8 l    d  .bss	00000000 .bss
+00000000 l    d  .comment	00000000 .comment
+8c0000c4 l       .text	00000000 start_leds
+8c0000c0 l       .text	00000000 pio_addr
+8c000048 l       .text	00000000 stack_base
+8c000020 l       .text	00000000 zero_bss
+8c0000dc l       .text	00000000 isr_table
+8c0000d4 l       .text	00000000 a_tk_main
+8c000050 l       .text	00000000 _exit
+8c000040 l       .text	00000000 bss_strt
+8c000044 l       .text	00000000 bss_end
+8c00004c l       .text	00000000 _loop
+8c000056 l       .text	00000000 _gdb_unhandled_isr
+8c0000c8 l       .text	00000000 start1_leds
+8c000060 l       .text	00000000 _gdb_nmi_isr
+8c0000cc l       .text	00000000 start2_leds
+8c00006a l       .text	00000000 _gdb_illegalinst_isr
+8c000074 l       .text	00000000 _gdb_addresserr_isr
+8c00007e l       .text	00000000 _gdb_ihandler_emac
+8c000088 l       .text	00000000 _gdb_trapa32_isr
+8c00008c l       .text	00000000 _gdb_trapa33_isr
+8c000090 l       .text	00000000 _gdb_trapa34_isr
+8c000094 l       .text	00000000 _gdb_pit_isr
+8c0000b0 l       .text	00000000 ticks
+8c0000b4 l       .text	00000000 _gdb_ihandler_uart1
+00000000 l    df *ABS*	00000000 tkmain.c
+8c00a0bc l     O .bss	00000004 init.1664
+8c00a0ac l     O .data	00000004 hexchars.1887
+8c009dc8 l     O .rodata	00000080 tkfat_tuc52
+8c00a0c0 l     O .bss	00000200 tb.4248
+8c00a2c0 l     O .bss	00000100 ta.4247
+8c00a0b0 l     O .data	00000004 chrs.4370
+8c00a0b4 l     O .data	00000004 chrs.4430
+8c00096a g     F .text	000000a4 strcpy
+8c00456c g     F .text	000000c4 TKFAT_ReadWriteSector
+8c00a0a4 g     O .data	00000008 rand_seed
+8c0000f0 g       .text	00000000 _vector_table
+8c008438 g     F .text	000000e4 TK_BufGetLine
+8c00910c g     F .text	00000434 printf
+8c00a3c0 g     O .bss	00000001 tkspi_init_ok
+8c002b64 g     F .text	000000c0 tkfat_fstnameforfsty
+8c003d0c g     F .text	000005c8 TKFAT_ReadImageFAT
+8c005578 g     F .text	000000a4 tkfat_lfn2utf8
+8c006540 g     F .text	00000bb8 TKFAT_LookupDirEntName
+8c001af0 g     F .text	0000001c TKSPI_Deselect
+8c0096a8 g     F .text	000003c4 tk_main
+8c00a3c4 g     O .bss	00000004 tkfat_fsimg
+8c001664 g     F .text	000000c0 tkmm_init
+8c0089b8 g     F .text	000000f4 gets
+8c00a3c8 g     O .bss	00000004 tkmm_pagebase
+8c000ff8 g     F .text	0000003c TKMM_PointerToPage
+8c002456 g     F .text	000003e6 TKFAT_GetSectorTempBuffer
+8c0010a8 g     F .text	0000007e TKMM_SizeToFxiU
+8c0088b4 g     F .text	00000024 setGpioOutputs
+8c008358 g     F .text	000000e0 TKFAT_ListDir
+8c000442 g     F .text	00000460 memcpy
+8c004630 g     F .text	00000104 TKFAT_ReadWriteCluster
+8c00895c g     F .text	0000005c puts
+8c009540 g     F .text	00000030 malloc
+8c00a3cc g     O .bss	00000004 tkmm_maxpage
+8c001ed8 g     F .text	00000390 TKSPI_InitDevice
+8c007e94 g     F .text	00000044 TKFAT_SetDirEntSize
+8c002356 g     F .text	00000070 tkfat_setDWord
+8c00890c g     F .text	00000018 kbhit
+8c004734 g     F .text	00000330 TKFAT_ReadWriteClusterOffset
+8c008d50 g     F .text	0000017c print_decimal
+8c00a3d0 g     O .bss	00000004 tkspi_ctl_status
+8c000eec g     F .text	000000d0 TKMM_AllocPages
+8c007ed8 g     F .text	00000238 TKFAT_ReadWriteDirEntFile
+8c004bac g     F .text	00000208 tkfat_name2sfn
+8c002400 g     F .text	00000056 tkfat_getDWord
+8c005910 g     F .text	000000cc tkfat_lfn2bytes
+8c000fbc g     F .text	0000003c TKMM_PageToPointer
+8c005344 g     F .text	00000234 tkfat_emitUtf8
+8c0023c6 g     F .text	0000003a tkfat_getWord
+8c00a3d4 g     O .bss	00000004 tkspi_ctl_speed
+8c009024 g     F .text	000000e8 print_float
+8c008924 g     F .text	00000038 getch
+8c0015cc g     F .text	00000098 TKMM_Free
+8c0032b0 g     F .text	00000042 TKFAT_GetClusterLBA
+8c000c8c g     F .text	0000004a rand_r
+8c001216 g     F .text	000003b6 TKMM_Malloc
+8c0017e8 g     F .text	00000070 TKSPI_XchByte
+8c000000 g       .text	00000000 _start
+8c000a0e g     F .text	000000ae rand
+8c0059dc g     F .text	00000b64 TKFAT_WalkDirEntNext
+8c00a09c g       .data	00000000 ___dtors
+8c002314 g     F .text	00000042 tkfat_setWord
+8c002c24 g     F .text	00000210 TKFAT_ReadImageMBR
+8c002e34 g     F .text	000001ac TKFAT_GetFatEntry
+8c004a64 g     F .text	00000148 TKFAT_ReadWriteDirEntOffset
+8c00a3d8 g     O .bss	00000004 tkmm_pagerov
+8c0032f2 g     F .text	00000a1a TKFAT_SetupImageFAT
+8c007d30 g     F .text	00000060 TKFAT_UpdateDirEnt
+8c00a09c  w      .data	00000000 __fpscr_values
+8c0008a2 g     F .text	000000c8 memcmp
+8c0000e4 g       .text	00000000 sleep_0
+8c007cac g     F .text	00000084 TKFAT_CreateDirEntPath
+8c0017b0 g     F .text	00000038 TKSPI_SetSpeed
+8c0095a0 g     F .text	00000108 float_test0
+8c00a0b8 g     O .bss	00000004 timer_ticks
+8c004384 g     F .text	00000114 TKFAT_GetWalkCluster
+8c008110 g     F .text	00000248 TKFAT_SetupDirEntNewDirectory
+8c002fe0 g     F .text	000002d0 TKFAT_SetFatEntry
+8c00561c g     F .text	000002f4 tkfat_sfn2utf8
+8c00a0b8 g       *ABS*	00000000 __bss_start
+8c000296 g     F .text	000001ac memset
+8c007d90 g     F .text	00000064 TKFAT_GetDirEntCluster
+8c00299c g     F .text	000001c8 TKFAT_SetupImageMBR
+8c000abc g     F .text	000001d0 srand
+8c002268 g     F .text	000000ac tkfat_setChs
+8c0070f8 g     F .text	00000998 TKFAT_CreateDirEntName
+8c004db4 g     F .text	000002aa tkfat_name2lfn
+8c004498 g     F .text	000000d4 TKFAT_GetClusterFileOffs
+8c0088d8 g     F .text	00000034 putc
+8c00a09c g       .data	00000000 ___ctors_end
+8c008aac g     F .text	00000120 print_hex
+8c0001f0 g     F .text	000000a6 strcmp
+8c00a3dc g     O .bss	00000400 tkmm_freelist
+8c001942 g     F .text	00000132 TKSPI_ReadData
+8c00a09c g       .data	00000000 ___ctors
+8c00a7dc g     O .bss	00000004 tkmm_pageend
+8c00a7e0 g     O .bss	00001000 tkmm_pagebmp
+8c001724 g     F .text	0000008c TKSPI_ChipSel
+8c00529c g     F .text	000000a8 tkfat_ucs2asc
+8c00523c g     F .text	00000060 tkfat_asc2ucs
+8c00283c g     F .text	00000160 TKFAT_GetSectorStaticBuffer
+8c00192c g     F .text	00000016 TKSPI_DelayUSec
+8c001d34 g     F .text	000000b4 TKSPI_ReadSectors
+8c008bcc g     F .text	00000184 print_hex_n
+8c00a0b8 g       *ABS*	00000000 _edata
+8c001b0c g     F .text	00000048 TKSPI_Select
+8c00b7e0 g       *ABS*	00000000 _end
+8c007a90 g     F .text	0000021c TKFAT_CreateDirEntPathR
+8c007df4 g     F .text	00000064 TKFAT_SetDirEntCluster
+8c001034 g     F .text	00000074 TKMM_PageAlloc
+8c000cd6 g     F .text	00000216 TKMM_FindFreePages
+8c001b54 g     F .text	00000024 TKSPI_PowerOff
+8c000000 g       .text	00000000 start
+8c001b78 g     F .text	000001bc TKSPI_SendCmd
+8c001858 g     F .text	000000d4 TKSPI_ReadBasic
+8c0042d4 g     F .text	000000b0 TKFAT_AllocFreeCluster
+8c00851c g     F .text	00000398 TK_SplitLine
+8c001de8 g     F .text	000000f0 TKSPI_ReadSectorsL
+8c001126 g     F .text	0000007c TKMM_SizeToFxiD
+8c0011a2 g     F .text	00000074 TKMM_FxiToSize
+8c00505e g     F .text	00000142 tkfat_matchlfn
+8c008ecc g     F .text	00000158 print_decimal_n
+8c00a09c g       .data	00000000 ___dtors_end
+8c0051a0 g     F .text	0000009c tkfat_lfnchecksum
+8c001a74 g     F .text	0000007c TKSPI_WaitReady
+8c007e58 g     F .text	0000003c TKFAT_GetDirEntSize
+8c009570 g     F .text	00000030 free
+
+

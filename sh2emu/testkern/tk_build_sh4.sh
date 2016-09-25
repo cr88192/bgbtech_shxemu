@@ -9,3 +9,5 @@ export "TK_CSRC=tkmain.c"
 sh4-gcc -c e_testkern.S -o e_testkern.o $TK_CFL
 
 sh4-gcc -o ../testkern_sh4.elf e_testkern.o $TK_CSRC $TK_LDFL
+
+sh4-objdump -t ../testkern_sh4.elf > ../testkern_sh4.map

@@ -94,6 +94,22 @@ typedef signed int s32;
 typedef unsigned long long u64;
 typedef signed long long s64;
 
+#ifndef __cplusplus
+
+#ifndef _BOOL_T
+#define _BOOL_T
+typedef unsigned char bool;
+#endif
+
+#ifndef true
+#define true 1
+#define false 0
+#endif
+
+#endif
+
+typedef unsigned int size_t;
+
 typedef struct TKMM_MemLnkObj_s TKMM_MemLnkObj;
 
 struct TKMM_MemLnkObj_s {
@@ -110,4 +126,9 @@ u32 data[1];	//start of data
 
 #define TKMM_OFFS_DATA	((int)(((TKMM_MemLnkObj *)0)->data))
 
+#include "tk_fatfs.h"
+
 void printf(char *str, ...);
+
+void *malloc(int sz);
+int free(void *ptr);

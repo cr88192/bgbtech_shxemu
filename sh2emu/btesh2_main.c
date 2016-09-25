@@ -117,6 +117,16 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 	case 0x89:	i=(cpu->tr_tops>>30); break;
 	case 0x8A:	i=(cpu->tr_tops<<2); break;
 	
+	case 0x85:
+	case 0x86:
+		break;
+
+	case 0xC0:	case 0xC1:
+	case 0xC2:	case 0xC3:
+		i=0; break;
+	case 0x100:	case 0x101:
+	case 0x102:	case 0x103:
+		i=0; break;
 
 //	default: i=-1; break;
 	default:
@@ -173,6 +183,16 @@ int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 		break;
 //	case 0x42:
 //		break;
+
+	case 0x43:
+		break;
+
+	case 0xC0:	case 0xC1:
+	case 0xC2:	case 0xC3:
+		break;
+	case 0x100:	case 0x101:
+	case 0x102:	case 0x103:
+		break;
 
 	default:
 		printf("MMIO_Write: %04X %08X\n", reladdr>>2, val);

@@ -89,6 +89,54 @@ void BTESH2_TKFAT_SetupImageMBR(BTESH2_TKFAT_ImageInfo *img)
 	img->mbr->aa55[1]=0xAA;
 }
 
+char *btesh2_tkfat_fstnameforfsty(int fsty)
+{
+	char *s0;
+	
+	switch(fsty)
+	{
+	case 0x00: s0="(none)"; break;
+	case 0x06: s0="FAT16"; break;
+	case 0x0B: s0="FAT32"; break;
+	case 0x0C: s0="FAT32"; break;
+	default: s0="?"; break;
+	}
+	return(s0);
+}
+
+void BTESH2_TKFAT_ReadImageMBR(BTESH2_TKFAT_ImageInfo *img)
+{
+	char *s0;
+	int lba, lbn, fsty;
+	int i;
+
+	printf("TKFAT_ReadImageMBR\n");
+
+	img->mbr=(BTESH2_TKFAT_MBR *)
+		BTESH2_TKFAT_GetSectorStaticBuffer(
+			img, 0, 1);
+
+	for(i=0; i<4; i++)
+	{
+		fsty=img->mbr->entry[i].fstype;
+		lba=btesh2_tkfat_getDWord(img->mbr->entry[i].lba_start);
+		lbn=btesh2_tkfat_getDWord(img->mbr->entry[i].lba_count);
+		
+		s0=btesh2_tkfat_fstnameforfsty(fsty);
+		printf("  %08X %08X %02X %s\n", lba, lbn, fsty, s0);
+	}
+
+	img->fsty=img->mbr->entry[0].fstype;
+	img->lba_start=btesh2_tkfat_getDWord(img->mbr->entry[0].lba_start);
+	img->lba_count=btesh2_tkfat_getDWord(img->mbr->entry[0].lba_count);
+
+	img->isfat16=(img->fsty==0x06);
+
+	s0=btesh2_tkfat_fstnameforfsty(img->fsty);
+	printf("TKFAT_ReadImageMBR: %08X %08X %02X %s\n",
+		img->lba_start, img->lba_count, img->fsty, s0);
+}
+
 int BTESH2_TKFAT_GetFatEntry(BTESH2_TKFAT_ImageInfo *img, int clid)
 {
 	byte *ofs;
@@ -213,7 +261,8 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 		
 //		fatsz=(img->lba_count*2+511)/512;
 		fatsz=(cln*2+511)/512;
-		rootsz=512/32;
+//		rootsz=512/32;
+		rootsz=(512*32+511)>>9;
 		
 		btesh2_tkfat_setWord(img->boot16->bytes_sector, 512);
 		btesh2_tkfat_setWord(img->boot16->reserved_sectors, 2);
@@ -243,6 +292,7 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 
 		cln=((img->lba_start+img->lba_count)-img->lba_data)/clsz;
 		img->tot_clust=cln;
+		img->clid_root=1;
 		
 		BTESH2_TKFAT_SetFatEntry(img, 0, 0xFFFF);
 		BTESH2_TKFAT_SetFatEntry(img, 1, 0xFFFF);
@@ -308,6 +358,7 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 
 		cln=((img->lba_start+img->lba_count)-img->lba_data)/clsz;
 		img->tot_clust=cln;
+		img->clid_root=2;
 
 		BTESH2_TKFAT_SetFatEntry(img, 0, 0x0FFFFFFF);
 		BTESH2_TKFAT_SetFatEntry(img, 1, 0x0FFFFFFF);
@@ -330,6 +381,98 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 		printf("  %d Sectors/Cluster, %d bytes\n", clsz, 512*clsz);
 		printf("  %d total clusters\n", img->tot_clust);
 	}
+}
+
+void BTESH2_TKFAT_ReadImageFAT(BTESH2_TKFAT_ImageInfo *img)
+{
+	s64 lban, fatsz, cln;
+	int rootsz, rootnde, rootcl;
+	int clsz, clsh;
+	u32 i0, i1, i2, i3;
+	int i;
+
+	img->boot16=(BTESH2_TKFAT_FAT16_Boot *)
+		BTESH2_TKFAT_GetSectorStaticBuffer(
+			img, img->lba_start, 1);
+	img->boot32=(BTESH2_TKFAT_FAT32_Boot *)
+		img->boot16;
+
+
+	i0=btesh2_tkfat_getWord(img->boot32->lba_count16);
+	i1=btesh2_tkfat_getDWord(img->boot32->lba_count);
+
+	i2=btesh2_tkfat_getWord(img->boot32->sectors_fat);
+	i3=btesh2_tkfat_getDWord(img->boot32->sectors_fat32);
+
+	rootnde=btesh2_tkfat_getWord(img->boot32->root_dirents);
+	clsz=img->boot32->sectors_cluster;
+
+	rootcl=btesh2_tkfat_getDWord(img->boot32->root_cluster);
+
+	if((i0!=0) && (i1!=0) && (img->boot32->ebsig==0x29))
+	{
+		lban=(((s64)i0)<<32)|i1;
+		fatsz=(((s64)i2)<<32)|i3;
+	}else
+	{
+		lban=i0?i0:i1;
+		fatsz=i2?i2:i3;
+		if(!lban)
+		{
+			i0=btesh2_tkfat_getDWord(img->boot32->fs_tyname+4);
+			i1=btesh2_tkfat_getDWord(img->boot32->fs_tyname);
+			lban=(((s64)i0)<<32)|i1;
+		}
+	}
+	
+	rootsz=0;
+	if(rootnde)
+		{ rootsz=((rootnde*32)+511)>>9; }
+
+	if(!clsz || (clsz&(clsz-1)))
+	{
+		printf("TKFAT_ReadImageFAT: Bad Sectors/Cluster %d\n", clsz);
+		return;
+	}else
+	{
+		i=clsz; clsh=0;
+		while(i>1)
+			{ i=i>>1; clsh++; }
+	}
+	
+	if((img->boot32->ebsig!=0x29) || !rootcl)
+	{
+		rootcl=1;
+	}
+
+	img->lba_fat1=img->lba_start+2;
+	img->lba_fat2=img->lba_start+2+fatsz;
+	img->lba_root=img->lba_start+2+2*fatsz;
+	img->lba_data=img->lba_root+rootsz;
+	img->szclust=clsz;
+	img->shclust=9+clsh;
+
+//	cln=((img->lba_start+img->lba_count)-img->lba_data)/clsz;
+//	cln=((img->lba_start+img->lba_count)-img->lba_data)>>clsh;
+	cln=((img->lba_start+lban)-img->lba_data)>>clsh;
+	img->tot_clust=cln;
+	img->clid_root=rootcl;
+	
+	img->isfat16=false;
+	if(cln<=65525)
+		img->isfat16=true;
+	
+	printf("TKFAT_ReadImageFAT: Read FAT%d\n", img->isfat16?16:32);
+	printf("  LBA FAT1=%08X (Offs=%08X)\n",
+		img->lba_fat1, img->lba_fat1<<9);
+	printf("  LBA FAT2=%08X (Offs=%08X)\n",
+		img->lba_fat2, img->lba_fat2<<9);
+	printf("  LBA Root=%08X (Offs=%08X)\n",
+		img->lba_root, img->lba_root<<9);
+	printf("  LBA Data=%08X (Offs=%08X)\n",
+		img->lba_data, img->lba_data<<9);
+	printf("  %d Sectors/Cluster, %d bytes\n", clsz, 512*clsz);
+	printf("  %d total clusters\n", img->tot_clust);
 }
 
 /** Allocate a cluster from the FAT. Implicitly marks as EOF. */
@@ -515,7 +658,7 @@ int BTESH2_TKFAT_ReadWriteDirEntOffset(BTESH2_TKFAT_ImageInfo *img,
 		if(idx>=n)
 			return(-1);
 		BTESH2_TKFAT_ReadWriteSector(img,
-			img->lba_root+(clid>>4), (clid&15)<<5, iswrite, de, 32);
+			img->lba_root+(idx>>4), (idx&15)<<5, iswrite, de, 32);
 		return(0);
 	}
 	
@@ -639,15 +782,348 @@ int btesh2_tkfat_lfnchecksum(char *name)
 	return(h&255);
 }
 
+static const int tkfat_tuc52[32]={
+	0x20AC, 0x0081, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+	0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008D, 0x017D, 0xFFFF,
+	0x0090, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+	0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0x009C, 0x017E, 0x0178};
+
+int btesh2_tkfat_asc2ucs(int v)
+{
+	if(!(v&0x80))
+		return(v);
+	if(v&0x60)
+		return(v);
+	return(tkfat_tuc52[v&0x1F]);
+}
+
+int btesh2_tkfat_ucs2asc(int v)
+{
+	int i;
+	if(!(v&0x80))
+		return(v);
+	if(v&0x60)
+		return(v);
+	for(i=0; i<32; i++)
+		if(v==tkfat_tuc52[i])
+			return(0x80+i);
+	return(v&255);
+}
+
+byte *btesh2_tkfat_emitUtf8(byte *ct, int v)
+{
+	if(v<0x80)
+		{ *ct++=v; }
+	else if(v<0x0800)
+	{
+		*ct++=0xC0|((v>>6)&0x1F);
+		*ct++=0x80|((v   )&0x3F);
+	}
+	else if(v<0x10000)
+	{
+		*ct++=0xE0|((v>>12)&0x0F);
+		*ct++=0x80|((v>> 6)&0x3F);
+		*ct++=0x80|((v    )&0x3F);
+	}
+	else if(v<0x200000)
+	{
+		*ct++=0xF0|((v>>18)&0x07);
+		*ct++=0x80|((v>>12)&0x3F);
+		*ct++=0x80|((v>> 6)&0x3F);
+		*ct++=0x80|((v    )&0x3F);
+	}
+	return(ct);
+}
+
+int btesh2_tkfat_lfn2utf8(u16 *lfn, byte *dst)
+{
+	u16 *cs;
+	byte *ct;
+	int i;
+	
+	cs=lfn; ct=dst;
+	while(*cs)
+	{
+		i=*cs++;
+		ct=btesh2_tkfat_emitUtf8(ct, i);
+	}
+	*ct++=0;
+	return(0);
+}
+
+int btesh2_tkfat_sfn2utf8(byte *sfn, int lcase, byte *dst)
+{
+	byte *cs, *ct;
+	int i, j, k;
+
+	cs=sfn; ct=dst;
+	
+	if(*cs<=' ')
+		return(-1);
+	if(lcase&0x20)
+		return(-1);
+	
+	for(i=0; i<8; i++)
+	{
+		j=*cs++;
+
+		if((j<' ') || (j==0x7F))
+			return(-1);
+		
+		if(j==' ')
+		{
+			for(k=i+1; k<8; k++)
+				if(sfn[k]>' ')
+					break;
+			if(k>=8)
+				break;
+		}
+		
+		if(lcase&0x08)
+		{
+			if((j>='A') && j<='Z')
+				j='a'+(j-'A');
+		}
+		
+		j=btesh2_tkfat_asc2ucs(j);
+		ct=btesh2_tkfat_emitUtf8(ct, j);
+//		*ct++=j;
+	}
+	
+	cs=sfn+8;
+	if(*cs<' ')
+		return(-1);
+	if(*cs==' ')
+	{
+		*ct++=0;
+		return(1);
+	}
+	
+	*ct++='.';
+
+	for(i=0; i<3; i++)
+	{
+		j=*cs++;
+
+		if((j<' ') || (j==0x7F))
+			return(-1);
+		
+		if(j==' ')
+		{
+			break;
+		}
+		
+		if(lcase&0x10)
+		{
+			if((j>='A') && j<='Z')
+				j='a'+(j-'A');
+		}
+//		*ct++=j;
+
+		j=btesh2_tkfat_asc2ucs(j);
+		ct=btesh2_tkfat_emitUtf8(ct, i);
+	}
+	*ct++=0;
+
+	return(1);
+}
+
+int btesh2_tkfat_lfn2bytes(u16 *lfn, int sz, byte *dst)
+{
+	u16 *cs;
+	byte *ct;
+	int i, j, k;
+	
+	cs=lfn; ct=dst;
+	for(i=0; i<sz; i++)
+	{
+		j=*cs++;
+		*ct++=btesh2_tkfat_ucs2asc(j);
+	}
+	*ct++=0;
+	return(0);
+}
+
+int BTESH2_TKFAT_WalkDirEntNext(BTESH2_TKFAT_ImageInfo *img,
+	BTESH2_TKFAT_FAT_DirEntExt *dee)
+{
+	BTESH2_TKFAT_FAT_DirEnt tdeb;
+	BTESH2_TKFAT_FAT_DirEnt *deb;
+	BTESH2_TKFAT_FAT_DirLfnEnt *del;
+	u16 bln[288];	//buffer for longname
+	u16 bln2[420];	//buffer for longname (alt)
+	u16 tln[288];	//temp longname
+	char tsn[12];	//temp shortname
+	char *s;
+	int h0, h1, lh, clid, sidx;
+	int i, j, k;
+	
+	if(!img)
+		img=dee->img;
+	
+	clid=dee->clid;
+	sidx=(dee->idx>=0)?(dee->idx+1):0;
+
+	deb=&tdeb;
+	del=(BTESH2_TKFAT_FAT_DirLfnEnt *)(&tdeb);
+
+	for(k=0; k<288; k++)
+	{
+		bln[k]=0xFFFF;
+		bln2[k]=0xFFFF;
+	}
+	
+	bln[0]=0;
+	bln2[0]=0;
+
+	for(i=sidx; i<65536; i++)
+	{
+		j=BTESH2_TKFAT_ReadWriteDirEntOffset(img, clid, i, 0, deb);
+		if(j<0)break;
+		
+		if(deb->name[0]==0x00)
+			continue;
+		if(deb->name[0]==0xE5)
+			continue;
+		
+		if(deb->attrib==0x0F)
+		{
+//			j=(del->seq)&0x1F;
+//			j=del->seq;
+			j=(del->seq)&0x3F;
+			if((j>=0x01) && j<=0x14)
+			{
+				h1=del->csum;
+				if(h1!=lh)
+				{
+					for(k=0; k<288; k++)
+						bln[k]=0xFFFF;
+					lh=h1;
+				}
+
+				j=(del->seq)&0x1F;
+//				j=((del->seq)&0x1F)*13;
+				j=(j-1)*13;
+				if(del->type==0x20)
+				{
+					for(k=0; k<10; k++)
+						{ bln[j+0+k]=btesh2_tkfat_asc2ucs(del->name1[k]); }
+					for(k=0; k<12; k++)
+						{ bln[j+5+k]=btesh2_tkfat_asc2ucs(del->name2[k]); }
+					for(k=0; k<4; k++)
+						{ bln[j+11+k]=btesh2_tkfat_asc2ucs(del->name3[k]); }
+					if((del->seq)&0x40)
+						bln[j+26]=0;
+				}else if(del->type==0x00)
+				{
+					for(k=0; k<5; k++)
+						{ bln[j+0+k]=btesh2_tkfat_getWord(
+							del->name1+k*2); }
+					for(k=0; k<6; k++)
+						{ bln[j+5+k]=btesh2_tkfat_getWord(
+							del->name2+k*2); }
+					for(k=0; k<2; k++)
+						{ bln[j+11+k]=btesh2_tkfat_getWord(
+							del->name3+k*2); }
+					if((del->seq)&0x40)
+						bln[j+13]=0;
+				}
+			}
+
+//			j=del->seq;
+			j=(del->seq)&0x3F;
+			if((j>=0x21) && j<=0x3D)
+			{
+				h1=del->csum;
+				if(h1!=lh)
+				{
+					for(k=0; k<288; k++)
+						bln2[k]=0xFFFF;
+					lh=h1;
+				}
+
+				j=(del->seq)&0x1F;
+//				j=((del->seq)&0x1F)*13;
+				j=(j-1)*13;
+				if(del->type==0x20)
+				{
+					for(k=0; k<10; k++)
+						{ bln2[j+0+k]=btesh2_tkfat_asc2ucs(del->name1[k]); }
+					for(k=0; k<12; k++)
+						{ bln2[j+5+k]=btesh2_tkfat_asc2ucs(del->name2[k]); }
+					for(k=0; k<4; k++)
+						{ bln2[j+11+k]=btesh2_tkfat_asc2ucs(del->name3[k]); }
+					if((del->seq)&0x40)
+						bln2[j+26]=0;
+				}else if(del->type==0x00)
+				{
+					for(k=0; k<5; k++)
+						{ bln2[j+0+k]=btesh2_tkfat_getWord(
+							del->name1+k*2); }
+					for(k=0; k<6; k++)
+						{ bln2[j+5+k]=btesh2_tkfat_getWord(
+							del->name2+k*2); }
+					for(k=0; k<2; k++)
+						{ bln2[j+11+k]=btesh2_tkfat_getWord(
+							del->name3+k*2); }
+					if((del->seq)&0x40)
+						bln2[j+13]=0;
+				}
+			}
+			
+			continue;
+		}
+		
+		h0=btesh2_tkfat_lfnchecksum(deb->name);
+//		if(!memcmp(deb.name, tsn, 11))
+//		if((h0==h1) && !tkfat_matchlfn(bln, tln))
+//		if(h0==h1)
+		if(1)
+		{
+			if(h0==h1)
+			{
+				btesh2_tkfat_lfn2utf8(bln, dee->de_name);
+				
+				dee->de_aname[0]=0;
+				if(bln2[0] && (bln2[0]!=0xFFFF))
+					btesh2_tkfat_lfn2utf8(bln2, dee->de_aname);
+				if(deb->attrib==0x28)
+					btesh2_tkfat_lfn2bytes(bln2, 384, dee->de_aname);
+			}else
+			{
+				j=btesh2_tkfat_sfn2utf8(
+					deb->name, deb->lncase, dee->de_name);
+				if(j<0)
+				{
+					printf("TKFAT_WalkDirEntNext: Reject DirEnt\n");
+					continue;
+				}
+				dee->de_aname[0]=0;
+			}
+
+			dee->deb=*deb;
+//			dee->img=img;
+//			dee->clid=clid;
+			dee->idx=i;
+//			break;
+//			strcpy(dee->de_name, name);
+			return(i);
+		}
+	}
+
+	return(-1);
+}
+
 int BTESH2_TKFAT_LookupDirEntName(BTESH2_TKFAT_ImageInfo *img,
 	int clid, BTESH2_TKFAT_FAT_DirEntExt *dee, char *name)
 {
 	BTESH2_TKFAT_FAT_DirEnt tdeb;
 	BTESH2_TKFAT_FAT_DirEnt *deb;
 	BTESH2_TKFAT_FAT_DirLfnEnt *del;
-	u16 bln[256];
-	u16 tln[258];
-	char tsn[12];
+	u16 bln[288];	//buffer for longname
+	u16 bln2[420];	//buffer for longname (alt)
+	u16 tln[288];	//temp longname
+	char tsn[12];	//temp shortname
 	char *s;
 	int h0, h1, lh;
 	int i, j, k;
@@ -696,23 +1172,88 @@ int BTESH2_TKFAT_LookupDirEntName(BTESH2_TKFAT_ImageInfo *img,
 		
 		if(deb->attrib==0x0F)
 		{
-			h1=del->csum;
-			if(h1!=lh)
+//			j=(del->seq)&0x1F;
+//			j=del->seq;
+			j=(del->seq)&0x3F;
+			if((j>=0x01) && j<=0x14)
 			{
-				for(k=0; k<256; k++)
-					bln[k]=0xFFFF;
-				lh=h1;
+				h1=del->csum;
+				if(h1!=lh)
+				{
+					for(k=0; k<288; k++)
+						bln[k]=0xFFFF;
+					lh=h1;
+				}
+
+				j=(del->seq)&0x1F;
+//				j=((del->seq)&0x1F)*13;
+				j=(j-1)*13;
+				if(del->type==0x20)
+				{
+					for(k=0; k<10; k++)
+						{ bln[j+0+k]=btesh2_tkfat_asc2ucs(del->name1[k]); }
+					for(k=0; k<12; k++)
+						{ bln[j+5+k]=btesh2_tkfat_asc2ucs(del->name2[k]); }
+					for(k=0; k<4; k++)
+						{ bln[j+11+k]=btesh2_tkfat_asc2ucs(del->name3[k]); }
+					if((del->seq)&0x40)
+						bln[j+26]=0;
+				}else if(del->type==0x00)
+				{
+					for(k=0; k<5; k++)
+						{ bln[j+0+k]=btesh2_tkfat_getWord(
+							del->name1+k*2); }
+					for(k=0; k<6; k++)
+						{ bln[j+5+k]=btesh2_tkfat_getWord(
+							del->name2+k*2); }
+					for(k=0; k<2; k++)
+						{ bln[j+11+k]=btesh2_tkfat_getWord(
+							del->name3+k*2); }
+					if((del->seq)&0x40)
+						bln[j+13]=0;
+				}
 			}
-			
-			j=((del->seq)&0x1F)*13;
-			for(k=0; k<5; k++)
-				{ bln[j+0+k]=btesh2_tkfat_getWord(del->name1+k*2); }
-			for(k=0; k<6; k++)
-				{ bln[j+5+k]=btesh2_tkfat_getWord(del->name2+k*2); }
-			for(k=0; k<2; k++)
-				{ bln[j+11+k]=btesh2_tkfat_getWord(del->name3+k*2); }
-			if((del->seq)&0x40)
-				bln[j+13]=0;
+
+//			j=del->seq;
+			j=(del->seq)&0x3F;
+			if((j>=0x21) && j<=0x3D)
+			{
+				h1=del->csum;
+				if(h1!=lh)
+				{
+					for(k=0; k<288; k++)
+						bln2[k]=0xFFFF;
+					lh=h1;
+				}
+
+				j=(del->seq)&0x1F;
+//				j=((del->seq)&0x1F)*13;
+				j=(j-1)*13;
+				if(del->type==0x20)
+				{
+					for(k=0; k<10; k++)
+						{ bln2[j+0+k]=btesh2_tkfat_asc2ucs(del->name1[k]); }
+					for(k=0; k<12; k++)
+						{ bln2[j+5+k]=btesh2_tkfat_asc2ucs(del->name2[k]); }
+					for(k=0; k<4; k++)
+						{ bln2[j+11+k]=btesh2_tkfat_asc2ucs(del->name3[k]); }
+					if((del->seq)&0x40)
+						bln2[j+26]=0;
+				}else if(del->type==0x00)
+				{
+					for(k=0; k<5; k++)
+						{ bln2[j+0+k]=btesh2_tkfat_getWord(
+							del->name1+k*2); }
+					for(k=0; k<6; k++)
+						{ bln2[j+5+k]=btesh2_tkfat_getWord(
+							del->name2+k*2); }
+					for(k=0; k<2; k++)
+						{ bln2[j+11+k]=btesh2_tkfat_getWord(
+							del->name3+k*2); }
+					if((del->seq)&0x40)
+						bln2[j+13]=0;
+				}
+			}
 			
 			continue;
 		}
@@ -1025,12 +1566,12 @@ int BTESH2_TKFAT_SetupDirEntNewDirectory(
 	dcli=BTESH2_TKFAT_GetDirEntCluster(dee);
 	if(dcli)
 	{
-		if(dee->deb.attrib&0x08)
+		if(dee->deb.attrib&0x10)
 			return(0);
 		return(-1);
 	}
 
-	dee->deb.attrib|=0x08;
+	dee->deb.attrib|=0x10;
 	if(!dcli)
 	{
 		dcli=BTESH2_TKFAT_AllocFreeCluster(dee->img);
@@ -1043,7 +1584,7 @@ int BTESH2_TKFAT_SetupDirEntNewDirectory(
 	memset(deb, 0, sizeof(BTESH2_TKFAT_FAT_DirEnt));
 
 	strcpy(deb->name, ".          ");
-	deb->attrib|=0x08;
+	deb->attrib|=0x10;
 	btesh2_tkfat_setWord(deb->cluster_lo, dcli);
 	btesh2_tkfat_setWord(deb->cluster_hi, dcli>>16);
 
@@ -1053,7 +1594,7 @@ int BTESH2_TKFAT_SetupDirEntNewDirectory(
 	pcli=dee->clid;
 	if(pcli<2)pcli=0;
 	strcpy(deb->name, "..         ");
-	deb->attrib|=0x08;
+	deb->attrib|=0x10;
 	btesh2_tkfat_setWord(deb->cluster_lo, pcli);
 	btesh2_tkfat_setWord(deb->cluster_hi, pcli>>16);
 
@@ -1061,6 +1602,36 @@ int BTESH2_TKFAT_SetupDirEntNewDirectory(
 		dee->img, dcli, 1, 1, deb);
 	return(1);
 }
+
+//int TKFAT_WalkDirEntNext(TKFAT_ImageInfo *img,
+//	TKFAT_FAT_DirEntExt *dee)
+//{
+//}
+
+int TKFAT_ListDir(BTESH2_TKFAT_ImageInfo *img, int clid)
+{
+	BTESH2_TKFAT_FAT_DirEntExt tdee;
+	BTESH2_TKFAT_FAT_DirEntExt *dee;
+	int i, j;
+	
+	dee=&tdee;
+	memset(dee, 0, sizeof(BTESH2_TKFAT_FAT_DirEntExt));
+	
+	dee->img=img;
+	dee->clid=clid;
+	dee->idx=-1;
+	
+	while(1)
+	{
+		i=BTESH2_TKFAT_WalkDirEntNext(img, dee);
+		if(i<0)break;
+		
+		printf("%s\n", dee->de_name);
+	}
+
+	return(0);
+}
+
 
 
 char *BTESH2_BufGetLine(char *tbuf, char *str, char *stre)
@@ -1089,6 +1660,10 @@ char **BTESH2_SplitLine(char *buf)
 	static char tb[512];
 	char **a;
 	char *s, *t, *t0;
+	int i;
+	
+	for(i=0; i<64; i++)
+		ta[i]=NULL;
 	
 	a=ta; s=buf; t=tb;
 	while(*s)
@@ -1268,6 +1843,12 @@ int BTESH2_ProcessSDCL(
 			
 			BTESH2_TKFAT_ReadWriteDirEntFile(&tdee, 0, true, tbuf, fsz);
 			printf("OK\n");
+			continue;
+		}
+		
+		if(!strcmp(a[0], "list"))
+		{
+			TKFAT_ListDir(img, img->clid_root);
 			continue;
 		}
 	}

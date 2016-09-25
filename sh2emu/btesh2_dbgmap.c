@@ -16,6 +16,9 @@ char *BTESH2_ReadNextLine(char *str, char *stre)
 	return(s);
 }
 
+char *BTESH2_BufGetLine(char *tbuf, char *str, char *stre);
+char **BTESH2_SplitLine(char *buf);
+
 int BTESH2_BootLoadMap(
 	BTESH2_CpuState *cpu,
 	byte *ibuf, int szibuf,
@@ -27,9 +30,11 @@ int BTESH2_BootLoadMap(
 	u32 *t_addr;
 	char **t_name;
 
+	char tb[256];
 	char tb1[256], tb2[256];
 	u32 addr;
 	char *cs, *cse;
+	char **a;
 	int n, m;
 	int i, j, k;
 	
@@ -40,9 +45,39 @@ int BTESH2_BootLoadMap(
 	cs=ibuf; cse=cs+szibuf; n=0;
 	while((cs<cse) && *cs)
 	{
-		sscanf(cs, "%08X %s %s", &addr, tb1, tb2);
-		cs=BTESH2_ReadNextLine(cs, cse);
+//		sscanf(cs, "%08X %s %s", &addr, tb1, tb2);
+//		cs=BTESH2_ReadNextLine(cs, cse);
+
+		cs=BTESH2_BufGetLine(tb, cs, cse);
+		a=BTESH2_SplitLine(tb);
 		
+		if(!a[0] || !a[1] || !a[2])
+			continue;
+		
+		k=a[0][0];
+		if(!((k>='0') && (k<='9')) &&
+			!((k>='A') && (k<='F')) &&
+			!((k>='a') && (k<='f')))
+				continue;
+		
+		if(!a[3])
+		{
+			sscanf(a[0], "%08X", &addr);
+			strcpy(tb2, a[2]);
+		}
+
+		if(a[5] && !a[6])
+		{
+			sscanf(a[0], "%08X", &addr);
+			strcpy(tb2, a[5]);
+		}
+
+		if(a[4] && !a[5])
+		{
+			sscanf(a[0], "%08X", &addr);
+			strcpy(tb2, a[4]);
+		}
+
 		if((n+1)>=m)
 		{
 			m=m+(m>>1);
@@ -53,6 +88,17 @@ int BTESH2_BootLoadMap(
 		t_addr[n]=addr;
 		t_name[n]=strdup(tb2);
 		n++;
+	}
+
+	for(i=0; i<n; i++)
+		for(j=i+1; j<n; j++)
+	{
+		if(t_addr[j]<t_addr[i])
+		{
+			addr=t_addr[i];			cs=t_name[i];
+			t_addr[i]=t_addr[j];	t_name[i]=t_name[j];			
+			t_addr[j]=addr;			t_name[j]=cs;
+		}
 	}
 
 	cpu->map_addr=t_addr;

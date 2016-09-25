@@ -133,6 +133,7 @@ int lba_root;		//LBA of root directory
 int lba_data;		//LBA of data start
 
 int tot_clust;
+int clid_root;
 
 BTESH2_TKFAT_MBR *mbr;
 BTESH2_TKFAT_FAT16_Boot *boot16;
@@ -143,9 +144,10 @@ BTESH2_TKFAT_FAT32_Boot *boot32;
 struct BTESH2_TKFAT_FAT_DirEntExt_s {
 BTESH2_TKFAT_FAT_DirEnt deb;	//basic dirent
 BTESH2_TKFAT_ImageInfo *img;
-int clid;			//cluster ID of parent directory
-int idx;			//index within directory
-char de_name[256];	//name (UTF-8, LFN)
+int clid;				//cluster ID of parent directory
+int idx;				//index within directory
+byte de_name[512];		//name (UTF-8, LFN)
+byte de_aname[512];		//name (UTF-8, LFN)
 };
 
 struct BTESH2_TKFAT_FAT_DirInfo_s {

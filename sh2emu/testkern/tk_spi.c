@@ -240,6 +240,25 @@ int TKSPI_ReadSectors(byte *buf, u32 lba, int cnt)
 }
 
 
+int TKSPI_ReadSectorsL(byte *buf, u64 lba, int cnt)
+{
+	byte *ct;
+	u64 la;
+	int n, h;
+
+	ct=buf; la=lba; n=cnt;
+	while(n>0)
+	{
+		h=la>>32;
+		if(h)TKSPI_SendCmd(MMC_CMD55, h);
+		TKSPI_SendCmd(MMC_CMD17, la);
+		TKSPI_ReadData(ct, 512);
+		ct+=512; la++; n--;
+	}
+	return(0);
+}
+
+
 
 int TKSPI_InitDevice(void)
 {

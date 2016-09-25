@@ -6,7 +6,8 @@ int spimmc_omsgrov, spimmc_omsgirov;
 byte *spimmc_imgbuf=NULL;
 int spimmc_szimgbuf;
 
-int spimmc_rmultilba=-1;
+s64 spimmc_rmultilba=-1;
+u32 spimmc_c55_data=0;
 
 int BTESH2_SPIMMC_SetImage(byte *buf, int sz)
 {
@@ -48,7 +49,9 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 {
 	int ib, ob, v, n;
 	int i0, i1, i2, i3;
-	int op, lba, offs;
+	s64 llba;
+	u32 lba;
+	int op, offs;
 	int i;
 	
 	if((spimmc_imsgrov!=spimmc_imsgirov) || (val!=0xFF))
@@ -246,6 +249,8 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 			
 			spimmc_imsgirov=(ib+6)&4095;
 			
+			spimmc_c55_data=lba;
+			
 //			printf("APP_CMD %08X\n", lba);
 
 			btesh2_spimmc_SendByte(cpu, 0xFF);
@@ -322,6 +327,11 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 		}else
 		{
 			printf("Unknown %02X %d\n", op, op&63);
+		}
+
+		if((op&63)!=55)
+		{
+			spimmc_c55_data=0;
 		}
 	}
 
