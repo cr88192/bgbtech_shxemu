@@ -7,6 +7,39 @@ Options:
 	-sh2			SH-2 Emulation
 	-sh4			SH-4 Emulation
 	-map <name>		Symbol Map
+	-sd <name>		Use SD card image.
+	-sdcl <name>	Use SDCL command script.
+
+
+SDCL Command Language
+
+mkimage <image> <size[sfx]> [options]
+	image=image filename.
+	size=size of image, default in sectors.
+	sfx: k=KiB, M=MeB
+	-F16: Create image using FAT16
+	-F32: Create image using FAT32
+
+Makes a new single-file image.
+If image exists, it is overwritten.
+
+Single-file images are generally limited to around 2GB.
+
+
+openimage <image> <size[sfx]> [options]
+Open a new or existing single-file image.
+
+If image exists, the existing image is loaded.
+If image does not exist, a new image is created.
+The size gives the size for a newly created image, as do the options.
+
+
+addfile <iname> [ename]
+
+Add a file to the image, iname gives the internal name.
+The ename option gives an external name for the file.
+If ename is not given, this will assume that the internal and external file have the same name.
+
 
 
 Memory Map (SH-2)

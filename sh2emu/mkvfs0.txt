@@ -4,3 +4,5 @@ mkimage vfsimg1.hd 63M
 addfile System_sh4.map
 
 list
+
+useimage

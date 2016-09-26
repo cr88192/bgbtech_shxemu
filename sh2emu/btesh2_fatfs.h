@@ -117,15 +117,19 @@ struct BTESH2_TKFAT_FAT_DirLfnEnt_s {
 typedef struct BTESH2_TKFAT_ImageInfo_s BTESH2_TKFAT_ImageInfo;
 
 struct BTESH2_TKFAT_ImageInfo_s {
-byte *pImgData;
+// byte *pImgData;
 int nImgBlks;
+
+FILE *fdImgData;
+
 byte fsty;			//filesystem type
 bool isfat16;		//FS is FAT16
+bool isfat32e;		//FS is FAT32+
 byte szclust;		//sectors/cluster
 byte shclust;		//shift for cluster (bytes)
 
 int lba_start;		//LBA start of FAT volume
-int lba_count;		//LBA count of FAT volume
+s64 lba_count;		//LBA count of FAT volume
 
 int lba_fat1;		//LBA of first FAT
 int lba_fat2;		//LBA of second FAT
@@ -138,6 +142,20 @@ int clid_root;
 BTESH2_TKFAT_MBR *mbr;
 BTESH2_TKFAT_FAT16_Boot *boot16;
 BTESH2_TKFAT_FAT32_Boot *boot32;
+
+u32 sbc_lba[64];
+void *sbc_buf[64];
+short sbc_lbn[256];
+int sbc_num;
+
+u32 tbc_lba[256];
+short tbc_lbn[256];
+void *tbc_buf[256];
+int tbc_num;
+
+char *exp_iname[256];
+char *exp_ename[256];
+int exp_cnt;
 };
 
 

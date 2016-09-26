@@ -3,18 +3,20 @@ byte spimmc_omsgbuf[4096];
 int spimmc_imsgrov, spimmc_imsgirov;
 int spimmc_omsgrov, spimmc_omsgirov;
 
-byte *spimmc_imgbuf=NULL;
-int spimmc_szimgbuf;
+BTESH2_TKFAT_ImageInfo *spimmc_img=NULL;
+
+// byte *spimmc_imgbuf=NULL;
+// int spimmc_szimgbuf;
 
 s64 spimmc_rmultilba=-1;
 u32 spimmc_c55_data=0;
 
-int BTESH2_SPIMMC_SetImage(byte *buf, int sz)
-{
-	spimmc_imgbuf=buf;
-	spimmc_szimgbuf=sz;
-	return(0);
-}
+//int BTESH2_SPIMMC_SetImage(byte *buf, int sz)
+//{
+//	spimmc_imgbuf=buf;
+//	spimmc_szimgbuf=sz;
+//	return(0);
+//}
 
 int btesh2_spimmc_SendByte(BTESH2_CpuState *cpu, int val)
 {
@@ -47,6 +49,7 @@ int btesh2_spimmc_XrCtl(BTESH2_CpuState *cpu, int val)
 
 int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 {
+	byte tbuf[512];
 	int ib, ob, v, n;
 	int i0, i1, i2, i3;
 	s64 llba;
@@ -89,21 +92,6 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 	{
 		ib=spimmc_imsgirov;
 		op=spimmc_imsgbuf[ib];
-
-#if 0
-		if(op==0xFF)
-		{
-			ib=spimmc_imsgirov;
-			while(ib!=spimmc_imsgrov)
-			{
-				op=spimmc_imsgbuf[ib];
-				if(op!=0xFF)
-					break;
-				ib=(ib+1)&4095;
-			}
-			spimmc_imsgirov=ib;
-		}
-#endif
 
 		if((op&63)==0)
 		{
@@ -187,8 +175,22 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 			btesh2_spimmc_SendByte(cpu, 0x00);
 			btesh2_spimmc_SendByte(cpu, 0xFE);
 			
-			offs=lba<<9;
-			if(!spimmc_imgbuf || ((offs+512)>spimmc_szimgbuf))
+//			offs=lba<<9;
+			if(spimmc_img)
+			{
+				BTESH2_TKFAT_ReadSectors(spimmc_img, tbuf, lba, 1);
+				for(i=0; i<512; i++)
+					{ btesh2_spimmc_SendByte(cpu, tbuf[i]); }
+			}else
+			{
+				for(i=0; i<512; i++)
+				{
+					btesh2_spimmc_SendByte(cpu, 0);
+				}
+			}
+
+#if 0
+				if(!spimmc_imgbuf || ((offs+512)>spimmc_szimgbuf))
 			{
 				for(i=0; i<512; i++)
 				{
@@ -196,10 +198,11 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 					btesh2_spimmc_SendByte(cpu, i);
 				}
 			}else
-			{
+			{			
 				for(i=0; i<512; i++)
 					{ btesh2_spimmc_SendByte(cpu, spimmc_imgbuf[offs+i]); }
 			}
+#endif
 		}else
 
 			if((op&63)==18)
@@ -222,8 +225,22 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 			btesh2_spimmc_SendByte(cpu, 0x00);
 			btesh2_spimmc_SendByte(cpu, 0xFE);
 			
-			offs=lba<<9;
-			if(!spimmc_imgbuf || ((offs+512)>spimmc_szimgbuf))
+//			offs=lba<<9;
+			if(spimmc_img)
+			{
+				BTESH2_TKFAT_ReadSectors(spimmc_img, tbuf, lba, 1);
+				for(i=0; i<512; i++)
+					{ btesh2_spimmc_SendByte(cpu, tbuf[i]); }
+			}else
+			{
+				for(i=0; i<512; i++)
+				{
+					btesh2_spimmc_SendByte(cpu, 0);
+				}
+			}
+
+#if 0
+				if(!spimmc_imgbuf || ((offs+512)>spimmc_szimgbuf))
 			{
 				for(i=0; i<512; i++)
 				{
@@ -235,6 +252,7 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 				for(i=0; i<512; i++)
 					{ btesh2_spimmc_SendByte(cpu, spimmc_imgbuf[offs+i]); }
 			}
+#endif
 			
 			spimmc_rmultilba=lba+1;
 		}else
@@ -340,8 +358,22 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 		lba=spimmc_rmultilba++;
 		btesh2_spimmc_SendByte(cpu, 0xFE);
 		
-		offs=lba<<9;
-		if(!spimmc_imgbuf || ((offs+512)>spimmc_szimgbuf))
+//		offs=lba<<9;
+		if(spimmc_img)
+		{
+			BTESH2_TKFAT_ReadSectors(spimmc_img, tbuf, lba, 1);
+			for(i=0; i<512; i++)
+				{ btesh2_spimmc_SendByte(cpu, tbuf[i]); }
+		}else
+		{
+			for(i=0; i<512; i++)
+			{
+				btesh2_spimmc_SendByte(cpu, 0);
+			}
+		}
+
+#if 0
+			if(!spimmc_imgbuf || ((offs+512)>spimmc_szimgbuf))
 		{
 			for(i=0; i<512; i++)
 				{ btesh2_spimmc_SendByte(cpu, i); }
@@ -350,6 +382,7 @@ int btesh2_spimmc_XrByte(BTESH2_CpuState *cpu, int val)
 			for(i=0; i<512; i++)
 				{ btesh2_spimmc_SendByte(cpu, spimmc_imgbuf[offs+i]); }
 		}
+#endif
 	}
 	
 	if(spimmc_omsgirov!=spimmc_omsgrov)

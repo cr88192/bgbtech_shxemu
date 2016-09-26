@@ -355,12 +355,14 @@ int main(int argc, char *argv[])
 
 	if(sdname)
 	{
-		ibuf=loadfile(sdname, &sz);
-		if(ibuf)
-		{
-			printf("Loaded MMC image, %dMB\n", (sz>>20));
-			BTESH2_SPIMMC_SetImage(ibuf, sz);
-		}
+		BTESH2_SetUseImage(sdname);
+
+//		ibuf=loadfile(sdname, &sz);
+//		if(ibuf)
+//		{
+//			printf("Loaded MMC image, %dMB\n", (sz>>20));
+//			BTESH2_SPIMMC_SetImage(ibuf, sz);
+//		}
 	}
 	
 	/* Memory Map in SH4 Mode
@@ -587,6 +589,8 @@ int main(int argc, char *argv[])
 	
 //	t2=t1-t0; dt=t2/((double)CLOCKS_PER_SEC);
 //	printf("%f MIPS\n", cpu->tr_tops/(dt*1000000.0));
+
+	BTESH2_TKFAT_SyncExports();
 
 #ifdef __linux
 	btesh2_resettermios();

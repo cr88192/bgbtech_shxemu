@@ -139,11 +139,12 @@ TKFAT_FAT16_Boot *boot16;
 TKFAT_FAT32_Boot *boot32;
 
 u32 sbc_lba[64];
+s16 sbc_lbn[64];
 void *sbc_buf[64];
 int sbc_num;
 
 u32 tbc_lba[256];
-byte tbc_lbn[256];
+s16 tbc_lbn[256];
 void *tbc_buf[256];
 int tbc_num;
 };
