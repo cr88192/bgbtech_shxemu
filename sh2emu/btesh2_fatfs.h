@@ -92,7 +92,7 @@ struct BTESH2_TKFAT_FAT_DirEnt_s {
 	byte ext[3];				//0x08
 	byte attrib;				//0x0B
 	byte lncase;				//0x0C
-	byte ctimems;				//0x0D
+	byte ctime_ms;				//0x0D
 	byte ctime[2];				//0x0E
 	byte cdate[2];				//0x10
 	byte mdate[2];				//0x12
@@ -115,10 +115,11 @@ struct BTESH2_TKFAT_FAT_DirLfnEnt_s {
 };
 
 typedef struct BTESH2_TKFAT_ImageInfo_s BTESH2_TKFAT_ImageInfo;
+typedef struct BTESH2_TKFAT_SegmentInfo_s BTESH2_TKFAT_SegmentInfo;
 
 struct BTESH2_TKFAT_ImageInfo_s {
 // byte *pImgData;
-int nImgBlks;
+s64 nImgBlks;
 
 FILE *fdImgData;
 
@@ -156,8 +157,20 @@ int tbc_num;
 char *exp_iname[256];
 char *exp_ename[256];
 int exp_cnt;
+
+char *seg_base;
+//FILE *seg_fd[256];
+//u32 seg_id[256];
+BTESH2_TKFAT_SegmentInfo *seg[256];
+int seg_n;
 };
 
+struct BTESH2_TKFAT_SegmentInfo_s {
+FILE *fd;
+u32 id;
+u32 idx[256];
+int nidx;
+};
 
 struct BTESH2_TKFAT_FAT_DirEntExt_s {
 BTESH2_TKFAT_FAT_DirEnt deb;	//basic dirent

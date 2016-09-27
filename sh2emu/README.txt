@@ -16,7 +16,7 @@ SDCL Command Language
 mkimage <image> <size[sfx]> [options]
 	image=image filename.
 	size=size of image, default in sectors.
-	sfx: k=KiB, M=MeB
+	sfx: k=KiB, M=MeB, G=GiB
 	-F16: Create image using FAT16
 	-F32: Create image using FAT32
 
@@ -32,6 +32,14 @@ Open a new or existing single-file image.
 If image exists, the existing image is loaded.
 If image does not exist, a new image is created.
 The size gives the size for a newly created image, as do the options.
+
+
+opensegimg <base> <size[sfx]> [options]
+Open a new or existing segmented image.
+Base is given as the directory to hold the image segments.
+
+This is intended more for larger images (above 2GB).
+Currently will split the image into 512MiB segments (1M sectors).
 
 
 addfile <iname> [ename]

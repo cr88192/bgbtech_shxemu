@@ -1,4 +1,7 @@
-mkimage vfsimg1.hd 63M
+# mkimage vfsimg1.hd 63M
+mkimage vfsimg0.hd 256M
+
+# opensegimg segtest 40G
 
 // addfile System_sh4.map System_sh4.map
 addfile System_sh4.map

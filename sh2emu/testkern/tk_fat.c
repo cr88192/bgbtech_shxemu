@@ -41,6 +41,9 @@ byte *TKFAT_GetSectorTempBuffer(TKFAT_ImageInfo *img,
 		if((img->tbc_lba[i]==lba) &&
 			(img->tbc_lbn[i]==n))
 		{
+			if(num&TKFAT_SFL_DIRTY)
+				img->tbc_lbn[i]|=TKFAT_SFL_DIRTY;
+
 			j=(i*7)>>3;
 			tbd=img->tbc_buf[i];
 			tba=img->tbc_lba[i];
@@ -65,6 +68,15 @@ byte *TKFAT_GetSectorTempBuffer(TKFAT_ImageInfo *img,
 	}else
 	{
 		i=255;
+
+		if(img->tbc_lbn[i]&TKFAT_SFL_DIRTY)
+		{
+			TKSPI_WriteSectors(
+				img->tbc_buf[i],
+				img->tbc_lba[i],
+				img->tbc_lbn[i]&255);
+		}
+		
 		if(n!=img->tbc_lbn[i])
 		{
 			free(img->tbc_buf[i]);
@@ -449,7 +461,7 @@ void TKFAT_ReadImageFAT(TKFAT_ImageInfo *img)
 {
 	s64 lban, fatsz, cln;
 	int rootsz, rootnde, rootcl;
-	int clsz, clsh;
+	int clsz, clsh, rsvsec;
 	u32 i0, i1, i2, i3;
 	int i;
 
@@ -465,6 +477,8 @@ void TKFAT_ReadImageFAT(TKFAT_ImageInfo *img)
 
 	i2=tkfat_getWord(img->boot32->sectors_fat);
 	i3=tkfat_getDWord(img->boot32->sectors_fat32);
+
+	rsvsec=tkfat_getWord(img->boot32->reserved_sectors);
 
 	rootnde=tkfat_getWord(img->boot32->root_dirents);
 	clsz=img->boot32->sectors_cluster;
@@ -507,9 +521,9 @@ void TKFAT_ReadImageFAT(TKFAT_ImageInfo *img)
 		rootcl=1;
 	}
 
-	img->lba_fat1=img->lba_start+2;
-	img->lba_fat2=img->lba_start+2+fatsz;
-	img->lba_root=img->lba_start+2+2*fatsz;
+	img->lba_fat1=img->lba_start+rsvsec;
+	img->lba_fat2=img->lba_start+rsvsec+fatsz;
+	img->lba_root=img->lba_start+rsvsec+2*fatsz;
 	img->lba_data=img->lba_root+rootsz;
 	img->szclust=clsz;
 	img->shclust=9+clsh;
@@ -535,6 +549,7 @@ void TKFAT_ReadImageFAT(TKFAT_ImageInfo *img)
 		img->lba_data, img->lba_data<<9);
 	printf("  %d Sectors/Cluster, %d bytes\n", clsz, 512*clsz);
 	printf("  %d total clusters\n", img->tot_clust);
+	printf("  Root Cluster=%08X\n", img->clid_root);
 }
 
 /** Allocate a cluster from the FAT. Implicitly marks as EOF. */

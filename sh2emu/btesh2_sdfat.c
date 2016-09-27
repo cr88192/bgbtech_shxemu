@@ -22,20 +22,283 @@ u16 btesh2_tkfat_getWord(byte *ptr)
 u32 btesh2_tkfat_getDWord(byte *ptr)
 	{	return(ptr[0]|(ptr[1]<<8)|(ptr[2]<<16)|(ptr[3]<<24));	}
 
+int BTESH2_TKFAT_GetSegment(
+	BTESH2_TKFAT_ImageInfo *img, int id, bool crt)
+{
+	BTESH2_TKFAT_SegmentInfo *sg1, *sg2;
+	char tb[1024];
+	FILE *fd, *fd2;
+	int id2, n;
+	int i, j, k;
+	
+	for(i=0; i<img->seg_n; i++)
+	{
+		if(img->seg[i]->id==id)
+		{
+			j=(7*i)>>3;
+			
+			sg1=img->seg[i];
+			sg2=img->seg[j];
+			img->seg[i]=sg2;
+			img->seg[j]=sg1;
+			
+//			id2=img->seg_id[j];
+//			fd2=img->seg_fd[j];
+//			img->seg_id[j]=img->seg_id[i];
+//			img->seg_fd[j]=img->seg_fd[i];
+//			img->seg_id[i]=id2;
+//			img->seg_fd[i]=fd2;
+			return(j);
+		}
+	}
+
+	sprintf(tb, "%s/S%07X.hd", img->seg_base, id);
+	
+	fd=fopen(tb, "r+b");
+	if(!fd)
+	{
+		if(crt)
+		{
+			fd=fopen(tb, "w+b");
+			if(fd)
+			{
+				memset(tb+512, 0, 512);
+//				for(j=0; j<(1<<20); i++)
+				for(j=0; j<256; j++)
+				{
+					fwrite(tb+512, 1, 512, fd);
+				}
+				fseek(fd, 0, 0);
+			}
+		}
+	}
+
+	if(!fd)
+		return(-1);
+
+	if(img->seg_n<64)
+	{
+		i=img->seg_n++;
+		if(!img->seg[i])
+		{
+			sg1=malloc(sizeof(BTESH2_TKFAT_SegmentInfo));
+			memset(sg1, 0, sizeof(BTESH2_TKFAT_SegmentInfo));
+			img->seg[i]=sg1;
+		}
+		
+	}else
+	{
+		i=63;
+		if(img->seg[i]->fd)
+		{
+			fclose(img->seg[i]->fd);
+		}
+	}
+
+	img->seg[i]->id=id;
+	img->seg[i]->fd=fd;
+	img->seg[i]->nidx=1;
+	
+	if(fd)
+	{
+		fseek(fd, 0, 0);
+		fread(tb, 1, 1024, fd);
+		
+		n=1;
+		for(j=0; j<256; j++)
+		{
+			k=btesh2_tkfat_getDWord(tb+j*4);
+			img->seg[i]->idx[j]=k;
+			if(k>n)n=k+1;
+		}
+		img->seg[i]->nidx=n;
+	}
+	
+	return(i);
+}
+
+int BTESH2_TKFAT_CommitSegment(
+	BTESH2_TKFAT_ImageInfo *img,
+	BTESH2_TKFAT_SegmentInfo *seg)
+{
+	byte tb[1024];
+	int i;
+
+	if(!seg->fd)
+		return(-1);
+		
+	for(i=0; i<256; i++)
+	{
+		btesh2_tkfat_setDWord(tb+i*4, seg->idx[i]);
+	}
+
+	fseek(seg->fd, 0, 0);
+	fwrite(tb, 1, 1024, seg->fd);
+	fflush(seg->fd);
+	return(0);
+}
+	
+int BTESH2_TKFAT_GetSegmentFileOffset(
+	BTESH2_TKFAT_ImageInfo *img, int sgid, int bidx, bool crt,
+	int *roffs)
+{
+	byte tb[512];
+	BTESH2_TKFAT_SegmentInfo *seg;
+	int sp, bi;
+	int ix, offs;
+	int i;
+
+	if(sgid<0)
+		return(-1);
+
+	sp=(bidx>>12)&255;
+	bi=bidx&4095;
+	
+	seg=img->seg[sgid];
+	ix=seg->idx[sp];
+	if(ix)
+	{
+		i=(ix&511)-1;
+		*roffs=65536+(i<<(12+9))+(bi<<9);
+		return(0);
+	}
+	
+	if(!crt)
+	{
+		ix=seg->nidx;
+		i=(ix&511)-1;
+		*roffs=65536+(i<<(12+9))+(bi<<9);
+		return(-1);
+	}
+	
+	ix=seg->nidx++;
+	seg->idx[sp]=ix;
+	BTESH2_TKFAT_CommitSegment(img, seg);
+
+	i=(ix&511)-1;
+//	offs=65536+(i<<(12+9))+(bi<<9);
+	offs=65536+(i<<(12+9));
+
+	fseek(seg->fd, offs, 0);
+	memset(tb, 0, 512);
+	for(i=0; i<4096; i++)
+		fwrite(tb, 1, 512, seg->fd);
+	
+	printf("BTESH2_TKFAT_GetSegmentFileOffset: "
+		"New Segment %07X:%02X:000, %d @%08X\n", seg->id, sp, ix, offs);
+	
+	offs=65536+(i<<(12+9))+(bi<<9);
+	*roffs=offs;
+	return(0);
+}
+
 int BTESH2_TKFAT_ReadSectors(BTESH2_TKFAT_ImageInfo *img,
 	byte *buf, s64 lba, int num)
 {
-	fseek(img->fdImgData, (int)(lba<<9), 0);
-	fread(buf, 1, 512*num, img->fdImgData);
-	return(0);
+	int sg, bi;
+	int n1, offs;
+	int i, j, k;
+
+	if(num<1)
+		return(-1);
+
+	if(img->fdImgData)
+	{
+		fseek(img->fdImgData, (int)(lba<<9), 0);
+		fread(buf, 1, 512*num, img->fdImgData);
+		return(0);
+	}
+	
+	if(img->seg_base)
+	{
+		memset(buf, 0, num*512);
+
+		if((lba+num)>img->nImgBlks)
+			return(-1);
+
+		if((lba>>12)!=((lba+num-1)>>12))
+		{
+			sg=lba>>12;
+			bi=lba&((1<<12)-1);
+
+			n1=(1<<12)-bi;
+			BTESH2_TKFAT_ReadSectors(img,
+				buf, lba, n1);
+			BTESH2_TKFAT_ReadSectors(img,
+				buf+n1*512, (sg+1)<<12, num-n1);
+			return(0);
+		}
+
+		sg=lba>>20;
+		bi=lba&((1<<20)-1);
+		i=BTESH2_TKFAT_GetSegment(img, sg, false);
+		if(i<0)return(-1);
+		j=BTESH2_TKFAT_GetSegmentFileOffset(img, i, bi, false, &offs);
+		if(j<0)return(-1);
+
+		if(img->seg[i]->fd)
+		{
+//			fseek(img->seg[i]->fd, (int)(bi<<9), 0);
+			fseek(img->seg[i]->fd, offs, 0);
+			fread(buf, 1, 512*num, img->seg[i]->fd);
+		}
+		return(0);
+	}
+	return(-1);
 }
 
 int BTESH2_TKFAT_WriteSectors(BTESH2_TKFAT_ImageInfo *img,
 	byte *buf, s64 lba, int num)
 {
-	fseek(img->fdImgData, (int)(lba<<9), 0);
-	fwrite(buf, 1, 512*num, img->fdImgData);
-	return(0);
+	int sg, bi, n1, offs;
+	int i, j;
+
+	if(num<1)
+		return(-1);
+
+	if(img->fdImgData)
+	{
+		fseek(img->fdImgData, (int)(lba<<9), 0);
+		fwrite(buf, 1, 512*num, img->fdImgData);
+		return(0);
+	}
+
+	if(img->seg_base)
+	{
+//		if(lba>=img->nImgBlks)
+		if((lba+num)>img->nImgBlks)
+			return(-1);
+
+		if((lba>>12)!=((lba+num-1)>>12))
+		{
+			sg=lba>>12;
+			bi=lba&((1<<12)-1);
+
+			n1=(1<<12)-bi;
+			BTESH2_TKFAT_WriteSectors(img,
+				buf, lba, n1);
+			BTESH2_TKFAT_WriteSectors(img,
+				buf+n1*512, (sg+1)<<12, num-n1);
+			return(0);
+		}
+
+		sg=lba>>20;
+		bi=lba&((1<<20)-1);
+		i=BTESH2_TKFAT_GetSegment(img, sg, true);
+		if(i<0)return(-1);
+		j=BTESH2_TKFAT_GetSegmentFileOffset(img, i, bi, true, &offs);
+		if(j<0)return(-1);
+
+		if(img->seg[i]->fd)
+		{
+//			fseek(img->seg_fd[i], (int)(bi<<9), 0);
+			fseek(img->seg[i]->fd, offs, 0);
+			fwrite(buf, 1, 512*num, img->seg[i]->fd);
+			return(0);
+		}
+		return(-1);
+	}
+	return(-1);
 }
 
 /** Get sectors as a temporary buffer.
@@ -60,6 +323,9 @@ byte *BTESH2_TKFAT_GetSectorTempBuffer(BTESH2_TKFAT_ImageInfo *img,
 		if((img->tbc_lba[i]==lba) &&
 			((img->tbc_lbn[i]&255)==n))
 		{
+			if(num&TKFAT_SFL_DIRTY)
+				img->tbc_lbn[i]|=TKFAT_SFL_DIRTY;
+
 			j=(i*7)>>3;
 			tbd=img->tbc_buf[i];
 			tba=img->tbc_lba[i];
@@ -262,7 +528,7 @@ void BTESH2_TKFAT_ReadImageMBR(BTESH2_TKFAT_ImageInfo *img)
 	img->isfat16=(img->fsty==0x06);
 
 	s0=btesh2_tkfat_fstnameforfsty(img->fsty);
-	printf("TKFAT_ReadImageMBR: %08X %08X %02X %s\n",
+	printf("TKFAT_ReadImageMBR: %08X %08llX %02X %s\n",
 		img->lba_start, img->lba_count, img->fsty, s0);
 }
 
@@ -283,7 +549,7 @@ int BTESH2_TKFAT_GetFatEntry(BTESH2_TKFAT_ImageInfo *img, int clid)
 
 		i=ofs[0]+(ofs[1]<<8);
 		if(i>=0xFFF0)
-			i=(i<<16)>>16;
+			i=((s32)(i<<16))>>16;
 		return(i);
 	}
 
@@ -293,8 +559,13 @@ int BTESH2_TKFAT_GetFatEntry(BTESH2_TKFAT_ImageInfo *img, int clid)
 	ofs+=(clid&127)*4;
 
 	i=ofs[0]+(ofs[1]<<8)+(ofs[2]<<16)+(ofs[3]<<24);
-	if(i>=0x0FFFFFF0)
-		i=(i<<4)>>4;
+
+	if(!img->isfat32e)
+	{
+		i=i&0x0FFFFFFF;
+		if(i>=0x0FFFFFF0)
+			i=((s32)(i<<4))>>4;
+	}
 	return(i);
 }
 
@@ -380,6 +651,8 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 
 	if(img->isfat16)
 	{
+		printf("BTESH2_TKFAT_SetupImageFAT: FAT16\n");
+
 		strcpy(img->boot16->oem_name, "BTESH2  ");
 		strcpy(img->boot16->vol_label, "DEFAULT    ");
 		strcpy(img->boot16->fs_tyname, "FAT16   ");
@@ -443,6 +716,8 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 		printf("  %d total clusters\n", img->tot_clust);
 	}else
 	{
+		printf("BTESH2_TKFAT_SetupImageFAT: FAT32\n");
+
 		strcpy(img->boot32->oem_name, "BTESH2  ");
 		strcpy(img->boot32->vol_label, "DEFAULT    ");
 		strcpy(img->boot32->fs_tyname, "FAT32   ");
@@ -453,6 +728,7 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 
 		if(img->isfat32e)
 		{
+			printf("BTESH2_TKFAT_SetupImageFAT: Is FAT32E\n");
 			strcpy(img->boot32->oem_name, "FAT32   ");
 
 			clsz=1; clsh=0;
@@ -549,7 +825,7 @@ void BTESH2_TKFAT_ReadImageFAT(BTESH2_TKFAT_ImageInfo *img)
 {
 	s64 lban, fatsz, cln;
 	int rootsz, rootnde, rootcl;
-	int clsz, clsh;
+	int clsz, clsh, rsvsec;
 	u32 i0, i1, i2, i3;
 	int i;
 
@@ -565,6 +841,8 @@ void BTESH2_TKFAT_ReadImageFAT(BTESH2_TKFAT_ImageInfo *img)
 
 	i2=btesh2_tkfat_getWord(img->boot32->sectors_fat);
 	i3=btesh2_tkfat_getDWord(img->boot32->sectors_fat32);
+	
+	rsvsec=btesh2_tkfat_getWord(img->boot32->reserved_sectors);
 
 	rootnde=btesh2_tkfat_getWord(img->boot32->root_dirents);
 	clsz=img->boot32->sectors_cluster;
@@ -607,9 +885,9 @@ void BTESH2_TKFAT_ReadImageFAT(BTESH2_TKFAT_ImageInfo *img)
 		rootcl=1;
 	}
 
-	img->lba_fat1=img->lba_start+2;
-	img->lba_fat2=img->lba_start+2+fatsz;
-	img->lba_root=img->lba_start+2+2*fatsz;
+	img->lba_fat1=img->lba_start+rsvsec;
+	img->lba_fat2=img->lba_start+rsvsec+fatsz;
+	img->lba_root=img->lba_start+rsvsec+2*fatsz;
 	img->lba_data=img->lba_root+rootsz;
 	img->szclust=clsz;
 	img->shclust=9+clsh;
@@ -635,6 +913,7 @@ void BTESH2_TKFAT_ReadImageFAT(BTESH2_TKFAT_ImageInfo *img)
 		img->lba_data, img->lba_data<<9);
 	printf("  %d Sectors/Cluster, %d bytes\n", clsz, 512*clsz);
 	printf("  %d total clusters\n", img->tot_clust);
+	printf("  Root Cluster=%08X\n", img->clid_root);
 }
 
 /** Allocate a cluster from the FAT. Implicitly marks as EOF. */
@@ -1896,6 +2175,7 @@ int TKFAT_ListDir(BTESH2_TKFAT_ImageInfo *img, int clid)
 {
 	BTESH2_TKFAT_FAT_DirEntExt tdee;
 	BTESH2_TKFAT_FAT_DirEntExt *dee;
+	int sz, nf, nde;
 	int i, j;
 	
 	dee=&tdee;
@@ -1905,13 +2185,21 @@ int TKFAT_ListDir(BTESH2_TKFAT_ImageInfo *img, int clid)
 	dee->clid=clid;
 	dee->idx=-1;
 	
+	printf("Start of directory listing:\n");
+	nf=0; nde=0;
 	while(1)
 	{
 		i=BTESH2_TKFAT_WalkDirEntNext(img, dee);
 		if(i<0)break;
 		
-		printf("%s\n", dee->de_name);
+		sz=BTESH2_TKFAT_GetDirEntSize(dee);
+		
+		printf("%08X %02X %s\n", sz, dee->deb.attrib, dee->de_name);
+		nf++;
+		if(dee->idx>=nde)
+			nde=dee->idx+1;
 	}
+	printf("%d file(s) in %d dirents\n", nf, nde);
 
 	return(0);
 }
@@ -2089,7 +2377,8 @@ int BTESH2_ProcessSDCL(
 	char *cs, *cse;
 	char **a;
 	bool useimg, imgisnew;
-	int imgsz, fsz, fty;
+	s64 imgsz;
+	int fsz, fty;
 	int n;
 	int i;
 
@@ -2116,6 +2405,8 @@ int BTESH2_ProcessSDCL(
 				imgsz*=2;
 			if(a[2][strlen(a[2])-1]=='M')
 				imgsz*=2*1024;
+			if(a[2][strlen(a[2])-1]=='G')
+				imgsz*=2*1024*1024;
 			
 			fty=0;
 			for(i=3; a[i]; i++)
@@ -2126,7 +2417,7 @@ int BTESH2_ProcessSDCL(
 					fty=0x0B;
 			}
 			
-			printf("Make Image %dKiB\n", imgsz/2);
+			printf("Make Image %dKiB\n", (int)(imgsz/2));
 			
 //			imgbuf=malloc(imgsz*512);
 			imgfn=strdup(a[1]);
@@ -2167,6 +2458,8 @@ int BTESH2_ProcessSDCL(
 				imgsz*=2;
 			if(a[2][strlen(a[2])-1]=='M')
 				imgsz*=2*1024;
+			if(a[2][strlen(a[2])-1]=='G')
+				imgsz*=2*1024*1024;
 			
 			fty=0;
 			for(i=3; a[i]; i++)
@@ -2177,7 +2470,7 @@ int BTESH2_ProcessSDCL(
 					fty=0x0B;
 			}
 			
-			printf("Open Image %dKiB\n", imgsz/2);
+			printf("Open Image %dKiB\n", (int)(imgsz/2));
 			
 			imgisnew=false;
 //			imgbuf=malloc(imgsz*512);
@@ -2222,6 +2515,60 @@ int BTESH2_ProcessSDCL(
 			
 			continue;
 		}
+
+		if(!strcmp(a[0], "opensegimg"))
+		{
+			imgsz=atoi(a[2]);
+			if(a[2][strlen(a[2])-1]=='k')
+				imgsz*=2;
+			if(a[2][strlen(a[2])-1]=='M')
+				imgsz*=2*1024;
+			if(a[2][strlen(a[2])-1]=='G')
+				imgsz*=2*1024*1024;
+
+			fty=0;
+			for(i=3; a[i]; i++)
+			{
+				if(!strcmp(a[i], "-F16"))
+					fty=0x06;
+				if(!strcmp(a[i], "-F32"))
+					fty=0x0B;
+			}
+			
+			printf("Open Image %dKiB\n", (int)(imgsz/2));
+			
+			imgisnew=false;
+//			imgbuf=malloc(imgsz*512);
+			imgfn=strdup(a[1]);
+//			imgfd=fopen(imgfn, "r+b");
+			
+			img=malloc(sizeof(BTESH2_TKFAT_ImageInfo));
+			memset(img, 0, sizeof(BTESH2_TKFAT_ImageInfo));
+			
+//			img->pImgData=imgbuf;
+			img->nImgBlks=imgsz;
+//			img->fdImgData=imgfd;
+			img->seg_base=imgfn;
+			
+			BTESH2_TKFAT_ReadSectors(img, tb, 0, 1);
+			if((tb[510]!=0x55) || (tb[511]!=0xAA))
+				imgisnew=true;
+			
+			if(imgisnew)
+			{
+				if(fty)
+					img->fsty=fty;
+				BTESH2_TKFAT_SetupImageMBR(img);
+				BTESH2_TKFAT_SetupImageFAT(img);
+			}else
+			{
+				BTESH2_TKFAT_ReadImageMBR(img);
+				BTESH2_TKFAT_ReadImageFAT(img);
+			}
+			
+			continue;
+		}
+
 
 		if(!strcmp(a[0], "addfile"))
 		{

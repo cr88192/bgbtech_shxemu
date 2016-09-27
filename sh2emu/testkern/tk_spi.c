@@ -219,28 +219,11 @@ byte TKSPI_SendCmd(byte cmd, u32 arg)
 			break;
 		n--;
 	}
-	printf("TKSPI_SendCmd: Result=%02X\n", res);
+//	printf("TKSPI_SendCmd: Result=%02X\n", res);
 	return(res);
 }
 
-int TKSPI_ReadSectors(byte *buf, u32 lba, int cnt)
-{
-	byte *ct;
-	u32 la;
-	int n;
-
-	ct=buf; la=lba; n=cnt;
-	while(n>0)
-	{
-		TKSPI_SendCmd(MMC_CMD17, la);
-		TKSPI_ReadData(ct, 512);
-		ct+=512; la++; n--;
-	}
-	return(0);
-}
-
-
-int TKSPI_ReadSectorsL(byte *buf, u64 lba, int cnt)
+int TKSPI_ReadSectors(byte *buf, s64 lba, int cnt)
 {
 	byte *ct;
 	u64 la;
@@ -255,6 +238,27 @@ int TKSPI_ReadSectorsL(byte *buf, u64 lba, int cnt)
 		TKSPI_ReadData(ct, 512);
 		ct+=512; la++; n--;
 	}
+	return(0);
+}
+
+int TKSPI_WriteSectors(byte *buf, s64 lba, int cnt)
+{
+	byte *ct;
+	u64 la;
+	int n, h;
+
+#if 0
+	ct=buf; la=lba; n=cnt;
+	while(n>0)
+	{
+		h=la>>32;
+		if(h)TKSPI_SendCmd(MMC_CMD55, h);
+		TKSPI_SendCmd(MMC_CMD17, la);
+		TKSPI_ReadData(ct, 512);
+		ct+=512; la++; n--;
+	}
+#endif
+
 	return(0);
 }
 
