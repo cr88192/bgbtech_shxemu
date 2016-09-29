@@ -160,6 +160,53 @@ int TKSPI_WaitReady(void)
 	return(0);
 }
 
+int TKSPI_WriteData(byte *buf, u32 len)
+{
+	byte *ct;
+	u32 count;
+	byte rv;
+	int n;
+	
+	if(!TKSPI_WaitReady())
+		return(-1);
+	
+#if 0
+	count=(1<<16);
+	while(count>0)
+	{
+		rv=TKSPI_XchByte(0xFF);
+		if(rv!=0xFF)
+			break;
+		TKSPI_DelayUSec(10);
+		count--;
+	}
+	if(rv!=0xFE)
+	{
+		printf("Err %02X\n", rv);
+		return(-1);
+	}
+#endif
+
+//	printf("<");
+
+	rv=TKSPI_XchByte(0xFE);
+
+	ct=buf; n=len;
+	while((n--)>0)
+	{
+		rv=TKSPI_XchByte(*ct++);
+//		*ct++=rv;
+	}
+
+//	printf(">\n");
+
+	TKSPI_XchByte(0xFF);
+	TKSPI_XchByte(0xFF);
+
+	return(0);
+}
+
+
 void TKSPI_Deselect(void)
 {
 	TKSPI_ChipSel(1);
@@ -229,23 +276,26 @@ int TKSPI_ReadSectors(byte *buf, s64 lba, int cnt)
 	u64 la;
 	int n, h;
 
-	ct=buf; la=lba; n=cnt;
-	while(n>0)
+	if(cnt>1)
 	{
+		ct=buf; la=lba; n=cnt;
+		if(h)TKSPI_SendCmd(MMC_CMD55, h);
+		TKSPI_SendCmd(MMC_CMD18, la);
+		while(n>0)
+		{
+			h=la>>32;
+			TKSPI_ReadData(ct, 512);
+			ct+=512; la++; n--;
+		}
+		TKSPI_SendCmd(MMC_CMD12, 0);
+	}else
+	{
+		ct=buf; la=lba; n=cnt;
 		h=la>>32;
 		if(h)TKSPI_SendCmd(MMC_CMD55, h);
 		TKSPI_SendCmd(MMC_CMD17, la);
 		TKSPI_ReadData(ct, 512);
-		ct+=512; la++; n--;
 	}
-	return(0);
-}
-
-int TKSPI_WriteSectors(byte *buf, s64 lba, int cnt)
-{
-	byte *ct;
-	u64 la;
-	int n, h;
 
 #if 0
 	ct=buf; la=lba; n=cnt;
@@ -258,6 +308,24 @@ int TKSPI_WriteSectors(byte *buf, s64 lba, int cnt)
 		ct+=512; la++; n--;
 	}
 #endif
+	return(0);
+}
+
+int TKSPI_WriteSectors(byte *buf, s64 lba, int cnt)
+{
+	byte *ct;
+	u64 la;
+	int n, h;
+
+	ct=buf; la=lba; n=cnt;
+	while(n>0)
+	{
+		h=la>>32;
+		if(h)TKSPI_SendCmd(MMC_CMD55, h);
+		TKSPI_SendCmd(MMC_CMD24, la);
+		TKSPI_WriteData(ct, 512);
+		ct+=512; la++; n--;
+	}
 
 	return(0);
 }

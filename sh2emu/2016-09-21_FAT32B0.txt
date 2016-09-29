@@ -63,12 +63,15 @@ If the number of clusters is more than ((2^28)-11) but less than ((2^32)-11), th
 * The special cluster values move:
 ** 0FFFFFF0..0FFFFFFF become FFFFFFF0..FFFFFFFF
 
+Theoretical max filesystem size is extended is extended to around 256TB.
+
+
 struct FAT_DirEnt_s {
 	byte name[8];				//0x00
 	byte ext[3];				//0x08
 	byte attrib;				//0x0B
 	byte lncase;				//0x0C (2)
-	byte ctime_ms;				//0x0D
+	byte ctime_ms;				//0x0D, ctime in ms, or ext filesize
 	byte ctime[2];				//0x0E
 	byte cdate[2];				//0x10
 	byte mdate[2];				//0x12
@@ -80,15 +83,27 @@ struct FAT_DirEnt_s {
 };
 
 2: lncase:
-	Bits 0-2: Length 32-34
+	Bits 0-2: Length 32-34 (FAT+)
 	Bit 3: SFN: Name is lower-case
 	Bit 4: SFN: Extension is lower-case.
 	Bit 5: NO83NAME, Set if no 8.3 name is present.
 	Bits 5-7: Length 35-37 (FAT+ Original)
+        This form is only used if SFN looks valid.
+		Thus, files with 8.3 names have a size limit of 256GB.
 
 If the name is of the form:
-  20 00 XX XX XX 3A XX XX
-  Interpret lncase as bits 32-39 of the length (1TB).
+  20 00 XX XX XX...
+  NO83NAME=0
+    Low 3 use bits of lcase used as extended size (32GB)
+  NO83NAME=1
+    If a sanity check (on the 8.3 name) passes
+      If(lncase&0x08)
+        Interpret byte at 0x0D as bits 32..39 of file-size.
+        Interpret lncase[0:2] as size bits 40..42 (8TB).
+      Else
+        Interpret lncase[0:2] as size bits 32..34 (32GB).
+        0x0D remains as "creation time in 10ms units".
+
 
 LFN:
 struct FAT_DirLfnEnt_s {
@@ -127,19 +142,3 @@ Alternate name gives the link target.
 
 If the file attributes are 0x28 (A+V), interpret entry as an inline file.
 Alternate name is in ASCII format and gives the data bytes for the file, which has a maximum size of 384 bytes.
-
-
-
-I was considering possibly doing my own alternate version of the extension and extending the max FAT32 file-size possibly to 1TB or 8TB or so:
-    NO83NAME(lcase[5])=0
-        low 3 use bits of lcase used as extended size (32GB)
-    NO83NAME=1
-        if a sanity check (on the 8.3 name) passes
-            if lcase[3]=1
-                interpret byte at 0x0D as bits 32..39 of file-size, lcase[0:2] as size bits 40..42 (8TB).
-            else
-                lcase[0:2] as size bits 32..34 (32GB).
-                0x0D remains as "creation time in 10ms units".
-            also allow some other extensions.
-
-theoretical max filesystem size is extended is extended to around 256TB.

@@ -102,7 +102,9 @@ int BTESH2_TKFAT_GetSegment(
 	if(fd)
 	{
 		fseek(fd, 0, 0);
-		fread(tb, 1, 1024, fd);
+		j=fread(tb, 1, 1024, fd);
+		if(j<0)
+			return(-1);
 		
 		n=1;
 		for(j=0; j<256; j++)
@@ -133,8 +135,10 @@ int BTESH2_TKFAT_CommitSegment(
 	}
 
 	fseek(seg->fd, 0, 0);
-	fwrite(tb, 1, 1024, seg->fd);
+	i=fwrite(tb, 1, 1024, seg->fd);
 	fflush(seg->fd);
+	if(i<0)
+		return(-1);
 	return(0);
 }
 	
@@ -205,7 +209,9 @@ int BTESH2_TKFAT_ReadSectors(BTESH2_TKFAT_ImageInfo *img,
 	if(img->fdImgData)
 	{
 		fseek(img->fdImgData, (int)(lba<<9), 0);
-		fread(buf, 1, 512*num, img->fdImgData);
+		j=fread(buf, 1, 512*num, img->fdImgData);
+		if(j<0)
+			return(-1);
 		return(0);
 	}
 	
@@ -240,7 +246,9 @@ int BTESH2_TKFAT_ReadSectors(BTESH2_TKFAT_ImageInfo *img,
 		{
 //			fseek(img->seg[i]->fd, (int)(bi<<9), 0);
 			fseek(img->seg[i]->fd, offs, 0);
-			fread(buf, 1, 512*num, img->seg[i]->fd);
+			j=fread(buf, 1, 512*num, img->seg[i]->fd);
+			if(j<0)
+				return(-1);
 		}
 		return(0);
 	}
@@ -443,6 +451,7 @@ void BTESH2_TKFAT_FlushBuffers(BTESH2_TKFAT_ImageInfo *img)
   */
 void BTESH2_TKFAT_SetupImageMBR(BTESH2_TKFAT_ImageInfo *img)
 {
+	s64 lba;
 	int fsty;
 	
 	if(!img->fsty)
@@ -470,15 +479,37 @@ void BTESH2_TKFAT_SetupImageMBR(BTESH2_TKFAT_ImageInfo *img)
 		BTESH2_TKFAT_GetSectorStaticBuffer(
 			img, 0, 1|TKFAT_SFL_DIRTY);
 	memset(img->mbr, 0, 512);
-	img->mbr->entry[0].flag=0x00;
-	img->mbr->entry[0].fstype=fsty;
 	
-	btesh2_tkfat_setChs(&(img->mbr->entry[0].shead), img->lba_start);
-	btesh2_tkfat_setChs(&(img->mbr->entry[0].ehead),
-		img->lba_start+img->lba_count);
+	lba=img->lba_start+img->lba_count;
+	if((lba>>32)!=0)
+	{
+		img->mbr->entry[0].flag=0x01;
+		img->mbr->entry[0].fstype=fsty;
+		
+//		btesh2_tkfat_setChs(&(img->mbr->entry[0].shead), img->lba_start);
+//		btesh2_tkfat_setChs(&(img->mbr->entry[0].ehead),
+//			img->lba_start+img->lba_count);
+		img->mbr->entry[0].shead=0x14;
+		img->mbr->entry[0].ehead=0xEB;
+		btesh2_tkfat_setWord(img->mbr->entry[0].ssect,
+			((s64)img->lba_start)>>32);
+		btesh2_tkfat_setWord(img->mbr->entry[0].esect,
+			((s64)img->lba_count)>>32);
 
-	btesh2_tkfat_setDWord(img->mbr->entry[0].lba_start, img->lba_start);
-	btesh2_tkfat_setDWord(img->mbr->entry[0].lba_count, img->lba_count);
+		btesh2_tkfat_setDWord(img->mbr->entry[0].lba_start, img->lba_start);
+		btesh2_tkfat_setDWord(img->mbr->entry[0].lba_count, img->lba_count);
+	}else
+	{
+		img->mbr->entry[0].flag=0x00;
+		img->mbr->entry[0].fstype=fsty;
+		
+		btesh2_tkfat_setChs(&(img->mbr->entry[0].shead), img->lba_start);
+		btesh2_tkfat_setChs(&(img->mbr->entry[0].ehead),
+			img->lba_start+img->lba_count);
+
+		btesh2_tkfat_setDWord(img->mbr->entry[0].lba_start, img->lba_start);
+		btesh2_tkfat_setDWord(img->mbr->entry[0].lba_count, img->lba_count);
+	}
 
 	img->mbr->aa55[0]=0x55;
 	img->mbr->aa55[1]=0xAA;
@@ -653,9 +684,9 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 	{
 		printf("BTESH2_TKFAT_SetupImageFAT: FAT16\n");
 
-		strcpy(img->boot16->oem_name, "BTESH2  ");
-		strcpy(img->boot16->vol_label, "DEFAULT    ");
-		strcpy(img->boot16->fs_tyname, "FAT16   ");
+		memcpy(img->boot16->oem_name, "BTESH2  ", 8);
+		memcpy(img->boot16->vol_label, "DEFAULT    ", 11);
+		memcpy(img->boot16->fs_tyname, "FAT16   ", 8);
 		
 		clsz=1; clsh=0;
 		cln=img->lba_count;
@@ -718,9 +749,9 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 	{
 		printf("BTESH2_TKFAT_SetupImageFAT: FAT32\n");
 
-		strcpy(img->boot32->oem_name, "BTESH2  ");
-		strcpy(img->boot32->vol_label, "DEFAULT    ");
-		strcpy(img->boot32->fs_tyname, "FAT32   ");
+		memcpy(img->boot32->oem_name, "BTESH2  ", 8);
+		memcpy(img->boot32->vol_label, "DEFAULT    ", 11);
+		memcpy(img->boot32->fs_tyname, "FAT32   ", 8);
 
 //		if(img->lba_count>=((1LL<<32)-11))
 		if(img->lba_count>=(1LL<<32))
@@ -729,7 +760,7 @@ void BTESH2_TKFAT_SetupImageFAT(BTESH2_TKFAT_ImageInfo *img)
 		if(img->isfat32e)
 		{
 			printf("BTESH2_TKFAT_SetupImageFAT: Is FAT32E\n");
-			strcpy(img->boot32->oem_name, "FAT32   ");
+			memcpy(img->boot32->oem_name, "FAT32   ", 8);
 
 			clsz=1; clsh=0;
 			cln=img->lba_count;
