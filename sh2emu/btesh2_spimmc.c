@@ -27,6 +27,7 @@ int btesh2_spimmc_SendByte(BTESH2_CpuState *cpu, int val)
 	ob=spimmc_omsgrov;
 	spimmc_omsgrov=(spimmc_omsgrov+1)&4095;
 	spimmc_omsgbuf[ob]=val;
+	return(0);
 }
 
 int btesh2_spimmc_XrCtl(BTESH2_CpuState *cpu, int val)

@@ -141,6 +141,16 @@ ticks: .long X(timer_ticks)
 _gdb_ihandler_uart1:
 	rte
 	nop
+_gdb_ihandler_uart0:
+	rte
+	nop
+_gdb_ihandler_uart2:
+	rte
+	nop
+
+_gdb_ihandler_inttmr:
+	rte
+	nop
 
 .align 4
 pio_addr:	 .long 0xABCD0000
@@ -161,7 +171,24 @@ X(sleep_0):
 
 
 #ifdef ARCH_SH2
+
 .global X(__ashrsi3)
+X(__ashrsi3):
+	mov r5, r0
+.global X(__ashrsi3_r0)
+X(__ashrsi3_r0):
+	mov.l r4, @-sp
+	not r0, r0
+	and	#31,r0
+	shal r0
+	mov r0, r4
+	mova shar_list, r0
+	add r0, r4
+	mov.l @sp+, r0
+	jmp @r4
+	nop
+
+/* .global X(__ashrsi3)
 X(__ashrsi3):
 	not r5, r5
 	mov	#31,r0
@@ -172,6 +199,7 @@ X(__ashrsi3):
 	mov r4, r0
 	jmp @r5
 	nop
+	*/
 .align 2
 shar_list:
 	shar	r0	/* 31 */
@@ -205,6 +233,57 @@ shar_list:
 	shar	r0
 	shar	r0
 	shar	r0	/* 1 */
+	rts
+	nop
+
+.global X(__lshrsi3)
+X(__lshrsi3):
+	mov r5, r0
+.global X(__lshrsi3_r0)
+X(__lshrsi3_r0):
+	mov.l r4, @-sp
+	not r0, r0
+	and	#31,r0
+	shal r0
+	mov r0, r4
+	mova shlr_list, r0
+	add r0, r4
+	mov.l @sp+, r0
+	jmp @r4
+	nop
+.align 2
+shlr_list:
+	shlr	r0	/* 31 */
+	shlr	r0	/* 30 */
+	shlr	r0	/* 29 */
+	shlr	r0
+	shlr	r0
+	shlr	r0
+	shlr	r0	/* 25 */
+	shlr	r0
+	shlr	r0
+	shlr	r0
+	shlr	r0	/* 21 */
+	shlr	r0
+	shlr	r0
+	shlr	r0
+	shlr	r0	/* 17 */
+	shlr	r0
+	shlr	r0
+	shlr	r0
+	shlr	r0	/* 13 */
+	shlr	r0
+	shlr	r0
+	shlr	r0
+	shlr	r0	/* 9 */
+	shlr	r0
+	shlr	r0
+	shlr	r0
+	shlr	r0	/* 5 */
+	shlr	r0
+	shlr	r0
+	shlr	r0
+	shlr	r0	/* 1 */
 	rts
 	nop
 
@@ -260,6 +339,25 @@ shll_list:
 	rts
 	nop
 
+.global X(__ashiftrt_r4_31)
+.global X(__ashiftrt_r4_30)
+.global X(__ashiftrt_r4_29)
+.global X(__ashiftrt_r4_28)
+.global X(__ashiftrt_r4_27)
+.global X(__ashiftrt_r4_26)
+.global X(__ashiftrt_r4_25)
+.global X(__ashiftrt_r4_24)
+.global X(__ashiftrt_r4_23)
+.global X(__ashiftrt_r4_22)
+.global X(__ashiftrt_r4_21)
+.global X(__ashiftrt_r4_20)
+.global X(__ashiftrt_r4_19)
+.global X(__ashiftrt_r4_18)
+.global X(__ashiftrt_r4_17)
+.global X(__ashiftrt_r4_16)
+.global X(__ashiftrt_r4_15)
+.global X(__ashiftrt_r4_14)
+.global X(__ashiftrt_r4_13)
 .global X(__ashiftrt_r4_12)
 .global X(__ashiftrt_r4_11)
 .global X(__ashiftrt_r4_10)
@@ -273,6 +371,26 @@ shll_list:
 .global X(__ashiftrt_r4_2)
 .global X(__ashiftrt_r4_1)
 .global X(__ashiftrt_r4_0)
+
+X(__ashiftrt_r4_31):	shar r4
+X(__ashiftrt_r4_30):	shar r4
+X(__ashiftrt_r4_29):	shar r4
+X(__ashiftrt_r4_28):	shar r4
+X(__ashiftrt_r4_27):	shar r4
+X(__ashiftrt_r4_26):	shar r4
+X(__ashiftrt_r4_25):	shar r4
+X(__ashiftrt_r4_24):	shar r4
+X(__ashiftrt_r4_23):	shar r4
+X(__ashiftrt_r4_22):	shar r4
+X(__ashiftrt_r4_21):	shar r4
+X(__ashiftrt_r4_20):	shar r4
+X(__ashiftrt_r4_19):	shar r4
+X(__ashiftrt_r4_18):	shar r4
+X(__ashiftrt_r4_17):	shar r4
+X(__ashiftrt_r4_16):	shar r4
+X(__ashiftrt_r4_15):	shar r4
+X(__ashiftrt_r4_14):	shar r4
+X(__ashiftrt_r4_13):	shar r4
 X(__ashiftrt_r4_12):	shar r4
 X(__ashiftrt_r4_11):	shar r4
 X(__ashiftrt_r4_10):	shar r4
@@ -312,15 +430,15 @@ _vector_table:
 .long _gdb_unhandled_isr		/* 0x0F: (reserved) */
 .long _gdb_pit_isr	 			/* 0x10: PIT */
 .long _gdb_ihandler_emac		/* 0x11: (EMAC interface) */
-.long _gdb_unhandled_isr		/* 0x12: (reserved) */
-.long _gdb_unhandled_isr		/* 0x13: (reserved) */
+.long _gdb_ihandler_uart0		/* 0x12: (UART0 Console) */
+.long _gdb_ihandler_uart2		/* 0x13: (UART2 Console) */
 .long _gdb_unhandled_isr		/* 0x14: (reserved) */
 
 .long _gdb_unhandled_isr		/* 0x15: (reserved) */
 .long _gdb_unhandled_isr		/* 0x16: (reserved) */
-.long _gdb_ihandler_uart1		/* 0x17: (UART Console) */
+.long _gdb_ihandler_uart1		/* 0x17: (UART1 Console) */
 .long _gdb_unhandled_isr		/* 0x18: (reserved) */
-.long _gdb_unhandled_isr		/* 0x19: (when AIC countdown reach 0) */
+.long _gdb_ihandler_inttmr		/* 0x19: (when AIC countdown reach 0) */
 .long _gdb_unhandled_isr		/* 0x1A: (reserved) */
 .long _gdb_unhandled_isr		/* 0x1B: (reserved) */
 .long _gdb_unhandled_isr		/* 0x1C: (reserved) */

@@ -394,11 +394,19 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 		}
 		printf("\n");
 	}
+	return(0);
 }
 
 int BTESH2_CpuTimerInt(BTESH2_CpuState *cpu)
 {
 	BTSH_Op_TrapIntIrq(cpu, BTESH2_EXC_PIT);
+	return(0);
+}
+
+int BTESH2_CpuUartInt(BTESH2_CpuState *cpu)
+{
+	BTSH_Op_TrapIntIrq(cpu, BTESH2_EXC_UART0);
+	return(0);
 }
 
 int BTESH2_RunCpu(BTESH2_CpuState *cpu, int lim)
@@ -550,6 +558,7 @@ int BTESH2_DumpTraces(BTESH2_CpuState *cpu)
 		}
 		fclose(fd);
 	}
+	return(0);
 }
 
 int BTESH2_StatTraces(BTESH2_CpuState *cpu)
@@ -559,7 +568,7 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 	int i, j, k;
 	
 	nt=0; ntl=0; tno=0;
-	for(i=0; i<BTESH2_TR_HASHSZ; i++)
+	for(i=0; i<(BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL); i++)
 	{
 		tr=cpu->icache[i];
 		if(!tr)continue;
@@ -572,9 +581,11 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 //	ano=tno/nt;
 	printf("Avg Tr: nOps=%.3f, AtLim=%.2f%%\n",
 		((double)tno)/nt, (ntl*100.0)/nt);
-	printf("Nt=%d %.2f%%\n", nt, (nt*100.0)/BTESH2_TR_HASHSZ);
+	printf("Nt=%d %.2f%%\n", nt, (nt*100.0)/
+		(BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL));
 	printf("dCol/dTot=%d/%d %.2f%%\n",
 		cpu->tr_dcol, cpu->tr_dtot, (cpu->tr_dcol*100.0)/cpu->tr_dtot);
+	return(0);
 }
 
 int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
@@ -645,4 +656,5 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 		cpu->trapregs[20], cpu->trapregs[21],
 		cpu->trapregs[22], cpu->trapregs[23]);
 #endif
+	return(0);
 }

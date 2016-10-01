@@ -128,6 +128,14 @@ int BTESH2_BootLoadElf(
 		
 		printf("%08X -> %08X %08X\n", poff, paddr, pmsz);
 
+		if((poff+pmsz)>szibuf)
+		{
+			printf("BTESH2_BootLoadElf: Copy exeeds image by %d bytes\n",
+				(poff+pmsz)-szibuf);
+			printf("Truncating: %d -> %d\n", pmsz, szibuf-poff);
+			pmsz=szibuf-poff;
+		}
+
 		j=BTESH2_MemCpyIn(cpu, paddr&0x1FFFFFFF, ibuf+poff, pmsz);
 		
 //		j=BTESH2_MemCpyIn(cpu, paddr, ibuf+poff, pmsz);

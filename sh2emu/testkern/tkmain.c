@@ -340,7 +340,8 @@ void tk_main()
 
 		if(!strcmp(tb, "rtc"))
 		{
-			printf("rtc ticks=%9d\n", P_AIC_RTC_NSEC);
+			printf("rtc ticks=%9d:%9d\n",
+				P_AIC_RTC_SEC_LO, P_AIC_RTC_NSEC);
 
 			continue;
 //			break;

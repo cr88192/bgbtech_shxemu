@@ -217,7 +217,8 @@ void BTSH_Op_TRAPA_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 
 		sr=cpu->regs[BTESH2_REG_SR];
 		sp=cpu->regs[BTESH2_REG_SP];
-		cpu->regs[BTESH2_REG_SPC]=op->imm;
+//		cpu->regs[BTESH2_REG_SPC]=op->imm;
+		cpu->regs[BTESH2_REG_SPC]=op->pc+2;
 		cpu->regs[BTESH2_REG_SSR]=sr;
 		cpu->regs[BTESH2_REG_SGR]=sp;
 
@@ -230,7 +231,8 @@ void BTSH_Op_TRAPA_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 
 	sp=cpu->regs[BTESH2_REG_SP]-8;
 	BTESH2_SetAddrDWord(cpu, sp+4, cpu->regs[BTESH2_REG_SR]);
-	BTESH2_SetAddrDWord(cpu, sp+0, op->imm);
+//	BTESH2_SetAddrDWord(cpu, sp+0, op->imm);
+	BTESH2_SetAddrDWord(cpu, sp+0, op->pc+2);
 	cpu->regs[BTESH2_REG_SP]=sp;
 	
 	vbr=cpu->regs[BTESH2_REG_VBR];
@@ -242,6 +244,7 @@ void BTSH_Op_TRAPA_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	if(pc)
 	{
 		cpu->regs[BTESH2_REG_PC]=pc;
+//		cpu->regs[BTESH2_REG_PC]=pc+4;
 	}else
 	{
 		BTESH2_ThrowTrap(cpu, op->ro);
@@ -306,6 +309,7 @@ void BTSH_Op_TrapInt(BTESH2_CpuState *cpu, int ro)
 	if(pc)
 	{
 		cpu->regs[BTESH2_REG_SR]=sr|BTESH2_SRFL_BL;
+//		cpu->regs[BTESH2_REG_SR]=sr;
 		cpu->regs[BTESH2_REG_PC]=pc;
 	}
 }
@@ -376,7 +380,8 @@ void BTSH_Op_TrapIntIrq(BTESH2_CpuState *cpu, int irq)
 
 	if(pc)
 	{
-		cpu->regs[BTESH2_REG_SR]=sr|BTESH2_SRFL_BL;
+//		cpu->regs[BTESH2_REG_SR]=sr|BTESH2_SRFL_BL;
+		cpu->regs[BTESH2_REG_SR]=sr;
 		cpu->regs[BTESH2_REG_PC]=pc;
 	}
 }

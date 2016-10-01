@@ -305,6 +305,10 @@ int BTESH2_ThrowTrap(BTESH2_CpuState *cpu, int status)
 	if(cpu->status)
 		return(-1);
 
+	printf("<!>\n");
+
+	cpu->regs[BTESH2_REG_PC]=cpu->ptcpc+2;
+
 	cpu->status=status;
 	for(i=0; i<64; i++)
 		cpu->trapregs[i]=cpu->regs[i];
@@ -324,49 +328,129 @@ int BTESH2_RestoreTrap(BTESH2_CpuState *cpu)
 	return(0);
 }
 
+
 int BTESH2_CheckAddrTrapSmc(BTESH2_CpuState *cpu, u32 addr, u32 val)
 {
+	static int lsmc=-1;
 	BTESH2_Trace *tr;
 	int pg, bp, bm;
+	int p0, p1;
 	int i, j, k, st;
+
+	if(((addr&4095)+3)>>12)
+	{
+		i=BTESH2_CheckAddrTrapSmc(cpu, (addr  )&(~3), val);
+		j=BTESH2_CheckAddrTrapSmc(cpu, (addr+3)&(~3), val);
+		return(i|j);
+	}
 
 	pg=addr>>12;
 	bp=pg&16383;
 	bm=pg>>14;
-
+	
 	if(!cpu->smcdbm[bm])
 		return(0);
 
 	if(cpu->smcdbm[bm][bp>>5]&(1<<(bp&31)))
 	{
-//		printf("Check SMC %08X\n", addr);
-		st=0;
-		for(i=0; i<BTESH2_TR_HASHSZ; i++)
+		if(pg==lsmc)
+//		if(0)
 		{
-			tr=cpu->icache[i];
-			if(!tr)
-				continue;
-			if((addr>=tr->srcpc) && (addr<tr->maxpc))
+//			printf("Flush SMC2 Pg=%05X V=%08X PC=%08X\n",
+//				addr>>12, val, cpu->ptcpc);
+
+			st=0;
+			lsmc=-1;
+			for(i=0; i<(BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL); i++)
 			{
-//				printf("Flush SMC %08X Tr=%08X..%08X V=%08X\n",
-//					addr, tr->srcpc, tr->maxpc, val);
-				if(tr==cpu->cur_trace)
-				{
-					BTESH2_ThrowTrap(cpu, BTESH2_EXC_TRAPSMC);
-					st=1;
+				tr=cpu->icache[i];
+				if(!tr)
 					continue;
+
+				p0=tr->srcpc>>12;
+//				p1=(tr->maxpc-1)>>12;
+				p1=tr->maxpc>>12;
+
+				if((pg>=p0) && (pg<=p1))
+//				if((addr>=tr->srcpc) && (addr<tr->maxpc))
+				{
+//					printf("Flush SMC2 %08X Pg=%05X Tr=%08X..%08X V=%08X\n",
+//						addr, addr>>12, tr->srcpc, tr->maxpc, val);
+					if(tr==cpu->cur_trace)
+						if((addr>=tr->srcpc) && (addr<tr->maxpc))
+					{
+						printf("Trap SMC\n");
+						BTESH2_ThrowTrap(cpu, BTESH2_EXC_TRAPSMC);
+						st=1;
+						continue;
+					}
+					BTESH2_FlushTrace(cpu, tr);
+					BTESH2_FreeTrace(cpu, tr);
+					cpu->icache[i]=NULL;
+//					st|=4;
 				}
-				BTESH2_FlushTrace(cpu, tr);
-				BTESH2_FreeTrace(cpu, tr);
-				cpu->icache[i]=NULL;
-				break;
 			}
+			if(!st)
+			{
+				cpu->smcdbm[bm][bp>>5]&=~(1<<(bp&31));
+			}
+			return(st&1);
+		}else
+		{
+	//		printf("Check SMC %08X\n", addr);
+			st=0;
+	//		for(i=0; i<BTESH2_TR_HASHSZ; i++)
+			for(i=0; i<(BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL); i++)
+			{
+				tr=cpu->icache[i];
+				if(!tr)
+					continue;
+
+				p0=tr->srcpc>>12;
+//				p1=(tr->maxpc-1)>>12;
+				p1=tr->maxpc>>12;
+
+	//			if((pg>=p0) && (pg<=p1))
+				if((addr>=tr->srcpc) && (addr<tr->maxpc))
+				{
+//					printf("Flush SMC A=%08X Pg=%05X "
+//							"Tr=%08X..%08X V=%08X PC=%08X\n",
+//						addr, addr>>12, tr->srcpc, tr->maxpc, val,
+//						cpu->ptcpc);
+					if(tr==cpu->cur_trace)
+	//					if((addr>=tr->srcpc) && (addr<tr->maxpc))
+					{
+						printf("Trap SMC\n");
+						BTESH2_ThrowTrap(cpu, BTESH2_EXC_TRAPSMC);
+						st|=1;
+						continue;
+					}
+					BTESH2_FlushTrace(cpu, tr);
+					BTESH2_FreeTrace(cpu, tr);
+					cpu->icache[i]=NULL;
+					st|=4;
+	//				break;
+				}
+#if 1
+				else
+				{
+	//				p0=tr->srcpc>>12;
+	//				p1=tr->maxpc>>12;
+					if((pg>=p0) && (pg<=p1))
+						st|=2;
+				}
+#endif
+			}
+			if(st&(1|4))
+				{ lsmc=pg; }
+			else
+				{ lsmc=-1; }
 		}
 		if(!st)
 		{
 			cpu->smcdbm[bm][bp>>5]&=~(1<<(bp&31));
 		}
-		return(st);
+		return(st&1);
 	}
 	return(0);
 }

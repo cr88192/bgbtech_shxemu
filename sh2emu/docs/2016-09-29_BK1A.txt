@@ -1,0 +1,230 @@
+Idle: 64-bit ISA
+* Native word size is 64-bit, little-endian.
+** May support unaligned loads/stores.
+* Uses 16-bit instruction words.
+* Takes some inspiration from SH, but is otherwise unrelated.
+** Exists for now mostly as a thought experiment.
+
+Registers:
+* 16x 64-bit GPRs (R0-R14, R15/SP)
+* 16x 64-bit FPRs (FP0..FP15)
+* 8x 64-bit SPRs
+** SP0=SR (Status Register)
+** SP1=CR (Control Register)
+** SP2=VBR (Interrupt Base Register)
+** SP3=PBR (Page Base Register)
+** SP4=MCL (Mul/Div: Low 64 bits)
+** SP5=MCH (Mul/Div: High 64 bits)
+** SP6=LR (Return Address)
+** SP7=PC (Program Counter)
+*** Reading PC will give 4 bytes after the current instruction.
+*** Writing PC will initiate a branch.
+*** For 16-bit I-Forms, the next instruction will execute before the branch.
+
+0..9, A..F: Hex Digit
+n: Destination
+m: Source
+i: Immediate (signed)
+j: Immediate (unsigned)
+d: Displacement
+
+0-nm: 2-register arithmetic ops
+  00nm ADD Rn, Rm
+  01nm SUB Rn, Rm
+  02nm ADC Rn, Rm
+  03nm SBB Rn, Rm
+  04nm AND Rn, Rm
+  05nm XOR Rn, Rm
+  06nm OR Rn, Rm
+  07nm MOV Rn, Rm
+  08nm FADD FRn, FRm
+  09nm FSUB FRn, FRm
+  0Anm FMUL FRn, FRm
+  0Bnm FDIV FRn, FRm
+  0Cnm SHL Rn, Rm
+  0Dnm SHR Rn, Rm
+  0Enm SAR Rn, Rm
+  0Fnm FMOV FRn, FRm
+1-nm: Memory Load/Store
+  10nm MOVB Rn, [Rm]		// 8 bit load
+  11nm MOVW Rn, [Rm]		//16 bit load
+  12nm MOVL Rn, [Rm]		//32 bit load
+  13nm MOVQ Rn, [Rm]		//64 bit load
+  14nm MOVB [Rn], Rm		// 8 bit store
+  15nm MOVW [Rn], Rm		//16 bit store
+  16nm MOVL [Rn], Rm		//32 bit store
+  17nm MOVQ [Rn], Rm		//64 bit store
+  18nm MOVF FRn, [Rm]		//32 bit floating-point load
+  19nm MOVD FRn, [Rm]		//64 bit floating-point load
+  1Anm MOVF [Rn], FRm		//32 bit floating-point store
+  1Bnm MOVD [Rn], FRm		//64 bit floating-point store
+  1Cnm MOV Rn, SPm			//load register from SPR
+  1Dnm MOV SPn, Rm			//store register to SPR
+  1Enm MOV [Rn], SPm		//store SPR to memory
+  1Fnm MOV SPn, [Rm]		//load SPR from memory
+    1CnM MOV SPn, SPm		//move values between SPRs
+    1DNm MOV2 SPn, Rm		//store register to SPR (alternate)
+    1EnM MOV [--Rn], SPm	//store SPR to memory (predec)
+    1FNm MOV SPn, [Rm++]	//load SPR from memory (postinc)
+  Pseudo:
+    RTS		=MOV PC,LR
+    JMP Rm	=MOV PC,Rm
+    RET		=MOV PC,[SP++]	//
+    POP Rn	=MOV Rn,[SP++]	//
+    PUSH Rm	=MOV [--SP],Rm	//
+    JSR Rm	=MOV2 PC,Rm		//Call (PC->LR, Rm->PC)
+    CALL Rm	=MOV2 LR,Rm		//Call (PC->[--SP], Rm->PC)
+2-nm: Memory Load/Store (Inc/Dec, Base)
+  20nm MOVB Rn, [Rm++]		// 8 bit load/increment
+  21nm MOVW Rn, [Rm++]		//16 bit load/increment
+  22nm MOVL Rn, [Rm++]		//32 bit load/increment
+  23nm MOVQ Rn, [Rm++]		//64 bit load/increment
+  24nm MOVB [--Rn], Rm		// 8 bit decrement/store
+  25nm MOVW [--Rn], Rm		//16 bit decrement/store
+  26nm MOVL [--Rn], Rm		//32 bit decrement/store
+  27nm MOVQ [--Rn], Rm		//64 bit decrement/store
+  28nm MOVB Rn, [Rm+R0]		// 8 bit load+base
+  29nm MOVW Rn, [Rm+R0]		//16 bit load+base
+  2Anm MOVL Rn, [Rm+R0]		//32 bit load+base
+  2Bnm MOVQ Rn, [Rm+R0]		//64 bit load+base
+  2Cnm MOVB [Rn+R0], Rm		// 8 bit store+base
+  2Dnm MOVW [Rn+R0], Rm		//16 bit store+base
+  2Enm MOVL [Rn+R0], Rm		//32 bit store+base
+  2Fnm MOVQ [Rn+R0], Rm		//64 bit store+base
+3-ii: More load/store
+  30ii MOV R0, Imm8			//Load Imm8 into R0
+  31jj MOVH R0, Imm8		//Load (R0<<8)|Imm8 into R0
+  32jj MOVL R0, [((PC+4)&(~3))+Imm8*4]
+  33jj MOVQ R0, [((PC+8)&(~7))+Imm8*8]
+  34dd BRA Rel8				//Jump to PC+4+Rel8*2
+  35dd BSR Rel8				//Call to PC+4+Rel8*2
+  36dd BTS Rel8				//Jump if true to PC+4+Rel8*2
+  37dd BFS Rel8				//Jump if false to PC+4+Rel8*2
+  38mj MOVB R0, [Rm+i*1]	// 8 bit load+imm4
+  39mj MOVW R0, [Rm+i*2]	//16 bit load+imm4
+  3Amj MOVL R0, [Rm+i*4]	//32 bit load+imm4
+  3Bmj MOVQ R0, [Rm+i*8]	//64 bit load+imm4
+  3Cnj MOVB [Rn+i*1], R0	// 8 bit store+imm4
+  3Dnj MOVW [Rn+i*2], R0	//16 bit store+imm4
+  3Enj MOVL [Rn+i*4], R0	//32 bit store+imm4
+  3Fnj MOVQ [Rn+i*8], R0	//64 bit store+imm4
+4-ii: More Arith
+  40ii ADD R0, Imm8			//
+  41ii ADC R0, Imm8			//
+  42ii AND R0, Imm8			//
+  43jj XOR R0, Imm8			//
+  44jj OR  R0, Imm8			//
+  45ii TST R0, Imm8			//SR.T=(R0&I)!=0
+  46jj SHLR R0, Imm6		//SHL/SHR/--/SAR (High 2) by Low 6
+  47jj MOVA R0, [((PC+4)&(~3))+Imm8*4]
+  48nm CMPEQ Rn, Rm
+  49nm CMPGE Rn, Rm
+  4Anm CMPGT Rn, Rm
+  4Bnm CMPHS Rn, Rm
+  4Cnm CMPHI Rn, Rm
+  4Dnm TST   Rn, Rm			//SR.T=(Rn&Rm)!=0
+  4Enm FCMPEQ FRn, FRm
+  4Fnm FCMPGT FRn, FRm
+5-ni: Stuff with Imm4
+  50ni MOV Rn, Imm4			//Load Imm4 into Rn
+  51nj MOVH Rn, Imm4		//Load (Rn<<4)|Imm4 into Rn
+  52nj MOVL Rn, [((PC+4)&(~3))+Imm4*4]
+  53nj MOVQ Rn, [((PC+8)&(~7))+Imm4*8]
+  54ni ADD Rn, Imm4			//
+  55ni ADC Rn, Imm4			//
+  56nj SHL Rn, Imm4			//1-15, 0=16
+  57nj SAR Rn, Imm4			//1-15, 0=16
+  58ni CMPEQ Rn, Imm4
+  59ni CMPGE Rn, Imm4
+  5Ani CMPGT Rn, Imm4
+  5Bni IMUL Rn, Imm4		//Rn=Rn*Imm4
+  5Cnm IMUL Rn, Rm			//Rn=Rn*Rm
+  5Dnm MUL Rn, Rm			//MCH:MCL=Rn*Rm
+  5Enm MACU Rn, Rm			//MCH:MCL+=Rn*Rm (Mul/Acc Unsigned)
+  5Fnm MACS Rn, Rm			//MCH:MCL+=Rn*Rm (Mul/Acc Signed)
+
+6---
+7---
+8--n: Unary Ops
+  800n EXTUB			//Zero Extend Byte
+  801n EXTSB			//Sign Extend Byte
+  802n EXTUW			//Zero Extend Word
+  803n EXTSW			//Sign Extend Word
+  804n EXTUL			//Zero Extend DWord
+  805n EXTSL			//Sign Extend DWord
+  806n SWAPB			//Swap Bytes (Swap every pair of Bytes)
+  807n SWAPW			//Swap Words (Swap every pair of Words)
+  808n SWAPL			//Swap Words (Swap low/high DWords)
+  809n BSWAPW			//Byte-swap Word, Sign-extend Result
+  80An BSWAPL			//Byte-swap DWord, Sign-extend Result
+  80Bn BSWAPQ			//Byte-swap QWord
+  80C-: No Arg Ops
+    80C0 CLRT
+    80C1 SETT
+    80C2 CLRS
+    80C3 SETS
+    80C4 CLRMAC
+    80C5 -
+    80C6 RTE
+    80C7 SLEEP
+    80C8 NOP
+  80D-: No Arg Ops
+  80E-: No Arg Ops
+  80F-: No Arg Ops
+  810n NEG Rn
+  811n NOT Rn
+  812n INC Rn
+  813n DEC Rn
+  814m MUL Rn			//MCH:MCL*=Rn
+
+
+9---
+A---
+B---
+C0xx: 32-bit forms
+  C0ni-iiii MOV Rn, Imm20		//Load 20 bit immediate
+  C1nj-jjjj MOVH Rn, Imm20		//Load (Rn<<20)|Imm20 into Rn
+  C2ni-iiii MOVL Rn, [((PC+4)&(~3))+Imm20*4]
+  C3ni-iiii MOVQ Rn, [((PC+8)&(~7))+Imm20*8]
+  C4dd-dddd BRA24 Rel24			//Branch to 24-bit addr (+/- 16M)
+  C5dd-dddd BSR24 Rel24			//Call to 24-bit addr (+/- 16M)
+  C8nm-iiii MOVB Rn, [Rm+i*1]	// 8 bit load+imm16
+  C9nm-iiii MOVW Rn, [Rm+i*2]	//16 bit load+imm16
+  CAnm-iiii MOVL Rn, [Rm+i*4]	//32 bit load+imm16
+  CBnm-iiii MOVQ Rn, [Rm+i*8]	//64 bit load+imm16
+  CCnm-iiii MOVB [Rn+i*1], Rm	// 8 bit store+imm16
+  CDnm-iiii MOVW [Rn+i*2], Rm	//16 bit store+imm16
+  CEnm-iiii MOVL [Rn+i*4], Rm	//32 bit store+imm16
+  CFnm-iiii MOVQ [Rn+i*8], Rm	//64 bit store+imm16
+D-ni: More Arith
+  D0ni-iiii ADD Rn, Imm20			//
+  D1ni-iiii ADC Rn, Imm20			//
+  D2ni-iiii AND Rn, Imm20			//
+  D3nj-jjjj XOR Rn, Imm20			//
+  D4nj-jjjj OR  Rn, Imm20			//
+  D5ni-iiii TST Rn, Imm20			//SR.T=(R0&I)!=0
+  D60i-iiii BRA [((PC+8)&(~7))+Imm20*8]
+  D61i-iiii BSR [((PC+8)&(~7))+Imm20*8]
+  D7nj-jjjj MOVA Rn, [((PC+4)&(~3))+Imm20*4]
+  D8ni-iiii CMPEQ Rn, Imm20
+  D9ni-iiii CMPGE Rn, Imm20
+  DAni-iiii CMPGT Rn, Imm20
+  DBnj-jjjj CMPHS Rn, Imm20
+  DCnj-jjjj CMPHI Rn, Imm20
+E---: Another 32-bit block
+
+F---: A 64-bit block
+  F00n-iiii-iiii-iiii MOV Rn, Imm48		//Load 48 bit immediate
+  F01n-iiii-iiii-iiii ADD Rn, Imm48		//Add 48 bit immediate
+  F02n-iiii-iiii-iiii ADC Rn, Imm48		//
+  F03n-iiii-iiii-iiii AND Rn, Imm48		//
+  F04n-jjjj-jjjj-jjjj XOR Rn, Imm48		//
+  F05n-jjjj-jjjj-jjjj OR  Rn, Imm48		//
+  F06n-iiii-iiii-iiii TST Rn, Imm48		//SR.T=(R0&I)!=0
+  F070-iiii-iiii-iiii BRA Rn, Imm48		//48 bit branch
+  F071-iiii-iiii-iiii BSR Rn, Imm48		//48 bit call
+  F08n-iiii-iiii-iiii CMPEQ Rn, Imm48
+  F09n-iiii-iiii-iiii CMPGE Rn, Imm48
+  F0An-iiii-iiii-iiii CMPGT Rn, Imm48
+  F0Bn-jjjj-jjjj-jjjj CMPHS Rn, Imm48
+  F0Cn-jjjj-jjjj-jjjj CMPHI Rn, Imm48

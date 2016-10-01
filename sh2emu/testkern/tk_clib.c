@@ -147,3 +147,29 @@ int rand_r(unsigned int *seedp)
 	*seedp=s;
 	return(s>>16);
 }
+
+#ifdef ARCH_SH2
+s64 __ashrdi3(s64 a, int b)
+{
+	union {
+		struct { u32 hi; u32 lo; }w;
+		u64 ll;
+	}u, v;
+
+	if(!b)
+		return(a);
+	
+	u.ll=(u64)a;
+	
+	if(b>=32)
+	{
+		v.w.hi=((s32)u.w.hi)>>31;
+		v.w.lo=((s32)u.w.hi)>>(b-32);
+	}else
+	{
+		v.w.hi=((s32)u.w.hi)>>b;
+		v.w.lo=(u.w.lo>>b)|(u.w.hi<<(32-b));
+	}
+	return((s64)(v.ll));
+}
+#endif

@@ -1202,9 +1202,10 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		case 0x3: /* C3--, TRAPA #imm */
 			op->rn=BTESH2_REG_GBR;
 			op->rm=0;
-//			op->imm=opw&255;
+			op->imm=opw&255;
 			op->ro=opw&255;
-			op->imm=pc+2;
+//			op->imm=pc+2;
+			op->fl=BTESH2_OPFL_CTRLF;
 			op->nmid=BTESH2_NMID_TRAPA;
 			op->fmid=BTESH2_FMID_IMM;
 			op->Run=BTSH_Op_TRAPA_Imm;
@@ -1766,6 +1767,8 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 					op1=BTESH2_AllocOpcode(cpu);
 					BTESH2_DecodeOpcode(cpu, op1, pc);
 					pc+=2;
+					if(pc>tr->maxpc)
+						tr->maxpc=pc;
 
 //					if(op1->fl&BTESH2_OPFL_PCADLYSLOTD)
 //						op1->imm=((op1->pc+4)&(~3))+(4*op1->ro);
@@ -1876,42 +1879,23 @@ BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
 	tr=cpu->icache[h];
 	if(tr)
 	{
-//		if(tr->srcpc==spc)
 		if((tr->srcpc==spc) && (tr->csfl==cpu->csfl))
 		{
-//			tr->amiss=0;
 			return(tr);
 		}
 
 #if 1
-//		tr->amiss++;
-//		tr->amiss=(tr->amiss+1)|(tr->amiss&128);
-//		i=tr->amiss+1; i=i|((i<<23)>>31); tr->amiss=i;
-
-//		hp1=hp*BTESH2_TR_HASHPR;
-//		h1=(hp1>>BTESH2_TR_HASHSHR)&(BTESH2_TR_HASHSZ-1);
 		h1=h|BTESH2_TR_HASHSZ;
 		tr1=cpu->icache[h1];
 
 		if(tr1)
 		{
-//			if(tr1->srcpc==spc)
 			if((tr1->srcpc==spc) && (tr1->csfl==cpu->csfl))
 			{
-//				if(tr->amiss>tr1->amiss)
-//				{
-					cpu->icache[h]=tr1;
-					cpu->icache[h1]=tr;
-//				}
-//				tr1->amiss=0;
+				cpu->icache[h]=tr1;
+				cpu->icache[h1]=tr;
 				return(tr1);
 			}
-//			tr1->amiss++;
-//			tr1->amiss=(tr1->amiss+1)|(tr1->amiss&128);
-//			i=tr1->amiss+1; i=i|((i<<23)>>31); tr1->amiss=i;
-			
-//			if(tr1->amiss>tr->amiss)
-//				tr=tr1;
 
 			cpu->icache[h]=tr1;
 			cpu->icache[h1]=tr;

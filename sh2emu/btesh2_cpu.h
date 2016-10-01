@@ -51,7 +51,11 @@
 #define BTESH2_EXC_UBC			0x0C		//UBC
 #define BTESH2_EXC_PIT			0x10		//PIT
 #define BTESH2_EXC_EMAC			0x11		//EMAC interface
-#define BTESH2_EXC_UART			0x17		//UART/Console
+#define BTESH2_EXC_UART0		0x12		//UART/Console (0)
+#define BTESH2_EXC_UART2		0x13		//UART/Console (2)
+#define BTESH2_EXC_GPIO			0x15		//GPIO
+#define BTESH2_EXC_UART1		0x17		//UART/Console (1)
+#define BTESH2_EXC_AICCNTDN		0x19		//AIC Countdown
 
 #define BTESH2_EXC_TRAPSMC		0x1000		//Trapped Self-Modifying Code
 #define BTESH2_EXC_TRAPSLEEP	0x1001		//Sleep
@@ -311,17 +315,25 @@ void (*Run)(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 
 #define BTESH2_TR_MAXOPS	14
 // #define BTESH2_TR_HASHSZ	4096
-#define BTESH2_TR_HASHSZ	512
 // #define BTESH2_TR_HASHAS	2
 
-// #define BTESH2_TR_HASHPR	524287
-// #define BTESH2_TR_HASHSHR	21
+//#define BTESH2_TR_HASHSZ	64
+//#define BTESH2_TR_HASHSZ	256
+#define BTESH2_TR_HASHSZ	512
+//#define BTESH2_TR_HASHSZ	1024
+//#define BTESH2_TR_HASHSZ	2048
+//#define BTESH2_TR_HASHSZ	4096
+
+//#define BTESH2_TR_HASHPR	524287
+//#define BTESH2_TR_HASHSHR	19
 
 #define BTESH2_TR_HASHPR	4194301
 #define BTESH2_TR_HASHSHR	23
 
 // #define BTESH2_TR_HASHPR	8388593
 // #define BTESH2_TR_HASHSHR	23
+
+#define BTESH2_TR_HASHLVL	2
 
 struct BTESH2_Trace_s {
 BTESH2_Opcode *ops[BTESH2_TR_MAXOPS];
@@ -347,7 +359,7 @@ u32 trapregs[64];	//trapped registers
 u32 fregs[16];
 u32 trapfregs[16];
 
-BTESH2_Trace *icache[BTESH2_TR_HASHSZ*2];
+BTESH2_Trace *icache[BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL];
 u32 trpc[64];
 int status;
 byte trpc_rov;
@@ -357,6 +369,7 @@ u64 tr_tops;
 byte csfl;		//control state flags
 byte arch;		//arch ID
 byte ctfl;		//control temp flags (don't effect control flow)
+u32 ptcpc;
 
 BTESH2_Trace *cur_trace;
 u32 *smcdbm[128];		//SMC detection bitmap

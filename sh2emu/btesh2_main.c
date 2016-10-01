@@ -15,6 +15,12 @@
 byte kbbuf[256];
 byte kbrov;
 byte kbirov;
+byte kbictrl;
+u32 *btesh2_mmio;
+
+u64 btesh2_msec;
+u64 btesh2_tops;
+double btesh2_ips;
 
 #ifdef __linux
 static struct termios old_termios;
@@ -61,10 +67,24 @@ byte *loadfile(char *path, int *rsz)
 	return(buf);
 }
 
+s64 btesh2_getvtime_ns(BTESH2_CpuState *cpu)
+{
+	static s64 lt0=0;
+	s64 t0, t1;
+	t0=btesh2_msec*1000000LL;
+	t1=(cpu->tr_tops-btesh2_tops)*(1000000000.0/btesh2_ips);
+	t0=t0+t1;
+	if(t0<=lt0)
+		t0=lt0+1;
+	lt0=t0;
+	return(t0);
+}
+
 u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr)
 {
 	u32 *mmio;
+	s64 t0, t1;
 	u32 i;
 	
 	mmio=(u32 *)(sp->data);
@@ -101,6 +121,9 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 //			printf(".");
 			i|=1;
 		}
+		i|=4;
+		if(kbictrl&0x10)
+			i|=0x10;
 		break;
 	case 0x43: i=0; break;
 #endif
@@ -110,16 +133,48 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 //	case 0x82: i=mmio[0x82]; break;
 //	case 0x83: i=mmio[0x83]; break;
 //	case 0x84: i=mmio[0x84]; break;
-//	case 0x85: i=mmio[0x85]; break;
-//	case 0x86: i=mmio[0x86]; break;
+	case 0x85:
+		i=mmio[0x85];
+//		i=cpu->tr_tops&((1<<20)-1);
+		break;
+	case 0x86:
+		i=mmio[0x86];
+//		i=1<<20;
+		break;
 //	case 0x87: i=mmio[0x87]; break;
 	case 0x88:	i=0; break;
-	case 0x89:	i=(cpu->tr_tops>>30); break;
-	case 0x8A:	i=(cpu->tr_tops<<2); break;
-	
-	case 0x85:
-	case 0x86:
+	case 0x89:
+//		t0=(btesh2_msec*1024*8)+(cpu->tr_tops&8191);
+//		t0=btesh2_msec*1024*8;
+//		t0=btesh2_msec*1000000LL;
+//		t1=(cpu->tr_tops-btesh2_tops)*(1000000000.0/btesh2_ips);
+//		t0=t0+t1;
+
+		t0=btesh2_getvtime_ns(cpu);
+
+		i=t0>>30;
+//		i=t0>>32;
+//		i=(cpu->tr_tops>>30);
 		break;
+	case 0x8A:
+//		t0=btesh2_msec*1024*10;
+//		t0=(btesh2_msec*1024*16)+(cpu->tr_tops&16383);
+//		t0=(btesh2_msec*1024*8)+(cpu->tr_tops&8191);
+
+//		t0=btesh2_msec*1024*8;
+//		t0=btesh2_msec*1000000LL;
+//		t1=(cpu->tr_tops-btesh2_tops)*(1000000000.0/btesh2_ips);
+//		t0=t0+t1;
+
+		t0=btesh2_getvtime_ns(cpu);
+
+		i=t0&((1<<30)-1);
+//		i=(cpu->tr_tops<<2);
+		break;
+	
+//	case 0x85:
+//	case 0x86:
+//		break;
 
 	case 0xC0:	case 0xC1:
 	case 0xC2:	case 0xC3:
@@ -164,14 +219,14 @@ int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 		break;
 	
 	case 0x10:
-//		printf("SPI_C(W): %08X\n", val);
+		printf("SPI_C(W): %08X\n", val);
 		v=btesh2_spimmc_XrCtl(cpu, val);
 		mmio[0x10]=v&255;
 		if(v&0x10000)
 			mmio[0x11]=(v>>8)&255;
 		break;
 	case 0x11:
-//		printf("SPI_D(W): %08X\n", val);
+		printf("SPI_D(W): %08X\n", val);
 		v=btesh2_spimmc_XrByte(cpu, val);
 		mmio[0x11]=v;
 		break;
@@ -183,9 +238,13 @@ int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 		break;
 //	case 0x42:
 //		break;
-
 	case 0x43:
+		kbictrl=val;
 		break;
+
+	case 0x30:
+		break;
+
 
 	case 0xC0:	case 0xC1:
 	case 0xC2:	case 0xC3:
@@ -225,13 +284,17 @@ u32 btesh2_spanmmio_GetW(BTESH2_PhysSpan *sp,
 int btesh2_spanmmio_SetB(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
 {
-	btesh2_spanmmio_SetD(sp, cpu, reladdr, val);
+	int i;
+	i=btesh2_spanmmio_SetD(sp, cpu, reladdr, val);
+	return(i);
 }
 
 int btesh2_spanmmio_SetW(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
 {
-	btesh2_spanmmio_SetD(sp, cpu, reladdr, val);
+	int i;
+	i=btesh2_spanmmio_SetD(sp, cpu, reladdr, val);
+	return(i);
 }
 
 u32 btesh2_spanmmreg_GetD(BTESH2_PhysSpan *sp,
@@ -270,12 +333,67 @@ int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
 	return(0);
 }
 
+
+u32 btesh2_spanemac_GetD(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	printf("EMAC Get\n");
+	return(0);
+}
+
+int btesh2_spanemac_SetD(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	printf("EMAC Set\n");
+	return(0);
+}
+
+u32 btesh2_spanemac_GetB(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	u32 i, j;
+	i=btesh2_spanemac_GetD(sp, cpu, reladdr&(~3));
+	j=(i>>((3-(reladdr&3))*8));
+	j=(sbyte)j;
+	return(j);
+}
+
+u32 btesh2_spanemac_GetW(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	u32 i, j;
+	i=btesh2_spanemac_GetD(sp, cpu, reladdr&(~3));
+	j=(i>>((3-(reladdr&3))*8));
+	j=(s16)j;
+	return(j);
+}
+
+int btesh2_spanemac_SetB(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	int i;
+	i=btesh2_spanemac_SetD(sp, cpu, reladdr, val);
+	return(i);
+}
+
+int btesh2_spanemac_SetW(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	int i;
+	i=btesh2_spanemac_SetD(sp, cpu, reladdr, val);
+	return(i);
+}
+
+
 int help(char *prgname)
 {
 	printf("usage: %s [options] image\n", prgname);
 	printf("  -sh2        Emulate SH-2\n");
 	printf("  -sh4        Emulate SH-4\n");
 	printf("  -map <map>  Use symbol map\n");
+	printf("  -sd <image> Use SD image\n");
+	printf("  -sdcl <scr> Use SDCL script\n");
+	printf("  -ird <img>  Use Initrd image\n");
 	return(0);
 }
 
@@ -285,11 +403,14 @@ int main(int argc, char *argv[])
 	BTESH2_CpuState *cpu;
 	BTESH2_PhysSpan *sp;
 	byte *ibuf, *tbuf;
-	char *imgname, *mapname, *sdname, *sdclname;
+	char *imgname, *mapname, *sdname, *sdclname, *irdname;
+	char *kerninit;
 	double dt;
 	s64 tdt;
-	byte sh4;
-	int t0, t1, t2;
+	s64 rtops;
+	s32 rtmsec;
+	byte sh4, kirq;
+	int t0, t1, t2, t3;
 	int sz, err, ts;
 	int i, j, k, l;
 	
@@ -298,6 +419,8 @@ int main(int argc, char *argv[])
 	mapname=NULL;
 	sdname=NULL;
 	sdclname=NULL;
+	irdname=NULL;
+	kerninit=NULL;
 	
 	for(i=1; i<argc; i++)
 	{
@@ -313,9 +436,10 @@ int main(int argc, char *argv[])
 
 			if(!strcmp(argv[i], "-sd"))
 				{ sdname=argv[i+1]; i++; continue; }
-
 			if(!strcmp(argv[i], "-sdcl"))
 				{ sdclname=argv[i+1]; i++; continue; }
+			if(!strcmp(argv[i], "-ird"))
+				{ irdname=argv[i+1]; i++; continue; }
 
 			if(!strcmp(argv[i], "--help"))
 				{ sh4=127; continue; }
@@ -446,12 +570,14 @@ int main(int argc, char *argv[])
 
 	if(1)
 	{
-		tbuf=malloc(1024);
-		memset(tbuf, 0, 1024);
+		tbuf=malloc(16384);
+		memset(tbuf, 0, 16384);
+		btesh2_mmio=(u32 *)(tbuf);
+		
 		sp=BTESH2_AllocPhysSpan();
-		sp->base=0xABCD0000;	sp->limit=0xABCDFFFF;
+		sp->base=0xABCD0000;	sp->limit=0xABCD3FFF;
 		if(cpu->arch==BTESH2_ARCH_SH4)
-			{ sp->base=0x0BCD0000;	sp->limit=0x0BCDFFFF; }
+			{ sp->base=0x0BCD0000;	sp->limit=0x0BCD3FFF; }
 		sp->data=tbuf;			sp->name="MMIO";
 		sp->GetB=btesh2_spanmmio_GetB;	sp->GetW=btesh2_spanmmio_GetW;
 		sp->GetD=btesh2_spanmmio_GetD;	sp->SetB=btesh2_spanmmio_SetB;
@@ -461,11 +587,28 @@ int main(int argc, char *argv[])
 
 	if(1)
 	{
-		tbuf=malloc(1024);
-		memset(tbuf, 0, 1024);
+		tbuf=malloc(4096);
+		memset(tbuf, 0, 4096);
+//		btesh2_emac=(u32 *)(tbuf);
+		
+		sp=BTESH2_AllocPhysSpan();
+		sp->base=0xABCE0000;	sp->limit=0xABCE0FFF;
+		if(cpu->arch==BTESH2_ARCH_SH4)
+			{ sp->base=0x0BCE0000;	sp->limit=0x0BCE0FFF; }
+		sp->data=tbuf;			sp->name="EMAC";
+		sp->GetB=btesh2_spanemac_GetB;	sp->GetW=btesh2_spanemac_GetW;
+		sp->GetD=btesh2_spanemac_GetD;	sp->SetB=btesh2_spanemac_SetB;
+		sp->SetW=btesh2_spanemac_SetW;	sp->SetD=btesh2_spanemac_SetD;
+		i=BTESH2_MemoryAddSpan(img, sp);
+	}
+
+	if(1)
+	{
+		tbuf=malloc(4096);
+		memset(tbuf, 0, 4096);
 
 		sp=BTESH2_AllocPhysSpan();
-		sp->base=0xFF000000;	sp->limit=0xFF00FFFF;
+		sp->base=0xFF000000;	sp->limit=0xFF000FFF;
 		sp->data=tbuf;			sp->name="MMREG";
 //		sp->GetB=btesh2_spanmmio_GetB;	sp->GetW=btesh2_spanmmio_GetW;
 //		sp->SetB=btesh2_spanmmio_SetB;	sp->SetW=btesh2_spanmmio_SetW;
@@ -506,6 +649,35 @@ int main(int argc, char *argv[])
 		}
 	}
 
+//	kerninit="rdinit=/bin/ash root=/dev/tmpfs";
+//	kerninit="rdinit=/bin/login";
+
+	if(irdname)
+	{
+		ibuf=loadfile(irdname, &sz);
+		if(ibuf)
+		{
+			t0=0x18000000-(sz+1);
+			t0=t0&(~4095);
+			BTESH2_MemCpyIn(cpu, t0, ibuf, sz);
+
+			t1=t0-0x10000000;
+			
+			BTESH2_SetAddrDWord(cpu, 0x1003F000+0x010, t1);
+			BTESH2_SetAddrDWord(cpu, 0x1003F000+0x014, sz);
+
+			if(kerninit)
+			{
+				t2=0x1003F000+0x100;
+				BTESH2_MemCpyIn(cpu, t2,
+					kerninit, strlen(kerninit)+1);
+			}
+
+//			BTESH2_BootLoadMap(cpu, ibuf, sz, 0x10000000);
+//			free(ibuf);
+		}
+	}
+
 //	l=99999999;
 	l=999999999;
 
@@ -515,15 +687,31 @@ int main(int argc, char *argv[])
 	btesh2_ttynoncanon();
 #endif
 
+	btesh2_msec=0;
+	btesh2_tops=0;
+	rtops=0; rtmsec=0;
+
 	printf("Boot PC=%08X\n", cpu->regs[BTESH2_REG_PC]);
 //	t0=clock();
 //	i=BTESH2_RunCpu(cpu, l);
 //	t1=clock();
-	ts=CLOCKS_PER_SEC/100; err=0;
-	t0=clock(); t2=0; tdt=0;
+//	ts=CLOCKS_PER_SEC/100;
+	ts=CLOCKS_PER_SEC/1000;
+	err=0; kirq=0;
+	t0=clock(); t2=0; tdt=0; t3=0;
 	while(!err)
 	{	
 		t1=clock();
+
+		t2=t1-t3;
+		if(t2>0)
+		{
+			t3=t1;
+			dt=t2*(1000.0/CLOCKS_PER_SEC);
+			btesh2_msec+=dt;
+			rtmsec+=dt;
+		}
+
 		t2=t1-t0;
 		if((t2>ts) || (t2<0))
 		{
@@ -535,9 +723,26 @@ int main(int argc, char *argv[])
 				if(j=='`')
 					{ err=1; continue; }
 				
+//				if(j=='\b')
+//					j=0x7F;
+//				if(j=='\n')
+//					j='\r';
+
+				if(j=='\r')
+					j=0x0A0D;
+				
 	//			printf("K%c", j);
 				kbbuf[kbrov]=j;
 				kbrov=(kbrov+1)&255;
+				kirq=1;
+				
+				if(j>>8)
+				{
+					kbbuf[kbrov]=j;
+					kbrov=(kbrov+1)&255;
+					kirq++;
+				}
+//				BTESH2_CpuUartInt(cpu);
 			}
 #endif
 
@@ -551,14 +756,52 @@ int main(int argc, char *argv[])
 	//			printf("K%c", j);
 				kbbuf[kbrov]=j;
 				kbrov=(kbrov+1)&255;
+//				BTESH2_CpuUartInt(cpu);
+				kirq=1;
 			}
 #endif
 
 			tdt+=t2;
 			t0=t1;
 			BTESH2_CpuTimerInt(cpu);
+			
 			continue;
 		}
+
+//		btesh2_msec=t1;
+//		btesh2_msec+=t2;
+		btesh2_tops=cpu->tr_tops-rtops;
+		
+		if(btesh2_tops>0)
+		{
+			dt=rtmsec*(1.0/((double)CLOCKS_PER_SEC))+0.000001;
+			btesh2_ips=((double)btesh2_tops)/dt+0.000001;
+		}else
+		{
+			btesh2_ips=999999999.0;
+		}
+
+		if((kirq>0) && (kbictrl&0x10))
+		{
+			BTESH2_CpuUartInt(cpu);
+			kirq--;
+		}
+
+#if 1
+		if(t2)
+		{
+			btesh2_mmio[0x85]--;
+			if(((s32)btesh2_mmio[0x85])<=0)
+			{
+//				printf("AIC Fire\n");
+				BTSH_Op_TrapIntIrq(cpu, BTESH2_EXC_AICCNTDN);
+//				btesh2_mmio[0x85]=4095;
+				btesh2_mmio[0x85]=16;
+//				btesh2_mmio[0x85]=2;
+				btesh2_mmio[0x86]=4095;
+			}
+		}
+#endif
 
 //		err=BTESH2_RunCpu(cpu, 1000);
 		err=BTESH2_RunCpu(cpu, 10000);
@@ -566,6 +809,8 @@ int main(int argc, char *argv[])
 		if(err==BTESH2_EXC_TRAPSLEEP)
 		{
 #ifdef _WIN32
+			rtops=cpu->tr_tops;
+			rtmsec=0;
 			Sleep(1);
 #endif
 #ifdef __linux

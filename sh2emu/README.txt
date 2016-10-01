@@ -11,6 +11,11 @@ Options:
 	-sdcl <name>	Use SDCL command script.
 
 
+SD-Card Image
+
+Expressed as a raw image file with an MBR and a filesystem, starting with the MBR. Normally these files are the full size of the filesystem, which is limited to approx 2GB.
+
+
 SDCL Command Language
 
 mkimage <image> <size[sfx]> [options]
@@ -20,7 +25,7 @@ mkimage <image> <size[sfx]> [options]
 	-F16: Create image using FAT16
 	-F32: Create image using FAT32
 
-Makes a new single-file image.
+Makes a new raw / single-file image.
 If image exists, it is overwritten.
 
 Single-file images are generally limited to around 2GB.
@@ -40,6 +45,14 @@ Base is given as the directory to hold the image segments.
 
 This is intended more for larger images (above 2GB).
 Currently will split the image into 512MiB segments (1M sectors).
+
+Each segment will begin with an index table, which here will be defined as holding 256 indices, expressed as 32-bit integer values, and representing a space of 2MeB (4096 sectors).
+
+In these indices, the low 9 bits will encode a value between 0 and 256, where:
+  0=Empty cluster, should be read as zeroes, and allocated on write.
+  1..256: Gives the offset of this cluster in the image, as:
+    (idx-1)*2MeB + 64KiB.
+
 
 
 addfile <iname> [ename]
