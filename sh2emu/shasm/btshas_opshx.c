@@ -1,0 +1,725 @@
+#define BTSHAS_OPVTY_SR_RN		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_SR, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_GBR_RN		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_GBR, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_VBR_RN		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_VBR, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_SSR_RN		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_SSR, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_SPC_RN		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_SPC, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_DBR_RN		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DBR, BTSHAS_OPVTY_RN)
+
+#define BTSHAS_OPVTY_MACH_RN	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_MACH, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_MACL_RN	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_MACL, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_PR_RN		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_PR, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_TBR_RN		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_TBR, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_FPUL_RN	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_FPUL, BTSHAS_OPVTY_RN)
+#define BTSHAS_OPVTY_FPSCR_RN	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_FPSCR, BTSHAS_OPVTY_RN)
+
+#define BTSHAS_OPVTY_RM_SR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_SR)
+#define BTSHAS_OPVTY_RM_GBR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_GBR)
+#define BTSHAS_OPVTY_RM_VBR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_VBR)
+#define BTSHAS_OPVTY_RM_SSR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_SSR)
+#define BTSHAS_OPVTY_RM_SPC		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_SPC)
+#define BTSHAS_OPVTY_RM_DBR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_DBR)
+
+#define BTSHAS_OPVTY_RM_MACH	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_MACH)
+#define BTSHAS_OPVTY_RM_MACL	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_MACL)
+#define BTSHAS_OPVTY_RM_PR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_PR)
+#define BTSHAS_OPVTY_RM_TBR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_TBR)
+#define BTSHAS_OPVTY_RM_FPUL	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_FPUL)
+#define BTSHAS_OPVTY_RM_FPSCR	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_RM, BTSHAS_OPVTY_FPSCR)
+
+
+#define BTSHAS_OPVTY_SR_DRND		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_SR, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_GBR_DRND		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_GBR, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_VBR_DRND		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_VBR, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_SSR_DRND		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_SSR, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_SPC_DRND		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_SPC, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_DBR_DRND		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DBR, BTSHAS_OPVTY_DRND)
+
+#define BTSHAS_OPVTY_MACH_DRND	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_MACH, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_MACL_DRND	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_MACL, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_PR_DRND		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_PR, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_TBR_DRND		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_TBR, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_FPUL_DRND	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_FPUL, BTSHAS_OPVTY_DRND)
+#define BTSHAS_OPVTY_FPSCR_DRND	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_FPSCR, BTSHAS_OPVTY_DRND)
+
+#define BTSHAS_OPVTY_DRMI_SR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_SR)
+#define BTSHAS_OPVTY_DRMI_GBR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_GBR)
+#define BTSHAS_OPVTY_DRMI_VBR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_VBR)
+#define BTSHAS_OPVTY_DRMI_SSR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_SSR)
+#define BTSHAS_OPVTY_DRMI_SPC		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_SPC)
+#define BTSHAS_OPVTY_DRMI_DBR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_DBR)
+
+#define BTSHAS_OPVTY_DRMI_MACH	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_MACH)
+#define BTSHAS_OPVTY_DRMI_MACL	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_MACL)
+#define BTSHAS_OPVTY_DRMI_PR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_PR)
+#define BTSHAS_OPVTY_DRMI_TBR		\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_TBR)
+#define BTSHAS_OPVTY_DRMI_FPUL	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_FPUL)
+#define BTSHAS_OPVTY_DRMI_FPSCR	\
+	BTSHAS_OPVA2(BTSHAS_OPVTY_DRMI, BTSHAS_OPVTY_FPSCR)
+
+
+BTSHAS_ListingOp btshas_shxops[]={
+{"0n02",		"STC",		BTSHAS_OPVTY_SR_RN},
+{"0n12",		"STC",		BTSHAS_OPVTY_GBR_RN},
+{"0n22",		"STC",		BTSHAS_OPVTY_VBR_RN},
+{"0n32",		"STC",		BTSHAS_OPVTY_SSR_RN},
+{"0n42",		"STC",		BTSHAS_OPVTY_SPC_RN},
+{"0n52",		"STC",		BTSHAS_OPVTY_DBR_RN},
+{"0nM2",		"STC",		BTSHAS_OPVTY_RM_RN},
+{"0m03",		"BSRF",		BTSHAS_OPVTY_RM},
+{"0m23",		"BRAF",		BTSHAS_OPVTY_RM},
+{"0n83",		"PREF",		BTSHAS_OPVTY_DRN},
+{"0n93",		"OCBI",		BTSHAS_OPVTY_DRN},
+{"0nA3",		"OCBP",		BTSHAS_OPVTY_DRN},
+{"0nB3",		"OCBWB",	BTSHAS_OPVTY_DRN},
+{"0nC3",		"MOVCA.L",	BTSHAS_OPVTY_R0_RN},
+{"0nm4",		"MOV.B",	BTSHAS_OPVTY_RM_DR0RN},
+{"0nm5",		"MOV.W",	BTSHAS_OPVTY_RM_DR0RN},
+{"0nm6",		"MOV.L",	BTSHAS_OPVTY_RM_DR0RN},
+{"0nm7",		"MUL.L",	BTSHAS_OPVTY_RM_RN},
+{"0008",		"CLRT",		BTSHAS_OPVTY_NONE},
+{"0018",		"SETT",		BTSHAS_OPVTY_NONE},
+{"0028",		"CLRMAC",	BTSHAS_OPVTY_NONE},
+{"0038",		"LDTLB",	BTSHAS_OPVTY_NONE},
+{"0048",		"CLRS",		BTSHAS_OPVTY_NONE},
+{"0058",		"SETS",		BTSHAS_OPVTY_NONE},
+{"0009",		"NOP",		BTSHAS_OPVTY_NONE},
+{"0019",		"DIV0U",	BTSHAS_OPVTY_NONE},
+{"0n29",		"MOVT",		BTSHAS_OPVTY_RN},
+{"0n39",		"MOVRT",	BTSHAS_OPVTY_RN},
+{"0n0A",		"STS",		BTSHAS_OPVTY_MACH_RN},
+{"0n1A",		"STS",		BTSHAS_OPVTY_MACL_RN},
+{"0n2A",		"STS",		BTSHAS_OPVTY_PR_RN},
+{"0n4A",		"STC",		BTSHAS_OPVTY_TBR_RN},
+{"0n5A",		"STS",		BTSHAS_OPVTY_FPUL_RN},
+{"0n6A",		"STS",		BTSHAS_OPVTY_FPSCR_RN},
+{"000B",		"RTS",		BTSHAS_OPVTY_NONE},
+{"001B",		"SLEEP",	BTSHAS_OPVTY_NONE},
+{"002B",		"RTE",		BTSHAS_OPVTY_NONE},
+{"003B",		"BRK",		BTSHAS_OPVTY_NONE},
+{"005B",		"RESBANK",	BTSHAS_OPVTY_NONE},
+{"006B",		"RTS/N",	BTSHAS_OPVTY_NONE},
+{"0m7B",		"RTV/N",	BTSHAS_OPVTY_RM},
+{"0nmC",		"MOV.B",	BTSHAS_OPVTY_DR0RM_RN},
+{"0nmD",		"MOV.W",	BTSHAS_OPVTY_DR0RM_RN},
+{"0nmE",		"MOV.L",	BTSHAS_OPVTY_DR0RM_RN},
+{"0nmF",		"MAC.L",	BTSHAS_OPVTY_DRM_DRN},
+{"1nmd",		"MOV.L",	BTSHAS_OPVTY_RM_DRNO},
+{"2nm0",		"MOV.B",	BTSHAS_OPVTY_RM_DRN},
+{"2nm1",		"MOV.W",	BTSHAS_OPVTY_RM_DRN},
+{"2nm2",		"MOV.L",	BTSHAS_OPVTY_RM_DRN},
+{"2nm3",		"CAS.L",	BTSHAS_OPVTY_RM_RN_DR0},
+{"2nm4",		"MOV.B",	BTSHAS_OPVTY_RM_DRND},
+{"2nm5",		"MOV.W",	BTSHAS_OPVTY_RM_DRND},
+{"2nm6",		"MOV.L",	BTSHAS_OPVTY_RM_DRND},
+{"2nm7",		"DIV0S",	BTSHAS_OPVTY_RM_RN},
+{"2nm8",		"TST",		BTSHAS_OPVTY_RM_RN},
+{"2nm9",		"AND",		BTSHAS_OPVTY_RM_RN},
+{"2nmA",		"XOR",		BTSHAS_OPVTY_RM_RN},
+{"2nmB",		"OR",		BTSHAS_OPVTY_RM_RN},
+{"2nmC",		"CMP/STR",	BTSHAS_OPVTY_RM_RN},
+{"2nmD",		"XTRCT",	BTSHAS_OPVTY_RM_RN},
+{"2nmE",		"MULU.W",	BTSHAS_OPVTY_RM_RN},
+{"2nmF",		"MULS.W",	BTSHAS_OPVTY_RM_RN},
+{"3nm0",		"CMP/EQ",	BTSHAS_OPVTY_RM_RN},
+{"3nm2",		"CMP/HS",	BTSHAS_OPVTY_RM_RN},
+{"3nm3",		"CMP/GE",	BTSHAS_OPVTY_RM_RN},
+{"3nm4",		"DIV1",		BTSHAS_OPVTY_RM_RN},
+{"3nm5",		"DMULU.L",	BTSHAS_OPVTY_RM_RN},
+{"3nm6",		"CMP/HI",	BTSHAS_OPVTY_RM_RN},
+{"3nm7",		"CMP/GT",	BTSHAS_OPVTY_RM_RN},
+{"3nm8",		"SUB",		BTSHAS_OPVTY_RM_RN},
+{"3nmA",		"SUBC",		BTSHAS_OPVTY_RM_RN},
+{"3nmB",		"SUBV",		BTSHAS_OPVTY_RM_RN},
+{"3nmC",		"ADD",		BTSHAS_OPVTY_RM_RN},
+{"3nmD",		"DMULS.L",	BTSHAS_OPVTY_RM_RN},
+{"3nmE",		"ADDC",		BTSHAS_OPVTY_RM_RN},
+{"3nmF",		"ADDV",		BTSHAS_OPVTY_RM_RN},
+{"4n00",		"SHLL",		BTSHAS_OPVTY_RN},
+{"4n10",		"DT",		BTSHAS_OPVTY_RN},
+{"4n20",		"SHAL",		BTSHAS_OPVTY_RN},
+{"4n80",		"MULR",		BTSHAS_OPVTY_DR0RN},
+{"4mF0",		"MOVMU.L",	BTSHAS_OPVTY_RM_DR15D},
+{"4n01",		"SHLR",		BTSHAS_OPVTY_RN},
+{"4n11",		"CMP/PZ",	BTSHAS_OPVTY_RN},
+{"4n21",		"SHAR",		BTSHAS_OPVTY_RN},
+{"4n81",		"CLIPU.B",	BTSHAS_OPVTY_RN},
+{"4n91",		"CLIPS.B",	BTSHAS_OPVTY_RN},
+{"4nE1",		"STBANK",	BTSHAS_OPVTY_R0_DRN},
+{"4mF1",		"MOVML.L",	BTSHAS_OPVTY_RM_DR15D},
+{"4n02",		"STS.L",	BTSHAS_OPVTY_MACH_DRND},
+{"4n12",		"STS.L",	BTSHAS_OPVTY_MACL_DRND},
+{"4n22",		"STS.L",	BTSHAS_OPVTY_PR_DRND},
+{"4n52",		"STS.L",	BTSHAS_OPVTY_FPUL_DRND},
+{"4n62",		"STS.L",	BTSHAS_OPVTY_FPSCR_DRND},
+{"4n03",		"STC.L",	BTSHAS_OPVTY_SR_DRND},
+{"4n13",		"STC.L",	BTSHAS_OPVTY_GBR_DRND},
+{"4n23",		"STC.L",	BTSHAS_OPVTY_VBR_DRND},
+{"4n43",		"STC.L",	BTSHAS_OPVTY_SSR_DRND},
+{"4n53",		"STC.L",	BTSHAS_OPVTY_SPC_DRND},
+{"4n63",		"STC.L",	BTSHAS_OPVTY_DBR_DRND},
+{"4nM3",		"STC.L",	BTSHAS_OPVTY_RM_DRND},
+{"4n04",		"ROTL",		BTSHAS_OPVTY_RN},
+{"4-24",		"ROTCL",	BTSHAS_OPVTY_RN},
+{"4n44",		"EXTU.L",	BTSHAS_OPVTY_RN},
+{"4n54",		"EXTS.L",	BTSHAS_OPVTY_RN},
+//{"4n64",		"BSWAP.L",	BTSHAS_OPVTY_RN},
+//{"4n74",		"BSWAP.Q",	BTSHAS_OPVTY_RN},
+//{"4n84",		"SWAP.L",	BTSHAS_OPVTY_RN},
+{"4n94",		"DIVU",		BTSHAS_OPVTY_DR0RN},
+{"4n94",		"DIVS",		BTSHAS_OPVTY_DR0RN},
+{"4nF4",		"MOVMU.L",	BTSHAS_OPVTY_DR15I_RN},
+{"4n05",		"ROTR",		BTSHAS_OPVTY_RN},
+{"4n15",		"CMP/PL",	BTSHAS_OPVTY_RN},
+{"4n25",		"ROTCR",	BTSHAS_OPVTY_RN},
+{"4n85",		"CLIPU.W",	BTSHAS_OPVTY_RN},
+{"4n95",		"CLIPS.W",	BTSHAS_OPVTY_RN},
+{"4mE5",		"LDBANK",	BTSHAS_OPVTY_RM},
+{"4nF5",		"MOVML.L",	BTSHAS_OPVTY_DR15I_RN},
+{"4m06",		"LDS.L",	BTSHAS_OPVTY_DRMI_MACH},
+{"4m16",		"LDS.L",	BTSHAS_OPVTY_DRMI_MACL},
+{"4m26",		"LDS.L",	BTSHAS_OPVTY_DRMI_PR},
+{"4m56",		"LDS.L",	BTSHAS_OPVTY_DRMI_FPUL},
+{"4m66",		"LDS.L",	BTSHAS_OPVTY_DRMI_FPSCR},
+{"4m07",		"LDC.L",	BTSHAS_OPVTY_DRMI_SR},
+{"4m17",		"LDC.L",	BTSHAS_OPVTY_DRMI_GBR},
+{"4m27",		"LDC.L",	BTSHAS_OPVTY_DRMI_VBR},
+{"4m37",		"LDC.L",	BTSHAS_OPVTY_DRMI_SSR},
+{"4m47",		"LDC.L",	BTSHAS_OPVTY_DRMI_SPC},
+{"4m57",		"LDC.L",	BTSHAS_OPVTY_DRMI_DBR},
+{"4mN7",		"LDC.L",	BTSHAS_OPVTY_DRMI_RN},
+{"4n08",		"SHLL2",	BTSHAS_OPVTY_RN},
+{"4n18",		"SHLL8",	BTSHAS_OPVTY_RN},
+{"4n28",		"SHLL16",	BTSHAS_OPVTY_RN},
+{"4n09",		"SHLR2",	BTSHAS_OPVTY_RN},
+{"4n19",		"SHLR8",	BTSHAS_OPVTY_RN},
+{"4n29",		"SHLR16",	BTSHAS_OPVTY_RN},
+{"4m0A",		"LDS",		BTSHAS_OPVTY_RM_MACH},
+{"4m1A",		"LDS",		BTSHAS_OPVTY_RM_MACL},
+{"4m2A",		"LDS",		BTSHAS_OPVTY_RM_PR},
+{"4m4A",		"LDC",		BTSHAS_OPVTY_RM_TBR},
+{"4m5A",		"LDS",		BTSHAS_OPVTY_RM_FPUL},
+{"4m6A",		"LDS",		BTSHAS_OPVTY_RM_FPSCR},
+{"4m0B",		"JSR",		BTSHAS_OPVTY_DRM},
+{"4m1B",		"TAS.B",	BTSHAS_OPVTY_DRM},
+{"4m2B",		"JMP",		BTSHAS_OPVTY_DRM},
+{"4m4B",		"JSR/N",	BTSHAS_OPVTY_DRM},
+{"4m8B",		"MOV.B",	BTSHAS_OPVTY_R0_DRNI},
+{"4m9B",		"MOV.W",	BTSHAS_OPVTY_R0_DRNI},
+{"4mAB",		"MOV.L",	BTSHAS_OPVTY_R0_DRNI},
+{"4mCB",		"MOV.B",	BTSHAS_OPVTY_DRND_R0},
+{"4mDB",		"MOV.W",	BTSHAS_OPVTY_DRND_R0},
+{"4mEB",		"MOV.L",	BTSHAS_OPVTY_DRND_R0},
+{"4nmC",		"SHAD",		BTSHAS_OPVTY_RM_RN},
+{"4nmD",		"SHLD",		BTSHAS_OPVTY_RM_RN},
+{"4m0E",		"LDC",		BTSHAS_OPVTY_RM_SR},
+{"4m1E",		"LDC",		BTSHAS_OPVTY_RM_GBR},
+{"4m2E",		"LDC",		BTSHAS_OPVTY_RM_VBR},
+{"4m3E",		"LDC",		BTSHAS_OPVTY_RM_SSR},
+{"4m4E",		"LDC",		BTSHAS_OPVTY_RM_SPC},
+{"4m5E",		"LDC",		BTSHAS_OPVTY_RM_DBR},
+{"4mNE",		"LDC",		BTSHAS_OPVTY_RM_RN},
+{"4nmF",		"MAC.W",	BTSHAS_OPVTY_RM_RN},
+{"5nmd",		"MOV.L",	BTSHAS_OPVTY_DRMO_RN},
+{"6nm0",		"MOV.B",	BTSHAS_OPVTY_DRM_RN},
+{"6nm1",		"MOV.W",	BTSHAS_OPVTY_DRM_RN},
+{"6nm2",		"MOV.L",	BTSHAS_OPVTY_DRM_RN},
+{"6nm3",		"MOV",		BTSHAS_OPVTY_RM_RN},
+{"6nm4",		"MOV.B",	BTSHAS_OPVTY_DRMI_RN},
+{"6nm5",		"MOV.W",	BTSHAS_OPVTY_DRMI_RN},
+{"6nm6",		"MOV.L",	BTSHAS_OPVTY_DRMI_RN},
+{"6nm7",		"NOT",		BTSHAS_OPVTY_RM_RN},
+{"6nm8",		"SWAP.B",	BTSHAS_OPVTY_RM_RN},
+{"6nm9",		"SWAP.W",	BTSHAS_OPVTY_RM_RN},
+{"6nmA",		"NEGC",		BTSHAS_OPVTY_RM_RN},
+{"6nmB",		"NEG",		BTSHAS_OPVTY_RM_RN},
+{"6nmC",		"EXTU.B",	BTSHAS_OPVTY_RM_RN},
+{"6nmD",		"EXTS.B",	BTSHAS_OPVTY_RM_RN},
+{"6nmE",		"EXTU.W",	BTSHAS_OPVTY_RM_RN},
+{"6nmF",		"EXTS.W",	BTSHAS_OPVTY_RM_RN},
+{"7nii",		"ADD",		BTSHAS_OPVTY_IMM8_RN},
+{"80nd",		"MOV.B",	BTSHAS_OPVTY_R0_DRNO|BTSHAS_OPVTM_B},
+{"81nd",		"MOV.W",	BTSHAS_OPVTY_R0_DRNO|BTSHAS_OPVTM_W},
+{"83dd",		"JSR/N",	BTSHAS_OPVTY_LABEL|BTSHAS_OPVTM_W},
+{"84md",		"MOV.B",	BTSHAS_OPVTY_DRMO_R0|BTSHAS_OPVTM_B},
+{"85md",		"MOV.W",	BTSHAS_OPVTY_DRMO_R0|BTSHAS_OPVTM_W},
+{"86nj",		"BSET",		BTSHAS_OPVTY_IMM3L_RN}, 
+{"86nJ",		"BCLR",		BTSHAS_OPVTY_IMM3H_RN},
+{"87nj",		"BST",	 	BTSHAS_OPVTY_IMM3L_RN},
+{"87nJ",		"BLD",	 	BTSHAS_OPVTY_IMM3H_RN},
+{"88ii",		"CMP/EQ", 	BTSHAS_OPVTY_IMM8_R0},
+{"89dd",		"BT",		BTSHAS_OPVTY_LABEL|BTSHAS_OPVTM_W},
+{"8Bdd",		"BF",		BTSHAS_OPVTY_LABEL|BTSHAS_OPVTM_W},
+{"8Cii",		"LDSH8",	BTSHAS_OPVTY_IMM8_R0},
+{"8Ddd",		"BTS",		BTSHAS_OPVTY_LABEL|BTSHAS_OPVTM_W},
+{"8Fdd",		"BFS",		BTSHAS_OPVTY_LABEL|BTSHAS_OPVTM_W},
+//{"9nmd",		"MOV.W",	BTSHAS_OPVTY_DRMO_RN|BTSHAS_OPVTM_W},
+{"9ndd",		"MOV.W",	BTSHAS_OPVTY_DPCO_RN|BTSHAS_OPVTM_W},
+{"Addd",		"BRA",		BTSHAS_OPVTY_LABEL|BTSHAS_OPVTM_W},
+{"Bddd",		"BSR",		BTSHAS_OPVTY_LABEL|BTSHAS_OPVTM_W},
+{"C0dd",		"MOV.B",	BTSHAS_OPVTY_R0_DGBRO|BTSHAS_OPVTM_B},
+{"C1dd",		"MOV.W",	BTSHAS_OPVTY_R0_DGBRO|BTSHAS_OPVTM_W},
+{"C2dd",		"MOV.L",	BTSHAS_OPVTY_R0_DGBRO|BTSHAS_OPVTM_L},
+{"C3jj",		"TRAPA",	BTSHAS_OPVTY_IMM8U},
+{"C4dd",		"MOV.B",	BTSHAS_OPVTY_DGBRO_R0|BTSHAS_OPVTM_B},
+{"C5dd",		"MOV.W",	BTSHAS_OPVTY_DGBRO_R0|BTSHAS_OPVTM_W},
+{"C6dd",		"MOV.L",	BTSHAS_OPVTY_DGBRO_R0|BTSHAS_OPVTM_L},
+{"C7dd",		"MOVA",		BTSHAS_OPVTY_DPCO_R0|BTSHAS_OPVTM_L},
+{"C8jj",		"TST",		BTSHAS_OPVTY_IMM8U_R0},
+{"C9jj",		"AND",		BTSHAS_OPVTY_IMM8U_R0},
+{"CAjj",		"XOR",		BTSHAS_OPVTY_IMM8U_R0},
+{"CBjj",		"OR",		BTSHAS_OPVTY_IMM8U_R0},
+{"CCjj",		"TST.B",	BTSHAS_OPVTY_IMM8U_DGBRR0},
+{"CDjj",		"AND.B",	BTSHAS_OPVTY_IMM8U_DGBRR0},
+{"CEjj",		"XOR.B",	BTSHAS_OPVTY_IMM8U_DGBRR0},
+{"CFjj",		"OR.B",		BTSHAS_OPVTY_IMM8U_DGBRR0},
+{"Dndd",		"MOV.L",	BTSHAS_OPVTY_DPCO_RN|BTSHAS_OPVTM_L},
+{"Enii",		"MOV",		BTSHAS_OPVTY_IMM8_RN},
+{"Fnm0",		"FADD",		BTSHAS_OPVTY_FRM_FRN},
+{"Fnm1",		"FSUB",		BTSHAS_OPVTY_FRM_FRN},
+{"Fnm2",		"FMUL",		BTSHAS_OPVTY_FRM_FRN},
+{"Fnm3",		"FDIV",		BTSHAS_OPVTY_FRM_FRN},
+{"Fnm4",		"FCMP/EQ",	BTSHAS_OPVTY_FRM_FRN},
+{"Fnm5",		"FCMP/GT",	BTSHAS_OPVTY_FRM_FRN},
+{"Fnm6",		"FMOV.S",	BTSHAS_OPVTY_DR0RM_FRN},
+{"Fnm7",		"FMOV.S",	BTSHAS_OPVTY_FRM_DR0RN},
+{"Fnm8",		"FMOV.S",	BTSHAS_OPVTY_DRM_FRN},
+{"Fnm9",		"FMOV.S",	BTSHAS_OPVTY_DRMI_FRN},
+{"FnmA",		"FMOV.S",	BTSHAS_OPVTY_FRM_DRN},
+{"FnmB",		"FMOV.S",	BTSHAS_OPVTY_FRM_DRND},
+{"Fnm8",		"FMOV.S",	BTSHAS_OPVTY_DRM_FRN},
+{"FnmC",		"FMOV",		BTSHAS_OPVTY_FRM_FRN},
+{"Fn0D",		"FSTS",		BTSHAS_OPVTY_FRN},
+{"Fm1D",		"FLDS",		BTSHAS_OPVTY_FRM},
+{"Fn2D",		"FLOAT",	BTSHAS_OPVTY_FRN},
+{"Fm3D",		"FTRC",		BTSHAS_OPVTY_FRM},
+{"Fn4D",		"FNEG",		BTSHAS_OPVTY_FRN},
+{"Fn5D",		"FABS",		BTSHAS_OPVTY_FRN},
+{"Fn6D",		"FSQRT",	BTSHAS_OPVTY_FRN},
+{"Fn7D",		"FTRV",		BTSHAS_OPVTY_FRN},
+{"Fn8D",		"FLDI0",	BTSHAS_OPVTY_FRN},
+{"Fn9D",		"FLDI1",	BTSHAS_OPVTY_FRN},
+{"FnAD",		"FCNVSD",	BTSHAS_OPVTY_FRN},
+{"FmBD",		"FCNVDS",	BTSHAS_OPVTY_FRM},
+{"FjED",		"FIPR",		BTSHAS_OPVTY_IMM4U},
+{"F3FD",		"FSCHG",	BTSHAS_OPVTY_NONE},
+{"FBFD",		"FRCHG",	BTSHAS_OPVTY_NONE},
+{"FnmE",		"FMAC",		BTSHAS_OPVTY_FRM_FRN},
+{NULL,			NULL,		BTSHAS_OPVTY_NONE}
+};
+
+int btshas_shxops_chain[512];
+int btshas_shxops_hash[256];
+
+int btshasp_hashname(char *str)
+{
+	char *s;
+	int t;
+	
+	s=str; t=0;
+	while(*s)
+		t=t*4093+(*s++);
+	t=t*4093;
+	return(t);
+}
+
+int btshas_shxops_inithash()
+{
+	static int init=0;
+	int h;
+	int i;
+	
+	if(init)
+		return(0);
+	init=1;
+	
+	for(i=0; i<256; i++)
+		{ btshas_shxops_hash[i]=-1; }
+	for(i=0; btshas_shxops[i].name; i++)
+	{
+		h=btshasp_hashname(btshas_shxops[i].name);
+		h=(h>>12)&255;
+		btshas_shxops_chain[i]=btshas_shxops_hash[h];
+		btshas_shxops_hash[h]=i;
+	}
+	return(1);
+}
+
+int btshas_shxops_CheckRegGpr(int reg)
+{
+	if((reg>=BTSHAS_OPREG_R0) &&
+		(reg<=BTSHAS_OPREG_R15))
+			return(1);
+	return(0);
+
+//	if(reg<BTSHAS_OPREG_R0)
+//		return(0);
+//	if(reg>BTSHAS_OPREG_R15)
+//		return(0);
+//	return(1);
+}
+
+int btshas_shxops_CheckOpvTy(BTSHAS_OprVal *arg, int ty)
+{
+	if(ty==BTSHAS_OPVTY_NONE)
+	{
+		if(!arg)
+			return(1);
+		if(arg->ty==BTSHAS_OPVTY_NONE)
+			return(1);
+		return(0);
+	}
+	if(!arg)
+		return(0);
+
+	if((ty==BTSHAS_OPVTY_RM) || (ty==BTSHAS_OPVTY_RN))
+	{
+		if(arg->ty==BTSHAS_OPVTY_REG)
+		{
+			if(btshas_shxops_CheckRegGpr(arg->rb))
+				return(1);
+		}
+		return(0);
+	}
+
+	if((ty==BTSHAS_OPVTY_DRM) || (ty==BTSHAS_OPVTY_DRN))
+	{
+		if(arg->ty==BTSHAS_OPVTY_DRREG)
+		{
+			if(btshas_shxops_CheckRegGpr(arg->rb))
+				return(1);
+		}
+		return(0);
+	}
+
+	if((ty==BTSHAS_OPVTY_DRMI) || (ty==BTSHAS_OPVTY_DRNI))
+	{
+		if(arg->ty==BTSHAS_OPVTY_DRREGI)
+		{
+			if(btshas_shxops_CheckRegGpr(arg->rb))
+				return(1);
+		}
+		return(0);
+	}
+
+	if((ty==BTSHAS_OPVTY_DRMD) || (ty==BTSHAS_OPVTY_DRND))
+	{
+		if(arg->ty==BTSHAS_OPVTY_DRREGD)
+		{
+			if(btshas_shxops_CheckRegGpr(arg->rb))
+				return(1);
+		}
+		return(0);
+	}
+
+	if((ty==BTSHAS_OPVTY_DRMO) || (ty==BTSHAS_OPVTY_DRNO))
+	{
+		if(arg->ty==BTSHAS_OPVTY_RDMEM)
+		{
+			if(btshas_shxops_CheckRegGpr(arg->rb))
+				return(1);
+		}
+		return(0);
+	}
+
+	if((ty==BTSHAS_OPVTY_DR0RM) || (ty==BTSHAS_OPVTY_DR0RN))
+	{
+		if(arg->ty==BTSHAS_OPVTY_RRMEM)
+		{
+			if((arg->ri==BTSHAS_OPREG_R0) &&
+					btshas_shxops_CheckRegGpr(arg->rb))
+				return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_DGBRO)
+	{
+		if(arg->ty==BTSHAS_OPVTY_RDMEM)
+		{
+			if(arg->rb==BTSHAS_OPREG_GBR)
+				return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_DGBRR0)
+	{
+		if(arg->ty==BTSHAS_OPVTY_RRMEM)
+		{
+			if((arg->ri==BTSHAS_OPREG_GBR) &&
+					(arg->rb==BTSHAS_OPREG_R0))
+				return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_DPCO)
+	{
+		if(arg->ty==BTSHAS_OPVTY_RDMEM)
+		{
+			if(arg->rb==BTSHAS_OPREG_PC)
+				return(1);
+		}
+
+		if(arg->ty==BTSHAS_OPVTY_NAME)
+			return(1);
+
+		return(0);
+	}
+	
+	if(ty==BTSHAS_OPVTY_LABEL)
+	{
+		if(arg->ty==BTSHAS_OPVTY_NAME)
+			return(1);
+
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_IMM8)
+	{
+		if(arg->ty==BTSHAS_OPVTY_IMM)
+		{
+			if(((sbyte)arg->imm)==(arg->imm))
+				return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_IMM8U)
+	{
+		if(arg->ty==BTSHAS_OPVTY_IMM)
+		{
+			if(((byte)arg->imm)==(arg->imm))
+					return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_IMM4U)
+	{
+		if(arg->ty==BTSHAS_OPVTY_IMM)
+		{
+			if((arg->imm&15)==(arg->imm))
+					return(1);
+		}
+		return(0);
+	}
+
+	if((ty==BTSHAS_OPVTY_IMM3L) || (ty==BTSHAS_OPVTY_IMM3H))
+	{
+		if(arg->ty==BTSHAS_OPVTY_IMM)
+		{
+			if((arg->imm&7)==(arg->imm))
+					return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_R0)
+	{
+		if(arg->ty==BTSHAS_OPVTY_REG)
+		{
+			if(arg->rb==BTSHAS_OPREG_R0)
+				return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_DR0)
+	{
+		if(arg->ty==BTSHAS_OPVTY_DRREG)
+		{
+			if(arg->rb==BTSHAS_OPREG_R0)
+				return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_DR15I)
+	{
+		if(arg->ty==BTSHAS_OPVTY_DRREGI)
+		{
+			if(arg->rb==BTSHAS_OPREG_R15)
+				return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_DR15D)
+	{
+		if(arg->ty==BTSHAS_OPVTY_DRREGD)
+		{
+			if(arg->rb==BTSHAS_OPREG_R15)
+				return(1);
+		}
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_SR)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_SR))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_GBR)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_GBR))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_VBR)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_VBR))
+				return(1);
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_SSR)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_SSR))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_SPC)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_SPC))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_DBR)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_DBR))
+				return(1);
+		return(0);
+	}
+
+	if(ty==BTSHAS_OPVTY_MACH)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_MACH))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_MACL)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_MACL))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_PR)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_PR))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_TBR)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_TBR))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_FPUL)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_FPUL))
+				return(1);
+		return(0);
+	}
+	if(ty==BTSHAS_OPVTY_FPSCR)
+	{
+		if((arg->ty==BTSHAS_OPVTY_REG) &&
+			(arg->rb==BTSHAS_OPREG_FPSCR))
+				return(1);
+		return(0);
+	}
+
+	printf("CheckOpvTy: Unhandled %02X\n", ty);
+
+	return(0);
+}
+
+BTSHAS_ListingOp *BTSHAS_SHxOpLookup(char *ntok,
+	BTSHAS_OprVal *arg0, BTSHAS_OprVal *arg1, BTSHAS_OprVal *arg2)
+{
+	char tb[256];
+	BTSHAS_ListingOp *cur;
+	int h, c;
+
+	btshas_shxops_inithash();
+
+	btshasp_strntoupper(tb, ntok, 255);
+	
+	h=btshasp_hashname(tb);
+	h=(h>>12)&255;
+
+	c=btshas_shxops_hash[h];
+	while(c>0)
+	{
+		cur=btshas_shxops+c;
+		
+		if(!strcmp(cur->name, tb) &&
+			btshas_shxops_CheckOpvTy(arg0, (cur->aty    )&0xFF) &&
+			btshas_shxops_CheckOpvTy(arg1, (cur->aty>> 8)&0xFF) &&
+			btshas_shxops_CheckOpvTy(arg2, (cur->aty>>16)&0xFF))
+				return(cur);
+		
+		c=btshas_shxops_chain[c];
+	}
+	return(NULL);
+}

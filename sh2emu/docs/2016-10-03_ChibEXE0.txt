@@ -1,0 +1,139 @@
+ChibEXE:
+* Small/Simplistic executable format.
+* Based around block-based stream loading.
+** Loader should not require seeking.
+** There should be little memory used beyond the target.
+** Support a simplistic LZ compressor
+
+Basic Format:
+* Organized into 512 byte blocks.
+* Blocks start with a 2 byte magic (TWOCC).
+
+'CB': Header
+* u16 magic2;
+** Logical 'EX' (LE) or 'XE' (BE)
+** Other fields will match the endianess given here.
+* u16 arch_id;
+** ID number for CPU architecture.
+** Same as PE/COFF.
+* u16 flags;
+** Format flags.
+** Same as PE/COFF.
+* u32 addr_base;
+** Default load address.
+** Image is not relocated if loaded at this address.
+* u32 rva_entry;
+** RVA of entry point (executables)
+* u32 rva_export;
+** RVA of Export Table
+* u32 img_resvsz;
+** Image Reserve Size (address space to reserve for image).
+** Note that nothing may be loaded outside this range.
+
+'DA': Image Data
+* byte cm;
+** Compression Method
+** 0=Store (Raw Data)
+** 1=LZ with small window
+** 2=LZ with large window
+* byte attr;
+** Attribute flags.
+** Bits 0..3=Window Size
+*** Small: 8=256B, ..., 15=32kB
+*** Large: 0=64kB, ..., 15=4GB
+* u32 rva;
+** Starting RVA for decoding.
+* byte sec;
+** Owning section ID.
+** 00..3F: Built-In sections.
+*** 00: Undefined
+*** 01: ".text" (Code, Read/Execute)
+*** 02: ".data" (Data, Read/Write)
+*** 03: ".bss" (Data, Read/Write, No Data)
+*** 04: ".rodata" (Data, Read-Only)
+*** 05: ".strtab" (String Table, Transient)
+** 40..7F: User-Defined sections.
+* byte resv[23];
+** Reserved.
+* byte data[480];
+** Compressed block data.
+
+'DC': Image Data (Continued)
+* byte data[510];
+** Compressed block data.
+** Data follows after that from the preceding block.
+** Uses the same compression scheme and window.
+
+'FX': Fixup
+* Fixup Entries
+* Ignored if image is loaded at default address.
+** Contents are a series of 16-bit entries.
+* 0cdd
+** 0000: end of fixups, used as pad until end of block.
+** 01xx: Update address bits 12..19 (RVA)
+** 02xx: Update address bits 20..27 (RVA)
+** 03xx: Update address bits 28..35 (RVA)
+** 04xx: Advance address up to 255 pages.
+* 1xxx: 16-bit High-Word Fixup within a page
+* 2xxx: 16-bit Low-Word Fixup within a page
+* 3xxx: 32-bit DWord Fixup within a page
+* 4xxx: 64-bit QWord Fixup within a page
+** Fixups are relative to the start of a given page.
+
+'IM': Imports
+* byte imetype;
+** Import Entry Type, 1=42x 12-byte entries.
+** This block will have 42 entries starting at offset 8.
+* Payload consists of a series of import entries
+** byte imty;
+*** Import Type, 0=None, 1=Symbol, 2=Library
+** byte libid;
+*** ID number of library.
+*** A library is loaded with an ID, and symbols are imported from it.
+*** Valid ID numbers range between 1 and 254.
+** byte pad1, pad2;
+** u32 rva_name;
+*** RVA of imported name (symbol or library)
+** u32 rva_addr;
+*** RVA of symbol address.
+*** Whether referenced address is 32 or 64 bits depends on arch.
+
+
+LZ Scheme:
+
+Split into a Small and Large Window variant.
+* Small Window supports a 32kB window
+** Raw sequences are up to 269 bytes.
+** Matches are up to 272 bytes.
+
+* RRRR-LLLL
+* R=Raw bytes, 0-14
+** 15=Raw Length follows.
+*** Length 15+
+** This is followed by any raw bytes.
+* L=Match Length
+** 0=No Match
+** 1..14=4..17
+** 15=Match Length follows
+*** Encodes a match of 18+ bytes.
+* Distance will be a VLI
+
+Length Values (Small Window)
+* 00..FF, 1 Byte Length (Base+ 0..255)
+
+Length Values (Large Window)
+* 00..EF, 1-Byte Length (Base+    0..  239)
+* F0..FE, 2-Byte Length (Base+  240.. 3839)
+*     FF, 3-Byte Length (Base+ 3840..65535)
+
+Distance (Small Window):
+* 000000..00007F:    00..    7F
+* 000080..007FFF: 80_00.. FF_FF
+
+Distance (Large Window):
+* 00000000..0000007F:          00..         7F
+* 00000080..00003FFF:       80-00..      BF-FF
+* 00004000..001FFFFF:    C0-00-00..   DF-FF-FF
+* 00200000..0FFFFFFF: E0-00-00-00..EF-FF-FF-FF
+* 10000000..FFFFFFFF: F0-XX-XX-XX-XX
+

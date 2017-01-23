@@ -109,7 +109,7 @@ int BTESH2_TKFAT_GetSegment(
 		n=1;
 		for(j=0; j<256; j++)
 		{
-			k=btesh2_tkfat_getDWord(tb+j*4);
+			k=btesh2_tkfat_getDWord((byte *)(tb+j*4));
 			img->seg[i]->idx[j]=k;
 			if(k>n)n=k+1;
 		}
@@ -1577,7 +1577,7 @@ int BTESH2_TKFAT_WalkDirEntNext(BTESH2_TKFAT_ImageInfo *img,
 			continue;
 		}
 		
-		h0=btesh2_tkfat_lfnchecksum(deb->name);
+		h0=btesh2_tkfat_lfnchecksum((char *)(deb->name));
 //		if(!memcmp(deb.name, tsn, 11))
 //		if((h0==h1) && !tkfat_matchlfn(bln, tln))
 //		if(h0==h1)
@@ -1631,7 +1631,7 @@ int BTESH2_TKFAT_LookupDirEntName(BTESH2_TKFAT_ImageInfo *img,
 		i=BTESH2_TKFAT_WalkDirEntNext(img, dee);
 		if(i<0)
 			break;
-		if(!btesh2_tkfat_stricmp(dee->de_name, name))
+		if(!btesh2_tkfat_stricmp(dee->de_name, (byte *)name))
 			return(i);
 	}
 	return(-1);
@@ -1849,7 +1849,7 @@ int BTESH2_TKFAT_CreateDirEntName(BTESH2_TKFAT_ImageInfo *img,
 				dee->img=img;
 				dee->clid=clid;
 				dee->idx=i;
-				strcpy(dee->de_name, name);
+				strcpy((char *)(dee->de_name), name);
 				return(i);
 			}
 		}
@@ -1872,7 +1872,7 @@ int BTESH2_TKFAT_CreateDirEntName(BTESH2_TKFAT_ImageInfo *img,
 	memset(tsn, 0, 11);
 	tsn[0]=' ';
 	tsn[1]=0;
-	btesh2_tkfat_setDWord(tsn+2, h0);
+	btesh2_tkfat_setDWord((byte *)(tsn+2), h0);
 	tsn[5]=':';
 	h1=btesh2_tkfat_lfnchecksum(tsn);
 
@@ -1934,7 +1934,7 @@ int BTESH2_TKFAT_CreateDirEntName(BTESH2_TKFAT_ImageInfo *img,
 		dee->img=img;
 		dee->clid=clid;
 		dee->idx=li+i;
-		strcpy(dee->de_name, name);
+		strcpy((char *)(dee->de_name), name);
 		return(i);
 	}
 
@@ -2177,7 +2177,7 @@ int BTESH2_TKFAT_SetupDirEntNewDirectory(
 	deb=&tdeb;
 	memset(deb, 0, sizeof(BTESH2_TKFAT_FAT_DirEnt));
 
-	strcpy(deb->name, ".          ");
+	strcpy((char *)(deb->name), ".          ");
 	deb->attrib|=0x10;
 	btesh2_tkfat_setWord(deb->cluster_lo, dcli);
 	btesh2_tkfat_setWord(deb->cluster_hi, dcli>>16);
@@ -2187,7 +2187,7 @@ int BTESH2_TKFAT_SetupDirEntNewDirectory(
 
 	pcli=dee->clid;
 	if(pcli<2)pcli=0;
-	strcpy(deb->name, "..         ");
+	strcpy((char *)(deb->name), "..         ");
 	deb->attrib|=0x10;
 	btesh2_tkfat_setWord(deb->cluster_lo, pcli);
 	btesh2_tkfat_setWord(deb->cluster_hi, pcli>>16);
@@ -2396,7 +2396,7 @@ int BTESH2_SetUseImage(char *name)
 }
 
 int BTESH2_ProcessSDCL(
-	byte *ibuf, int szibuf)
+	char *ibuf, int szibuf)
 {
 	char tb[1024];
 	BTESH2_TKFAT_FAT_DirEntExt tdee;
@@ -2581,8 +2581,8 @@ int BTESH2_ProcessSDCL(
 //			img->fdImgData=imgfd;
 			img->seg_base=imgfn;
 			
-			BTESH2_TKFAT_ReadSectors(img, tb, 0, 1);
-			if((tb[510]!=0x55) || (tb[511]!=0xAA))
+			BTESH2_TKFAT_ReadSectors(img, (byte *)tb, 0, 1);
+			if((((byte *)tb)[510]!=0x55) || (((byte *)tb)[511]!=0xAA))
 				imgisnew=true;
 			
 			if(imgisnew)

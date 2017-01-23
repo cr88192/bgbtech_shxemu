@@ -185,3 +185,11 @@ struct BTESH2_TKFAT_FAT_DirInfo_s {
 BTESH2_TKFAT_ImageInfo *img;
 int clid;			//cluster ID of current directory
 };
+
+int BTESH2_TKFAT_ReadSectors(BTESH2_TKFAT_ImageInfo *img,
+	byte *buf, s64 lba, int num);
+int BTESH2_TKFAT_WriteSectors(BTESH2_TKFAT_ImageInfo *img,
+	byte *buf, s64 lba, int num);
+
+int BTESH2_TKFAT_SetupDirEntNewDirectory(
+	BTESH2_TKFAT_FAT_DirEntExt *dee);

@@ -4,6 +4,7 @@
 
 #include "btesh2_cpu.h"
 #include "btesh2_fatfs.h"
+#include "btesh2_keys.h"
 
 #include "btesh2_memimg.c"
 
@@ -22,3 +23,5 @@
 #include "btesh2_decode.c"
 #include "btesh2_interp.c"
 #include "btesh2_ldelf.c"
+
+#include "btesh2_gfxcon.c"

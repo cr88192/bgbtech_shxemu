@@ -10,6 +10,17 @@
 
 #endif
 
+typedef unsigned char byte;
+typedef signed char sbyte;
+typedef unsigned short u16;
+typedef signed short s16;
+typedef unsigned int u32;
+typedef signed int s32;
+typedef unsigned long long u64;
+typedef signed long long s64;
+
+typedef volatile u32 vol_u32;
+
 #define GPIO_BASE 0xABCD0000
 #define SPI_BASE 0xABCD0040
 #define UART_BASE 0xABCD0100
@@ -35,17 +46,17 @@
 #define AIC_RTC_SEC_LO		(AIC_BASE+0x24)
 #define AIC_RTC_NSEC		(AIC_BASE+0x28)
 
-#define P_UART_RX	(*(u32 *)UART_RX)
-#define P_UART_TX	(*(u32 *)UART_TX)
-#define P_UART_STAT	(*(u32 *)UART_STAT)
-#define P_UART_CTRL	(*(u32 *)UART_CTRL)
+#define P_UART_RX	(*(vol_u32 *)UART_RX)
+#define P_UART_TX	(*(vol_u32 *)UART_TX)
+#define P_UART_STAT	(*(vol_u32 *)UART_STAT)
+#define P_UART_CTRL	(*(vol_u32 *)UART_CTRL)
 
-#define P_SPI_CTRL	(*(u32 *)SPI_CTRL)
-#define P_SPI_DATA	(*(u32 *)SPI_DATA)
+#define P_SPI_CTRL	(*(vol_u32 *)SPI_CTRL)
+#define P_SPI_DATA	(*(vol_u32 *)SPI_DATA)
 
-#define P_AIC_RTC_SEC_HI	(*(u32 *)AIC_RTC_SEC_HI)
-#define P_AIC_RTC_SEC_LO	(*(u32 *)AIC_RTC_SEC_LO)
-#define P_AIC_RTC_NSEC		(*(u32 *)AIC_RTC_NSEC)
+#define P_AIC_RTC_SEC_HI	(*(vol_u32 *)AIC_RTC_SEC_HI)
+#define P_AIC_RTC_SEC_LO	(*(vol_u32 *)AIC_RTC_SEC_LO)
+#define P_AIC_RTC_NSEC		(*(vol_u32 *)AIC_RTC_NSEC)
 
 #define MMREG_BASE 0xFF000000
 #define MMREG_PTEH	(MMREG_BASE+0x00)
@@ -54,11 +65,11 @@
 #define MMREG_TEA	(MMREG_BASE+0x0C)
 #define MMREG_MMUCR	(MMREG_BASE+0x10)
 
-#define P_MMREG_PTEH	(*(u32 *)MMREG_PTEH)
-#define P_MMREG_PTEL	(*(u32 *)MMREG_PTEL)
-#define P_MMREG_TTB		(*(u32 *)MMREG_TTB)
-#define P_MMREG_TEA		(*(u32 *)MMREG_TEA)
-#define P_MMREG_MMUCR	(*(u32 *)MMREG_MMUCR)
+#define P_MMREG_PTEH	(*(vol_u32 *)MMREG_PTEH)
+#define P_MMREG_PTEL	(*(vol_u32 *)MMREG_PTEL)
+#define P_MMREG_TTB		(*(vol_u32 *)MMREG_TTB)
+#define P_MMREG_TEA		(*(vol_u32 *)MMREG_TEA)
+#define P_MMREG_MMUCR	(*(vol_u32 *)MMREG_MMUCR)
 
 #ifdef ARCH_SH4
 #define TKMM_PAGEBASE	0x90000000
@@ -84,15 +95,6 @@ typedef __builtin_va_list va_list;
 #define va_arg(v,l)     __builtin_va_arg(v,l)
 
 #endif
-
-typedef unsigned char byte;
-typedef signed char sbyte;
-typedef unsigned short u16;
-typedef signed short s16;
-typedef unsigned int u32;
-typedef signed int s32;
-typedef unsigned long long u64;
-typedef signed long long s64;
 
 #ifndef __cplusplus
 

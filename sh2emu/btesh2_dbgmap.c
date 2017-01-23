@@ -21,7 +21,7 @@ char **BTESH2_SplitLine(char *buf);
 
 int BTESH2_BootLoadMap(
 	BTESH2_CpuState *cpu,
-	byte *ibuf, int szibuf,
+	char *ibuf, int szibuf,
 	u32 addrhint)
 {
 //	u32 t_addr[4096];
