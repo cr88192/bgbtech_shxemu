@@ -6,6 +6,57 @@
 00FF_8800	ASCII Font		(0x1FE200)
  */
 
+#if 0
+#define BTESH2_GFXCON_DEFAULT		0x0700
+#define BTESH2_GFXCON_BRIGHT		0x0800
+#define BTESH2_GFXCON_BLINK			0x8000
+
+#define BTESH2_GFXCON_ITALIC		0x00010000
+#define BTESH2_GFXCON_UNDERLINE		0x00020000
+#define BTESH2_GFXCON_STRIKEOUT		0x00040000
+#define BTESH2_GFXCON_REVERSE		0x00080000
+#define BTESH2_GFXCON_DIRTY			0x10000000
+
+#define BTESH2_GFXCON_GFXCELL		0x000E0000
+
+#define BTESH2_GFXCON_ASCSHIFT		0
+#define BTESH2_GFXCON_CLRFGSHIFT	8
+#define BTESH2_GFXCON_CLRBGSHIFT	12
+#define BTESH2_GFXCON_FONTSHIFT		20
+
+#define BTESH2_GFXCON_ASCMASK		0x000000FF
+#define BTESH2_GFXCON_CLRFGMASK		0x00000700
+#define BTESH2_GFXCON_CLRBGMASK		0x00007000
+#define BTESH2_GFXCON_FONTMASK		0x0FF00000
+#endif
+
+#if 1
+#define BTESH2_GFXCON_DEFAULT		0x00070000
+#define BTESH2_GFXCON_BRIGHT		0x00080000
+#define BTESH2_GFXCON_BLINK			0x00800000
+#define BTESH2_GFXCON_ITALIC		0x01000000
+#define BTESH2_GFXCON_UNDERLINE		0x02000000
+#define BTESH2_GFXCON_STRIKEOUT		0x04000000
+#define BTESH2_GFXCON_REVERSE		0x08000000
+#define BTESH2_GFXCON_DIRTY			0x10000000
+#define BTESH2_GFXCON_GFXCELL		0x20000000
+
+//#define BTESH2_GFXCON_GFXCELL		0x0E000000
+
+#define BTESH2_GFXCON_ASCSHIFT		0
+#define BTESH2_GFXCON_FONTSHIFT		8
+
+#define BTESH2_GFXCON_CLRFGSHIFT	16
+#define BTESH2_GFXCON_CLRBGSHIFT	20
+
+#define BTESH2_GFXCON_ASCMASK		0x000000FF
+#define BTESH2_GFXCON_FONTMASK		0x0000FF00
+#define BTESH2_GFXCON_CLRFGMASK		0x00070000
+#define BTESH2_GFXCON_CLRBGMASK		0x00700000
+
+#endif
+
+
 u64 btesh2_gfxcon_glyphs[256]=
 {
 0x0000000000000000,	//0x00
@@ -273,6 +324,7 @@ int btesh2_gfxcon_fbys;
 int btesh2_gfxcon_fbsz;
 
 u32 *btesh2_gfxcon_conbuf;
+u32 *btesh2_gfxcon_aconbuf;
 int btesh2_gfxcon_cbxs;
 int btesh2_gfxcon_cbys;
 int btesh2_gfxcon_cbsz;
@@ -421,7 +473,7 @@ int btesh2_gfxcon_scrollUp()
 		for(j=0; j<btesh2_gfxcon_cbxs; j++)
 		{
 			k=btesh2_gfxcon_conbuf[(i+1)*btesh2_gfxcon_cbxs+j];
-			k|=0x10000000;
+			k|=BTESH2_GFXCON_DIRTY;
 			btesh2_gfxcon_conbuf[(i+0)*btesh2_gfxcon_cbxs+j]=k;
 		}
 	}
@@ -442,14 +494,14 @@ int btesh2_gfxcon_scrollDown()
 		for(j=0; j<btesh2_gfxcon_cbxs; j++)
 		{
 			k=btesh2_gfxcon_conbuf[(i-1)*btesh2_gfxcon_cbxs+j];
-			k|=0x10000000;
+			k|=BTESH2_GFXCON_DIRTY;
 			btesh2_gfxcon_conbuf[(i+0)*btesh2_gfxcon_cbxs+j]=k;
 		}
 	}
 
 	for(j=0; j<btesh2_gfxcon_cbxs; j++)
 	{
-		k=0x10000000;
+		k=BTESH2_GFXCON_DIRTY;
 		btesh2_gfxcon_conbuf[j]=k;
 	}
 
@@ -493,9 +545,24 @@ int btesh2_gfxcon_clearScreen(int mode)
 			if(((mode==1) || (mode==5)) && (k>l))
 				continue;
 		
-			k=0x10000000;
+			k=BTESH2_GFXCON_DIRTY;
 			btesh2_gfxcon_conbuf[(i+0)*btesh2_gfxcon_cbxs+j]=k;
 		}
+	}
+	return(0);
+}
+
+int BTESH2_GfxCon_AdjustFixupPrint()
+{
+	if(btesh2_gfxcon_con_xpos>=btesh2_gfxcon_cbxs)
+	{
+		btesh2_gfxcon_con_xpos-=btesh2_gfxcon_cbxs;
+		btesh2_gfxcon_con_ypos++;
+	}
+	if(btesh2_gfxcon_con_ypos>=btesh2_gfxcon_cbys)
+	{
+		btesh2_gfxcon_scrollUp();
+		btesh2_gfxcon_con_ypos--;
 	}
 	return(0);
 }
@@ -516,7 +583,7 @@ int BTESH2_GfxCon_PrintCharInner(int val)
 		y=btesh2_gfxcon_con_ypos;
 		cv=btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x];
 		btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x]=
-			cv|0x10000000;
+			cv|BTESH2_GFXCON_DIRTY;
 
 		switch(val)
 		{
@@ -542,21 +609,10 @@ int BTESH2_GfxCon_PrintCharInner(int val)
 		y=btesh2_gfxcon_con_ypos;
 		cv=btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x];
 		btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x]=
-			cv|0x10000000;
+			cv|BTESH2_GFXCON_DIRTY;
 	}else
 	{
-#if 1
-		if(btesh2_gfxcon_con_xpos>=btesh2_gfxcon_cbxs)
-		{
-			btesh2_gfxcon_con_xpos-=btesh2_gfxcon_cbxs;
-			btesh2_gfxcon_con_ypos++;
-		}
-		if(btesh2_gfxcon_con_ypos>=btesh2_gfxcon_cbys)
-		{
-			btesh2_gfxcon_scrollUp();
-			btesh2_gfxcon_con_ypos--;
-		}
-#endif
+		BTESH2_GfxCon_AdjustFixupPrint();
 
 		x=btesh2_gfxcon_con_xpos++;
 		y=btesh2_gfxcon_con_ypos;
@@ -564,32 +620,19 @@ int BTESH2_GfxCon_PrintCharInner(int val)
 		if(val>256)
 		{
 			btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x]=
-				val|0x10000000;
+				val|BTESH2_GFXCON_DIRTY;
 		}else
 		{
 			btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x]=
-				btesh2_gfxcon_con_attr|val|0x10000000;
+				btesh2_gfxcon_con_attr|val|BTESH2_GFXCON_DIRTY;
 		}
 
 		x=btesh2_gfxcon_con_xpos;
 		y=btesh2_gfxcon_con_ypos;
 		cv=btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x];
 		btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x]=
-			cv|0x10000000;
+			cv|BTESH2_GFXCON_DIRTY;
 	}
-
-#if 0
-	if(btesh2_gfxcon_con_xpos>=btesh2_gfxcon_cbxs)
-	{
-		btesh2_gfxcon_con_xpos-=btesh2_gfxcon_cbxs;
-		btesh2_gfxcon_con_ypos++;
-	}
-	if(btesh2_gfxcon_con_ypos>=btesh2_gfxcon_cbys)
-	{
-		btesh2_gfxcon_scrollUp();
-		btesh2_gfxcon_con_ypos--;
-	}
-#endif
 
 	x=btesh2_gfxcon_con_xpos;
 	y=btesh2_gfxcon_con_ypos;
@@ -597,19 +640,21 @@ int BTESH2_GfxCon_PrintCharInner(int val)
 	if(!cv)
 	{
 		btesh2_gfxcon_conbuf[y*btesh2_gfxcon_cbxs+x]=
-			btesh2_gfxcon_con_attr|' '|0x10000000;
+			btesh2_gfxcon_con_attr|' '|BTESH2_GFXCON_DIRTY;
 	}
 
 	return(0);
 }
 
 byte btesh2_gfxcon_esc;
+byte btesh2_gfxcon_nextesc;
 int btesh2_gfxcon_parm[16];
 int btesh2_gfxcon_nparm;
 int btesh2_gfxcon_parmv;
 
 int BTESH2_GfxCon_PrintChar(int val)
 {
+	int x, y;
 	int i, j, k;
 
 	if(btesh2_gfxcon_esc)
@@ -625,11 +670,19 @@ int BTESH2_GfxCon_PrintChar(int val)
 				break;
 			}
 
-			if(val=='%')
+			if(val=='!')
 			{
 				btesh2_gfxcon_esc=3;
 				btesh2_gfxcon_parmv=0;
 				btesh2_gfxcon_nparm=3;
+				break;
+			}
+
+			if(val=='$')
+			{
+				btesh2_gfxcon_esc=4;
+				btesh2_gfxcon_parmv=0;
+				btesh2_gfxcon_nparm=4;
 				break;
 			}
 
@@ -749,84 +802,90 @@ int BTESH2_GfxCon_PrintChar(int val)
 				switch(btesh2_gfxcon_parm[0])
 				{
 				case 0:
-					btesh2_gfxcon_con_attr=0x0700;
+//					btesh2_gfxcon_con_attr=0x0700;
+					btesh2_gfxcon_con_attr=BTESH2_GFXCON_DEFAULT;
 					break;
 				case 1:
-					btesh2_gfxcon_con_attr|=0x0800;
+					btesh2_gfxcon_con_attr|=BTESH2_GFXCON_BRIGHT;
 					break;
 
 				case 3:
-					btesh2_gfxcon_con_attr|=0x010000;
+					btesh2_gfxcon_con_attr|=BTESH2_GFXCON_ITALIC;
 					break;
 				case 4:
-					btesh2_gfxcon_con_attr|=0x020000;
+					btesh2_gfxcon_con_attr|=BTESH2_GFXCON_UNDERLINE;
 					break;
 
 				case 5:
 				case 6:
-					btesh2_gfxcon_con_attr|=0x8000;
+					btesh2_gfxcon_con_attr|=BTESH2_GFXCON_BLINK;
 					break;
 				case 7:
-					btesh2_gfxcon_con_attr|=0x080000;
+					btesh2_gfxcon_con_attr|=BTESH2_GFXCON_REVERSE;
 					break;
 				case 8:
 				case 9:
-					btesh2_gfxcon_con_attr|=0x040000;
+					btesh2_gfxcon_con_attr|=BTESH2_GFXCON_STRIKEOUT;
 					break;
 				case 10: case 11: case 12: case 13:
 				case 14: case 15: case 16: case 17:
 				case 18: case 19: case 20:
 					i=btesh2_gfxcon_parm[0]-10;
-					btesh2_gfxcon_con_attr&=~0x0FF00000;
-					btesh2_gfxcon_con_attr|=(i<<20);
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_FONTMASK;
+					btesh2_gfxcon_con_attr|=(i<<BTESH2_GFXCON_FONTSHIFT);
 					break;
 				case 21:
 				case 22:
-					btesh2_gfxcon_con_attr&=~0x0800;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_BRIGHT;
 					break;
 				case 23:
-					btesh2_gfxcon_con_attr&=~0x010000;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_ITALIC;
 					break;
 				case 24:
-					btesh2_gfxcon_con_attr&=~0x020000;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_UNDERLINE;
 					break;
 				case 25:
-					btesh2_gfxcon_con_attr&=~0x8000;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_BLINK;
 					break;
 				case 26:
 					break;
 				case 27:
-					btesh2_gfxcon_con_attr&=~0x080000;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_REVERSE;
 					break;
 				case 28:
 				case 29:
-					btesh2_gfxcon_con_attr&=~0x040000;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_STRIKEOUT;
 					break;
 				case 30: case 31: case 32: case 33:
 				case 34: case 35: case 36: case 37:
 					i=btesh2_gfxcon_parmv-30;
 //					i=(i&2)|((i>>2)&1)|((i<<2)&4);
-					btesh2_gfxcon_con_attr&=0x0FFFF800;
-					btesh2_gfxcon_con_attr|=(i<<8);
+//					btesh2_gfxcon_con_attr&=0x0FFFF800;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_CLRFGMASK;
+					btesh2_gfxcon_con_attr|=(i<<BTESH2_GFXCON_CLRFGSHIFT);
 					break;
 				case 38:
 					break;
 				case 39:
-					btesh2_gfxcon_con_attr&=0x0FFFF800;
-					btesh2_gfxcon_con_attr|=0x00000700;
+//					btesh2_gfxcon_con_attr&=0x0FFFF800;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_CLRFGMASK;
+					btesh2_gfxcon_con_attr|=(7<<BTESH2_GFXCON_CLRFGSHIFT);
 					break;
 				case 40: case 41: case 42: case 43:
 				case 44: case 45: case 46: case 47:
 					i=btesh2_gfxcon_parmv-40;
 //					i=(i&2)|((i>>2)&1)|((i<<2)&4);
-					btesh2_gfxcon_con_attr&=0x0FFF8F00;
-					btesh2_gfxcon_con_attr|=(i<<12);
+//					btesh2_gfxcon_con_attr&=0x0FFF8F00;
+//					btesh2_gfxcon_con_attr|=(i<<12);
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_CLRBGMASK;
+					btesh2_gfxcon_con_attr|=(i<<BTESH2_GFXCON_CLRBGSHIFT);
 					break;
 				case 48:
 					break;
 				case 49:
-					btesh2_gfxcon_con_attr&=0x0FFF8F00;
-					btesh2_gfxcon_con_attr|=0x00000000;
+//					btesh2_gfxcon_con_attr&=0x0FFF8F00;
+//					btesh2_gfxcon_con_attr|=0x00000000;
+					btesh2_gfxcon_con_attr&=~BTESH2_GFXCON_CLRBGMASK;
 					break;
 				default:
 					break;
@@ -863,6 +922,7 @@ int BTESH2_GfxCon_PrintChar(int val)
 			{
 				switch(val)
 				{
+				case 'v': i='\''-'!'; break;
 				case 'w': i='\"'-'!'; break;
 				case 'x': i='\\'-'!'; break;
 				}
@@ -873,10 +933,21 @@ int BTESH2_GfxCon_PrintChar(int val)
 			if(!btesh2_gfxcon_nparm--)
 			{
 				i=btesh2_gfxcon_parmv;
-				j=	 (i&0x0000FF)|
-					((i&0x00FF00)<<12)|
-					((i&0xFF0000)>> 8)|
-					0x100E0000;
+//				j=	 (i&0x0000FF)|
+//					((i&0x00FF00)<<12)|
+//					((i&0xFF0000)>> 8)|
+//					0x100E0000;
+
+//				j=	 (i&BTESH2_GFXCON_ASCMASK)|
+//					(((i&0x00FF00)>> 8)<<BTESH2_GFXCON_FONTSHIFT)|
+//					(((i&0xFF0000)>>16)<<BTESH2_GFXCON_CLRFGSHIFT)|
+//					BTESH2_GFXCON_DIRTY|
+//					BTESH2_GFXCON_GFXCELL;
+
+				j=(i&0x00FFFFFF)|
+					BTESH2_GFXCON_DIRTY|
+					BTESH2_GFXCON_GFXCELL;
+
 				BTESH2_GfxCon_PrintCharInner(j);
 				if((i>>24)&1)
 				{
@@ -888,6 +959,76 @@ int BTESH2_GfxCon_PrintChar(int val)
 				}
 			}
 			break;
+
+		case 4:
+		case 5:
+			i=val-'!';
+			if(i>=85)
+			{
+				switch(val)
+				{
+				case 'v': i='\''-'!'; break;
+				case 'w': i='\"'-'!'; break;
+				case 'x': i='\\'-'!'; break;
+				}
+			}
+			btesh2_gfxcon_parmv=(btesh2_gfxcon_parmv*85)+i;
+			if(!(btesh2_gfxcon_nparm--))
+			{
+				i=btesh2_gfxcon_parmv;
+				x=btesh2_gfxcon_con_xpos;
+				y=btesh2_gfxcon_con_ypos;
+
+				j=(i&0x0FFFFFFF)|
+					BTESH2_GFXCON_DIRTY|
+					BTESH2_GFXCON_GFXCELL;
+
+				if(btesh2_gfxcon_esc==5)
+				{
+					BTESH2_GfxCon_AdjustFixupPrint();
+					btesh2_gfxcon_con_xpos++;
+
+					if(btesh2_gfxcon_aconbuf)
+					{
+						btesh2_gfxcon_aconbuf[y*btesh2_gfxcon_cbxs+x]=
+							btesh2_gfxcon_parmv;
+					}
+
+					btesh2_gfxcon_parmv=0;
+					btesh2_gfxcon_nparm=4;
+					btesh2_gfxcon_esc=
+						btesh2_gfxcon_nextesc;
+					break;
+				}
+
+				BTESH2_GfxCon_PrintCharInner(j);
+				k=(i>>28)&15;
+				switch(k)
+				{
+				case 0:
+					btesh2_gfxcon_esc=0;
+					break;
+				case 1:
+					btesh2_gfxcon_parmv=0;
+					btesh2_gfxcon_nparm=4;
+					btesh2_gfxcon_esc=4;
+					break;
+				case 2:
+				case 3:
+					btesh2_gfxcon_con_xpos=x;
+					btesh2_gfxcon_con_ypos=y;
+					btesh2_gfxcon_parmv=0;
+					btesh2_gfxcon_nparm=4;
+					btesh2_gfxcon_esc=5;
+					btesh2_gfxcon_nextesc=(k&1)?4:0;
+					break;
+				default:
+					btesh2_gfxcon_esc=0;
+					break;
+				}
+			}
+			break;
+
 		default:
 			break;
 		}
@@ -904,6 +1045,14 @@ int BTESH2_GfxCon_PrintChar(int val)
 	if(val=='\x1B')
 	{
 		btesh2_gfxcon_esc=1;
+		return(0);
+	}
+
+	if(val=='\x1F')
+	{
+		btesh2_gfxcon_esc=4;
+		btesh2_gfxcon_parmv=0;
+		btesh2_gfxcon_nparm=4;
 		return(0);
 	}
 
@@ -936,7 +1085,7 @@ int BTESH2_GfxCon_BlinkState(int v)
 
 		cx=btesh2_gfxcon_con_xpos;
 		cy=btesh2_gfxcon_con_ypos;
-		btesh2_gfxcon_conbuf[cy*btesh2_gfxcon_cbxs+cx]|=0x10000000;
+		btesh2_gfxcon_conbuf[cy*btesh2_gfxcon_cbxs+cx]|=BTESH2_GFXCON_DIRTY;
 	}
 	return(0);
 }
@@ -948,9 +1097,9 @@ int BTESH2_GfxCon_Redraw()
 		0xFFAA0000,	0xFFAA00AA,	0xFFAA5500,	0xFFAAAAAA,
 		0xFF555555,	0xFF5555FF,	0xFF55FF55,	0xFF55FFFF,
 		0xFFFF5555,	0xFFFF55FF,	0xFFFFFF55,	0xFFFFFFFF};
-	static const byte lqbitab[16]={
-		0x00, 0x03, 0x0C, 0x0F, 0x30, 0x33, 0x3C, 0x3F,
-		0xC0, 0xC3, 0xCC, 0xCF, 0xF0, 0xF3, 0xFC, 0xFF};
+//	static const byte lqbitab[16]={
+//		0x00, 0x03, 0x0C, 0x0F, 0x30, 0x33, 0x3C, 0x3F,
+//		0xC0, 0xC3, 0xCC, 0xCF, 0xF0, 0xF3, 0xFC, 0xFF};
 	int cx, cy, cv;
 	int px, py, x, y;
 	u32 i0, i1, i2, i3;
@@ -973,10 +1122,38 @@ int BTESH2_GfxCon_Redraw()
 //				continue;
 //		if(!cv)
 //		if(!(cv&0xF0000000))
-		if(!(cv&0xF0008000))
+//		if(!(cv&0xF0008000))
+//			continue;
+
+		if(!(cv&(BTESH2_GFXCON_DIRTY|BTESH2_GFXCON_BLINK)))
 			continue;
 
-		btesh2_gfxcon_conbuf[cy*btesh2_gfxcon_cbxs+cx]=cv&0x0FFFFFFF;
+//		btesh2_gfxcon_conbuf[cy*btesh2_gfxcon_cbxs+cx]=cv&0x0FFFFFFF;
+		btesh2_gfxcon_conbuf[cy*btesh2_gfxcon_cbxs+cx]=
+			cv&(~BTESH2_GFXCON_DIRTY);
+
+		if((cv&BTESH2_GFXCON_GFXCELL)==BTESH2_GFXCON_GFXCELL)
+		{
+			pca=clrtab[(cv>>BTESH2_GFXCON_CLRBGSHIFT)&15];
+			pcb=clrtab[(cv>>BTESH2_GFXCON_CLRFGSHIFT)&15];
+
+			for(py=0; py<4; py++)
+				for(px=0; px<4; px++)
+			{
+				x=cx*8+px*2;
+				y=cy*8+py*2;
+				
+				j=((3-py)*4)+(3-px);
+				k=(cv>>j)&1;
+				pc=k?pcb:pca;
+				btesh2_gfxcon_framebuf[(y+0)*btesh2_gfxcon_fbxs+(x+0)]=pc;
+				btesh2_gfxcon_framebuf[(y+0)*btesh2_gfxcon_fbxs+(x+1)]=pc;
+				btesh2_gfxcon_framebuf[(y+1)*btesh2_gfxcon_fbxs+(x+0)]=pc;
+				btesh2_gfxcon_framebuf[(y+1)*btesh2_gfxcon_fbxs+(x+1)]=pc;
+			}
+
+			continue;
+		}
 
 		pxv=btesh2_gfxcon_glyphs[cv&255];
 //		pca=0xFF000000;
@@ -984,17 +1161,24 @@ int BTESH2_GfxCon_Redraw()
 //		pcb=0xFFFFFFFF;
 
 		i3=0;
-		if(cv&0x80000)
+		if(cv&BTESH2_GFXCON_REVERSE)
 		{
-			if((cv&0xE0000)==0xE0000)
+#if 0
+			if((cv&BTESH2_GFXCON_GFXCELL)==BTESH2_GFXCON_GFXCELL)
 			{
-				pca=clrtab[(cv>>12)&15];
-				pcb=clrtab[(cv>> 8)&15];
+				pca=clrtab[(cv>>BTESH2_GFXCON_CLRBGSHIFT)&15];
+				pcb=clrtab[(cv>>BTESH2_GFXCON_CLRFGSHIFT)&15];
 
-				i0=lqbitab[(cv    )&15];
-				i1=lqbitab[(cv>> 4)&15];
-				i2=lqbitab[(cv>>20)&15];
-				i3=lqbitab[(cv>>24)&15];
+//				i0=lqbitab[(cv    )&15];
+//				i1=lqbitab[(cv>> 4)&15];
+//				i2=lqbitab[(cv>>20)&15];
+//				i3=lqbitab[(cv>>24)&15];
+
+				i0=lqbitab[(cv>>(BTESH2_GFXCON_ASCSHIFT+0))&15];
+				i1=lqbitab[(cv>>(BTESH2_GFXCON_ASCSHIFT+4))&15];
+				i2=lqbitab[(cv>>(BTESH2_GFXCON_FONTSHIFT+0))&15];
+				i3=lqbitab[(cv>>(BTESH2_GFXCON_FONTSHIFT+4))&15];
+
 				i0=i0|(i0<<8); i1=i1|(i1<<8);
 				i2=i2|(i2<<8); i3=i3|(i3<<8);
 				i0=i0|(i1<<16); i1=i2|(i3<<16);
@@ -1002,19 +1186,25 @@ int BTESH2_GfxCon_Redraw()
 				i3=1;
 			}else
 			{
-				pcb=clrtab[((cv>>12)& 7)|((cv>> 8)&8)];
-				pca=clrtab[ (cv>> 8)& 7];
+				pcb=clrtab[((cv>>BTESH2_GFXCON_CLRBGSHIFT)& 7)|
+					((cv>>BTESH2_GFXCON_CLRFGSHIFT)&8)];
+				pca=clrtab[ (cv>>BTESH2_GFXCON_CLRFGSHIFT)& 7];
 			}
+#else
+			pcb=clrtab[((cv>>BTESH2_GFXCON_CLRBGSHIFT)& 7)|
+				((cv>>BTESH2_GFXCON_CLRFGSHIFT)&8)];
+			pca=clrtab[ (cv>>BTESH2_GFXCON_CLRFGSHIFT)& 7];
+#endif
 		}else
 		{
-			pca=clrtab[(cv>>12)& 7];
-			pcb=clrtab[(cv>> 8)&15];
+			pca=clrtab[(cv>>BTESH2_GFXCON_CLRBGSHIFT)& 7];
+			pcb=clrtab[(cv>>BTESH2_GFXCON_CLRFGSHIFT)&15];
 		}
 		
 		if(btesh2_gfxcon_blink)
 		{
-//			if(cv&0x08000)
-			if((cv&0x08000) && !i3)
+			if(cv&BTESH2_GFXCON_BLINK)
+//			if((cv&BTESH2_GFXCON_BLINK) && !i3)
 			{
 				pxv=0;
 			}
@@ -1033,16 +1223,17 @@ int BTESH2_GfxCon_Redraw()
 			}
 		}
 
-		if(!i3)
+//		if(!i3)
+		if(1)
 		{
-			if(cv&0x20000)
+			if(cv&BTESH2_GFXCON_UNDERLINE)
 				{ pxv|=0x000000000000FF00ULL; }
-			if(cv&0x40000)
+			if(cv&BTESH2_GFXCON_STRIKEOUT)
 				{ pxv|=0x000000FF00000000ULL; }
 		}
 
-//		if((cv&0x08000) && btesh2_gfxcon_blink)
-		if(!pxv || (cv&0x10000))
+//		if((cv&BTESH2_GFXCON_BLINK) && btesh2_gfxcon_blink)
+		if(!pxv || (cv&BTESH2_GFXCON_ITALIC))
 		{
 			for(py=0; py<8; py++)
 				for(px=0; px<8; px++)
@@ -1050,7 +1241,7 @@ int BTESH2_GfxCon_Redraw()
 				x=cx*8+px; y=cy*8+py;
 				btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=pca;
 			}
-			if(!(cv&0x10000))
+			if(!(cv&BTESH2_GFXCON_ITALIC))
 				continue;
 		}
 
@@ -1060,7 +1251,7 @@ int BTESH2_GfxCon_Redraw()
 			x=cx*8+px;
 			y=cy*8+py;
 			
-			if(cv&0x10000)
+			if(cv&BTESH2_GFXCON_ITALIC)
 				{ x+=(py-4)/2; }
 			
 			j=((7-py)*8)+(7-px);
@@ -1069,33 +1260,6 @@ int BTESH2_GfxCon_Redraw()
 			btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=pc;
 		}
 	}
-
-#if 0
-	if(btesh2_gfxcon_blink)
-	{
-		pxv=btesh2_gfxcon_glyphs['_'];
-		pca=0xFF000000;
-//		pcb=0xFF7F7F7F;
-		pcb=0xFFFFFFFF;
-
-		cx=btesh2_gfxcon_con_xpos;
-		cy=btesh2_gfxcon_con_ypos;
-
-		for(py=0; py<8; py++)
-			for(px=0; px<8; px++)
-		{
-			x=cx*8+px;
-			y=cy*8+py;
-//			y=(btesh2_gfxcon_cbys-cy-1)*8+py;
-//			j=(py*8)+(7-px);
-			j=((7-py)*8)+(7-px);
-			k=(pxv>>j)&1;
-//			pc=k?pcb:pca;
-			if(!k)continue;
-			btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=pcb;
-		}
-	}
-#endif
 
 	btesh2_gfxcon_con_dirty=0;
 	return(0);
