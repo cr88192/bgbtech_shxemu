@@ -12,8 +12,15 @@ LBR0 Blocks:
 ** 0=ColorA, 1=ColorB
 * Bits 16..19: ColorB
 * Bits 20..23: ColorA
+** Ordered as I,B,G,R
 * Bit 24: Indicates whether more LBR0 blocks follow.
 ** If 0, this falls back to ASCII mode.
+
+Logical 16-color palette (LSB=Red):
+	0xFF000000,	0xFF0000AA,	0xFF00AA00,	0xFF00AAAA,
+	0xFFAA0000,	0xFFAA00AA,	0xFFAA5500,	0xFFAAAAAA,
+	0xFF555555,	0xFF5555FF,	0xFF55FF55,	0xFF55FFFF,
+	0xFFFF5555,	0xFFFF55FF,	0xFFFFFF55,	0xFFFFFFFF
 
 LBR1 Blocks:
 * Bits 0-23: Block Data
@@ -46,4 +53,5 @@ Block Mode:
 ** Bits 12-15: Red A
 ** Bits 16-19: Green A
 ** Bits 20-23: Blue A
+*** 4 bit values map to 8 bits as: 0x00, 0x11, 0x22, ..., 0xEE, 0xFF
 ** Modes similar to 1/2/3.
