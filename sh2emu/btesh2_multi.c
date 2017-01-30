@@ -25,3 +25,7 @@
 #include "btesh2_ldelf.c"
 
 #include "btesh2_gfxcon.c"
+#include "btesh2_dcgfx.c"
+
+#include "gfxdrv_w32.c"
+#include "gfxdrv_input.c"

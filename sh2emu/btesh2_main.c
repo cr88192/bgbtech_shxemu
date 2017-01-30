@@ -62,197 +62,10 @@ void btesh2_resettermios(void)
 }
 #endif
 
-int FRGL_TimeMS()
-{
-#ifdef _WIN32
-	static unsigned int init;
-	unsigned int t;
-
-	t=timeGetTime();
-	if(!init)init=t;
-
-	return((unsigned int)(t-init));
-#else
 
 #ifdef __EMSCRIPTEN__
-	struct timeval	tp;
-	static int      secbase; 
-
-	gettimeofday(&tp, NULL);  
-	if(!secbase)secbase=tp.tv_sec;
-	return(((tp.tv_sec-secbase)*1000)+tp.tv_usec/1000);
-#endif
-
-#ifndef linux
-	static int init;
-	int t;
-
-	t=clock();
-	t*=CLOCKS_PER_SEC/1000.0;
-//	t=FRGL_TimeMS();
-
-	if(!init)init=t;
-
-	return((unsigned int)(t-init));
-#endif
-#ifdef linux
-	struct timeval	tp;
-	static int      secbase; 
-
-	gettimeofday(&tp, NULL);  
-	if(!secbase)secbase=tp.tv_sec;
-	return(((tp.tv_sec-secbase)*1000)+tp.tv_usec/1000);
-#endif
-#endif
-}
-
-#ifdef __EMSCRIPTEN__
-static byte frgl_keymap[32];
-static byte frgl_lkeymap[32];
-static unsigned short frgl_keybuf2[64];
-static int frgl_keybuf2_pos;
-byte gfxdrv_lastkeys[2048];
-
-static int keyb_num_shift[10]={
-')', '!', '@', '#', '$', '%', '^', '&', '*', '('
-};
-
-u16 *FRGL_GetKeybuf()
-{
-	static u16 frgl_keybuf3[64];
-	u16 *buf;
-
-	buf=frgl_keybuf3;
-	memcpy(buf, frgl_keybuf2, 128);
-
-	frgl_keybuf2_pos=0;
-	frgl_keybuf2[0]=0;
-
-//	printf("buf %p\n", buf);
-
-	return(buf);
-}
-
-void FRGL_EndInputFrame()
-{
-	memcpy(frgl_lkeymap, frgl_keymap, 32);
-}
-
-int FRGL_KeyDown(int key)
-{
-	if(frgl_keymap[key>>3]&(1<<(key&7)))return(1);
-	return(0);
-}
-
-int GfxDev_Key_Event(int key, int down)
-{
-	static int skm=0, skmd=0;
-	int akey, akey2, nskm;
-//	keyhandler *cur;
-
-	akey=key;
-	if(FRGL_KeyDown(K_SHIFT))
-	{
-		if(key>='a' && key<='z')
-			akey=key-'a'+'A';
-		if(key>='0' && key<='9')
-			akey=keyb_num_shift[key-'0'];
-
-		if(key=='\'')akey='"';
-		if(key=='[')akey='{';
-		if(key==']')akey='}';
-		if(key=='-')akey='_';
-		if(key=='=')akey='+';
-		if(key==';')akey=':';
-		if(key==',')akey='<';
-		if(key=='.')akey='>';
-		if(key=='/')akey='?';
-		if(key=='`')akey='~';
-		if(key=='\\')akey='|';
-	}
-
-	nskm=0;
-	if(FRGL_KeyDown(K_CTRL))
-	{
-		switch(akey)
-		{
-		case K_F1: nskm=K_SKM_F1; break;
-		case K_F2: nskm=K_SKM_F2; break;
-		case K_F3: nskm=K_SKM_F3; break;
-		case K_F4: nskm=K_SKM_F4; break;
-		case K_F5: nskm=K_SKM_F5; break;
-		case K_F6: nskm=K_SKM_F6; break;
-		case K_F7: nskm=K_SKM_F7; break;
-		case K_F8: nskm=K_SKM_F8; break;
-		case K_F9: nskm=K_SKM_F9; break;
-		case K_F10: nskm=K_SKM_F10; break;
-		case K_F11: nskm=K_SKM_F11; break;
-		case K_F12: nskm=K_SKM_F12; break;
-		default: break;
-		}
-	}else if(!skm)
-	{
-		if(!FRGL_KeyDown(K_CTRL) && !FRGL_KeyDown(K_ALT) &&
-			!FRGL_KeyDown(K_SHIFT))
-		{
-			if(akey==K_ESC)
-				nskm=K_SKM_ESC;
-		}
-	}
-
-	if(down)
-	{
-		akey2=akey;
-		if(skm && (akey>=' ') && (akey<='~'))
-		{
-			akey2=akey|skm;
-			skmd=skm;
-//			skm=0;
-		}
-	
-		frgl_keymap[akey>>3]|=1<<(akey&7);
-		if(frgl_keybuf2_pos<63)
-		{
-			frgl_keybuf2[frgl_keybuf2_pos++]=akey2;
-			frgl_keybuf2[frgl_keybuf2_pos]=0;
-		}
-
-//		cur=frgl_keyhandlers;
-//		while(cur)
-//		{
-//			cur->func(akey2, 1);
-//			cur=cur->next;
-//		}
-	}else
-	{
-		akey2=akey;
-		if(skm && skmd && (akey>=' ') && (akey<='~'))
-		{
-			akey2=akey|skm;
-			skm=0; skmd=0;
-		}
-	
-		frgl_keymap[akey>>3]&=~(1<<(akey&7));
-		if(frgl_keybuf2_pos<63)
-		{
-			frgl_keybuf2[frgl_keybuf2_pos++]=akey2|0x8000;
-			frgl_keybuf2[frgl_keybuf2_pos]=0;
-		}
-
-//		cur=frgl_keyhandlers;
-//		while(cur)
-//		{
-//			cur->func(akey2, 0);
-//			cur=cur->next;
-//		}
-	}
-	
-	if(nskm)
-		{ skm=nskm; }
-	return(0);
-}
-
-SDL_Surface *frgl_main_screen;
+SDL_Surface *btesh_main_screen;
+int gfxdrv_kill;
 
 #if 0
 static int scantokey[256]=
@@ -402,116 +215,66 @@ void GfxDrv_UpdateEvents()
 
 int gfxdrv_locksurf=0;
 
+int GfxDrv_PrepareFramebuf()
+{	
+	if(gfxdrv_locksurf)
+		return(0);
+
+	if(SDL_MUSTLOCK(btesh_main_screen))
+	{
+		SDL_LockSurface(btesh_main_screen);
+		gfxdrv_locksurf=1;
+	}
+
+	btesh2_gfxcon_framebuf=(u32 *)btesh_main_screen->pixels;
+	gfxdrv_locksurf=1;
+	return(1);
+}
+
 void GfxDrv_BeginDrawing()
 {
-	if(SDL_MUSTLOCK(frgl_main_screen) && gfxdrv_locksurf)
+	if(SDL_MUSTLOCK(btesh_main_screen) && gfxdrv_locksurf)
 	{
-		SDL_UnlockSurface(frgl_main_screen);
+		SDL_UnlockSurface(btesh_main_screen);
 		gfxdrv_locksurf=0;
+		btesh2_gfxcon_framebuf=NULL;
 	}
-	SDL_Flip(frgl_main_screen);
+	SDL_Flip(btesh_main_screen);
 
 	SDL_PumpEvents();
 	GfxDrv_UpdateKeyboard();
 	GfxDrv_UpdateEvents();
 
-	if(SDL_MUSTLOCK(frgl_main_screen))
+#if 0
+	if(SDL_MUSTLOCK(btesh_main_screen))
 	{
-		SDL_LockSurface(frgl_main_screen);
+		SDL_LockSurface(btesh_main_screen);
 		gfxdrv_locksurf=1;
 	}
 
-	btesh2_gfxcon_framebuf=(u32 *)frgl_main_screen->pixels;
-	
-	BTESH2_GfxCon_BlinkState((FRGL_TimeMS()>>9)&1);
-	BTESH2_GfxCon_Redraw();
+	btesh2_gfxcon_framebuf=(u32 *)btesh_main_screen->pixels;
+#endif
+
+//	BTESH2_GfxCon_BlinkState((FRGL_TimeMS()>>9)&1);
+//	BTESH2_GfxCon_Redraw();
+//	BTESH2_DCGFX_RedrawScreen();
 }
 
-char *test_constr=
-"\x1B!K[9xK[9xK[9xK[9xK[9xK[9JK[6kK[9TK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9x"
-"K[9xAFJiA<mAA<mAAFI4K[9xK[9xK[9xK[9xMBDkMBD]MBD]MBDdK[9x0@0[\n"
-"\x1B!K[9xK[9xK[9xK[9xK[9JKX_iK[9xKXqMK[9xK[9x>#1`=nW!=nW!=nW!>wxBK[9xK[9x"
-"AEm/A<uiA=EAA=EAA=:7AAY@K[9xK[9xMBDYLo6UB^>xLr[:Lk!2MBC50@0[\n"
-"\x1B!K[9xK[9xK[9x?_@.?xNG?_>_K[9xKZ'GK[9x>#1^=jVKA=EAA=EAA=B#=j#8K[9xK[9x"
-"AEm/H.r;H.r;H.r;H.r;AAY@K[9xMBDkLoN]B^>LL(;TLwB#B^>]Lm7b2';c\n"
-"\x1B!K[9xK[9xK[9J?[!p>b_A>c:IKZWWK[9xK[9x=l`RH.r;H.r;H.r;A;!r=nPcK[9xK[9x"
-"AEm/H.r;H.r;H.r;H.r;AAY@K[9xMAfJB^>]L)^xL#5DLs+/L#O2Ls,x2wIZ\n"
-"\x1B!K[9xK[9JKX_iK[9x?]VU?V>$K[9xK[9xK[9x=l`RH.r;H.r;H.r;A;!r=nPcK[9xK[9x"
-"AEm/H.r;H.r;H.r;H.r;AAY@K[9xMAfJLrlALkl$Lq=$L&IOL&'JBWOG2wIZ\n"
-"\x1B!K[69KVrnKZj&K[9xKZWWK[9xK[9xK[9xK[9x=l`RH.r;H.r;H.r;A;!r>wS,K[9xK[9x"
-"AEm/H.r;H.r;H.r;H.r;AAY@K[9xMAixLltjLjT!L*!]L!LJLl=RLm7a2wc@\n"
-"\x1B!KZ+*KV!/KX6`KZV,K[9xK[9xK[9xK[9xK[9x=uf'=o,?=o,?=o,?=u.oK[9xK[9xK[9x"
-"AEm/H.r;H.r;H.r;H.r;AAY@K[9xK[9xM@[;Lm7pLq=5B^>]Lm7aC%6I0@0[\n"
-"\x1B!K[9xKUs`KSfsK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9xK[9x"
-"K[9xA>GmA=B_A=B_A?h?K[9xK[9xK[9xK[9xMAixM9o&M9o&M=lAK[9x0@0[\n"
-
-"\x1B[0m Normal: "
-"\x1B[31mRed Text "
-"\x1B[32mGreen Text "
-"\x1B[34mBlue Text "
-"\x1B[33mYellow Text "
-"\x1B[35mViolet Text\n"
-
-"\x1B[9m Strike: "
-"\x1B[31mRed Text "
-"\x1B[32mGreen Text "
-"\x1B[34mBlue Text "
-"\x1B[33mYellow Text "
-"\x1B[35mViolet Text\n"
-"\x1B[0m"
-
-"\x1B[4m U-Line: "
-"\x1B[31mRed Text "
-"\x1B[32mGreen Text "
-"\x1B[34mBlue Text "
-"\x1B[33mYellow Text "
-"\x1B[35mViolet Text\n"
-"\x1B[0m"
-
-"\x1B[7mReverse: "
-"\x1B[31mRed Text "
-"\x1B[32mGreen Text "
-"\x1B[34mBlue Text "
-"\x1B[33mYellow Text "
-"\x1B[35mViolet Text\n"
-
-"\x1B[5mR-Blink: "
-"\x1B[31mRed Text "
-"\x1B[32mGreen Text "
-"\x1B[34mBlue Text "
-"\x1B[33mYellow Text "
-"\x1B[35mViolet Text\n"
-
-"\x1B[0m"
-;
+void GfxDrv_EndDrawing()
+{
+}
 
 void GfxDrv_Start()
 {
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	frgl_main_screen =
+	btesh_main_screen =
 		SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE);
 //		SDL_SetVideoMode(640, 480, 32, SDL_OPENGL);
 	btesh2_gfxcon_fbxs=640;
 	btesh2_gfxcon_fbys=480;
 	btesh2_gfxcon_fbsz=btesh2_gfxcon_fbxs*btesh2_gfxcon_fbys;
-
-	btesh2_gfxcon_cbxs=80;
-	btesh2_gfxcon_cbys=60;
-	btesh2_gfxcon_cbsz=btesh2_gfxcon_cbxs*btesh2_gfxcon_cbys;
-//	btesh2_gfxcon_conbuf=malloc(80*61*sizeof(u32));
-//	memset(btesh2_gfxcon_conbuf, 0, 80*61*sizeof(u32));
-
-	btesh2_gfxcon_conbuf=malloc(2*80*61*sizeof(u32));
-	memset(btesh2_gfxcon_conbuf, 0, 2*80*61*sizeof(u32));
-	btesh2_gfxcon_aconbuf=btesh2_gfxcon_conbuf+(80*61);
-
-	btesh2_gfxcon_con_attr=0x0700;
-	
-//	BTESH2_GfxCon_PrintString("Console Test Init\n");
-
-	BTESH2_GfxCon_PrintString(test_constr);
 }
 #endif
 
@@ -871,6 +634,7 @@ int help(char *prgname)
 
 BTESH2_CpuState *btesh2_cpu;
 int t0, t1, t2, t3;
+int t4, t5, t6, t7;
 double dt;
 s64 tdt;
 s64 rtops;
@@ -880,7 +644,12 @@ byte sh4;
 int sz, err, ts;
 int kb_ztick;
 
-void frgl_main_stuffkeyb(char *str)
+char *imgname, *mapname, *sdname, *sdclname, *irdname;
+char *kerninit;
+
+int btesh2_main_startimage();
+
+void btesh_main_stuffkeyb(char *str)
 {
 	char *s;
 	int j;
@@ -895,7 +664,153 @@ void frgl_main_stuffkeyb(char *str)
 	}
 }
 
-void frgl_main_iterate()
+void btesh_main_conprintf(char *str, ...)
+{
+	char tb[4096];
+	va_list lst;
+		
+	va_start(lst, str);
+	vsprintf(tb, str, lst);
+	va_end(lst);
+
+	BTESH2_GfxCon_PrintString(tb);
+	fputs(tb, stdout);
+}
+
+struct {
+char *name;
+char *img;
+char arch;
+
+char *map;
+char *sd;
+char *ird;
+char *init;
+}btesh_bootmenu[]={
+{"Linux (SH2 No MMU)", "pl_ems/vmlinux", BTESH2_ARCH_SH2,
+	"pl_ems/System.map"},
+{"Testkern (SH4)", "pl_ems/testkern_sh4.elf", BTESH2_ARCH_SH4, 
+	"pl_ems/testkern_sh4.map", NULL, "pl_ems/testkern_ird.tar"},
+{"Testkern Video ConGfx (SH4)", "pl_ems/testkern_sh4.elf", BTESH2_ARCH_SH4, 
+	"pl_ems/testkern_sh4.map", NULL, "pl_ems/testkern_ird.tar", "video1"},
+{"Testkern Video Framebuf (SH4)", "pl_ems/testkern_sh4.elf", BTESH2_ARCH_SH4, 
+	"pl_ems/testkern_sh4.map", NULL, "pl_ems/testkern_ird.tar", "video"},
+{NULL, NULL}
+};
+
+void btesh_main_bootmenu()
+{
+	static int shown=0;
+	static int maxopt;
+	int i, j, k;
+	
+	if(!shown)
+	{
+		btesh_main_conprintf("\n\nSelect Boot Image:\n");
+		for(i=0; btesh_bootmenu[i].img; i++)
+		{
+			btesh_main_conprintf("%d: %s\n",
+				i+1, btesh_bootmenu[i].name);
+			maxopt=i;
+		}
+		shown=1;
+	}
+	
+	if(kbirov!=kbrov)
+	{
+		i=kbbuf[kbirov++];
+		if((i>='1') && (i<=('1'+maxopt)))
+		{
+			i=i-'1';
+			imgname=btesh_bootmenu[i].img;
+			mapname=btesh_bootmenu[i].map;
+			sdname=btesh_bootmenu[i].sd;
+			irdname=btesh_bootmenu[i].ird;
+			kerninit=btesh_bootmenu[i].init;
+			sh4=btesh_bootmenu[i].arch;
+			btesh2_main_startimage();
+
+			btesh_main_conprintf("\x1B[2J");
+			shown=0;
+		}
+	}
+}
+
+int btesh_main_iterate_2i()
+{
+	BTESH2_CpuState *cpu;
+
+	cpu=btesh2_cpu;
+
+//	t1=clock();
+	t1=FRGL_TimeMS();
+
+	t2=t1-t3;
+	if(t2>0)
+	{
+		t3=t1;
+//		dt=t2*(1000.0/CLOCKS_PER_SEC);
+		dt=t2;
+		btesh2_msec+=dt;
+		rtmsec+=dt;
+	}
+
+	t2=t1-t0;
+	if((t2>ts) || (t2<0))
+	{
+		tdt+=t2;
+		t0=t1;
+		BTESH2_CpuTimerInt(cpu);
+		return(0);
+	}
+
+#if 1
+	t2=t1-kb_ztick;
+	if((t2<0) || (t2>=250))
+	{
+		kirq++;
+		kb_ztick=t1;
+	}
+#endif
+
+	btesh2_tops=cpu->tr_tops-rtops;
+	
+	if(btesh2_tops>0)
+	{
+//		dt=rtmsec*(1.0/((double)CLOCKS_PER_SEC))+0.000001;
+		dt=rtmsec*(1.0/1000.0)+0.000001;
+		btesh2_ips=((double)btesh2_tops)/dt+0.000001;
+	}else
+	{
+		btesh2_ips=999999999.0;
+	}
+
+	if((kirq>0) && (kbictrl&0x10))
+	{
+		BTESH2_CpuUartInt(cpu);
+		kirq--;
+	}
+
+	if(t2)
+	{
+		btesh2_mmio[0x85]--;
+		if(((s32)btesh2_mmio[0x85])<=0)
+		{
+			BTSH_Op_TrapIntIrq(cpu, BTESH2_EXC_AICCNTDN);
+			btesh2_mmio[0x85]=16;
+			btesh2_mmio[0x86]=4095;
+		}
+	}
+
+//	t4=FRGL_TimeMS();
+	err=BTESH2_RunCpu(cpu, 1000);
+//	err=BTESH2_RunCpu(cpu, 10000);
+//	err=BTESH2_RunCpu(cpu, 100000);
+
+	return(err);
+}
+
+void btesh_main_iterate()
 {
 	BTESH2_CpuState *cpu;
 	u16 *kb;
@@ -903,26 +818,21 @@ void frgl_main_iterate()
 	char *str;
 	int i, j, k, l;
 
-#ifdef __EMSCRIPTEN__
 	GfxDrv_BeginDrawing();
+
+	btesh2_gfxcon_con_disabled=0;
+	BTESH2_DCGFX_RedrawScreen();
+
+	BTESH2_GfxCon_BlinkState((FRGL_TimeMS()>>9)&1);
+	BTESH2_GfxCon_Redraw();
+
 	kb=FRGL_GetKeybuf();
 	while(kb && *kb)
 	{
 		j=*kb++;
 
-//		printf("%04X\n", j);
-
 		if(j&0x8000)
 			continue;
-
-//		if(j==K_UPARROW)
-//			{ frgl_main_stuffkeyb("\x1B[A"); continue; }
-//		if(j==K_DOWNARROW)
-//			{ frgl_main_stuffkeyb("\x1B[B"); continue; }
-//		if(j==K_RIGHTARROW)
-//			{ frgl_main_stuffkeyb("\x1B[C"); continue; }
-//		if(j==K_LEFTARROW)
-//			{ frgl_main_stuffkeyb("\x1B[D"); continue; }
 
 		str=NULL;
 		switch(j)
@@ -976,19 +886,10 @@ void frgl_main_iterate()
 		}
 
 		if(str)
-			{ frgl_main_stuffkeyb(str); continue; }
+			{ btesh_main_stuffkeyb(str); continue; }
 		
 		if(j>'~')
 			continue;
-
-//		printf("%c\n", j);
-
-//		kbbuf[kbrov]=j;
-//		kbrov=(kbrov+1)&255;
-//		kirq=1;
-
-//		if(j=='\r')
-//			j=0x0A0D;
 
 		if(j=='\r')
 			j='\n';
@@ -1017,105 +918,56 @@ void frgl_main_iterate()
 		}
 	}
 	
-	frgl_main_stuffkeyb((char *)btesh2_gfxcon_con_ansret);
+	btesh_main_stuffkeyb((char *)btesh2_gfxcon_con_ansret);
 	btesh2_gfxcon_con_ansret[0]=0;
-#endif
 	
 	cpu=btesh2_cpu;
 
-//	t1=clock();
-	t1=FRGL_TimeMS();
-
-	t2=t1-t3;
-	if(t2>0)
+	if(!cpu)
 	{
-		t3=t1;
-//		dt=t2*(1000.0/CLOCKS_PER_SEC);
-		dt=t2;
-		btesh2_msec+=dt;
-		rtmsec+=dt;
+		btesh_main_bootmenu();
+		GfxDrv_EndDrawing();
+		return;
 	}
 
-	t2=t1-t0;
-	if((t2>ts) || (t2<0))
+	t4=FRGL_TimeMS(); t6=0;
+	while(!err && (t6>=0) && (t6<14))
 	{
-#ifndef __EMSCRIPTEN__
-		j=fgetc(stdin);
-		if(j>0)
-		{
-			if(j=='`')
-			{
-//				err=1;
-				return;
-			}
-			
-			kbbuf[kbrov]=j;
-			kbrov=(kbrov+1)&255;
-			kirq=1;
-		}
-#endif
-
-#if 0
-		kb_ztick++;
-		if(kb_ztick>16)
-		{
-//			kbbuf[kbrov]=0;
-//			kbrov=(kbrov+1)&255;
-			kirq++;
-
-			kb_ztick=0;
-		}
-#endif
-
-		tdt+=t2;
-		t0=t1;
-		BTESH2_CpuTimerInt(cpu);
-//		return;
-	}
+		err=btesh_main_iterate_2i();
+		t5=FRGL_TimeMS();
+		t6=t5-t4;
 
 #if 1
-	t2=t1-kb_ztick;
-	if((t2<0) || (t2>=250))
+		if(err==BTESH2_EXC_TRAPSLEEP)
+		{
+#ifdef _WIN32
+			Sleep(1);
+#endif
+#ifdef __linux
+			usleep(100);
+#endif
+			cpu->status=0;
+			err=0;
+		}
+#endif
+	}
+
+
+#if 0
+	t5=FRGL_TimeMS();
+	t6=t5-t4;
+	while(!err && (t6>=0) && (t6<20))
 	{
-		kirq++;
-		kb_ztick=t1;
+		err=BTESH2_RunCpu(cpu, 10000);
+
+		t5=FRGL_TimeMS();
+		t6=t5-t4;
 	}
 #endif
-
-	btesh2_tops=cpu->tr_tops-rtops;
-	
-	if(btesh2_tops>0)
-	{
-//		dt=rtmsec*(1.0/((double)CLOCKS_PER_SEC))+0.000001;
-		dt=rtmsec*(1.0/1000.0)+0.000001;
-		btesh2_ips=((double)btesh2_tops)/dt+0.000001;
-	}else
-	{
-		btesh2_ips=999999999.0;
-	}
-
-	if((kirq>0) && (kbictrl&0x10))
-	{
-		BTESH2_CpuUartInt(cpu);
-		kirq--;
-	}
-
-	if(t2)
-	{
-		btesh2_mmio[0x85]--;
-		if(((s32)btesh2_mmio[0x85])<=0)
-		{
-			BTSH_Op_TrapIntIrq(cpu, BTESH2_EXC_AICCNTDN);
-			btesh2_mmio[0x85]=16;
-			btesh2_mmio[0x86]=4095;
-		}
-	}
-
-	err=BTESH2_RunCpu(cpu, 10000);
-//	err=BTESH2_RunCpu(cpu, 100000);
 	
 	if(err==BTESH2_EXC_TRAPSLEEP)
 	{
+		GfxDrv_EndDrawing();
 		cpu->status=0;
 		err=0;
 		return;
@@ -1124,97 +976,19 @@ void frgl_main_iterate()
 	if(err)
 	{
 		printf("Fault=%X\n", err);
+		gfxdrv_kill=1;
 	}
+	
+	GfxDrv_EndDrawing();
 }
 
-int main(int argc, char *argv[])
+int btesh2_main_startimage()
 {
 	BTESH2_MemoryImage *img;
 	BTESH2_CpuState *cpu;
 	BTESH2_PhysSpan *sp;
 	byte *ibuf, *tbuf;
-	char *imgname, *mapname, *sdname, *sdclname, *irdname;
-	char *kerninit;
-//	double dt;
-//	s64 tdt;
-//	s64 rtops;
-//	s32 rtmsec;
-//	byte sh4, kirq;
-//	int t0, t1, t2, t3;
-//	int sz, err, ts;
 	int i, j, k, l;
-	
-	sh4=0;
-	imgname=NULL;
-	mapname=NULL;
-	sdname=NULL;
-	sdclname=NULL;
-	irdname=NULL;
-	kerninit=NULL;
-	
-	for(i=1; i<argc; i++)
-	{
-		if(argv[i][0]=='-')
-		{
-			if(!strcmp(argv[i], "-sh4"))
-				{ sh4=BTESH2_ARCH_SH4; continue; }
-			if(!strcmp(argv[i], "-sh2"))
-				{ sh4=BTESH2_ARCH_SH2; continue; }
-
-			if(!strcmp(argv[i], "-map"))
-				{ mapname=argv[i+1]; i++; continue; }
-
-			if(!strcmp(argv[i], "-sd"))
-				{ sdname=argv[i+1]; i++; continue; }
-			if(!strcmp(argv[i], "-sdcl"))
-				{ sdclname=argv[i+1]; i++; continue; }
-			if(!strcmp(argv[i], "-ird"))
-				{ irdname=argv[i+1]; i++; continue; }
-
-			if(!strcmp(argv[i], "--help"))
-				{ sh4=127; continue; }
-				
-			printf("unrecognized option %s\n", argv[i]);
-			continue;
-		}
-		
-		if(!imgname)
-			imgname=argv[i];
-	}
-	
-	if(sh4==127)
-	{
-		help(argv[0]);
-		return(0);
-	}
-
-	if(sdclname)
-	{
-		ibuf=loadfile(sdclname, &sz);
-		if(ibuf)
-		{
-			BTESH2_ProcessSDCL((char *)ibuf, sz);
-			free(ibuf);
-		}
-		
-		if(!imgname)
-			return(0);
-	}
-
-#ifdef __EMSCRIPTEN__
-	if(!imgname)
-	{
-		imgname="vmlinux";
-//		imgname="testkern_sh4.elf";
-//		sh4=BTESH2_ARCH_SH4;
-	}
-#endif
-
-	if(!imgname)
-	{
-		printf("No image name given\n");
-		return(-1);
-	}
 
 	if(sdname)
 	{
@@ -1371,6 +1145,8 @@ int main(int argc, char *argv[])
 		i=BTESH2_MemoryAddSpan(img, sp);
 	}
 
+	BTESH2_DCGFX_ImageRegister(img);
+
 	cpu->logpc=malloc((1<<18)*sizeof(u32));
 	cpu->logsp=malloc((1<<18)*sizeof(u32));
 	cpu->mlogpc=1<<18;
@@ -1408,14 +1184,30 @@ int main(int argc, char *argv[])
 
 	if(irdname)
 	{
+//		printf("Load initrd=%s\n", irdname);
 		ibuf=loadfile(irdname, &sz);
 		if(ibuf)
 		{
-			t0=0x18000000-(sz+1);
-			t0=t0&(~4095);
+			if(sh4==BTESH2_ARCH_SH4)
+			{
+//				t0=0x18000000-(sz+1);
+//				t0=t0&(~4095);
+//				t1=t0-0x10000000;
+
+				t0=0x10000000-(sz+1);
+				t0=t0&(~4095);
+				t1=t0-0x0C000000;
+			}else
+			{
+				t0=0x18000000-(sz+1);
+				t0=t0&(~4095);
+				t1=t0-0x10000000;
+			}
 			BTESH2_MemCpyIn(cpu, t0, ibuf, sz);
 
-			t1=t0-0x10000000;
+			printf("Load initrd=%s %08X..%08X\n", irdname, t0, t0+sz);
+
+//			t1=t0-0x10000000;
 			
 			BTESH2_SetAddrDWord(cpu, 0x1003F000+0x010, t1);
 			BTESH2_SetAddrDWord(cpu, 0x1003F000+0x014, sz);
@@ -1429,17 +1221,14 @@ int main(int argc, char *argv[])
 
 //			BTESH2_BootLoadMap(cpu, ibuf, sz, 0x10000000);
 //			free(ibuf);
+		}else
+		{
+			printf("Fail Load initrd=%s\n", irdname);
 		}
 	}
 
 //	l=99999999;
 	l=999999999;
-
-#ifdef __linux
-	i = fcntl(0, F_GETFL, 0);
-	fcntl(0, F_SETFL, i | O_NONBLOCK);
-	btesh2_ttynoncanon();
-#endif
 
 	btesh2_msec=0;
 	btesh2_tops=0;
@@ -1451,14 +1240,131 @@ int main(int argc, char *argv[])
 //	t1=clock();
 //	ts=CLOCKS_PER_SEC/100;
 
+	btesh2_cpu=cpu;
+	return(0);
+}
+
+int main(int argc, char *argv[])
+{
+//	BTESH2_MemoryImage *img;
+//	BTESH2_CpuState *cpu;
+//	BTESH2_PhysSpan *sp;
+	byte *ibuf, *tbuf;
+//	double dt;
+//	s64 tdt;
+//	s64 rtops;
+//	s32 rtmsec;
+//	byte sh4, kirq;
+//	int t0, t1, t2, t3;
+//	int sz, err, ts;
+	int i, j, k, l;
+	
+	sh4=0;
+	imgname=NULL;
+	mapname=NULL;
+	sdname=NULL;
+	sdclname=NULL;
+	irdname=NULL;
+	kerninit=NULL;
+	
+	for(i=1; i<argc; i++)
+	{
+		if(argv[i][0]=='-')
+		{
+			if(!strcmp(argv[i], "-sh4"))
+				{ sh4=BTESH2_ARCH_SH4; continue; }
+			if(!strcmp(argv[i], "-sh2"))
+				{ sh4=BTESH2_ARCH_SH2; continue; }
+
+			if(!strcmp(argv[i], "-map"))
+				{ mapname=argv[i+1]; i++; continue; }
+
+			if(!strcmp(argv[i], "-sd"))
+				{ sdname=argv[i+1]; i++; continue; }
+			if(!strcmp(argv[i], "-sdcl"))
+				{ sdclname=argv[i+1]; i++; continue; }
+			if(!strcmp(argv[i], "-ird"))
+				{ irdname=argv[i+1]; i++; continue; }
+
+			if(!strcmp(argv[i], "--help"))
+				{ sh4=127; continue; }
+				
+			printf("unrecognized option %s\n", argv[i]);
+			continue;
+		}
+		
+		if(!imgname)
+			imgname=argv[i];
+	}
+	
+	if(sh4==127)
+	{
+		help(argv[0]);
+		return(0);
+	}
+
+	if(sdclname)
+	{
+		ibuf=loadfile(sdclname, &sz);
+		if(ibuf)
+		{
+			BTESH2_ProcessSDCL((char *)ibuf, sz);
+			free(ibuf);
+		}
+		
+		if(!imgname)
+			return(0);
+	}
+
+#if 0
+#ifdef __EMSCRIPTEN__
+	if(!imgname)
+	{
+		imgname="vmlinux";
+//		imgname="testkern_sh4.elf";
+//		sh4=BTESH2_ARCH_SH4;
+	}
+#endif
+
+	if(!imgname)
+	{
+		printf("No image name given\n");
+		return(-1);
+	}
+#endif
+
+#ifdef __linux
+	i = fcntl(0, F_GETFL, 0);
+	fcntl(0, F_SETFL, i | O_NONBLOCK);
+	btesh2_ttynoncanon();
+#endif
+
+	if(imgname)
+		btesh2_main_startimage();
+
 #ifdef __EMSCRIPTEN__
 	ts=1;
 	GfxDrv_Start();
-	btesh2_cpu=cpu;
-	emscripten_set_main_loop(frgl_main_iterate, 0, 1);
+	BTESH2_GfxCon_Startup();
+//	btesh2_cpu=cpu;
+	emscripten_set_main_loop(btesh_main_iterate, 0, 1);
 #endif
 
-#ifndef __EMSCRIPTEN__
+#ifdef _WIN32
+	ts=1;
+	GfxDrv_Start();
+	BTESH2_GfxCon_Startup();
+//	btesh2_cpu=cpu;
+	GfxDrv_MainLoop(btesh_main_iterate);
+
+	if(btesh2_cpu)
+	{
+		BTESH2_DumpRegs(btesh2_cpu);
+	}
+#endif
+
+// #ifndef __EMSCRIPTEN__
+#ifdef _linux
 //	ts=CLOCKS_PER_SEC/1000;
 	ts=1;
 	err=0; kirq=0;

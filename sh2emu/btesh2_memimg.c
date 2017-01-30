@@ -66,8 +66,12 @@ u32 btesh2_spandfl_GetW_LE(BTESH2_PhysSpan *sp,
 	int i;
 
 	ptr=sp->data+reladdr;
+#if defined(X86) || defined(X86_64)
+	return(*(s16 *)ptr);
+#else
 	i=(ptr[1]<<8)|(ptr[0]);
 	return((s16)i);
+#endif
 }
 
 u32 btesh2_spandfl_GetD_BE(BTESH2_PhysSpan *sp,
@@ -88,7 +92,11 @@ u32 btesh2_spandfl_GetD_LE(BTESH2_PhysSpan *sp,
 	u32 i;
 	
 	ptr=sp->data+reladdr;
+#if defined(X86) || defined(X86_64)
+	i=*(u32 *)ptr;
+#else
 	i=(((u32)(ptr[3]))<<24)|(ptr[2]<<16)|(ptr[1]<<8)|(ptr[0]);
+#endif
 	return(i);
 }
 
@@ -116,8 +124,12 @@ int btesh2_spandfl_SetW_LE(BTESH2_PhysSpan *sp,
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
+#if defined(X86) || defined(X86_64)
+	*(u16 *)ptr=val;
+#else
 	ptr[1]=val>>8;
 	ptr[0]=val;
+#endif
 	return(0);
 }
 
@@ -138,12 +150,81 @@ int btesh2_spandfl_SetD_LE(BTESH2_PhysSpan *sp,
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
+#if defined(X86) || defined(X86_64)
+	*(u32 *)ptr=val;
+#else
 	ptr[3]=val>>24;
 	ptr[2]=val>>16;
 	ptr[1]=val>> 8;
 	ptr[0]=val;
+#endif
 	return(0);
 }
+
+
+#if 1
+int btesh2_spandfl_SetB_Fl(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	byte *ptr;
+	ptr=sp->data+reladdr;
+	*ptr=val;
+	*sp->dmdflag|=1;
+	return(0);
+}
+
+int btesh2_spandfl_SetW_FlBE(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	byte *ptr;
+	ptr=sp->data+reladdr;
+	ptr[0]=val>>8;
+	ptr[1]=val;
+	*sp->dmdflag|=1;
+	return(0);
+}
+
+int btesh2_spandfl_SetW_FlLE(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	byte *ptr;
+	ptr=sp->data+reladdr;
+	ptr[1]=val>>8;
+	ptr[0]=val;
+	*sp->dmdflag|=1;
+	return(0);
+}
+
+int btesh2_spandfl_SetD_FlBE(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	byte *ptr;
+	ptr=sp->data+reladdr;
+	ptr[0]=val>>24;
+	ptr[1]=val>>16;
+	ptr[2]=val>> 8;
+	ptr[3]=val;
+	*sp->dmdflag|=1;
+	return(0);
+}
+
+int btesh2_spandfl_SetD_FlLE(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	byte *ptr;
+	ptr=sp->data+reladdr;
+#if defined(X86) || defined(X86_64)
+	*(u32 *)ptr=val;
+#else
+	ptr[3]=val>>24;
+	ptr[2]=val>>16;
+	ptr[1]=val>> 8;
+	ptr[0]=val;
+#endif
+	*sp->dmdflag|=1;
+	return(0);
+}
+#endif
 
 u32 btesh2_spandfl_GetW(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr)
@@ -179,10 +260,14 @@ int btesh2_spandfl_SetW(BTESH2_PhysSpan *sp,
 	if(cpu->csfl&1)
 	{
 		sp->SetW=btesh2_spandfl_SetW_LE;
+		if(sp->dmdflag)
+			sp->SetW=btesh2_spandfl_SetW_FlLE;
 		return(sp->SetW(sp, cpu, reladdr, val));
 	}else
 	{
 		sp->SetW=btesh2_spandfl_SetW_BE;
+		if(sp->dmdflag)
+			sp->SetW=btesh2_spandfl_SetW_FlBE;
 		return(sp->SetW(sp, cpu, reladdr, val));
 	}
 }
@@ -193,10 +278,14 @@ int btesh2_spandfl_SetD(BTESH2_PhysSpan *sp,
 	if(cpu->csfl&1)
 	{
 		sp->SetD=btesh2_spandfl_SetD_LE;
+		if(sp->dmdflag)
+			sp->SetD=btesh2_spandfl_SetD_FlLE;
 		return(sp->SetD(sp, cpu, reladdr, val));
 	}else
 	{
 		sp->SetD=btesh2_spandfl_SetD_BE;
+		if(sp->dmdflag)
+			sp->SetD=btesh2_spandfl_SetD_FlBE;
 		return(sp->SetD(sp, cpu, reladdr, val));
 	}
 }
@@ -231,6 +320,167 @@ int BTESH2_MemoryDefineSpan(BTESH2_MemoryImage *img,
 	i=BTESH2_MemoryAddSpan(img, sp);
 	return(i);
 }
+
+void btesh2_spandmd_demandInit(BTESH2_PhysSpan *sp)
+{
+	byte **refptr;
+	byte *data;
+	int i, sz;
+	
+	refptr=sp->dmdaddr;
+
+	sz=(sp->limit-sp->base)+1;
+	data=malloc(sz);
+	memset(data, 0, sz);
+	sp->data=data;
+	
+	if(refptr)
+		*refptr=data;
+
+	sp->GetB=btesh2_spandfl_GetB;
+	sp->GetW=btesh2_spandfl_GetW;
+	sp->GetD=btesh2_spandfl_GetD;
+
+	sp->SetB=btesh2_spandfl_SetB;
+	sp->SetW=btesh2_spandfl_SetW;
+	sp->SetD=btesh2_spandfl_SetD;
+
+	if(sp->dmdflag)
+		sp->SetB=btesh2_spandfl_SetB_Fl;
+}
+
+u32 btesh2_spandmd_GetB(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	btesh2_spandmd_demandInit(sp);
+	return(sp->GetB(sp, cpu, reladdr));
+}
+
+u32 btesh2_spandmd_GetW(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	btesh2_spandmd_demandInit(sp);
+	return(sp->GetW(sp, cpu, reladdr));
+}
+
+u32 btesh2_spandmd_GetD(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	btesh2_spandmd_demandInit(sp);
+	return(sp->GetD(sp, cpu, reladdr));
+}
+
+int btesh2_spandmd_SetB(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	btesh2_spandmd_demandInit(sp);
+	return(sp->SetB(sp, cpu, reladdr, val));
+}
+
+int btesh2_spandmd_SetW(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	btesh2_spandmd_demandInit(sp);
+	return(sp->SetW(sp, cpu, reladdr, val));
+}
+
+int btesh2_spandmd_SetD(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	btesh2_spandmd_demandInit(sp);
+	return(sp->SetD(sp, cpu, reladdr, val));
+}
+
+int BTESH2_MemoryDefineSpanDemand(BTESH2_MemoryImage *img,
+	u32 base, u32 limit, byte **addr, int *flag, char *name)
+{
+	BTESH2_PhysSpan *sp;
+	int i, sz;
+	
+	sp=BTESH2_AllocPhysSpan();
+	sp->base=base;
+	sp->limit=limit;
+	sp->dmdaddr=addr;
+	sp->dmdflag=flag;
+	sp->name=name;
+	
+	sp->GetB=btesh2_spandmd_GetB;
+	sp->GetW=btesh2_spandmd_GetW;
+	sp->GetD=btesh2_spandmd_GetD;
+
+	sp->SetB=btesh2_spandmd_SetB;
+	sp->SetW=btesh2_spandmd_SetW;
+	sp->SetD=btesh2_spandmd_SetD;
+	
+	i=BTESH2_MemoryAddSpan(img, sp);
+	return(i);
+}
+
+
+u32 btesh2_spanreg_GetB(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	u32 i, j;
+	i=sp->GetD(sp, cpu, reladdr&(~3));
+	j=(i>>((3-(reladdr&3))*8));
+	j=(sbyte)j;
+	return(j);
+}
+
+u32 btesh2_spanreg_GetW(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	u32 i, j;
+	i=sp->GetD(sp, cpu, reladdr&(~3));
+	j=(i>>((3-(reladdr&3))*8));
+	j=(s16)j;
+	return(j);
+}
+
+int btesh2_spanreg_SetB(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	int i;
+	i=sp->SetD(sp, cpu, reladdr, val);
+	return(i);
+}
+
+int btesh2_spanreg_SetW(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	int i;
+	i=sp->SetD(sp, cpu, reladdr, val);
+	return(i);
+}
+
+int BTESH2_MemoryDefineSpanRegs(BTESH2_MemoryImage *img,
+	u32 base, u32 limit, char *name,
+	u32 (*GetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr),
+	int (*SetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu,
+		u32 reladdr, u32 val)
+	)
+{
+	BTESH2_PhysSpan *sp;
+	int i, sz;
+	
+	sp=BTESH2_AllocPhysSpan();
+	sp->base=base;
+	sp->limit=limit;
+//	sp->data=(byte *)data;
+	sp->name=name;
+
+	sp->GetD=GetD;
+	sp->SetD=SetD;
+	
+	sp->GetB=btesh2_spanreg_GetB;
+	sp->GetW=btesh2_spanreg_GetW;
+	sp->SetB=btesh2_spanreg_SetB;
+	sp->SetW=btesh2_spanreg_SetW;
+	
+	i=BTESH2_MemoryAddSpan(img, sp);
+	return(i);
+}
+
 
 BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 	u32 addr, u32 lim)
@@ -292,6 +542,15 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 			{ l=m+1; r=h-l; }
 		else
 			{ h=m; r=h-l; }
+	}
+#endif
+
+#if 1
+	for(is=0; is<ns; is++)
+	{
+		sp=mem->span[is];
+		if((addr>=sp->base) && (lim<=sp->limit))
+			{ mem->pspan=sp; return(sp); }
 	}
 #endif
 

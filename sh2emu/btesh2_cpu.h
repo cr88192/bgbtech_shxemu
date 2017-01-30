@@ -288,6 +288,9 @@ u32 (*GetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr);
 int (*SetB)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr, u32 val);
 int (*SetW)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr, u32 val);
 int (*SetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr, u32 val);
+
+byte **dmdaddr;
+int *dmdflag;
 };
 
 /** Represents a physical memory image.
