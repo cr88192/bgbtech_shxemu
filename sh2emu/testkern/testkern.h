@@ -79,6 +79,16 @@ typedef volatile u32 vol_u32;
 #define TKMM_PAGEEND	0x18000000
 #endif
 
+#define INITRD_ADDR	0x1003F010
+#define INITRD_SIZE	0x1003F014
+#define KINIT_ADDR	0x1003F100
+
+#define P_INITRD_ADDR	(*(vol_u32 *)INITRD_ADDR)
+#define P_INITRD_SIZE	(*(vol_u32 *)INITRD_SIZE)
+#define P_KINIT_ADDR	((char *)KINIT_ADDR)
+
+#define P_INITRD_ABSADDR	((void *)(0x10000000+P_INITRD_ADDR))
+
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
@@ -128,7 +138,18 @@ u32 data[1];	//start of data
 
 #define TKMM_OFFS_DATA	((int)(((TKMM_MemLnkObj *)0)->data))
 
+typedef struct TK_FILE_s TK_FILE;
+struct TK_FILE_s {
+byte *ram_base;
+byte *ram_end;
+byte *ram_ofs;
+};
+
 #include "tk_fatfs.h"
+#include "tk_dummyavi.h"
+
+void *TKMM_Malloc(int sz);
+int TKMM_Free(void *ptr);
 
 void printf(char *str, ...);
 

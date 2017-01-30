@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
 //		*t++='\x1B';
 		*t++='\\';	*t++='x';
 		*t++='1';	*t++='B';
-		*t++='%';
+		*t++='!';
 		for(j=0; j<cxs; j++)
 		{
 			k=((((cys-i-1)*4)*xs)+(j*4))*4;

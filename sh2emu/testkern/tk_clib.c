@@ -47,29 +47,40 @@ void *memcpy(void *dest, const void *src, size_t size)
 	i=(int)ct;
 	j=(int)cs;
 
-	if((i&3)==(j&3))
+//	if((i&3)==(j&3))
+	if((i&7)==(j&7))
 	{
-		switch(i&3)
+//		switch(i&3)
+		switch(i&7)
 		{
 		case 1: *ct++=*cs++;
 		case 2: *ct++=*cs++;
 		case 3: *ct++=*cs++;
+		case 4: *ct++=*cs++;
+		case 5: *ct++=*cs++;
+		case 6: *ct++=*cs++;
+		case 7: *ct++=*cs++;
 		case 0: break;
 		default: break;
 		}
 		
 		while((ct+16)<=cte)
 		{
-			((u32 *)ct)[0]=((u32 *)cs)[0];
-			((u32 *)ct)[1]=((u32 *)cs)[1];
-			((u32 *)ct)[2]=((u32 *)cs)[2];
-			((u32 *)ct)[3]=((u32 *)cs)[3];
+//			((u32 *)ct)[0]=((u32 *)cs)[0];
+//			((u32 *)ct)[1]=((u32 *)cs)[1];
+//			((u32 *)ct)[2]=((u32 *)cs)[2];
+//			((u32 *)ct)[3]=((u32 *)cs)[3];
+
+			((u64 *)ct)[0]=((u64 *)cs)[0];
+			((u64 *)ct)[1]=((u64 *)cs)[1];
+
 			ct+=16; cs+=16;
 		}
 		while((ct+8)<=cte)
 		{
-			((u32 *)ct)[0]=((u32 *)cs)[0];
-			((u32 *)ct)[1]=((u32 *)cs)[1];
+//			((u32 *)ct)[0]=((u32 *)cs)[0];
+//			((u32 *)ct)[1]=((u32 *)cs)[1];
+			((u64 *)ct)[0]=((u64 *)cs)[0];
 			ct+=8; cs+=8;
 		}
 		if((ct+4)<=cte)
@@ -173,3 +184,35 @@ s64 __ashrdi3(s64 a, int b)
 	return((s64)(v.ll));
 }
 #endif
+
+byte *malloc_heaprov;
+
+void *malloc(int sz)
+{
+	void *ptr;
+	
+	if(!malloc_heaprov)
+		{ malloc_heaprov=(byte *)0x11000000; }
+	
+	sz=(sz+15)&(~15);
+	ptr=malloc_heaprov;
+	malloc_heaprov+=sz;
+	
+//	ptr=TKMM_Malloc(sz);
+//	memset(ptr, 0, sz);
+	return(ptr);
+}
+
+int free(void *ptr)
+{
+//	return(TKMM_Free(ptr));
+}
+
+void *tk_malloc(int sz)
+{
+	void *ptr;
+//	ptr=TKMM_Malloc(sz);
+	ptr=malloc(sz);
+	memset(ptr, 0, sz);
+	return(ptr);
+}

@@ -1,5 +1,10 @@
 In Console Graphics
 
+Console Graphics may be mixed with ASCII and ANSI codes.
+
+Each graphics block will be a single character cell, and will use the same layout as the textual console.
+Control characters are to behave similarly to as to when printing ASCII text. 
+
 * ESC !
 ** Enter LBR0 Mode
 ** Blocks are encoded as 4 base85 characters representing a 25 bit value.
@@ -17,10 +22,10 @@ LBR0 Blocks:
 ** If 0, this falls back to ASCII mode.
 
 Logical 16-color palette (LSB=Red):
-	0xFF000000,	0xFF0000AA,	0xFF00AA00,	0xFF00AAAA,
-	0xFFAA0000,	0xFFAA00AA,	0xFFAA5500,	0xFFAAAAAA,
-	0xFF555555,	0xFF5555FF,	0xFF55FF55,	0xFF55FFFF,
-	0xFFFF5555,	0xFFFF55FF,	0xFFFFFF55,	0xFFFFFFFF
+*	0xFF000000,	0xFF0000AA,	0xFF00AA00,	0xFF00AAAA,
+*	0xFFAA0000,	0xFFAA00AA,	0xFFAA5500,	0xFFAAAAAA,
+*	0xFF555555,	0xFF5555FF,	0xFF55FF55,	0xFF55FFFF,
+*	0xFFFF5555,	0xFFFF55FF,	0xFFFFFF55,	0xFFFFFFFF
 
 LBR1 Blocks:
 * Bits 0-23: Block Data
@@ -35,6 +40,9 @@ Extended data block:
 * Encoded as a 32-bit base85 value.
 * Stored in the same logical position as the preceeding LBR1 block.
 * As 2-bit: 0=ColorA, 1=2/3*ColorA+1/3*ColorB, 2=1/3*ColorA+2/3*ColorB, 3=ColorB
+* If an LRB0 block has a color of 0x55, Extended data used as RGB555 color pair.
+** 0=color in high 16 bits
+** 1=color in low 16 bits
 
 Block Mode:
 * 0: Low 24 bits interpreted as in an LBR0 block.

@@ -1,3 +1,5 @@
+byte *tk_ird_imgbuf=NULL;
+
 u32 tkmm_pagebase, tkmm_pageend;
 //static int tkmm_initvar=0;
 
@@ -99,7 +101,8 @@ int TKMM_SizeToFxiU(int sz)
 	
 	fr=sz;
 	ex=0;
-	while((fr>>3)>1)
+//	while((fr>>3)>1)
+	while(fr>=16)
 		{ fr=(fr+1)>>1; ex++; }
 	i=(fr&7)|(ex<<3);
 	return(i);
@@ -113,7 +116,8 @@ int TKMM_SizeToFxiD(int sz)
 	
 	fr=sz;
 	ex=0;
-	while((fr>>3)>1)
+//	while((fr>>3)>1)
+	while(fr>=16)
 		{ fr=fr>>1; ex++; }
 	i=(fr&7)|(ex<<3);
 	return(i);
@@ -243,8 +247,20 @@ void tkmm_init()
 	if(init)return;
 	init=1;
 		
+	tk_ird_init();
+	
 	tkmm_pagebase=TKMM_PAGEBASE;
 	tkmm_pageend=TKMM_PAGEEND;
+	
+	if(tk_ird_imgbuf)
+	{
+		if(	(((u32)tk_ird_imgbuf)<tkmm_pageend) &&
+			(((u32)tk_ird_imgbuf)>tkmm_pagebase))
+		{
+			tkmm_pageend=(u32)tk_ird_imgbuf;
+		}
+	}
+	
 	tkmm_maxpage=(tkmm_pageend-tkmm_pagebase)>>12;
 	
 	printf("tkmm_init: heap=%dMB\n",

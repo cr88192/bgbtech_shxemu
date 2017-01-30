@@ -5,6 +5,8 @@
 #include "tk_mmpage.c"
 #include "tk_spi.c"
 #include "tk_fat.c"
+#include "tk_vfile.c"
+#include "tk_ramavi.c"
 
 u32 timer_ticks;
 
@@ -96,6 +98,30 @@ void print_hex_n(u32 v, int n)
 	if(n>2)putc(chrs[(v>> 8)&15]);
 	if(n>1)putc(chrs[(v>> 4)&15]);
 	if(n>0)putc(chrs[(v    )&15]);
+}
+
+int print_hex_genw(u32 v)
+{
+	u32 w;
+	int i;
+
+	i=1;
+	while(v>=16)
+//	while(v>>4)
+		{ v=v>>4; i++; }
+
+#if 0
+	w=v; i=1;
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+#endif
+
+	return(i);
 }
 
 void print_decimal(int val)
@@ -227,8 +253,11 @@ void printf(char *str, ...)
 			}
 			break;
 		case 'X':
+//			if(!w)w=8;
 //			v=(int)(*plst++);
 			v=va_arg(lst, int);
+
+			if(!w)w=print_hex_genw(v);
 //			print_hex(v);
 			print_hex_n(v, w);
 			break;
@@ -259,15 +288,15 @@ void printf(char *str, ...)
 	va_end(lst);
 }
 
-void *malloc(int sz)
-{
-	return(TKMM_Malloc(sz));
-}
+//void *malloc(int sz)
+//{
+//	return(TKMM_Malloc(sz));
+//}
 
-int free(void *ptr)
-{
-	return(TKMM_Free(ptr));
-}
+//int free(void *ptr)
+//{
+//	return(TKMM_Free(ptr));
+//}
 
 #ifdef ARCH_HAS_FPU
 void float_test0()
@@ -294,16 +323,315 @@ void float_test0()
 }
 #endif
 
+void sleep(int ms)
+{
+	int t0, te;
+
+	t0=timer_ticks;
+	te=t0+ms;
+	while(timer_ticks<te)
+	{
+		sleep_0();
+	}
+}
+
+void test_framebuf0()
+{
+	u32 *vreg;
+	u32 *vram;
+	u32 px;
+	int i, j, k;
+
+	vreg=(u32 *)0xA05F8000;
+	vreg[(0x44/4)]=0x000D;
+//	vreg[(0x5C/4)]=320|(240<<10)|(320<<20);
+	vreg[(0x5C/4)]=319|(239<<10)|(321<<20);
+
+	sleep(1);
+	
+	vram=(u32 *)0xA5000000;
+	for(i=0; i<240; i++)
+	{
+		for(j=0; j<320; j++)
+		{
+			px=(j<<24)|(i)|((255-(i+j))<<8);
+			vram[i*320+j]=px;
+		}
+	}
+	
+	sleep(1000);
+	vreg[0x11]=0x0000;
+}
+
+u32 riff_getfcc(byte *ptr)
+{
+}
+
+void test_video0()
+{
+	BGBBTJ_AVI_Context *avi;
+	BGBBTJ_Video_Stats *vstat;
+	u32 *buf;
+	int t0, t1, t2, te;
+
+	u32 *vreg;
+	u32 *vram;
+	u32 px;
+	int i, j, k;
+
+//	byte *ird;
+//	byte *avi_base;
+	
+//	ird=P_INITRD_ABSADDR;
+//	avi_base=ird+0x200;
+
+//	avi=BGBBTJ_AVI_LoadAVI("TestSonicUnleashed_WindmillIsleDA2_CRAM1.avi");
+	avi=BGBBTJ_AVI_LoadAVI("TestOut_CRAM0.avi");
+	if(!avi)
+	{
+		printf("AVI Load Failed\n");
+		return;
+	}
+	
+	vstat=BGBBTJ_AVI_GetStats(avi);
+
+	vreg=(u32 *)0xA05F8000;
+	vreg[(0x44/4)]=0x000D;
+//	vreg[(0x5C/4)]=320|(240<<10)|(320<<20);
+	vreg[(0x5C/4)]=319|(239<<10)|(321<<20);
+
+	sleep(1);
+	
+	vram=(u32 *)0xA5000000;
+
+	if((vstat->width==320) && (vstat->height<=240))
+	{
+		free(avi->fdbuf);
+		avi->fdbuf=vram;
+	}
+
+	t0=timer_ticks;
+//	te=t0+60000;
+	te=t0+((vstat->num_frames*vstat->frametime)>>10);
+	t1=t0;
+	while(t1<te)
+	{
+//		printf("%d %d/%d\r", t1, avi->frnum, vstat->num_frames);
+
+		t1=timer_ticks;
+		t2=t1-t0;
+		buf=BGBBTJ_AVI_FrameRawClrs(avi, t2*2000, BGBBTJ_JPG_BGRA);
+		t0=t1;
+		
+		if((vstat->width==320) && (vstat->height<=240))
+		{
+//			memcpy(vram, buf, vstat->width*vstat->height*4);
+		}else if((vstat->width<320) && (vstat->height<=240))
+		{
+			for(i=0; i<vstat->height; i++)
+			{
+				memcpy(vram+i*320,
+					buf+i*vstat->width,
+					vstat->width*4);
+			}
+		}
+	}
+
+	vreg[0x11]=0x0000;
+}
+
+void test_video1()
+{
+	BGBBTJ_AVI_Context *avi;
+	BGBBTJ_Video_Stats *vstat;
+	u32 *buf;
+	int t0, t1, t2, te;
+
+	u32 *vreg;
+	u32 *vram;
+	u32 px;
+	int i, j, k;
+
+//	avi=BGBBTJ_AVI_LoadAVI("TestSonicUnleashed_WindmillIsleDA2_CRAM1.avi");
+	avi=BGBBTJ_AVI_LoadAVI("TestOut_CRAM0.avi");
+	if(!avi)
+	{
+		printf("AVI Load Failed\n");
+		return;
+	}
+	
+	vstat=BGBBTJ_AVI_GetStats(avi);
+
+	t0=timer_ticks;
+	te=t0+((vstat->num_frames*vstat->frametime)>>10);
+	t1=t0;
+	while(t1<te)
+	{
+//		printf("%d %d/%d\r", t1, avi->frnum, vstat->num_frames);
+		t1=timer_ticks;
+		t2=t1-t0;
+		buf=BGBBTJ_AVI_FrameRawClrs(avi, t2*2000, BGBBTJ_JPG_RAWCON);
+		t0=t1;
+	}
+}
+
+void help0()
+{
+	printf("quit\texit main loop\n");
+	printf("time\tprint time\n");
+	printf("rtc\tprint RTC time\n");
+	printf("die\tdeliberate crash\n");
+	printf("float\ttest floating point\n");
+	printf("malloc\ttest memory allocation\n");
+	printf("readmbr\ttest reading SD image\n");
+}
+
+int tk_exec(char *cmd)
+{
+	char tb[1024];
+	void *p0, *p1;
+
+	if(!strcmp(cmd, "help") || !strcmp(cmd, "?"))
+	{
+		help0();
+		return(0);
+	}
+	
+	if(!strcmp(cmd, "quit"))
+	{
+//			puts("ok, but no\n");
+//			puts("ok, dying\n");
+//			*(int *)-1=-1;
+//			continue;
+		puts("ok, exiting main loop\n");
+		return(-99);
+	}
+
+	if(!strcmp(cmd, "time"))
+	{
+//			puts("ok, but no\n");
+//			print_hex(timer_ticks);
+//			print_decimal(timer_ticks);
+//			puts("\n");
+
+		printf("timer ticks=%d\n", timer_ticks);
+
+		return(0);
+//			break;
+	}
+
+	if(!strcmp(cmd, "rtc"))
+	{
+		printf("rtc ticks=%9d:%9d\n",
+			P_AIC_RTC_SEC_LO, P_AIC_RTC_NSEC);
+
+		return(0);
+//			break;
+	}
+
+	if(!strcmp(cmd, "die"))
+//		if(strcmp(cmd, "die")==0)
+	{
+		puts("ok, dying\n");
+		*(int *)-1=-1;
+		return(0);
+	}
+
+#ifdef ARCH_HAS_FPU
+	if(!strcmp(cmd, "float"))
+	{
+		float_test0();
+		return(0);
+	}
+#endif
+
+	if(!strcmp(cmd, "framebuf"))
+	{
+		test_framebuf0();
+		return(0);
+	}
+
+	if(!strcmp(cmd, "video"))
+	{
+		test_video0();
+		return(0);
+	}
+
+	if(!strcmp(cmd, "video1"))
+	{
+		test_video1();
+		return(0);
+	}
+
+	if(!strcmp(cmd, "malloc"))
+	{
+		p0=TKMM_Malloc(256);
+		p1=TKMM_Malloc(256);
+		TKMM_Free(p0);
+		TKMM_Free(p1);
+//			p0=TKMM_PageAlloc(256);
+//			p1=TKMM_PageAlloc(256);
+		printf("got pointer A %p %p\n", p0, p1);
+
+		p0=TKMM_Malloc(256);
+		p1=TKMM_Malloc(256);
+		TKMM_Free(p0);
+		TKMM_Free(p1);
+		printf("got pointer B %p %p\n", p0, p1);
+
+		return(0);
+	}
+
+	if(!strcmp(cmd, "readmbr"))
+	{
+		printf("init device\n");
+		TKSPI_InitDevice();
+
+		printf("reading MBR\n");
+					
+		TKSPI_ReadSectors(tb, 0, 1);
+		
+		if((((byte)tb[510])==0x55) && (((byte)tb[511])==0xAA))
+		{
+			printf("Got 55AA\n");
+		}else
+		{
+			printf("No 55AA\n");
+		}
+		
+		if(!tkfat_fsimg)
+		{
+			tkfat_fsimg=malloc(sizeof(TKFAT_ImageInfo));
+			memset(tkfat_fsimg, 0, sizeof(TKFAT_ImageInfo));
+			TKFAT_ReadImageMBR(tkfat_fsimg);
+			TKFAT_ReadImageFAT(tkfat_fsimg);
+			TKFAT_ListDir(tkfat_fsimg, tkfat_fsimg->clid_root);
+		}
+		
+		return(0);
+	}
+
+	printf("don't understand %s\n", tb);
+	return(0);
+}
+
 void tk_main()
 {
 	char tb[1024];
 	void *p0, *p1;
+	int i;
 
 	timer_ticks=0;
 
 	setGpioOutputs(0x69);
 	puts("tk_main: puts\n");
+	tk_ird_init();
 	tkmm_init();
+	
+	if(kerninit[0])
+	{
+		tk_exec(kerninit);
+	}
 	
 	while(1)
 	{
@@ -314,101 +642,9 @@ void tk_main()
 		puts("got: ");
 		puts(tb);
 		puts("\n");
-		
-		if(!strcmp(tb, "quit"))
-		{
-//			puts("ok, but no\n");
-//			puts("ok, dying\n");
-//			*(int *)-1=-1;
-//			continue;
-			puts("ok, exiting main loop\n");
+
+		i=tk_exec(tb);
+		if(i==-99)
 			break;
-		}
-
-		if(!strcmp(tb, "time"))
-		{
-//			puts("ok, but no\n");
-//			print_hex(timer_ticks);
-//			print_decimal(timer_ticks);
-//			puts("\n");
-
-			printf("timer ticks=%d\n", timer_ticks);
-
-			continue;
-//			break;
-		}
-
-		if(!strcmp(tb, "rtc"))
-		{
-			printf("rtc ticks=%9d:%9d\n",
-				P_AIC_RTC_SEC_LO, P_AIC_RTC_NSEC);
-
-			continue;
-//			break;
-		}
-
-		if(!strcmp(tb, "die"))
-//		if(strcmp(tb, "die")==0)
-		{
-			puts("ok, dying\n");
-			*(int *)-1=-1;
-		}
-
-#ifdef ARCH_HAS_FPU
-		if(!strcmp(tb, "float"))
-		{
-			float_test0();
-			continue;
-		}
-#endif
-
-		if(!strcmp(tb, "malloc"))
-		{
-			p0=TKMM_Malloc(256);
-			p1=TKMM_Malloc(256);
-			TKMM_Free(p0);
-			TKMM_Free(p1);
-//			p0=TKMM_PageAlloc(256);
-//			p1=TKMM_PageAlloc(256);
-			printf("got pointer A %p %p\n", p0, p1);
-
-			p0=TKMM_Malloc(256);
-			p1=TKMM_Malloc(256);
-			TKMM_Free(p0);
-			TKMM_Free(p1);
-			printf("got pointer B %p %p\n", p0, p1);
-			continue;
-		}
-
-		if(!strcmp(tb, "readmbr"))
-		{
-			printf("init device\n");
-			TKSPI_InitDevice();
-
-			printf("reading MBR\n");
-						
-			TKSPI_ReadSectors(tb, 0, 1);
-			
-			if((((byte)tb[510])==0x55) && (((byte)tb[511])==0xAA))
-			{
-				printf("Got 55AA\n");
-			}else
-			{
-				printf("No 55AA\n");
-			}
-			
-			if(!tkfat_fsimg)
-			{
-				tkfat_fsimg=malloc(sizeof(TKFAT_ImageInfo));
-				memset(tkfat_fsimg, 0, sizeof(TKFAT_ImageInfo));
-				TKFAT_ReadImageMBR(tkfat_fsimg);
-				TKFAT_ReadImageFAT(tkfat_fsimg);
-				TKFAT_ListDir(tkfat_fsimg, tkfat_fsimg->clid_root);
-			}
-			
-			continue;
-		}
-		
-		printf("don't understand %s\n", tb);
 	}
 }
