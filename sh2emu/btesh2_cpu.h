@@ -39,6 +39,8 @@
 #define BTESH2_OPFL_PCADLYSLOTW	16	//adjust PC in delay slot (W)
 #define BTESH2_OPFL_PCADLYSLOTD	32	//adjust PC in delay slot (D)
 
+#define BTESH2_SPFL_SIMPLEMEM_LE	1	//span is simple-case memory (LE)
+
 #define BTESH2_EXC_POWERON		0x00		//power on
 #define BTESH2_EXC_STACK1		0x01		//first stack
 #define BTESH2_EXC_RESET		0x02		//reset
@@ -98,6 +100,10 @@
 #define BTESH2_MMUCR_TI			0x00000004	//
 #define BTESH2_MMUCR_SV			0x00000100	//
 #define BTESH2_MMUCR_SQMD		0x00000200	//
+
+#define BTESH2_CSFL_LE			0x01	//Little Endian
+#define BTESH2_CSFL_FPPR		0x02	//FPSCR.PR
+#define BTESH2_CSFL_FPSZ		0x04	//FPSCR.SZ
 
 #define BTESH2_NMID_UNK			0x00	//Unknown
 #define BTESH2_NMID_MOV			0x01	//MOV
@@ -251,6 +257,10 @@
 #define BTESH2_FMID_FREGRM		0x16	//FRm
 #define BTESH2_FMID_FREGRN		0x17	//FRn
 
+#define BTESH2_FMID_DREGREG		0x18	//FRm, FRn
+#define BTESH2_FMID_DREGRM		0x19	//FRm
+#define BTESH2_FMID_DREGRN		0x1A	//FRn
+
 
 typedef unsigned char byte;
 typedef signed char sbyte;
@@ -280,6 +290,7 @@ typedef struct BTESH2_CpuState_s BTESH2_CpuState;
 struct BTESH2_PhysSpan_s {
 u32 base;
 u32 limit;
+u32 range_n3;
 byte *data;
 char *name;
 u32 (*GetB)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr);
@@ -291,6 +302,7 @@ int (*SetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr, u32 val);
 
 byte **dmdaddr;
 int *dmdflag;
+int flags;
 };
 
 /** Represents a physical memory image.
@@ -299,6 +311,7 @@ int *dmdflag;
 struct BTESH2_MemoryImage_s {
 BTESH2_PhysSpan **span;		//spans for image
 BTESH2_PhysSpan *pspan;		//predict span
+BTESH2_PhysSpan *pspanb;	//predict span (alt)
 int nspan, mspan;
 BTESH2_PhysSpan *t_span[32];
 };
@@ -316,27 +329,42 @@ u32 imm;		//extended immediate or absolute value
 void (*Run)(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 };
 
-#define BTESH2_TR_MAXOPS	14
+//#define BTESH2_TR_MAXOPS	14
+//#define BTESH2_TR_MAXOPS	22
+//#define BTESH2_TR_MAXOPS	30
+#define BTESH2_TR_MAXOPS	32
+
 // #define BTESH2_TR_HASHSZ	4096
 // #define BTESH2_TR_HASHAS	2
 
 //#define BTESH2_TR_HASHSZ	64
 //#define BTESH2_TR_HASHSZ	256
-#define BTESH2_TR_HASHSZ	512
-//#define BTESH2_TR_HASHSZ	1024
+//#define BTESH2_TR_HASHSZ	512
+#define BTESH2_TR_HASHSZ	1024
 //#define BTESH2_TR_HASHSZ	2048
-//#define BTESH2_TR_HASHSZ	4096
+// #define BTESH2_TR_HASHSZ	4096
 
-//#define BTESH2_TR_HASHPR	524287
-//#define BTESH2_TR_HASHSHR	19
+// #define BTESH2_TR_HASHPR	524287
+// #define BTESH2_TR_HASHPR	262139
+// #define BTESH2_TR_HASHSHR	19
 
-#define BTESH2_TR_HASHPR	4194301
-#define BTESH2_TR_HASHSHR	23
+#define BTESH2_TR_HASHPR	1048573
+#define BTESH2_TR_HASHSHR	21
+
+// #define BTESH2_TR_HASHPR	4194301
+// #define BTESH2_TR_HASHSHR	23
 
 // #define BTESH2_TR_HASHPR	8388593
 // #define BTESH2_TR_HASHSHR	23
 
 #define BTESH2_TR_HASHLVL	2
+
+#ifdef X86_64
+#define BTESH2_TR_JHASHPR	262139
+#define BTESH2_TR_JHASHSHR	19
+#define BTESH2_TR_JHASHSZ	4096
+#define BTESH2_TR_JHASHLVL	4
+#endif
 
 struct BTESH2_Trace_s {
 BTESH2_Opcode *ops[BTESH2_TR_MAXOPS];
@@ -347,6 +375,7 @@ u32 maxpc;		//max PC for trace
 byte nops;		//number of ops in trace
 byte amiss;
 byte csfl;		//control state flags
+byte jtrig;		//jit trigger count
 void (*Run)(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 };
 
@@ -363,12 +392,16 @@ u32 fregs[16];
 u32 trapfregs[16];
 
 BTESH2_Trace *icache[BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL];
+#ifdef BTESH2_TR_JHASHSZ
+BTESH2_Trace *jcache[BTESH2_TR_JHASHSZ*BTESH2_TR_JHASHLVL];
+#endif
 u32 trpc[64];
 int status;
 byte trpc_rov;
 int tr_dtot;
 int tr_dcol;
-u64 tr_tops;
+u64 tr_tops;	//total operations
+s64 tr_tdt;		//total running time (ms)
 byte csfl;		//control state flags
 byte arch;		//arch ID
 byte ctfl;		//control temp flags (don't effect control flow)
@@ -377,6 +410,7 @@ u32 ptcpc;
 BTESH2_Trace *cur_trace;
 u32 *smcdbm[128];		//SMC detection bitmap
 u64 tlbe[128];			//TLB entries
+byte jit_needflush;
 
 u32 dbg_lpc;
 int dbg_ld;
@@ -402,6 +436,11 @@ char **map_name;
 int map_nsym, map_msym;
 };
 
+u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr);
+int BTESH2_SetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr, u32 val);
+
+u32 BTESH2_GetAddrDWord(BTESH2_CpuState *cpu, u32 addr);
+int BTESH2_SetAddrDWord(BTESH2_CpuState *cpu, u32 addr, u32 val);
 
 BTESH2_Opcode *BTESH2_AllocOpcode(BTESH2_CpuState *cpu);
 void BTESH2_FreeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op);

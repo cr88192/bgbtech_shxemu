@@ -367,15 +367,130 @@ u32 riff_getfcc(byte *ptr)
 {
 }
 
+u32 TK_GetTimeMs(void)
+{
+	u32 *sreg;
+	int ms;
+
+	sreg=(int *)0x007F8000;
+//	ms=(P_AIC_RTC_NSEC>>20)|(P_AIC_RTC_SEC_LO*1000);
+	ms=sreg[4];
+	return(ms);
+}
+
+u32 TK_GetCurrentFixMIPS(void)
+{
+	u32 *sreg;
+	int ms;
+
+	sreg=(int *)0x007F8000;
+	ms=sreg[7];
+	return(ms);
+}
+
+static int tk_sndrov;
+
+int TK_EmitAudioSamplesS44K(short *samp, int len)
+{
+	short *sbufl, *sbufr;
+	int i, j, k;
+	
+	sbufl=(short *)0x007F0000;
+	sbufr=(short *)0x007F4000;
+	
+	for(i=0; i<len; i++)
+	{
+		sbufl[tk_sndrov]=samp[i*2+0];
+		sbufr[tk_sndrov]=samp[i*2+1];
+		tk_sndrov=(tk_sndrov+1)&8191;
+	}
+	return(0);
+}
+
+int TK_EmitAudioSamplesM11K(short *samp, int len)
+{
+	short *sbufl, *sbufr;
+	int *sreg;
+	int dma, rov2, idma;
+	int i, j, k;
+	
+	sbufl=(short *)0x007F0000;
+	sbufr=(short *)0x007F4000;
+	
+	sreg=(int *)0x007F8000;
+	idma=sreg[0];
+	dma=(idma+500)&8191;
+	k=tk_sndrov-dma;
+	k=(k<<(31-13))>>(31-13);
+	k=k^(k>>31);
+		
+	if(k>1100)
+		tk_sndrov=dma;
+	
+//	sreg[0]=
+//	sreg[1]=11025;
+//	sreg[2]=255;
+//	sreg[3]=255;
+	
+	
+	for(i=0; i<len; i++)
+	{
+//		if(tk_sndrov==idma)
+//			break;
+
+		j=samp[i];
+
+		sbufl[tk_sndrov]=j;	sbufr[tk_sndrov]=j;
+		tk_sndrov=(tk_sndrov+1)&8191;
+//		sbufl[tk_sndrov]=j;	sbufr[tk_sndrov]=j;
+//		tk_sndrov=(tk_sndrov+1)&8191;
+//		sbufl[tk_sndrov]=j;	sbufr[tk_sndrov]=j;
+//		tk_sndrov=(tk_sndrov+1)&8191;
+//		sbufl[tk_sndrov]=j;	sbufr[tk_sndrov]=j;
+//		tk_sndrov=(tk_sndrov+1)&8191;
+
+		if(idma && (tk_sndrov==idma))
+			break;
+	}
+	
+	rov2=tk_sndrov;
+	for(i=0; i<len; i++)
+	{
+		if(rov2==idma)
+			break;
+		j=samp[i];
+		sbufl[rov2]=j;	sbufr[rov2]=j;
+		rov2=(rov2+1)&8191;
+	}
+
+	return(0);
+}
+
+int TK_EmitAudioClear()
+{
+	short *sbufl, *sbufr;
+	int *sreg;
+	int dma, rov2, idma;
+	int i, j, k;
+	
+	sbufl=(short *)0x007F0000;
+	sbufr=(short *)0x007F4000;
+	memset(sbufl, 0, 16384);
+	memset(sbufr, 0, 16384);
+}
+
 void test_video0()
 {
+	short sndbuf[8192];
 	BGBBTJ_AVI_Context *avi;
 	BGBBTJ_Video_Stats *vstat;
 	u32 *buf;
+	int snlen, mips;
 	int t0, t1, t2, te;
 
 	u32 *vreg;
 	u32 *vram;
+	u32 *sreg;
 	u32 px;
 	int i, j, k;
 
@@ -404,24 +519,37 @@ void test_video0()
 	
 	vram=(u32 *)0xA5000000;
 
+	sreg=(u32 *)0x007F8000;
+	sreg[1]=11025;
+	sreg[2]=255;
+	sreg[3]=255;
+
 	if((vstat->width==320) && (vstat->height<=240))
 	{
 		free(avi->fdbuf);
 		avi->fdbuf=vram;
 	}
 
-	t0=timer_ticks;
+//	t0=timer_ticks;
+	t0=TK_GetTimeMs();
 //	te=t0+60000;
 	te=t0+((vstat->num_frames*vstat->frametime)>>10);
 	t1=t0;
-	while(t1<te)
+//	while(t1<te)
+	while((avi->frnum+1)<vstat->num_frames)
 	{
 //		printf("%d %d/%d\r", t1, avi->frnum, vstat->num_frames);
 
-		t1=timer_ticks;
+//		t1=timer_ticks;
+		t1=TK_GetTimeMs();
 		t2=t1-t0;
-		buf=BGBBTJ_AVI_FrameRawClrs(avi, t2*2000, BGBBTJ_JPG_BGRA);
+		buf=BGBBTJ_AVI_FrameRawClrs(avi, t2*1000, BGBBTJ_JPG_BGRA);
+		snlen=BGBBTJ_AVI_GetMonoSamplesRate(avi, sndbuf, 8192, 11025);
 		t0=t1;
+		
+//		memset(sndbuf, 0, 8192*2);
+		
+		TK_EmitAudioSamplesM11K(sndbuf, snlen);
 		
 		if((vstat->width==320) && (vstat->height<=240))
 		{
@@ -435,20 +563,34 @@ void test_video0()
 					vstat->width*4);
 			}
 		}
+
+		mips=TK_GetCurrentFixMIPS();
+//		printf("MIPS=%f   \r", mips/1024.0);
+		printf("MIPS=%d.%03d   \r", mips>>10, mips&1023);
 	}
 
+	TK_EmitAudioClear();
 	vreg[0x11]=0x0000;
+	sreg[2]=0;
+	sreg[3]=0;
+	
+	mips=TK_GetCurrentFixMIPS();
+//	printf("MIPS=%f\n", mips*(1.0/1024.0));
+	printf("MIPS=%d.%03d   \n", mips>>10, mips&1023);
 }
 
 void test_video1()
 {
+	short sndbuf[8192];
 	BGBBTJ_AVI_Context *avi;
 	BGBBTJ_Video_Stats *vstat;
 	u32 *buf;
+	int snlen, mips;
 	int t0, t1, t2, te;
 
 	u32 *vreg;
 	u32 *vram;
+	u32 *sreg;
 	u32 px;
 	int i, j, k;
 
@@ -462,17 +604,104 @@ void test_video1()
 	
 	vstat=BGBBTJ_AVI_GetStats(avi);
 
-	t0=timer_ticks;
+	sreg=(u32 *)0x007F8000;
+	sreg[1]=11025;
+	sreg[2]=255;
+	sreg[3]=255;
+
+//	t0=timer_ticks;
+	t0=TK_GetTimeMs();
 	te=t0+((vstat->num_frames*vstat->frametime)>>10);
 	t1=t0;
-	while(t1<te)
+//	while(t1<te)
+	while((avi->frnum+1)<vstat->num_frames)
 	{
 //		printf("%d %d/%d\r", t1, avi->frnum, vstat->num_frames);
-		t1=timer_ticks;
+//		t1=timer_ticks;
+		t1=TK_GetTimeMs();
 		t2=t1-t0;
-		buf=BGBBTJ_AVI_FrameRawClrs(avi, t2*2000, BGBBTJ_JPG_RAWCON);
+		buf=BGBBTJ_AVI_FrameRawClrs(avi, t2*1000, BGBBTJ_JPG_RAWCON);
+		snlen=BGBBTJ_AVI_GetMonoSamplesRate(avi, sndbuf, 8192, 11025);
 		t0=t1;
+
+		TK_EmitAudioSamplesM11K(sndbuf, snlen);
 	}
+
+	TK_EmitAudioClear();
+	sreg[2]=0;
+	sreg[3]=0;
+
+	mips=TK_GetCurrentFixMIPS();
+//	printf("MIPS=%f\n", mips/1024.0);
+	printf("MIPS=%d.%03d   \n", mips>>10, mips&1023);
+}
+
+void test_video2()
+{
+	short sndbuf[8192];
+	BGBBTJ_AVI_Context *avi;
+	BGBBTJ_Video_Stats *vstat;
+	u32 *buf;
+	int snlen, mips;
+	int t0, t1, t2, te;
+
+	u32 *vreg;
+	u32 *vram;
+	u32 *sreg;
+	u32 px;
+	int i, j, k;
+
+	avi=BGBBTJ_AVI_LoadAVI("TestOut_CRAM0.avi");
+	if(!avi)
+	{
+		printf("AVI Load Failed\n");
+		return;
+	}
+	
+	vstat=BGBBTJ_AVI_GetStats(avi);
+
+	vreg=(u32 *)0xA05F8000;
+	vreg[(0x44/4)]=0x000D;
+	vreg[(0x5C/4)]=319|(239<<10)|(321<<20);
+
+	sleep(1);
+	
+	vram=(u32 *)0xA5000000;
+
+	if((vstat->width==320) && (vstat->height<=240))
+	{
+		free(avi->fdbuf);
+		avi->fdbuf=vram;
+	}
+
+	t0=TK_GetTimeMs();
+//	te=t0+((vstat->num_frames*vstat->frametime)>>10);
+	te=t0+120000;
+	t1=t0;
+//	while((avi->frnum+1)<vstat->num_frames)
+	while(t1<te)
+	{
+		t1=TK_GetTimeMs();
+		t2=t1-t0;
+//		buf=BGBBTJ_AVI_FrameRawClrs(avi, t2*1000, BGBBTJ_JPG_BGRA);
+		BGBBTJ_AVI_DecodeFrame2(avi, 0, BGBBTJ_JPG_BGRA);
+		snlen=BGBBTJ_AVI_GetMonoSamplesRate(avi, sndbuf, 8192, 11025);
+		t0=t1;
+		
+//		TK_EmitAudioSamplesM11K(sndbuf, snlen);
+
+		mips=TK_GetCurrentFixMIPS();
+		printf("MIPS=%d.%03d   \r", mips>>10, mips&1023);
+	}
+
+	TK_EmitAudioClear();
+	vreg[0x11]=0x0000;
+//	sreg[2]=0;
+//	sreg[3]=0;
+	
+	mips=TK_GetCurrentFixMIPS();
+//	printf("MIPS=%f\n", mips*(1.0/1024.0));
+	printf("MIPS=%d.%03d   \n", mips>>10, mips&1023);
 }
 
 void help0()
@@ -560,6 +789,12 @@ int tk_exec(char *cmd)
 	if(!strcmp(cmd, "video1"))
 	{
 		test_video1();
+		return(0);
+	}
+
+	if(!strcmp(cmd, "video2"))
+	{
+		test_video2();
 		return(0);
 	}
 

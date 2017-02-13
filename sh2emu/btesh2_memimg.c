@@ -55,8 +55,10 @@ u32 btesh2_spandfl_GetW_BE(BTESH2_PhysSpan *sp,
 	int i;
 
 	ptr=sp->data+reladdr;
-	i=(ptr[0]<<8)|(ptr[1]);
-	return((s16)i);
+//	i=(ptr[0]<<8)|(ptr[1]);
+//	return((s16)i);
+	i=btesh2_gets16be(ptr);
+	return(i);
 }
 
 u32 btesh2_spandfl_GetW_LE(BTESH2_PhysSpan *sp,
@@ -66,11 +68,17 @@ u32 btesh2_spandfl_GetW_LE(BTESH2_PhysSpan *sp,
 	int i;
 
 	ptr=sp->data+reladdr;
+
+	i=btesh2_gets16le(ptr);
+	return(i);
+
+#if 0
 #if defined(X86) || defined(X86_64)
 	return(*(s16 *)ptr);
 #else
 	i=(ptr[1]<<8)|(ptr[0]);
 	return((s16)i);
+#endif
 #endif
 }
 
@@ -81,7 +89,8 @@ u32 btesh2_spandfl_GetD_BE(BTESH2_PhysSpan *sp,
 	u32 i;
 	
 	ptr=sp->data+reladdr;
-	i=(((u32)(ptr[0]))<<24)|(ptr[1]<<16)|(ptr[2]<<8)|(ptr[3]);
+//	i=(((u32)(ptr[0]))<<24)|(ptr[1]<<16)|(ptr[2]<<8)|(ptr[3]);
+	i=btesh2_getu32be(ptr);
 	return(i);
 }
 
@@ -92,11 +101,17 @@ u32 btesh2_spandfl_GetD_LE(BTESH2_PhysSpan *sp,
 	u32 i;
 	
 	ptr=sp->data+reladdr;
+
+	i=btesh2_getu32le(ptr);
+
+#if 0
 #if defined(X86) || defined(X86_64)
 	i=*(u32 *)ptr;
 #else
 	i=(((u32)(ptr[3]))<<24)|(ptr[2]<<16)|(ptr[1]<<8)|(ptr[0]);
 #endif
+#endif
+
 	return(i);
 }
 
@@ -150,6 +165,7 @@ int btesh2_spandfl_SetD_LE(BTESH2_PhysSpan *sp,
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
+
 #if defined(X86) || defined(X86_64)
 	*(u32 *)ptr=val;
 #else
@@ -158,6 +174,7 @@ int btesh2_spandfl_SetD_LE(BTESH2_PhysSpan *sp,
 	ptr[1]=val>> 8;
 	ptr[0]=val;
 #endif
+
 	return(0);
 }
 
@@ -229,7 +246,7 @@ int btesh2_spandfl_SetD_FlLE(BTESH2_PhysSpan *sp,
 u32 btesh2_spandfl_GetW(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr)
 {
-	if(cpu->csfl&1)
+	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
 		sp->GetW=btesh2_spandfl_GetW_LE;
 		return(sp->GetW(sp, cpu, reladdr));
@@ -243,9 +260,11 @@ u32 btesh2_spandfl_GetW(BTESH2_PhysSpan *sp,
 u32 btesh2_spandfl_GetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr)
 {
-	if(cpu->csfl&1)
+	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
 		sp->GetD=btesh2_spandfl_GetD_LE;
+		if(!sp->dmdflag)
+			sp->flags|=BTESH2_SPFL_SIMPLEMEM_LE;
 		return(sp->GetD(sp, cpu, reladdr));
 	}else
 	{
@@ -257,7 +276,7 @@ u32 btesh2_spandfl_GetD(BTESH2_PhysSpan *sp,
 int btesh2_spandfl_SetW(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
 {
-	if(cpu->csfl&1)
+	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
 		sp->SetW=btesh2_spandfl_SetW_LE;
 		if(sp->dmdflag)
@@ -275,7 +294,7 @@ int btesh2_spandfl_SetW(BTESH2_PhysSpan *sp,
 int btesh2_spandfl_SetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
 {
-	if(cpu->csfl&1)
+	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
 		sp->SetD=btesh2_spandfl_SetD_LE;
 		if(sp->dmdflag)
@@ -306,6 +325,7 @@ int BTESH2_MemoryDefineSpan(BTESH2_MemoryImage *img,
 	sp=BTESH2_AllocPhysSpan();
 	sp->base=base;
 	sp->limit=limit;
+	sp->range_n3=limit-base-3;
 	sp->data=data;
 	sp->name=name;
 	
@@ -400,6 +420,7 @@ int BTESH2_MemoryDefineSpanDemand(BTESH2_MemoryImage *img,
 	sp=BTESH2_AllocPhysSpan();
 	sp->base=base;
 	sp->limit=limit;
+	sp->range_n3=limit-base-3;
 	sp->dmdaddr=addr;
 	sp->dmdflag=flag;
 	sp->name=name;
@@ -466,6 +487,7 @@ int BTESH2_MemoryDefineSpanRegs(BTESH2_MemoryImage *img,
 	sp=BTESH2_AllocPhysSpan();
 	sp->base=base;
 	sp->limit=limit;
+	sp->range_n3=limit-base-3;
 //	sp->data=(byte *)data;
 	sp->name=name;
 
@@ -486,7 +508,7 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 	u32 addr, u32 lim)
 {
 	BTESH2_MemoryImage *mem;
-	BTESH2_PhysSpan *sp;
+	BTESH2_PhysSpan *sp, *sp1;
 	int ns, is, ms;
 	int l, h, r, m;
 
@@ -494,14 +516,42 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 		return(NULL);
 
 	mem=cpu->memory;
-	ns=mem->nspan;
 
 	sp=mem->pspan;
+//	if(sp && ((addr-sp->base)<=sp->range_n3))
+//		return(sp);
+
 	if(sp)
 	{
 		if((addr>=sp->base) && (lim<=sp->limit))
 			return(sp);
 	}
+
+	sp1=mem->pspanb;
+
+#if 0
+	if(sp1 && ((addr-sp1->base)<=sp1->range_n3))
+	{
+		mem->pspan=sp1;
+		mem->pspanb=sp;
+		return(sp1);
+	}
+#endif
+
+#if 1
+	if(sp1)
+	{
+		if((addr>=sp1->base) && (lim<=sp1->limit))
+		{
+			mem->pspan=sp1;
+			mem->pspanb=sp;
+			return(sp1);
+		}
+	}
+#endif
+
+	ns=mem->nspan;
+	sp1=sp;
 	
 	if(ns<5)
 	{
@@ -509,7 +559,12 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 		{
 			sp=mem->span[is];
 			if((addr>=sp->base) && (lim<=sp->limit))
-				{ mem->pspan=sp; return(sp); }
+			{
+//				mem->pspanb=mem->pspan;
+				mem->pspanb=sp1;
+				mem->pspan=sp;
+				return(sp);
+			}
 		}
 		return(NULL);
 	}
@@ -537,7 +592,12 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 		m=l+(r>>1);
 		sp=mem->span[m];
 		if((addr>=sp->base) && (lim<=sp->limit))
-			{ mem->pspan=sp; return(sp); }
+		{
+//			mem->pspanb=mem->pspan;
+			mem->pspanb=sp1;
+			mem->pspan=sp;
+			return(sp);
+		}
 		if(addr>sp->base)
 			{ l=m+1; r=h-l; }
 		else
@@ -550,7 +610,12 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 	{
 		sp=mem->span[is];
 		if((addr>=sp->base) && (lim<=sp->limit))
-			{ mem->pspan=sp; return(sp); }
+		{
+//			mem->pspanb=mem->pspan;
+			mem->pspanb=sp1;
+			mem->pspan=sp;
+			return(sp);
+		}
 	}
 #endif
 
@@ -916,3 +981,6 @@ int BTESH2_SetAddrWord(BTESH2_CpuState *cpu, u32 addr, int val)
 	{ return(cpu->SetAddrWord(cpu, addr, val)); }
 int BTESH2_SetAddrDWord(BTESH2_CpuState *cpu, u32 addr, u32 val)
 	{ return(cpu->SetAddrDWord(cpu, addr, val)); }
+
+int BTESH2_CheckCpuFmmuP(BTESH2_CpuState *cpu)
+	{ return(cpu->GetAddrDWord==BTESH2_GetAddrDWordFMMU); }

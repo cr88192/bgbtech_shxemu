@@ -294,6 +294,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVL;
 			op->fmid=BTESH2_FMID_REGST;
 			op->Run=BTSH_Op_MOV_RegStD;
+			if(BTESH2_CheckCpuFmmuP(cpu))
+				op->Run=BTSH_Op_MOV_RegStD_FMMU;
 			break;
 		case 0x3:
 			op->rn=(opw>>8)&15;
@@ -323,6 +325,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVL;
 			op->fmid=BTESH2_FMID_REGDECST;
 			op->Run=BTSH_Op_MOV_RegDecStD;
+//			if(BTESH2_CheckCpuFmmuP(cpu))
+//				op->Run=BTSH_Op_MOV_RegDecStD_FMMU;
 			break;
 		case 0x7: /* 2--7 */
 			op->rn=(opw>>8)&15;
@@ -676,6 +680,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDSL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 				break;
 			case 0x1: /* 4-16 */
 				op->rm=(opw>>8)&15;
@@ -683,6 +689,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDSL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 				break;
 			case 0x2: /* 4-26 */
 				op->rm=(opw>>8)&15;
@@ -690,6 +698,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDSL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 				break;
 
 			case 0x5: /* 4-56 */
@@ -698,6 +708,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDSL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 				break;
 			case 0x6: /* 4-66 */
 				op->rm=(opw>>8)&15;
@@ -705,6 +717,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDSL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_FPSCR_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 				break;
 			}
 			break;
@@ -724,6 +738,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDCL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 				break;
 			case 0x2: /* 4-27 */
 				op->rm=(opw>>8)&15;
@@ -731,6 +747,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDCL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 				break;
 
 			case 0x8:	case 0x9:	case 0xA:	case 0xB:
@@ -740,6 +758,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDCL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 				break;
 			}
 			break;
@@ -924,6 +944,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		op->nmid=BTESH2_NMID_MOVL;
 		op->fmid=BTESH2_FMID_REGLDDISP;
 		op->Run=BTSH_Op_MOV_RegLdDispD;
+		if(BTESH2_CheckCpuFmmuP(cpu))
+			op->Run=BTSH_Op_MOV_RegLdDispD_FMMU;
 		break;
 	case 0x6: /* 6--- */
 		switch(opw&15)
@@ -948,6 +970,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVL;
 			op->fmid=BTESH2_FMID_REGLD;
 			op->Run=BTSH_Op_MOV_RegMemD;
+			if(BTESH2_CheckCpuFmmuP(cpu))
+				op->Run=BTSH_Op_MOV_RegMemD_FMMU;
 			break;
 		case 0x3: /* 6--3 */
 			op->rn=(opw>>8)&15;
@@ -955,48 +979,7 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOV;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_MOV_RegReg;
-			
-			switch(op->rn)
-			{
-			case 0:
-				switch(op->rm)
-				{
-				case 1: op->Run=BTSH_Op_MOV_RegReg_R0R1; break;
-				case 2: op->Run=BTSH_Op_MOV_RegReg_R0R2; break;
-				case 3: op->Run=BTSH_Op_MOV_RegReg_R0R3; break;
-				default: break;
-				}
-				break;
-			case 1:
-				switch(op->rm)
-				{
-				case 0: op->Run=BTSH_Op_MOV_RegReg_R1R0; break;
-				case 2: op->Run=BTSH_Op_MOV_RegReg_R1R2; break;
-				case 3: op->Run=BTSH_Op_MOV_RegReg_R1R3; break;
-				default: break;
-				}
-				break;
-			case 2:
-				switch(op->rm)
-				{
-				case 0: op->Run=BTSH_Op_MOV_RegReg_R2R0; break;
-				case 1: op->Run=BTSH_Op_MOV_RegReg_R2R1; break;
-				case 3: op->Run=BTSH_Op_MOV_RegReg_R2R3; break;
-				default: break;
-				}
-				break;
-			case 3:
-				switch(op->rm)
-				{
-				case 0: op->Run=BTSH_Op_MOV_RegReg_R3R0; break;
-				case 1: op->Run=BTSH_Op_MOV_RegReg_R3R1; break;
-				case 2: op->Run=BTSH_Op_MOV_RegReg_R3R2; break;
-				default: break;
-				}
-				break;
-			default:
-				break;
-			}
+			BTSH_Fixup_MOV_RegReg(cpu, op);
 			break;
 		case 0x4: /* 6--4 */
 			op->rn=(opw>>8)&15;
@@ -1018,6 +1001,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVL;
 			op->fmid=BTESH2_FMID_REGINCLD;
 			op->Run=BTSH_Op_MOV_RegIncLdD;
+//			if(BTESH2_CheckCpuFmmuP(cpu))
+//				op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
 			break;
 		case 0x7: /* 6--7 */
 			op->rn=(opw>>8)&15;
@@ -1090,6 +1075,7 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		op->nmid=BTESH2_NMID_ADD;
 		op->fmid=BTESH2_FMID_REGIMM;
 		op->Run=BTSH_Op_ADD_RegImm;
+		BTSH_Fixup_ADD_RegImm(cpu, op);
 		break;
 	case 0x8: /* 8--- */
 		switch((opw>>8)&15)
@@ -1729,6 +1715,50 @@ void BTESH2_Trace_Run14(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 }
 
+#if 1
+void BTESH2_Trace_Run14B(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run14C(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run14D(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+#endif
+
 void BTESH2_Trace_Run15(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 {
 	BTESH2_Opcode **ops;
@@ -1759,9 +1789,322 @@ void BTESH2_Trace_Run16(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 }
 
+void BTESH2_Trace_Run17(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run18(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run19(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run20(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run21(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run22(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run23(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run24(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run25(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run26(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run27(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run28(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run29(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run30(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run31(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops);
+}
+
+void BTESH2_Trace_Run32(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
+{
+	BTESH2_Opcode **ops;
+	ops=tr->ops;
+	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+}
+
 int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 {
 	BTESH2_Opcode *op, *op1;
+	static int rov;
 	u32 pc;
 	int n;
 	
@@ -1874,10 +2217,43 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 	case 11: tr->Run=BTESH2_Trace_Run11; break;
 	case 12: tr->Run=BTESH2_Trace_Run12; break;
 	case 13: tr->Run=BTESH2_Trace_Run13; break;
-	case 14: tr->Run=BTESH2_Trace_Run14; break;
+	case 14:
+//		tr->Run=BTESH2_Trace_Run14;
+		switch((rov++)&3)
+		{
+		case 0: tr->Run=BTESH2_Trace_Run14; break;
+		case 1: tr->Run=BTESH2_Trace_Run14B; break;
+		case 2: tr->Run=BTESH2_Trace_Run14C; break;
+		case 3: tr->Run=BTESH2_Trace_Run14D; break;
+		}
+		break;
 	case 15: tr->Run=BTESH2_Trace_Run15; break;
 	case 16: tr->Run=BTESH2_Trace_Run16; break;
+
+	case 17: tr->Run=BTESH2_Trace_Run17; break;
+	case 18: tr->Run=BTESH2_Trace_Run18; break;
+	case 19: tr->Run=BTESH2_Trace_Run19; break;
+	case 20: tr->Run=BTESH2_Trace_Run20; break;
+	case 21: tr->Run=BTESH2_Trace_Run21; break;
+	case 22: tr->Run=BTESH2_Trace_Run22; break;
+	case 23: tr->Run=BTESH2_Trace_Run23; break;
+	case 24: tr->Run=BTESH2_Trace_Run24; break;
+
+	case 25: tr->Run=BTESH2_Trace_Run25; break;
+	case 26: tr->Run=BTESH2_Trace_Run26; break;
+	case 27: tr->Run=BTESH2_Trace_Run27; break;
+	case 28: tr->Run=BTESH2_Trace_Run28; break;
+	case 29: tr->Run=BTESH2_Trace_Run29; break;
+	case 30: tr->Run=BTESH2_Trace_Run30; break;
+	case 31: tr->Run=BTESH2_Trace_Run31; break;
+	case 32: tr->Run=BTESH2_Trace_Run32; break;
+
+	default: break;
 	}
+
+	tr->jtrig=252;
+//	tr->jtrig=126;
+//	BTESH2_TryJitTrace(cpu, tr);
 
 	return(0);
 }
@@ -1901,11 +2277,27 @@ void BTESH2_FlushTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 //	tr->nops=0;
 }
 
-BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
+void BTESH2_FlushTracesFull(BTESH2_CpuState *cpu)
+{
+	BTESH2_Trace *tr, *tr1;
+	int i, j, k;
+	
+	for(i=0; i<(BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL); i++)
+	{
+		tr=cpu->icache[i];
+		if(!tr)
+			continue;
+		cpu->icache[i]=NULL;
+		BTESH2_FlushTrace(cpu, tr);
+		BTESH2_FreeTrace(cpu, tr);
+	}
+}
+
+force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
 {
 	BTESH2_Trace *tr, *tr1;
 	u32 spc1;
-	int h, h1, hp, hp1;
+	int h, h0, h1, hp, hp1;
 	int i, j, k;
 	
 //	spc1=spc^(spc>>16);
@@ -1918,38 +2310,65 @@ BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
 	hp=(spc^cpu->csfl)*BTESH2_TR_HASHPR;
 	h=(hp>>BTESH2_TR_HASHSHR)&(BTESH2_TR_HASHSZ-1);
 
-	tr=cpu->icache[h];
+	h0=h*2+0;
+	tr=cpu->icache[h0];
 	if(tr)
 	{
 		if((tr->srcpc==spc) && (tr->csfl==cpu->csfl))
+//		if(tr->srcpc==spc)
 		{
+			if(tr->jtrig)
+			{
+				tr->jtrig--;
+				if(!tr->jtrig)
+				{
+					BTESH2_TryJitTrace(cpu, tr);
+				}
+			}
 			return(tr);
 		}
 
 #if 1
-		h1=h|BTESH2_TR_HASHSZ;
+//		h1=h|BTESH2_TR_HASHSZ;
+		h1=h0+1;
 		tr1=cpu->icache[h1];
 
 		if(tr1)
 		{
 			if((tr1->srcpc==spc) && (tr1->csfl==cpu->csfl))
 			{
-				cpu->icache[h]=tr1;
+				if(tr->jtrig)
+				{
+					tr->jtrig--;
+					if(!tr->jtrig)
+					{
+						BTESH2_TryJitTrace(cpu, tr);
+					}
+				}
+
+				cpu->icache[h0]=tr1;
 				cpu->icache[h1]=tr;
 				return(tr1);
 			}
 
-			cpu->icache[h]=tr1;
+			cpu->icache[h0]=tr1;
 			cpu->icache[h1]=tr;
 			tr=tr1;
 			
-			BTESH2_FlushTrace(cpu, tr);
-			cpu->tr_dcol++;
+			if(tr->jtrig>0)
+			{
+				BTESH2_FlushTrace(cpu, tr);
+				cpu->tr_dcol++;
+			}else
+			{
+				tr=BTESH2_AllocTrace(cpu);
+				cpu->icache[h0]=tr;
+			}
 		}else
 		{
 			cpu->icache[h1]=tr;
 			tr=BTESH2_AllocTrace(cpu);
-			cpu->icache[h]=tr;
+			cpu->icache[h0]=tr;
 		}
 #else
 		BTESH2_FlushTrace(cpu, tr);
@@ -1958,7 +2377,16 @@ BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
 	}else
 	{
 		tr=BTESH2_AllocTrace(cpu);
-		cpu->icache[h]=tr;
+		cpu->icache[h0]=tr;
+	}
+	
+	if(cpu->jit_needflush)
+	{
+		printf("BTESH2_TraceForAddr: Full Flush\n");
+		cpu->jit_needflush=0;
+		BTESH2_FlushTracesFull(cpu);
+		UAX_ExHeapResetMark();
+		return(BTESH2_TraceForAddr(cpu, spc));
 	}
 	
 	cpu->tr_dtot++;

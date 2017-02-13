@@ -55,7 +55,7 @@
 #define FCC_c1tb	RIFF_MAKETAG('c','1','t','b')
 #define FCC_bt1d	RIFF_MAKETAG('b','t','1','d')
 
-volatile BGBBTJ_AVICtx *pdgl_avi_cap;
+// volatile BGBBTJ_AVICtx *pdgl_avi_cap;
 
 int pdgl_avi_nbase=0;
 int pdgl_avi_nseq=0;
@@ -113,6 +113,7 @@ BGBBTJ_AVICtx *BGBBTJ_AVI_OpenOutStream2(char *name,
 	TK_FILE *fd;
 	BGBBTJ_AVICtx *ctx;
 	BGBBTJ_VidCodecCTX *vcctx;
+	int nbsz;
 	int i, j, k;
 
 	memset(buf, 0, 512);
@@ -158,7 +159,7 @@ BGBBTJ_AVICtx *BGBBTJ_AVI_OpenOutStream2(char *name,
 	ctx->vidf->biCompression=RIFF_TAG_CRAM;
 	ctx->vidf->biSizeImage=w*h*3;
 
-#if 0
+#if 1
 	if(auid)
 	{
 		ctx->audh=pdgl_avi_malloc(sizeof(BGBBTJ_AVIStreamHeader));
@@ -192,13 +193,20 @@ BGBBTJ_AVICtx *BGBBTJ_AVI_OpenOutStream2(char *name,
 
 		ctx->audf->wFormatTag=1;
 //		ctx->audf->nChannels=2;
-		ctx->audf->nChannels=1;
+//		ctx->audf->nChannels=1;
+		ctx->audf->nChannels=(auid&BGBBTJ_AVI_AUID_STEREO)?2:1;
 
-		ctx->audf->nSamplesPerSec=22050;
-		ctx->audf->nAvgBytesPerSec=22050;
-
-		ctx->audf->nBlockAlign=1;
+//		ctx->audf->nSamplesPerSec=22050;
+//		ctx->audf->nAvgBytesPerSec=22050;
 		ctx->audf->wBitsPerSample=8;
+
+		nbsz=(ctx->audf->wBitsPerSample*ctx->audf->nChannels)/8;
+
+		ctx->audf->nSamplesPerSec=ctx->audh->dwRate;
+		ctx->audf->nAvgBytesPerSec=ctx->audh->dwRate*nbsz;
+
+		ctx->audf->nBlockAlign=nbsz;
+//		ctx->audf->wBitsPerSample=8;
 		ctx->audf->cbSize=0;
 	}
 #endif
@@ -427,9 +435,9 @@ void BGBBTJ_AVI_EmitAudioFrame(BGBBTJ_AVICtx *ctx)
 		if(ctx->audf->wFormatTag==BGBBTJ_WAVE_FORMAT_IMAADPCM)
 		{
 //#if !defined(BGBBTJ_DRV) && !defined(BGBBTJ_NODY)
-#if 0
+#if 1
 			bsz=ctx->audf->nBlockAlign;
-			bl=BGBMID_MsImaAdpcm_StereoSamplesFromBlockSize(bsz);
+			bl=BGBDT_MsImaAdpcm_StereoSamplesFromBlockSize(bsz);
 			n=(l+bl-1)/bl;
 			l=n*bl;
 			sz=n*bsz;
@@ -449,7 +457,7 @@ void BGBBTJ_AVI_EmitAudioFrame(BGBBTJ_AVICtx *ctx)
 			{
 				j=(ctx->audSampleBufStartPos+i*bl)%
 					ctx->audSampleBufSz;
-				BGBMID_MsImaAdpcm_EncodeBlockStereo(
+				BGBDT_MsImaAdpcm_EncodeBlockStereo(
 					ctx->audSampleBuf+j*2, tbuf+i*bsz, bl);
 			}
 
@@ -471,6 +479,7 @@ void BGBBTJ_AVI_EmitAudioFrame(BGBBTJ_AVICtx *ctx)
 
 			for(i=0; i<l; i++)
 			{
+#if 0
 				if(ctx->audf->nSamplesPerSec==22050)
 				{
 					j0=(ctx->audSampleBufStartPos+(2*i+0))%
@@ -491,6 +500,12 @@ void BGBBTJ_AVI_EmitAudioFrame(BGBBTJ_AVICtx *ctx)
 					i0=ctx->audSampleBuf[j*2+0];
 					i1=ctx->audSampleBuf[j*2+1];
 				}
+#endif
+
+				j=(ctx->audSampleBufStartPos+i)%
+					ctx->audSampleBufSz;
+				i0=ctx->audSampleBuf[j*2+0];
+				i1=ctx->audSampleBuf[j*2+1];
 	
 				if(ctx->audf->nChannels==1)
 				{
@@ -499,6 +514,9 @@ void BGBBTJ_AVI_EmitAudioFrame(BGBBTJ_AVICtx *ctx)
 						k=(i0+i1)/2;
 						k=(k>>8)+128;
 						k=(k<0)?0:(k<=255)?k:255;
+
+//						k=(k>>8);
+//						k=(k<(-128))?(-128):(k>127)?127:k;
 						tbuf[i]=k;
 					}else
 					{
@@ -530,14 +548,15 @@ void BGBBTJ_AVI_EmitAudioFrame(BGBBTJ_AVICtx *ctx)
 			}
 
 //			j=(ctx->audSampleBufStartPos+l)%ctx->audSampleBufSz;
-//			j=(ctx->audSampleBufStartPos+i)%ctx->audSampleBufSz;
-			if(ctx->audf->nSamplesPerSec==22050)
-			{
-				j=(ctx->audSampleBufStartPos+2*i)%ctx->audSampleBufSz;
-			}else
-			{
-				j=(ctx->audSampleBufStartPos+i)%ctx->audSampleBufSz;
-			}
+			j=(ctx->audSampleBufStartPos+i)%ctx->audSampleBufSz;
+
+//			if(ctx->audf->nSamplesPerSec==22050)
+//			{
+//				j=(ctx->audSampleBufStartPos+2*i)%ctx->audSampleBufSz;
+//			}else
+//			{
+//				j=(ctx->audSampleBufStartPos+i)%ctx->audSampleBufSz;
+//			}
 
 			ctx->audSampleBufStartPos=j;
 		}
@@ -671,7 +690,41 @@ int BGBBTJ_AVI_WriteContextStereoSamples(
 	return(0);
 }
 
+int BGBBTJ_AVI_WriteContextMonoSamples(
+	BGBBTJ_AVICtx *ctx, short *buf, int cnt)
+{
+	int i, j, k;
 
+	if(!ctx)
+		return(-1);
+		
+	if(!ctx->audSampleBuf)
+	{
+//		i=2*44100;
+		i=2*65536;
+
+		ctx->audSampleBufSz=i;
+		ctx->audSampleBufStartPos=0;
+		ctx->audSampleBufEndPos=0;
+
+		ctx->audSampleBuf=pdgl_avi_malloc(i*2*sizeof(short));
+	}
+	
+	for(i=0; i<cnt; i++)
+	{
+		j=(ctx->audSampleBufEndPos+i)%
+			ctx->audSampleBufSz;
+		ctx->audSampleBuf[j*2+0]=buf[i];
+		ctx->audSampleBuf[j*2+1]=buf[i];
+	}
+	j=(ctx->audSampleBufEndPos+cnt)%
+		ctx->audSampleBufSz;
+	ctx->audSampleBufEndPos=j;
+	
+	return(0);
+}
+
+#if 0
 int BGBBTJ_AVI_GetEncodeTime()
 	{ return(pdgl_avi_enctime); }
 
@@ -706,7 +759,7 @@ int BGBBTJ_AVI_WriteStereoSamples(short *buf, int cnt)
 	
 	return(0);
 }
-
+#endif
 
 int BGBBTJ_Tex_Resample(
 	byte *src, int iw, int ih,

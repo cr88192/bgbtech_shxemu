@@ -33,10 +33,17 @@ int window_active;
 int window_lastactive;
 int window_fullscreen;
 
-int window_def_width=640;
-int window_def_height=480;
+// int window_def_width=640;
+// int window_def_height=480;
 //int window_def_width=1024;
 //int window_def_height=768;
+
+//int window_def_width=1280;
+//int window_def_height=960;
+
+int window_def_width=960;
+int window_def_height=720;
+
 char *window_def_label="BTEIFGL";
 int window_def_fullscreen=0;
 int window_fullscreen_width=0;
@@ -134,8 +141,11 @@ void GfxDrv_EndDrawing(void)
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 
-		w1=window_width/2;
-		h1=window_height/2;
+//		w1=window_width/2;
+//		h1=window_height/2;
+
+		w1=btesh2_gfxcon_fbxs/2;
+		h1=btesh2_gfxcon_fbys/2;
 
 		glOrtho(-w1, w1, -h1, h1, -999999999, 999999999);
 
@@ -148,7 +158,11 @@ void GfxDrv_EndDrawing(void)
 		glRasterPos2i(-btesh2_gfxcon_fbxs/2, btesh2_gfxcon_fbys/2);
 //		glRasterPos2i(-btesh2_gfxcon_fbxs/2, 0);
 //		glWindowPos2i(0, btesh2_gfxcon_fbys);
-		glPixelZoom(1, -1);
+//		glPixelZoom(1, -1);
+
+		glPixelZoom((float)window_width/btesh2_gfxcon_fbxs,
+			-(float)window_height/btesh2_gfxcon_fbys);
+
 		glDrawPixels(btesh2_gfxcon_fbxs, btesh2_gfxcon_fbys,
 			GL_RGBA, GL_UNSIGNED_BYTE, btesh2_gfxcon_framebuf);
 		btesh2_gfxcon_fb_dirty--;
@@ -779,9 +793,9 @@ int GfxDrv_Start()
 	}
 
 	
-	btesh2_gfxcon_fbxs=window_width;
-	btesh2_gfxcon_fbys=window_height;
-	btesh2_gfxcon_fbsz=btesh2_gfxcon_fbxs*btesh2_gfxcon_fbys;
+//	btesh2_gfxcon_fbxs=window_width;
+//	btesh2_gfxcon_fbys=window_height;
+//	btesh2_gfxcon_fbsz=btesh2_gfxcon_fbxs*btesh2_gfxcon_fbys;
 
 	return(0);
 }

@@ -35,6 +35,16 @@ u32 BTESH2_FastMapVirtToPhys(BTESH2_CpuState *cpu, u32 addr)
 	u32 pgtab;
 	int h, pg, pgt;
 
+	if(addr&0x80000000)
+	{
+		if((addr>>29)==7)
+			return(addr);
+		if((addr>>29)!=6)
+		{
+			return(addr&0x1FFFFFFF);
+		}
+	}
+
 	if(!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT))
 	{
 		if((addr>>29)==7)
@@ -45,16 +55,6 @@ u32 BTESH2_FastMapVirtToPhys(BTESH2_CpuState *cpu, u32 addr)
 //				{ h=-1; }
 			return(addr&0x1FFFFFFFU);
 //		return(addr);
-		}
-	}
-		
-	if(addr&0x80000000)
-	{
-		if((addr>>29)==7)
-			return(addr);
-		if((addr>>29)!=6)
-		{
-			return(addr&0x1FFFFFFF);
 		}
 	}
 	
@@ -103,21 +103,109 @@ u32 BTESH2_FastMapVirtToPhys(BTESH2_CpuState *cpu, u32 addr)
 
 int BTESH2_GetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr)
 {
+	BTESH2_MemoryImage *mem;
+	BTESH2_PhysSpan *sp, *sp1;
 	u32 addr1;
+
+#if 1
+	if(((addr&0x80000000) ||
+		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
+		((addr>>29)<6))
+	{
+		addr1=addr&0x1FFFFFFF;
+		mem=cpu->memory;
+		sp=mem->pspan;
+		if(sp && ((addr1-sp->base)<=sp->range_n3))
+		{
+			if(sp->flags&BTESH2_SPFL_SIMPLEMEM_LE)
+				{ return(*(sbyte *)(sp->data+(addr1-sp->base))); }
+			return(sp->GetB(sp, cpu, addr1-sp->base));
+		}
+		sp1=mem->pspanb;
+		if(sp1 && ((addr1-sp1->base)<=sp1->range_n3))
+		{
+			mem->pspan=sp1; mem->pspanb=sp;
+			if(sp1->flags&BTESH2_SPFL_SIMPLEMEM_LE)
+				{ return(*(sbyte *)(sp1->data+(addr1-sp1->base))); }
+			return(sp1->GetB(sp1, cpu, addr1-sp1->base));
+		}
+		return(BTESH2_GetAddrBytePhy(cpu, addr1));
+	}
+#endif
+
 	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
 	return(BTESH2_GetAddrBytePhy(cpu, addr1));
 }
 
 int BTESH2_GetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr)
 {
+	BTESH2_MemoryImage *mem;
+	BTESH2_PhysSpan *sp, *sp1;
 	u32 addr1;
+
+#if 1
+	if(((addr&0x80000000) ||
+		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
+		((addr>>29)<6))
+	{
+		addr1=addr&0x1FFFFFFF;
+		mem=cpu->memory;
+		sp=mem->pspan;
+		if(sp && ((addr1-sp->base)<=sp->range_n3))
+		{
+			if(sp->flags&BTESH2_SPFL_SIMPLEMEM_LE)
+				{ return(btesh2_gets16le(sp->data+(addr1-sp->base))); }
+			return(sp->GetW(sp, cpu, addr1-sp->base));
+		}
+		sp1=mem->pspanb;
+//		if(sp1 && (addr1>=sp1->base) && ((addr1+3)<=sp1->limit))
+		if(sp1 && ((addr1-sp1->base)<=sp1->range_n3))
+		{
+			mem->pspan=sp1; mem->pspanb=sp;
+			if(sp1->flags&BTESH2_SPFL_SIMPLEMEM_LE)
+				{ return(btesh2_gets16le(sp1->data+(addr1-sp1->base))); }
+			return(sp1->GetW(sp1, cpu, addr1-sp1->base));
+		}
+		return(BTESH2_GetAddrWordPhy(cpu, addr1));
+	}
+#endif
+
 	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
 	return(BTESH2_GetAddrWordPhy(cpu, addr1));
 }
 
-u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr)
+default_inline u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr)
 {
+	BTESH2_MemoryImage *mem;
+	BTESH2_PhysSpan *sp, *sp1;
 	u32 addr1;
+
+	if(((addr&0x80000000) ||
+		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
+		((addr>>29)<6))
+	{
+		addr1=addr&0x1FFFFFFF;
+		mem=cpu->memory;
+		sp=mem->pspan;
+//		if(sp && (addr1>=sp->base) && ((addr1+3)<=sp->limit))
+		if(sp && ((addr1-sp->base)<=sp->range_n3))
+		{
+			if(sp->flags&BTESH2_SPFL_SIMPLEMEM_LE)
+				{ return(btesh2_getu32le(sp->data+(addr1-sp->base))); }
+			return(sp->GetD(sp, cpu, addr1-sp->base));
+		}
+		sp1=mem->pspanb;
+//		if(sp1 && (addr1>=sp1->base) && ((addr1+3)<=sp1->limit))
+		if(sp1 && ((addr1-sp1->base)<=sp1->range_n3))
+		{
+			mem->pspan=sp1; mem->pspanb=sp;
+			if(sp1->flags&BTESH2_SPFL_SIMPLEMEM_LE)
+				{ return(btesh2_getu32le(sp1->data+(addr1-sp1->base))); }
+			return(sp1->GetD(sp1, cpu, addr1-sp1->base));
+		}
+		return(BTESH2_GetAddrDWordPhy(cpu, addr1));
+	}
+
 	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
 	return(BTESH2_GetAddrDWordPhy(cpu, addr1));
 }
@@ -136,24 +224,62 @@ int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
 
 int BTESH2_SetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
 {
+	BTESH2_MemoryImage *mem;
+	BTESH2_PhysSpan *sp;
 	u32 addr1;
 
 	if(cpu->status)
 		return(-1);
 	if(BTESH2_CheckAddrTrapSmc(cpu, addr, val))
 		return(-1);
+
+	if(((addr&0x80000000) ||
+		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
+		((addr>>29)<6))
+	{
+		addr1=addr&0x1FFFFFFF;
+		mem=cpu->memory;
+		sp=mem->pspan;
+		if(sp && (addr1>=sp->base) && ((addr1+3)<=sp->limit))
+			{ return(sp->SetW(sp, cpu, addr1-sp->base, val)); }
+		return(BTESH2_SetAddrWordPhy2(cpu, addr1, val));
+	}
+
 	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
 	return(BTESH2_SetAddrWordPhy2(cpu, addr1, val));
 }
 
 int BTESH2_SetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr, u32 val)
 {
+	BTESH2_MemoryImage *mem;
+	BTESH2_PhysSpan *sp, *sp1;
 	u32 addr1;
 
 	if(cpu->status)
 		return(-1);
 	if(BTESH2_CheckAddrTrapSmc(cpu, addr, val))
 		return(-1);
+
+	if(((addr&0x80000000) ||
+		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
+		((addr>>29)<6))
+	{
+		addr1=addr&0x1FFFFFFF;
+		mem=cpu->memory;
+		sp=mem->pspan;
+//		if(sp && (addr1>=sp->base) && ((addr1+3)<=sp->limit))
+		if(sp && ((addr1-sp->base)<=sp->range_n3))
+			{ return(sp->SetD(sp, cpu, addr1-sp->base, val)); }
+		sp1=mem->pspan;
+//		if(sp1 && (addr1>=sp1->base) && ((addr1+3)<=sp1->limit))
+		if(sp1 && ((addr1-sp1->base)<=sp1->range_n3))
+		{
+			mem->pspan=sp1; mem->pspanb=sp;
+			return(sp1->SetD(sp1, cpu, addr1-sp1->base, val));
+		}
+		return(BTESH2_SetAddrDWordPhy2(cpu, addr1, val));
+	}
+
 	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
 	return(BTESH2_SetAddrDWordPhy2(cpu, addr1, val));
 }

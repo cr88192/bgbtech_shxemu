@@ -27,7 +27,7 @@ static int	sample16, samples;
 static int	snd_sent, snd_completed;
 static short	*snd_rover;
 
-BTEIFGL_API int SoundDev_DeInit()
+int SoundDev_DeInit()
 {
 	int i;
 
@@ -56,7 +56,7 @@ BTEIFGL_API int SoundDev_DeInit()
 	return(0);
 }
 
-BTEIFGL_API int SoundDev_Init()
+int SoundDev_Init()
 {
 	WAVEFORMATEX format; 
 	int i, j;
@@ -142,7 +142,7 @@ BTEIFGL_API int SoundDev_Init()
 	return(0);
 }
 
-BTEIFGL_API int SoundDev_GetDMAPos()
+int SoundDev_GetDMAPos()
 {
 	MMTIME tm;
 	int i, s;
@@ -154,7 +154,7 @@ BTEIFGL_API int SoundDev_GetDMAPos()
 	return(s);
 }
 
-BTEIFGL_API void SoundDev_Submit()
+void SoundDev_Submit()
 {
 	LPWAVEHDR	h;
 	int			wResult;
@@ -217,7 +217,7 @@ void BGBMID_Sound_MixPopReduceStereo2(
 	BGBMID_Sound_MixPopReduceStereo(buffer+offs, cnt);
 }
 
-BTEIFGL_API int SoundDev_PaintSamples(short *buffer, int cnt)
+int SoundDev_PaintSamples(short *buffer, int cnt)
 {
 	int j0, j1, j2;
 	int i, j, k, l, snb;
@@ -306,7 +306,7 @@ BTEIFGL_API int SoundDev_PaintSamples(short *buffer, int cnt)
 	return(0);
 }
 
-BTEIFGL_API int SoundDev_WriteRawSamples(short *buffer,
+int SoundDev_WriteRawSamples(short *buffer,
 	int cnt, int ovcnt)
 {
 	int i, l, d, d2, rs;
@@ -410,18 +410,18 @@ BTEIFGL_API int SoundDev_WriteRawSamples(short *buffer,
 	return(0);
 }
 
-BTEIFGL_API int SoundDev_WriteStereoSamples(short *buffer, int cnt)
+int SoundDev_WriteStereoSamples(short *buffer, int cnt)
 {
 	return(SoundDev_WriteRawSamples(buffer, cnt*2, cnt*2));
 }
 
-BTEIFGL_API int SoundDev_WriteStereoSamples2(
+int SoundDev_WriteStereoSamples2(
 	short *buffer, int cnt, int ovcnt)
 {
 	return(SoundDev_WriteRawSamples(buffer, cnt*2, ovcnt*2));
 }
 
-BTEIFGL_API int SoundDev_WriteSamples(short *buffer, int cnt)
+int SoundDev_WriteSamples(short *buffer, int cnt)
 {
 	static short *tbuf=NULL;
 	static int tbcnt=0;
@@ -431,7 +431,7 @@ BTEIFGL_API int SoundDev_WriteSamples(short *buffer, int cnt)
 	{
 		i=16384;
 		while(cnt>i)i=i+(i>>1);
-		tbuf=frgl_malloc(i*2*sizeof(short));
+		tbuf=malloc(i*2*sizeof(short));
 		tbcnt=i;
 	}
 	
@@ -439,7 +439,7 @@ BTEIFGL_API int SoundDev_WriteSamples(short *buffer, int cnt)
 	{
 		i=tbcnt;
 		while(cnt>i)i=i+(i>>1);
-		tbuf=frgl_realloc(tbuf, i*2*sizeof(short));
+		tbuf=realloc(tbuf, i*2*sizeof(short));
 		tbcnt=i;
 	}
 	

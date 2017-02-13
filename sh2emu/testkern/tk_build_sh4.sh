@@ -1,7 +1,7 @@
 #!/bin/bash
 export PATH=/opt/cross/bin:$PATH
 export "TK_CFL=-nostdinc -nostdlib -nostartfiles -fno-builtin \
-	-DARCH_SH4 -DARCH_SH4LE"
+	-DARCH_SH4 -DARCH_SH4LE -O3"
 export "TK_LDFL= $TK_CFL \
 	-Wl,-nostdlib -Wl,-e,_start -Wl,-T,sh4elf.x"
 export "TK_CSRC=tkmain.c"

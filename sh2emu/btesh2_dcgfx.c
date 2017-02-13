@@ -125,10 +125,16 @@ u32 btesh2_dcgfx_redraw_tpix16_555le(byte *px)
 	u32 pxc;
 	
 	pxa=px[0]|(px[1]<<8);
+//	pxc=0xFF000000|
+//		((pxa&0x7C00)<<8)|
+//		((pxa&0x03E0)>>2)|
+//		((pxa&0x001F)<<3);
+
 	pxc=0xFF000000|
-		((pxa&0x7C00)<<8)|
-		((pxa&0x03E0)>>2)|
-		((pxa&0x001F)<<3);
+		((pxa&0x7C00)>> 7)|
+		((pxa&0x03E0)<< 6)|
+		((pxa&0x001F)<<19);
+
 	return(pxc);
 }
 
@@ -138,12 +144,138 @@ u32 btesh2_dcgfx_redraw_tpix16_565le(byte *px)
 	u32 pxc;
 	
 	pxa=px[0]|(px[1]<<8);
+//	pxc=0xFF000000|
+//		((pxa&0xF800)<<8)|
+//		((pxa&0x07E0)>>3)|
+//		((pxa&0x001F)<<3);
+
 	pxc=0xFF000000|
-		((pxa&0xF800)<<8)|
-		((pxa&0x07E0)>>3)|
-		((pxa&0x001F)<<3);
+		((pxa&0xF800)>> 8)|
+		((pxa&0x07E0)<< 5)|
+		((pxa&0x001F)<<19);
+
 	return(pxc);
 }
+
+static int btesh2_clamp255(int v)
+{
+	if(v<0)return(0);
+	if(v>255)return(255);
+	return(v);
+}
+
+#if 0
+u32 btesh2_dcgfx_redraw_tpix16_yuv655le(byte *px)
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	u16 pxa;
+	u32 pxc;
+	
+	pxa=px[0]|(px[1]<<8);
+
+	cy=(pxa>>8)&0xFC;
+	cv=(pxa>>2)&0xF8;
+	cu=(pxa<<3)&0xF8;
+	cy=cy|(cy>>6);
+	cu=cu|(cu>>5);
+	cv=cv|(cv>>5);
+
+	cu1=(cu-128)<<1; cv1=(cv-128)<<1;
+//	cg=2*cy-cu1-cv1;
+//	cg=(4*cy-cu1-cv1)>>1;
+	cg=cy-((cu1+cv1)>>2);
+	cb=cg+cu1;
+	cr=cg+cv1;
+	
+	if((cr|cg|cb)>>8)
+	{
+		cr=btesh2_clamp255(cr);
+		cg=btesh2_clamp255(cg);
+		cb=btesh2_clamp255(cb);
+	}
+	
+	pxc=0xFF000000|(cb<<16)|(cg<<8)|cr;
+
+//	pxc=0xFF000000|
+//		((pxa&0x7C00)>> 7)|
+//		((pxa&0x03E0)<< 6)|
+//		((pxa&0x001F)<<19);
+
+	return(pxc);
+}
+#endif
+
+#if 1
+static u32 *yuv655_ttab=NULL;
+
+void btesh2_dcgfx_init_yuv655le()
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+
+//	yuv655_ttab=malloc(32768*4);
+	yuv655_ttab=malloc(65536*4);
+	
+//	for(i=0; i<32768; i++)
+	for(i=0; i<65536; i++)
+	{
+//		pxa=(i<<1)|(i&1);
+		pxa=i;
+	
+		cy=(pxa>>8)&0xFC;
+		cv=(pxa>>2)&0xF8;
+		cu=(pxa<<3)&0xF8;
+		cy=cy|(cy>>6);
+		cu=cu|(cu>>5);
+		cv=cv|(cv>>5);
+
+		cu1=(cu-128)<<1; cv1=(cv-128)<<1;
+	//	cg=2*cy-cu1-cv1;
+	//	cg=(4*cy-cu1-cv1)>>1;
+		cg=cy-((cu1+cv1)>>2);
+		cb=cg+cu1;
+		cr=cg+cv1;
+		
+		if((cr|cg|cb)>>8)
+		{
+			cr=btesh2_clamp255(cr);
+			cg=btesh2_clamp255(cg);
+			cb=btesh2_clamp255(cb);
+		}
+		
+		pxc=0xFF000000|(cb<<16)|(cg<<8)|cr;
+		
+		yuv655_ttab[i]=pxc;
+	}
+}
+
+u32 btesh2_dcgfx_redraw_tpix16_yuv655le(byte *px)
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+	
+	if(!yuv655_ttab)
+	{
+		btesh2_dcgfx_init_yuv655le();
+	}
+
+	pxa=*(u16 *)px;
+	pxc=yuv655_ttab[pxa];
+	
+//	pxa=px[0]|(px[1]<<8);
+//	pxc=ttab[pxa>>1];
+
+	return(pxc);
+}
+#endif
+
 
 u32 btesh2_dcgfx_redraw_tpix24_bgr(byte *px)
 {
@@ -172,8 +304,8 @@ int BTESH2_DCGFX_RedrawScreen()
 	u32 (*tpix16)(byte *px);
 	u32 (*tpix24)(byte *px);
 	u32 (*tpix32)(u32 px);
-	u32 *fb32;
-	byte *fbb;
+	u32 *fb32, *ilb32, *olb32;
+	byte *fbb, *ilb8;
 	u32 px;
 	int xstep, ystep, xcur, ycur;
 	int vxs, vys, vxstr, vystr;
@@ -254,15 +386,42 @@ int BTESH2_DCGFX_RedrawScreen()
 		ycur=0;
 		for(y=0; y<btesh2_gfxcon_fbys; y++)
 		{
+			if((vxs*2)==btesh2_gfxcon_fbxs)
+			{
+				iy=ycur>>16;
+				ilb32=fb32+(iy*vystr);
+				olb32=btesh2_gfxcon_framebuf+(y*btesh2_gfxcon_fbxs);
+				xcur=0;
+				for(x=0; x<vxs; x++)
+				{
+//					ix=xcur>>16;
+					px=ilb32[x];
+					px=(((px    )&0xFF00FF00)|
+						((px>>16)&0x000000FF)|
+						((px<<16)&0x00FF0000));
+					olb32[x*2+0]=px; olb32[x*2+1]=px;
+//					xcur+=xstep<<1;
+				}
+				ycur+=ystep;
+				continue;
+			}
+			
+			iy=ycur>>16;
+			ilb32=fb32+(iy*vystr);
+			olb32=btesh2_gfxcon_framebuf+(y*btesh2_gfxcon_fbxs);
 			xcur=0;
 			for(x=0; x<btesh2_gfxcon_fbxs; x++)
 			{
-//				ix=(xcur+32768)>>16;
-//				iy=(ycur+32768)>>16;
-
-				ix=xcur>>16;	iy=ycur>>16;
-				px=tpix32(fb32[iy*vystr+ix]);
-				btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
+				ix=xcur>>16;
+//				iy=ycur>>16;
+//				px=tpix32(fb32[iy*vystr+ix]);
+//				px=fb32[iy*vystr+ix];
+				px=ilb32[ix];
+				px=(((px    )&0xFF00FF00)|
+					((px>>16)&0x000000FF)|
+					((px<<16)&0x00FF0000));
+				olb32[x]=px;
+//				btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
 			
 				xcur+=xstep;
 			}
@@ -282,17 +441,63 @@ int BTESH2_DCGFX_RedrawScreen()
 		if(btesh2_dcgfx_displaycfg&0x0004)
 			tpix16=btesh2_dcgfx_redraw_tpix16_565le;
 
+		if(btesh2_dcgfx_displaycfg&0x0080)
+			tpix16=btesh2_dcgfx_redraw_tpix16_yuv655le;
+
 		ycur=0;
 		for(y=0; y<btesh2_gfxcon_fbys; y++)
 		{
 			xcur=0;
-			for(x=0; x<btesh2_gfxcon_fbxs; x++)
+
+			olb32=btesh2_gfxcon_framebuf+(y*btesh2_gfxcon_fbxs);
+
+			iy=ycur>>16;
+			ilb8=fbb+(iy*vystr*4);
+
+			if(tpix16==btesh2_dcgfx_redraw_tpix16_yuv655le)
 			{
-				ix=xcur>>16;	iy=ycur>>16;
-				px=tpix16(fbb+(iy*vystr*4+ix*2));
-				btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
-			
-				xcur+=xstep;
+				for(x=0; x<btesh2_gfxcon_fbxs; x+=4)
+				{
+					ix=xcur>>16;	xcur+=xstep;
+					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
+					olb32[x+0]=px;
+
+					ix=xcur>>16;	xcur+=xstep;
+					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
+					olb32[x+1]=px;
+
+					ix=xcur>>16;	xcur+=xstep;
+					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
+					olb32[x+2]=px;
+
+					ix=xcur>>16;	xcur+=xstep;
+					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
+					olb32[x+3]=px;
+				}
+			}else
+			{
+				for(x=0; x<btesh2_gfxcon_fbxs; x+=4)
+				{
+					ix=xcur>>16;	iy=ycur>>16;
+					px=tpix16(fbb+(iy*vystr*4+ix*2));
+					btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
+					xcur+=xstep;
+
+					ix=xcur>>16;	iy=ycur>>16;
+					px=tpix16(fbb+(iy*vystr*4+ix*2));
+					btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
+					xcur+=xstep;
+
+					ix=xcur>>16;	iy=ycur>>16;
+					px=tpix16(fbb+(iy*vystr*4+ix*2));
+					btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
+					xcur+=xstep;
+
+					ix=xcur>>16;	iy=ycur>>16;
+					px=tpix16(fbb+(iy*vystr*4+ix*2));
+					btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
+					xcur+=xstep;
+				}
 			}
 			ycur+=ystep;
 		}

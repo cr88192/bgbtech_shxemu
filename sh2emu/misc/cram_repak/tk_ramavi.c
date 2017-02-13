@@ -672,17 +672,20 @@ int BGBBTJ_AVI_Init()
 
 int avi_getsamples(short *samples, int cnt, void *data)
 {
-	BGBBTJ_AVI_Context *ctx;
+	return(BGBBTJ_AVI_GetMonoSamplesRate(data, samples, cnt, 44100));
+}
+
+int BGBBTJ_AVI_GetMonoSamplesRate(BGBBTJ_AVI_Context *ctx,
+	short *samples, int cnt, int rate)
+{
 	int i, i2, j, rl, l, sr;
 	short *ss, *st;
-
-	ctx=data;
 
 	sr=ctx->wavefmt->nSamplesPerSec;
 
 	l=(ctx->esampbuf-ctx->sampbuf)/2;
 //	l*=44100.0/48000.0;
-	l*=44100.0/sr;
+	l*=((double)rate)/sr;
 	if(cnt<l)l=cnt;
 
 //	printf("avi: mix %d samples, have %d\n", cnt, l);
@@ -697,7 +700,8 @@ int avi_getsamples(short *samples, int cnt, void *data)
 	{
 		i2=i;
 //		i2*=(48000.0/44100.0);
-		i2*=(sr/44100.0);
+//		i2*=(sr/44100.0);
+		i2*=(sr/((double)rate));
 
 		j=ctx->sampbuf[i2*2];
 //		j=(ctx->sampbuf[i2*2]+ctx->sampbuf[(i2*2)+1])/2;
@@ -709,7 +713,7 @@ int avi_getsamples(short *samples, int cnt, void *data)
 
 	i2=cnt;
 //	i2*=(48000.0/44100.0);
-	i2*=(sr/44100.0);
+	i2*=(sr/((double)rate));
 	rl=(ctx->esampbuf-ctx->sampbuf)/2;
 	if(i2<rl)rl=i2;
 
@@ -914,7 +918,7 @@ int BGBBTJ_AVI_DecodeAudio(BGBBTJ_AVI_Context *ctx, int ofs)
 
 	switch(ctx->wavefmt->wFormatTag)
 	{
-	case 1:	//PCM wave
+	case BGBBTJ_WAVE_FORMAT_PCM:	//PCM wave
 //		k=sz/(ctx->wavefmt->wBitsPerSample/8)/ctx->wavefmt->nChannels;
 		k=sz;
 		if(ctx->wavefmt->wBitsPerSample>8)
@@ -960,15 +964,52 @@ int BGBBTJ_AVI_DecodeAudio(BGBBTJ_AVI_Context *ctx, int ofs)
 		ctx->esampbuf+=k*2;
 		break;
 
-	case 17:
+	case BGBBTJ_WAVE_FORMAT_IMAADPCM:
+#if !defined(BGBBTJ_DRV) && !defined(BGBBTJ_NODY)
+		if(ctx->wavefmt->nChannels>1)
+		{
+			buf=ctx->fcbuf;
+			bufe=buf+sz;
+			bsz=ctx->wavefmt->nBlockAlign;
+			l=BGBDT_MsImaAdpcm_StereoSamplesFromBlockSize(bsz);
+			while(buf<bufe)
+			{
+				if((ctx->esampbuf+(l*2))>=(ctx->sampbuf+ctx->sz_sampbuf*2))
+					break;
+
+				BGBDT_MsImaAdpcm_DecodeBlockStereo(
+					buf, ctx->esampbuf, l);
+				ctx->esampbuf+=l*2;
+				buf+=bsz;
+			}
+		}else
+		{
+			buf=ctx->fcbuf;
+			bufe=buf+sz;
+			bsz=ctx->wavefmt->nBlockAlign;
+			l=BGBDT_MsImaAdpcm_MonoSamplesFromBlockSize(bsz);
+			while(buf<bufe)
+			{
+				if((ctx->esampbuf+(l*2))>=(ctx->sampbuf+ctx->sz_sampbuf*2))
+					break;
+
+				BGBDT_MsImaAdpcm_DecodeBlockMonoAsStereo(
+					buf, ctx->esampbuf, l);
+				ctx->esampbuf+=l*2;
+				buf+=bsz;
+			}
+		}
+#endif
 		break;
 
-	case 85:	//MP3
-		l=0;
-		ctx->esampbuf+=l;
-		break;
+//	case 85:	//MP3
+//		l=0;
+//		ctx->esampbuf+=l;
+//		break;
 
 	default:
+		printf("BGBBTJ_AVI_DecodeAudio: Unhandled Audio Codec %04X\n",
+			ctx->wavefmt->wFormatTag);
 		break;
 	}
 
@@ -1011,8 +1052,8 @@ int BGBBTJ_AVI_DecodeVideo(BGBBTJ_AVI_Context *ctx,
 
 //	printf("AVI Frame: @%08X  %.4s %.4s %d\n", ofs, &cc1, &cc2, sz);
 
-	ctx->fcbuf=RIFF_ReadInChunk(ctx->fd, ofs, &sz);
-//	sz=RIFF_ReadInChunkTBuf(ctx->fd, ofs, &ctx->fcbuf, &ctx->sz_fcbuf);
+//	ctx->fcbuf=RIFF_ReadInChunk(ctx->fd, ofs, &sz);
+	sz=RIFF_ReadInChunkTBuf(ctx->fd, ofs, &ctx->fcbuf, &ctx->sz_fcbuf);
 
 	switch(ctx->bmihead->biCompression)
 	{
@@ -1055,7 +1096,7 @@ int BGBBTJ_AVI_DecodeVideo(BGBBTJ_AVI_Context *ctx,
 
 //	if(ctx->chroma_color && !skip)
 //		BGBBTJ_AVI_FilterChroma(ctx, ctx->fdbuf);
-	free(ctx->fcbuf);
+//	free(ctx->fcbuf);
 
 	return(0);
 }
@@ -1080,7 +1121,7 @@ void *BGBBTJ_AVI_DecodeFrame2(
 		if(j==ctx->str_aud)
 		{
 			j=ctx->ofs_movi+ctx->avi_index[i].dwChunkOffset+8;
-//			BGBBTJ_AVI_DecodeAudio(ctx, j);
+			BGBBTJ_AVI_DecodeAudio(ctx, j);
 			continue;
 		}
 
@@ -1216,6 +1257,9 @@ void *BGBBTJ_AVI_FrameRawClrs(BGBBTJ_AVI_Context *ctx, s64 dt, int clrs)
 	ft=ctx->avihead->dwMicroSecPerFrame;
 	fc=0;
 	ctx->frame_time-=dt;
+
+	if(ctx->frame_time<=(-500000))
+		ctx->frame_time=0;
 
 	if(ctx->frame_time<=0)
 	{

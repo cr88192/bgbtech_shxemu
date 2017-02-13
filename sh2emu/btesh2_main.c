@@ -664,6 +664,13 @@ void btesh_main_stuffkeyb(char *str)
 	}
 }
 
+void btesh_main_stuffkeybyte(int c)
+{
+	kbbuf[kbrov]=c;
+	kbrov=(kbrov+1)&255;
+	kirq=1;
+}
+
 void btesh_main_conprintf(char *str, ...)
 {
 	char tb[4096];
@@ -695,6 +702,10 @@ char *init;
 	"pl_ems/testkern_sh4.map", NULL, "pl_ems/testkern_ird.tar", "video1"},
 {"Testkern Video Framebuf (SH4)", "pl_ems/testkern_sh4.elf", BTESH2_ARCH_SH4, 
 	"pl_ems/testkern_sh4.map", NULL, "pl_ems/testkern_ird.tar", "video"},
+
+{"Testkern, Bench Video Framebuf (SH4)",
+	"pl_ems/testkern_sh4.elf", BTESH2_ARCH_SH4, 
+	"pl_ems/testkern_sh4.map", NULL, "pl_ems/testkern_ird.tar", "video2"},
 {NULL, NULL}
 };
 
@@ -753,12 +764,14 @@ int btesh_main_iterate_2i()
 		dt=t2;
 		btesh2_msec+=dt;
 		rtmsec+=dt;
+		cpu->tr_tdt+=dt;
 	}
 
 	t2=t1-t0;
 	if((t2>ts) || (t2<0))
 	{
 		tdt+=t2;
+//		cpu->tr_tdt+=t2;
 		t0=t1;
 		BTESH2_CpuTimerInt(cpu);
 		return(0);
@@ -810,6 +823,9 @@ int btesh_main_iterate_2i()
 	return(err);
 }
 
+int btesh_main_lastframe;
+int btesh_main_frame_dt;
+
 void btesh_main_iterate()
 {
 	BTESH2_CpuState *cpu;
@@ -819,6 +835,12 @@ void btesh_main_iterate()
 	int i, j, k, l;
 
 	GfxDrv_BeginDrawing();
+
+	t4=FRGL_TimeMS();
+	t5=t4-btesh_main_lastframe;
+	BTESH2_DspDev_Update(btesh2_cpu, t5/1000.0);
+	btesh_main_lastframe=t4;
+	btesh_main_frame_dt=t5;
 
 	btesh2_gfxcon_con_disabled=0;
 	BTESH2_DCGFX_RedrawScreen();
@@ -830,6 +852,52 @@ void btesh_main_iterate()
 	while(kb && *kb)
 	{
 		j=*kb++;
+
+//		if(j=='`')
+		if(j==K_F12)
+		{
+			err=1;
+			gfxdrv_kill=1;
+			continue;
+		}
+
+		if(btesh2_gfxcon_con_rawkeyb)
+		{
+			if(j&0x8000)
+			{
+				k=j&0x7FFF;
+				if((k>4) && (k<127))
+				{
+					btesh_main_stuffkeybyte(k|0x80);
+				}else if(k<255)
+				{
+					btesh_main_stuffkeybyte(0xFF);
+					btesh_main_stuffkeybyte(k);
+				}else
+				{
+					btesh_main_stuffkeybyte(0x80);
+					btesh_main_stuffkeybyte(j>>8);
+					btesh_main_stuffkeybyte(j);
+				}
+			}else
+			{
+				k=j&0x7FFF;
+				if((k>4) && (k<127))
+				{
+					btesh_main_stuffkeybyte(k);
+				}else if(k<255)
+				{
+					btesh_main_stuffkeybyte(0x7F);
+					btesh_main_stuffkeybyte(k);
+				}else
+				{
+					btesh_main_stuffkeybyte(0x80);
+					btesh_main_stuffkeybyte(j>>8);
+					btesh_main_stuffkeybyte(j);
+				}
+			}
+			continue;
+		}
 
 		if(j&0x8000)
 			continue;
@@ -1089,6 +1157,7 @@ int btesh2_main_startimage()
 		
 		sp=BTESH2_AllocPhysSpan();
 		sp->base=0xABCD0000;	sp->limit=0xABCD3FFF;
+		sp->range_n3=sp->limit-sp->base-3;
 		if(cpu->arch==BTESH2_ARCH_SH4)
 			{ sp->base=0x0BCD0000;	sp->limit=0x0BCD3FFF; }
 		sp->data=tbuf;			sp->name="MMIO";
@@ -1106,6 +1175,7 @@ int btesh2_main_startimage()
 		
 		sp=BTESH2_AllocPhysSpan();
 		sp->base=0xABCE0000;	sp->limit=0xABCE0FFF;
+		sp->range_n3=sp->limit-sp->base-3;
 		if(cpu->arch==BTESH2_ARCH_SH4)
 			{ sp->base=0x0BCE0000;	sp->limit=0x0BCE0FFF; }
 		sp->data=tbuf;			sp->name="EMAC";
@@ -1122,6 +1192,7 @@ int btesh2_main_startimage()
 
 		sp=BTESH2_AllocPhysSpan();
 		sp->base=0xFF000000;	sp->limit=0xFF000FFF;
+		sp->range_n3=sp->limit-sp->base-3;
 		sp->data=tbuf;			sp->name="MMREG";
 //		sp->GetB=btesh2_spanmmio_GetB;	sp->GetW=btesh2_spanmmio_GetW;
 //		sp->SetB=btesh2_spanmmio_SetB;	sp->SetW=btesh2_spanmmio_SetW;
@@ -1138,6 +1209,7 @@ int btesh2_main_startimage()
 		
 		sp=BTESH2_AllocPhysSpan();
 		sp->base=0x00800000;	sp->limit=0x00FFFFFF;
+		sp->range_n3=sp->limit-sp->base-3;
 		sp->data=tbuf;			sp->name="GFXCon";
 		sp->GetB=btesh2_gfxcon_GetB;	sp->GetW=btesh2_gfxcon_GetW;
 		sp->GetD=btesh2_gfxcon_GetD;	sp->SetB=btesh2_gfxcon_SetB;
@@ -1146,6 +1218,7 @@ int btesh2_main_startimage()
 	}
 
 	BTESH2_DCGFX_ImageRegister(img);
+	BTESH2_DspDev_ImageRegister(img);
 
 	cpu->logpc=malloc((1<<18)*sizeof(u32));
 	cpu->logsp=malloc((1<<18)*sizeof(u32));
@@ -1194,7 +1267,8 @@ int btesh2_main_startimage()
 //				t0=t0&(~4095);
 //				t1=t0-0x10000000;
 
-				t0=0x10000000-(sz+1);
+//				t0=0x10000000-(sz+1);
+				t0=0x0FF00000-(sz+1);
 				t0=t0&(~4095);
 				t1=t0-0x0C000000;
 			}else
@@ -1345,6 +1419,7 @@ int main(int argc, char *argv[])
 #ifdef __EMSCRIPTEN__
 	ts=1;
 	GfxDrv_Start();
+	SoundDev_Init();
 	BTESH2_GfxCon_Startup();
 //	btesh2_cpu=cpu;
 	emscripten_set_main_loop(btesh_main_iterate, 0, 1);
@@ -1353,6 +1428,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
 	ts=1;
 	GfxDrv_Start();
+	SoundDev_Init();
 	BTESH2_GfxCon_Startup();
 //	btesh2_cpu=cpu;
 	GfxDrv_MainLoop(btesh_main_iterate);
@@ -1360,6 +1436,9 @@ int main(int argc, char *argv[])
 	if(btesh2_cpu)
 	{
 		BTESH2_DumpRegs(btesh2_cpu);
+
+		printf("%f MIPS\n",
+			btesh2_cpu->tr_tops/(btesh2_cpu->tr_tdt*1000.0));
 	}
 #endif
 
@@ -1436,6 +1515,7 @@ int main(int argc, char *argv[])
 #endif
 
 			tdt+=t2;
+			cpu->tr_tdt+=t2;
 			t0=t1;
 			BTESH2_CpuTimerInt(cpu);
 			

@@ -4,6 +4,8 @@
 
 #include "repak_core.h"
 
+#include "snd_adpcm.c"
+
 #include "tk_ramavi.c"
 #include "tk_outavi.c"
 
@@ -182,8 +184,11 @@ int cram_vqenc(byte *iblk, int ystr, u16 *opx, u16 *oclra, u16 *oclrb)
 //	cya=(3*my+1*ny)/4;
 //	cyb=(1*my+3*ny)/4;
 
-	cya=(5*my+3*ny)/8;
-	cyb=(3*my+5*ny)/8;
+//	cya=(5*my+3*ny)/8;
+//	cyb=(3*my+5*ny)/8;
+
+	cya=(5*my+3*ny+8*acy)/16;
+	cyb=(3*my+5*ny+8*acy)/16;
 	
 	px=0;
 	if(pxy[ 0]>cya)px|=0x0001;
@@ -238,7 +243,7 @@ int cram_repak_buf(byte *ibuf, byte *obuf,
 	while(cs<cse)
 	{
 		px=CRAM_GETU16(cs);
-		if(!px)
+		if(!px && (by>=bys))
 			break;
 		if(px&0x8000)
 		{
@@ -258,7 +263,10 @@ int cram_repak_buf(byte *ibuf, byte *obuf,
 				if(by>=bys)
 				{
 					if(!cs[0] && !cs[1])
+					{
+						*ct++=px;	*ct++=px>>8;
 						break;
+					}
 					printf("Past End A\n");
 					break;
 				}
@@ -338,6 +346,9 @@ int cram_repak_buf(byte *ibuf, byte *obuf,
 			printf("!\n");
 		}else
 		{
+			if(!px)
+				px|=0x0100;
+
 			*ct++=px;	*ct++=px>>8;
 			*ct++=clra;	*ct++=clra>>8;
 			*ct++=clrb;	*ct++=clrb>>8;
@@ -371,6 +382,7 @@ int cram_repak_buf(byte *ibuf, byte *obuf,
 
 int main(int argc, char *argv[])
 {
+	short sndbuf[8192];
 	char *ifn, *ofn;
 
 	BGBBTJ_AVI_Context *avi;
@@ -379,7 +391,7 @@ int main(int argc, char *argv[])
 	byte *buf;
 	byte *tbuf;
 	int t0, t1, t2, te;
-	int sz;
+	int sz, sndlen, slen2;
 
 	u32 *vreg;
 	u32 *vram;
@@ -398,19 +410,32 @@ int main(int argc, char *argv[])
 
 	vstat=BGBBTJ_AVI_GetStats(avi);
 	
+//	oavi=BGBBTJ_AVI_OpenOutStream2(ofn, vstat->width, vstat->height,
+//		1000000.0/vstat->frametime, RIFF_TAG_CRAM, 0);
+
 	oavi=BGBBTJ_AVI_OpenOutStream2(ofn, vstat->width, vstat->height,
-		1000000.0/vstat->frametime, RIFF_TAG_CRAM, 0);
+		1000000.0/vstat->frametime, RIFF_TAG_CRAM, BGBBTJ_AVI_AUID_11K8BM);
 	
 	tbuf=malloc(1<<20);
+//	sndlen=44100*(vstat->frametime/1000000.0);
+	sndlen=11025*(vstat->frametime/1000000.0)+0.5;
+	sndlen=8192;
+	
+//	memset(sndbuf, 0, 2*sndlen);
 	
 	for(i=0; i<vstat->num_frames; i++)
 	{
 //		buf=BGBBTJ_AVI_FrameRawClrs(avi, t2*2000, BGBBTJ_JPG_RAWCON);
 		buf=BGBBTJ_AVI_DecodeFrame2(avi, 0, BGBBTJ_JPG_RAWDAT);
+		slen2=BGBBTJ_AVI_GetMonoSamplesRate(avi, sndbuf, sndlen, 11025);
 
 		sz=cram_repak_buf(buf, tbuf, 1<<20, 1<<20, vstat);
 
+//		slen2=sndlen;
+
+		BGBBTJ_AVI_WriteContextMonoSamples(oavi, sndbuf, slen2);
 		BGBBTJ_AVI_EmitCodedFrame(oavi, tbuf, sz, 0);
+		BGBBTJ_AVI_EmitAudioFrame(oavi);
 	}
 	
 	BGBBTJ_AVI_CloseOutStream(oavi);
