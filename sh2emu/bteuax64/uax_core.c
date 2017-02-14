@@ -541,6 +541,13 @@ int UAX_Asm_RegIsExtByteP(int reg)
 	return(0);
 }
 
+int UAX_Asm_RegIsXmmP(int reg)
+{
+	if((reg&0xF0)==0x40)
+		return(1);
+	return(0);
+}
+
 int UAX_Asm_OpArgRegDWordP(UAX_OpcodeArg *rm)
 {
 	if(!UAX_Asm_OpArgRegP(rm))
@@ -573,6 +580,15 @@ int UAX_Asm_OpArgRegByteP(UAX_OpcodeArg *rm)
 	if(!UAX_Asm_OpArgRegP(rm))
 		return(0);
 	if(!UAX_Asm_RegIsByteP(rm->breg))
+		return(0);
+	return(1);
+}
+
+int UAX_Asm_OpArgRegXmmP(UAX_OpcodeArg *rm)
+{
+	if(!UAX_Asm_OpArgRegP(rm))
+		return(0);
+	if(!UAX_Asm_RegIsXmmP(rm->breg))
 		return(0);
 	return(1);
 }
@@ -983,7 +999,8 @@ int UAX_CheckArgsMatchString(UAX_Context *ctx, char *str,
 			else if(!strncmp(s+1, "16", 2)) { s+=2; }
 			else if(!strncmp(s+1, "32", 2)) { s+=2; }
 			else if(!strncmp(s+1, "64", 2)) { s+=2; }
-			s++; ta++; continue;
+			s++; ta++;
+			continue;
 		}
 		
 		if(s[0]=='i')
@@ -1094,6 +1111,24 @@ int UAX_CheckArgsMatchString(UAX_Context *ctx, char *str,
 			__debugbreak();
 		}
 
+		if(s[0]=='x')
+		{
+			if(s[1]=='r')
+			{
+				if(s[2]=='m')
+				{
+					if(!UAX_Asm_OpArgRegXmmP(*ta) &&
+						!UAX_Asm_OpArgMemP(*ta))
+							break;
+					s+=3; ta++; continue;
+				}
+			
+				if(!UAX_Asm_OpArgRegXmmP(*ta))
+					break;
+				s+=2; ta++; continue;
+			}
+		}
+
 		if(s[0]=='c')
 		{
 			if(s[1]=='l')
@@ -1115,6 +1150,22 @@ int UAX_CheckArgsMatchString(UAX_Context *ctx, char *str,
 			}
 
 			__debugbreak();
+		}
+
+		if(s[0]=='f')
+		{
+			if(s[1]=='r')
+			{
+				break;
+			}
+		}
+
+		if(s[0]=='u')
+		{
+			if((s[1]=='b') || (s[1]=='8'))
+			{	if(!UAX_Asm_OpArgImm8P(*ta))
+					break;
+				s+=2; ta++; continue;	}
 		}
 
 		if((s[0]>='0') && (s[0]<='9'))
@@ -1326,3 +1377,8 @@ int UAX_AsmMovRegReg(UAX_Context *ctx, int dreg, int sreg)
 	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_MOV, dreg, sreg)); }
 int UAX_AsmMovRegImm(UAX_Context *ctx, int dreg, s64 imm)
 	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_MOV, dreg, imm)); }
+
+int UAX_AsmAddRegReg(UAX_Context *ctx, int dreg, int sreg)
+	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_ADD, dreg, sreg)); }
+int UAX_AsmAddRegImm(UAX_Context *ctx, int dreg, s64 imm)
+	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_ADD, dreg, imm)); }
