@@ -310,8 +310,8 @@ int flags;
   */
 struct BTESH2_MemoryImage_s {
 BTESH2_PhysSpan **span;		//spans for image
-BTESH2_PhysSpan *pspan;		//predict span
-BTESH2_PhysSpan *pspanb;	//predict span (alt)
+// BTESH2_PhysSpan *pspan;		//predict span
+// BTESH2_PhysSpan *pspanb;	//predict span (alt)
 int nspan, mspan;
 BTESH2_PhysSpan *t_span[32];
 };
@@ -339,8 +339,8 @@ void (*Run)(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 
 //#define BTESH2_TR_HASHSZ	64
 //#define BTESH2_TR_HASHSZ	256
-//#define BTESH2_TR_HASHSZ	512
-#define BTESH2_TR_HASHSZ	1024
+#define BTESH2_TR_HASHSZ	512
+// #define BTESH2_TR_HASHSZ	1024
 //#define BTESH2_TR_HASHSZ	2048
 // #define BTESH2_TR_HASHSZ	4096
 
@@ -376,6 +376,7 @@ byte nops;		//number of ops in trace
 byte amiss;
 byte csfl;		//control state flags
 byte jtrig;		//jit trigger count
+byte jtflag;	//JIT flags
 void (*Run)(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 };
 
@@ -419,6 +420,9 @@ BTESH2_MemoryImage *memory;
 BTESH2_Opcode *free_opcode;
 BTESH2_Trace *free_trace;
 void *slabs;
+
+BTESH2_PhysSpan *pspan;		//predict span
+BTESH2_PhysSpan *pspanb;	//predict span (alt)
 
 int (*GetAddrByte)(BTESH2_CpuState *cpu, u32 addr);
 int (*GetAddrWord)(BTESH2_CpuState *cpu, u32 addr);

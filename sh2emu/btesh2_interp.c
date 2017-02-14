@@ -75,6 +75,12 @@ BTESH2_Trace *BTESH2_AllocTrace(BTESH2_CpuState *cpu)
 
 void BTESH2_FreeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 {
+	if(tr->maxpc==0xDEADFEED)
+	{
+		__debugbreak();
+		return;
+	}
+	tr->maxpc=0xDEADFEED;
 	*(BTESH2_Trace **)tr=cpu->free_trace;
 	cpu->free_trace=tr;
 }

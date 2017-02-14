@@ -2251,8 +2251,10 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 	default: break;
 	}
 
-	tr->jtrig=252;
+//	tr->jtrig=252;
 //	tr->jtrig=126;
+//	tr->jtrig=62;
+	tr->jtrig=30;
 //	BTESH2_TryJitTrace(cpu, tr);
 
 	return(0);
@@ -2261,10 +2263,24 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 void BTESH2_FlushTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 {
 	int i;
+
+	if(tr->maxpc==0xDEADFEED)
+	{
+		__debugbreak();
+		return;
+	}
 	
 	if((tr->nops<0) || (tr->nops>BTESH2_TR_MAXOPS))
 	{
+		__debugbreak();
 		i=-1;
+		return;
+	}
+	
+	if(tr->srcpc==(u32)(-1))
+	{
+		__debugbreak();
+		i=-2;
 		return;
 	}
 	
@@ -2274,6 +2290,10 @@ void BTESH2_FlushTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	}
 	
 	memset(tr, 0, sizeof(BTESH2_Trace));
+
+	tr->srcpc=-1;
+	tr->csfl=-1;
+	
 //	tr->nops=0;
 }
 
@@ -2288,14 +2308,36 @@ void BTESH2_FlushTracesFull(BTESH2_CpuState *cpu)
 		if(!tr)
 			continue;
 		cpu->icache[i]=NULL;
-		BTESH2_FlushTrace(cpu, tr);
-		BTESH2_FreeTrace(cpu, tr);
+
+		tr->jtflag&=~1;
+		if(!(tr->jtflag&3))
+		{
+			BTESH2_FlushTrace(cpu, tr);
+			BTESH2_FreeTrace(cpu, tr);
+		}
 	}
+
+#ifdef BTESH2_TR_JHASHSZ
+	for(i=0; i<(BTESH2_TR_JHASHSZ*BTESH2_TR_JHASHLVL); i++)
+	{
+		tr=cpu->jcache[i];
+		if(!tr)
+			continue;
+		cpu->jcache[i]=NULL;
+
+		tr->jtflag&=~2;
+		if(!(tr->jtflag&3))
+		{
+			BTESH2_FlushTrace(cpu, tr);
+			BTESH2_FreeTrace(cpu, tr);
+		}
+	}
+#endif
 }
 
 force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
 {
-	BTESH2_Trace *tr, *tr1;
+	BTESH2_Trace *tr, *tr1, *tr2;
 	u32 spc1;
 	int h, h0, h1, hp, hp1;
 	int i, j, k;
@@ -2330,19 +2372,22 @@ force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
 
 #if 1
 //		h1=h|BTESH2_TR_HASHSZ;
-		h1=h0+1;
+		h1=h*2+1;
 		tr1=cpu->icache[h1];
 
 		if(tr1)
 		{
+			tr->jtflag|=1;
+			tr1->jtflag|=1;
+
 			if((tr1->srcpc==spc) && (tr1->csfl==cpu->csfl))
 			{
-				if(tr->jtrig)
+				if(tr1->jtrig)
 				{
-					tr->jtrig--;
-					if(!tr->jtrig)
+					tr1->jtrig--;
+					if(!tr1->jtrig)
 					{
-						BTESH2_TryJitTrace(cpu, tr);
+						BTESH2_TryJitTrace(cpu, tr1);
 					}
 				}
 
@@ -2351,24 +2396,60 @@ force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
 				return(tr1);
 			}
 
+			tr2=BTESH2_JTraceForAddr(cpu, spc);
+			if(tr2)
+			{
+				cpu->icache[h0]=tr2;
+				cpu->icache[h1]=tr;
+				tr->jtflag|=1;
+				tr2->jtflag|=1;
+				tr1->jtflag&=~1;
+//				if(tr->jtrig>0)
+				if(!(tr1->jtflag&3))
+				{
+					BTESH2_FlushTrace(cpu, tr1);
+					BTESH2_FreeTrace(cpu, tr1);
+				}
+				return(tr2);
+			}
+
+			tr1->jtflag|=1;
+			tr->jtflag|=1;
+
 			cpu->icache[h0]=tr1;
 			cpu->icache[h1]=tr;
 			tr=tr1;
 			
-			if(tr->jtrig>0)
+//			if(tr->jtrig>0)
+			if(!(tr->jtflag&2))
 			{
 				BTESH2_FlushTrace(cpu, tr);
 				cpu->tr_dcol++;
+				tr->jtflag|=1;
 			}else
 			{
 				tr=BTESH2_AllocTrace(cpu);
 				cpu->icache[h0]=tr;
+				tr->jtflag|=1;
 			}
 		}else
 		{
+			tr2=BTESH2_JTraceForAddr(cpu, spc);
+			if(tr2)
+			{
+				cpu->icache[h0]=tr2;
+				cpu->icache[h1]=tr;
+				tr2->jtflag|=1;
+				tr->jtflag|=1;
+				return(tr2);
+			}
+
 			cpu->icache[h1]=tr;
+			tr->jtflag|=1;
+
 			tr=BTESH2_AllocTrace(cpu);
 			cpu->icache[h0]=tr;
+			tr->jtflag|=1;
 		}
 #else
 		BTESH2_FlushTrace(cpu, tr);
@@ -2376,8 +2457,17 @@ force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
 #endif
 	}else
 	{
+		tr2=BTESH2_JTraceForAddr(cpu, spc);
+		if(tr2)
+		{
+			cpu->icache[h0]=tr2;
+			tr2->jtflag|=1;
+			return(tr2);
+		}
+
 		tr=BTESH2_AllocTrace(cpu);
 		cpu->icache[h0]=tr;
+		tr->jtflag|=1;
 	}
 	
 	if(cpu->jit_needflush)

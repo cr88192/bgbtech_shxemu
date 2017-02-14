@@ -517,7 +517,8 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 
 	mem=cpu->memory;
 
-	sp=mem->pspan;
+//	sp=mem->pspan;
+	sp=cpu->pspan;
 //	if(sp && ((addr-sp->base)<=sp->range_n3))
 //		return(sp);
 
@@ -527,7 +528,8 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 			return(sp);
 	}
 
-	sp1=mem->pspanb;
+//	sp1=mem->pspanb;
+	sp1=cpu->pspanb;
 
 #if 0
 	if(sp1 && ((addr-sp1->base)<=sp1->range_n3))
@@ -543,8 +545,10 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 	{
 		if((addr>=sp1->base) && (lim<=sp1->limit))
 		{
-			mem->pspan=sp1;
-			mem->pspanb=sp;
+//			mem->pspan=sp1;
+//			mem->pspanb=sp;
+			cpu->pspan=sp1;
+			cpu->pspanb=sp;
 			return(sp1);
 		}
 	}
@@ -561,8 +565,11 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 			if((addr>=sp->base) && (lim<=sp->limit))
 			{
 //				mem->pspanb=mem->pspan;
-				mem->pspanb=sp1;
-				mem->pspan=sp;
+//				mem->pspanb=sp1;
+//				mem->pspan=sp;
+
+				cpu->pspanb=sp1;
+				cpu->pspan=sp;
 				return(sp);
 			}
 		}
@@ -594,8 +601,10 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 		if((addr>=sp->base) && (lim<=sp->limit))
 		{
 //			mem->pspanb=mem->pspan;
-			mem->pspanb=sp1;
-			mem->pspan=sp;
+//			mem->pspanb=sp1;
+//			mem->pspan=sp;
+			cpu->pspanb=sp1;
+			cpu->pspan=sp;
 			return(sp);
 		}
 		if(addr>sp->base)
@@ -612,8 +621,10 @@ BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
 		if((addr>=sp->base) && (lim<=sp->limit))
 		{
 //			mem->pspanb=mem->pspan;
-			mem->pspanb=sp1;
-			mem->pspan=sp;
+//			mem->pspanb=sp1;
+//			mem->pspan=sp;
+			cpu->pspanb=sp1;
+			cpu->pspan=sp;
 			return(sp);
 		}
 	}
