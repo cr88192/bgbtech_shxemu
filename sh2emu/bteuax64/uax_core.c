@@ -1382,3 +1382,33 @@ int UAX_AsmAddRegReg(UAX_Context *ctx, int dreg, int sreg)
 	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_ADD, dreg, sreg)); }
 int UAX_AsmAddRegImm(UAX_Context *ctx, int dreg, s64 imm)
 	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_ADD, dreg, imm)); }
+
+int UAX_AsmSubRegReg(UAX_Context *ctx, int dreg, int sreg)
+	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_SUB, dreg, sreg)); }
+int UAX_AsmSubRegImm(UAX_Context *ctx, int dreg, s64 imm)
+	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_SUB, dreg, imm)); }
+
+int UAX_AsmAndRegReg(UAX_Context *ctx, int dreg, int sreg)
+	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_AND, dreg, sreg)); }
+int UAX_AsmAndRegImm(UAX_Context *ctx, int dreg, s64 imm)
+	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_AND, dreg, imm)); }
+
+int UAX_AsmOrRegReg(UAX_Context *ctx, int dreg, int sreg)
+	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_OR, dreg, sreg)); }
+int UAX_AsmOrRegImm(UAX_Context *ctx, int dreg, s64 imm)
+	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_OR, dreg, imm)); }
+
+int UAX_AsmXorRegReg(UAX_Context *ctx, int dreg, int sreg)
+	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_XOR, dreg, sreg)); }
+int UAX_AsmXorRegImm(UAX_Context *ctx, int dreg, s64 imm)
+	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_XOR, dreg, imm)); }
+
+int UAX_AsmCmpRegReg(UAX_Context *ctx, int dreg, int sreg)
+	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_CMP, dreg, sreg)); }
+int UAX_AsmCmpRegImm(UAX_Context *ctx, int dreg, s64 imm)
+	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_CMP, dreg, imm)); }
+
+int UAX_AsmTestRegReg(UAX_Context *ctx, int dreg, int sreg)
+	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_TEST, dreg, sreg)); }
+int UAX_AsmTestRegImm(UAX_Context *ctx, int dreg, s64 imm)
+	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_TEST, dreg, imm)); }

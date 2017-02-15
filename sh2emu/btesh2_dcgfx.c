@@ -208,6 +208,7 @@ u32 btesh2_dcgfx_redraw_tpix16_yuv655le(byte *px)
 
 #if 1
 static u32 *yuv655_ttab=NULL;
+static u32 *yuv744_ttab=NULL;
 
 void btesh2_dcgfx_init_yuv655le()
 {
@@ -230,8 +231,8 @@ void btesh2_dcgfx_init_yuv655le()
 		cv=(pxa>>2)&0xF8;
 		cu=(pxa<<3)&0xF8;
 		cy=cy|(cy>>6);
-		cu=cu|(cu>>5);
-		cv=cv|(cv>>5);
+//		cu=cu|(cu>>5);
+//		cv=cv|(cv>>5);
 
 		cu1=(cu-128)<<1; cv1=(cv-128)<<1;
 	//	cg=2*cy-cu1-cv1;
@@ -250,6 +251,47 @@ void btesh2_dcgfx_init_yuv655le()
 		pxc=0xFF000000|(cb<<16)|(cg<<8)|cr;
 		
 		yuv655_ttab[i]=pxc;
+	}
+}
+
+void btesh2_dcgfx_init_yuv744le()
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+
+	yuv744_ttab=malloc(65536*4);
+	
+	for(i=0; i<65536; i++)
+	{
+		pxa=i;
+	
+		cy=(pxa>>7)&0xFE;
+		cv=(pxa   )&0xF0;
+		cu=(pxa<<4)&0xF0;
+		cy=cy|(cy>>7);
+//		cu=cu|(cu>>5);
+//		cv=cv|(cv>>5);
+
+		cu1=(cu-128)<<1; cv1=(cv-128)<<1;
+	//	cg=2*cy-cu1-cv1;
+	//	cg=(4*cy-cu1-cv1)>>1;
+		cg=cy-((cu1+cv1)>>2);
+		cb=cg+cu1;
+		cr=cg+cv1;
+		
+		if((cr|cg|cb)>>8)
+		{
+			cr=btesh2_clamp255(cr);
+			cg=btesh2_clamp255(cg);
+			cb=btesh2_clamp255(cb);
+		}
+		
+		pxc=0xFF000000|(cb<<16)|(cg<<8)|cr;
+		
+		yuv744_ttab[i]=pxc;
 	}
 }
 
@@ -272,6 +314,24 @@ u32 btesh2_dcgfx_redraw_tpix16_yuv655le(byte *px)
 //	pxa=px[0]|(px[1]<<8);
 //	pxc=ttab[pxa>>1];
 
+	return(pxc);
+}
+
+u32 btesh2_dcgfx_redraw_tpix16_yuv744le(byte *px)
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+	
+	if(!yuv744_ttab)
+	{
+		btesh2_dcgfx_init_yuv744le();
+	}
+
+	pxa=*(u16 *)px;
+	pxc=yuv744_ttab[pxa];
 	return(pxc);
 }
 #endif
@@ -436,13 +496,19 @@ int BTESH2_DCGFX_RedrawScreen()
 
 	if(vxstr==2)
 	{
-		tpix16=btesh2_dcgfx_redraw_tpix16_555le;
-
-		if(btesh2_dcgfx_displaycfg&0x0004)
-			tpix16=btesh2_dcgfx_redraw_tpix16_565le;
-
 		if(btesh2_dcgfx_displaycfg&0x0080)
-			tpix16=btesh2_dcgfx_redraw_tpix16_yuv655le;
+		{
+			if(btesh2_dcgfx_displaycfg&0x0004)
+				tpix16=btesh2_dcgfx_redraw_tpix16_yuv655le;
+			else
+				tpix16=btesh2_dcgfx_redraw_tpix16_yuv744le;
+		}else
+		{
+			if(btesh2_dcgfx_displaycfg&0x0004)
+				tpix16=btesh2_dcgfx_redraw_tpix16_565le;
+			else
+				tpix16=btesh2_dcgfx_redraw_tpix16_555le;
+		}
 
 		ycur=0;
 		for(y=0; y<btesh2_gfxcon_fbys; y++)
@@ -456,43 +522,16 @@ int BTESH2_DCGFX_RedrawScreen()
 
 			if(tpix16==btesh2_dcgfx_redraw_tpix16_yuv655le)
 			{
-				for(x=0; x<btesh2_gfxcon_fbxs; x+=4)
+				for(x=0; x<btesh2_gfxcon_fbxs; x++)
 				{
 					ix=xcur>>16;	xcur+=xstep;
 					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
-					olb32[x+0]=px;
-
-					ix=xcur>>16;	xcur+=xstep;
-					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
-					olb32[x+1]=px;
-
-					ix=xcur>>16;	xcur+=xstep;
-					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
-					olb32[x+2]=px;
-
-					ix=xcur>>16;	xcur+=xstep;
-					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
-					olb32[x+3]=px;
+					olb32[x]=px;
 				}
 			}else
 			{
-				for(x=0; x<btesh2_gfxcon_fbxs; x+=4)
+				for(x=0; x<btesh2_gfxcon_fbxs; x++)
 				{
-					ix=xcur>>16;	iy=ycur>>16;
-					px=tpix16(fbb+(iy*vystr*4+ix*2));
-					btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
-					xcur+=xstep;
-
-					ix=xcur>>16;	iy=ycur>>16;
-					px=tpix16(fbb+(iy*vystr*4+ix*2));
-					btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
-					xcur+=xstep;
-
-					ix=xcur>>16;	iy=ycur>>16;
-					px=tpix16(fbb+(iy*vystr*4+ix*2));
-					btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;
-					xcur+=xstep;
-
 					ix=xcur>>16;	iy=ycur>>16;
 					px=tpix16(fbb+(iy*vystr*4+ix*2));
 					btesh2_gfxcon_framebuf[y*btesh2_gfxcon_fbxs+x]=px;

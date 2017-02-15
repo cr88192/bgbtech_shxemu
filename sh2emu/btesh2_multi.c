@@ -23,6 +23,7 @@
 #include "btesh2_sdfat.c"
 
 #include "bteuax64/uax_multi.c"
+#include "btesh2_jit_opmov.c"
 #include "btesh2_jit.c"
 
 #include "btesh2_decode.c"

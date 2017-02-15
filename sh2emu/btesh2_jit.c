@@ -152,250 +152,130 @@ int BTESH2_JitAddVMRegImm(UAX_Context *jctx, int idx, s32 val)
 
 int BTESH2_JitLoadVMFReg(UAX_Context *jctx, int idx, int reg)
 {
-	UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOVSS,
-		reg, UAX_REG_RDI, offsetof(BTESH2_CpuState, fregs)+(idx*4));
+	if(UAX_Asm_RegIsXmmP(reg))
+	{
+		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOVSS,
+			reg, UAX_REG_RDI, offsetof(BTESH2_CpuState, fregs)+(idx*4));
+	}else
+	{
+		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
+			reg, UAX_REG_RDI, offsetof(BTESH2_CpuState, fregs)+(idx*4));
+	}
 	return(0);
 }
 
 int BTESH2_JitStoreVMFReg(UAX_Context *jctx, int idx, int reg)
 {
-	UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOVSS,
-		UAX_REG_RDI, offsetof(BTESH2_CpuState, fregs)+(idx*4), reg);
+	if(UAX_Asm_RegIsXmmP(reg))
+	{
+		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOVSS,
+			UAX_REG_RDI, offsetof(BTESH2_CpuState, fregs)+(idx*4), reg);
+	}else
+	{
+		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
+			UAX_REG_RDI, offsetof(BTESH2_CpuState, fregs)+(idx*4), reg);
+	}
 	return(0);
 }
 
-int BTESH2_TryJitOpcode(UAX_Context *jctx,
-	BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+/* EDX -> EAX */
+int BTESH2_JitGetAddrDWord(UAX_Context *jctx, BTESH2_CpuState *cpu)
 {
-	if((op->nmid==BTESH2_NMID_MOV) && (op->fmid==BTESH2_FMID_REGREG))
+	UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
+
+	if(!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT))
 	{
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
+		UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+			(nlint)(BTESH2_GetAddrDWordFMMU_NoAT));
+	}else
+	{
+		UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+			(nlint)(BTESH2_GetAddrDWordFMMU));
 	}
 
-	if((op->nmid==BTESH2_NMID_MOV) && (op->fmid==BTESH2_FMID_REGIMM))
+	UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
+}
+
+int BTESH2_JitGetAddrWord(UAX_Context *jctx, BTESH2_CpuState *cpu)
+{
+	UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
+
+	if(!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT))
 	{
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
+		UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+			(nlint)(BTESH2_GetAddrWordFMMU_NoAT));
+	}else
+	{
+		UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+			(nlint)(BTESH2_GetAddrWordFMMU));
 	}
 
-	if((op->nmid==BTESH2_NMID_MOVL) && (op->fmid==BTESH2_FMID_REGVIMM))
+	UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
+}
+
+int BTESH2_JitGetAddrByte(UAX_Context *jctx, BTESH2_CpuState *cpu)
+{
+	UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
+
+	if(!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT))
 	{
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
+		UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+			(nlint)(BTESH2_GetAddrByteFMMU_NoAT));
+	}else
+	{
+		UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+			(nlint)(BTESH2_GetAddrByteFMMU));
 	}
 
-	if((op->nmid==BTESH2_NMID_ADD) && (op->fmid==BTESH2_FMID_REGREG))
-	{
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		BTESH2_JitAddVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
-	}
+	UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
+}
 
-	if((op->nmid==BTESH2_NMID_ADD) && (op->fmid==BTESH2_FMID_REGIMM))
-	{
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-		BTESH2_JitAddVMReg(jctx, op->rn, UAX_REG_EAX);
+/* EDX,R8 -> */
+int BTESH2_JitSetAddrDWord(UAX_Context *jctx, BTESH2_CpuState *cpu)
+{
+	UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
+	UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+		(nlint)(BTESH2_SetAddrDWordFMMU));
+	UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
+}
+
+int BTESH2_JitSetAddrWord(UAX_Context *jctx, BTESH2_CpuState *cpu)
+{
+	UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
+	UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+		(nlint)(BTESH2_SetAddrWordFMMU));
+	UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
+}
+
+int BTESH2_JitSetAddrByte(UAX_Context *jctx, BTESH2_CpuState *cpu)
+{
+	UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
+	UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
+		(nlint)(BTESH2_SetAddrByteFMMU));
+	UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
+}
+
+int BTESH2_TryJitOpcode(UAX_Context *jctx,
+	BTESH2_CpuState *cpu, BTESH2_Trace *tr, BTESH2_Opcode *op)
+{
+	if(BTESH2_TryJitOpcode_MovReg(jctx, cpu, tr, op)>0)
 		return(1);
-	}
+	if(BTESH2_TryJitOpcode_ArithReg(jctx, cpu, tr, op)>0)
+		return(1);
+	if(BTESH2_TryJitOpcode_MovMem(jctx, cpu, tr, op)>0)
+		return(1);
 
 #if 1
-	if((op->nmid==BTESH2_NMID_SUB) && (op->fmid==BTESH2_FMID_REGREG))
-	{
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		BTESH2_JitSubVMReg(jctx, op->rn, UAX_REG_EAX);
+	if(BTESH2_TryJitOpcode_FpuOp(jctx, cpu, tr, op)>0)
 		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_AND) && (op->fmid==BTESH2_FMID_REGREG))
-	{
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		BTESH2_JitAndVMReg(jctx, op->rn, UAX_REG_EAX);
+	if(BTESH2_TryJitOpcode_BranchOp(jctx, cpu, tr, op)>0)
 		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_OR) && (op->fmid==BTESH2_FMID_REGREG))
-	{
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		BTESH2_JitOrVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_XOR) && (op->fmid==BTESH2_FMID_REGREG))
-	{
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		BTESH2_JitXorVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
-	}
 #endif
 
-	if((op->nmid==BTESH2_NMID_AND) && (op->fmid==BTESH2_FMID_REGIMM))
-	{
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-		BTESH2_JitAndVMReg(jctx, op->rn, UAX_REG_EAX);
+	if(BTESH2_TryJitOpcode_CmpOp(jctx, cpu, tr, op)>0)
 		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_OR) && (op->fmid==BTESH2_FMID_REGIMM))
-	{
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-		BTESH2_JitOrVMReg(jctx, op->rn, UAX_REG_EAX);
+	if(BTESH2_TryJitOpcode_SignExtOp(jctx, cpu, tr, op)>0)
 		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_XOR) && (op->fmid==BTESH2_FMID_REGIMM))
-	{
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-		BTESH2_JitXorVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_MOVA) && (op->fmid==BTESH2_FMID_REGLDABS))
-	{
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_MOVL) && (op->fmid==BTESH2_FMID_REGLD))
-	{
-//		if(op->Run!=BTSH_Op_MOV_RegMemD_FMMU)
-//			return(0);
-		if(cpu->GetAddrDWord!=BTESH2_GetAddrDWordFMMU)
-			return(0);
-
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EDX);
-//		UAX_AsmMovRegImm(jctx, UAX_REG_RDX, (nlint)(tr->ops[i]));
-		UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
-
-		if(!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT))
-		{
-			UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
-				(nlint)(BTESH2_GetAddrDWordFMMU_NoAT));
-		}else
-		{
-			UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
-				(nlint)(BTESH2_GetAddrDWordFMMU));
-		}
-
-		UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
-		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-//		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-//		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_MOVL) && (op->fmid==BTESH2_FMID_REGLDDISP))
-	{
-//		if(op->Run!=BTSH_Op_MOV_RegLdDispD_FMMU)
-//			return(0);
-		if(cpu->GetAddrDWord!=BTESH2_GetAddrDWordFMMU)
-			return(0);
-
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EDX);
-		UAX_AsmAddRegImm(jctx, UAX_REG_EDX, op->imm);
-//		UAX_AsmMovRegImm(jctx, UAX_REG_RDX, (nlint)(tr->ops[i]));
-		UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
-
-		if(!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT))
-		{
-			UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
-				(nlint)(BTESH2_GetAddrDWordFMMU_NoAT));
-		}else
-		{
-			UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
-				(nlint)(BTESH2_GetAddrDWordFMMU));
-		}
-
-//		UAX_AsmMovRegImm(jctx, UAX_REG_RAX, (nlint)(BTESH2_GetAddrDWordFMMU));
-		UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
-		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-
-//		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
-//		UAX_AsmMovRegImm(jctx, UAX_REG_EAX, (s32)(op->imm));
-//		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_MOVW) && (op->fmid==BTESH2_FMID_REGLD))
-	{
-		if(cpu->GetAddrWord!=BTESH2_GetAddrWordFMMU)
-			return(0);
-
-		BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EDX);
-		UAX_AsmMovRegReg(jctx, UAX_REG_RCX, UAX_REG_RDI);
-
-		if(!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT))
-		{
-			UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
-				(nlint)(BTESH2_GetAddrWordFMMU_NoAT));
-		}else
-		{
-			UAX_AsmMovRegImm(jctx, UAX_REG_RAX,
-				(nlint)(BTESH2_GetAddrWordFMMU));
-		}
-
-		UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
-		BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EAX);
-		return(1);
-	}
-
-#if 1
-	if((op->nmid==BTESH2_NMID_FMUL) && (op->fmid==BTESH2_FMID_FREGREG))
-	{
-		BTESH2_JitLoadVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		BTESH2_JitLoadVMFReg(jctx, op->rm, UAX_REG_XMM1);
-		UAX_AsmInsnRegReg(jctx, UAX_OP_MULSS, UAX_REG_XMM0, UAX_REG_XMM1);
-		BTESH2_JitStoreVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_FADD) && (op->fmid==BTESH2_FMID_FREGREG))
-	{
-		BTESH2_JitLoadVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		BTESH2_JitLoadVMFReg(jctx, op->rm, UAX_REG_XMM1);
-		UAX_AsmInsnRegReg(jctx, UAX_OP_ADDSS, UAX_REG_XMM0, UAX_REG_XMM1);
-		BTESH2_JitStoreVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_FMOV) && (op->fmid==BTESH2_FMID_FREGREG))
-	{
-		BTESH2_JitLoadVMFReg(jctx, op->rm, UAX_REG_XMM0);
-		BTESH2_JitStoreVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_FSUB) && (op->fmid==BTESH2_FMID_FREGREG))
-	{
-		BTESH2_JitLoadVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		BTESH2_JitLoadVMFReg(jctx, op->rm, UAX_REG_XMM1);
-		UAX_AsmInsnRegReg(jctx, UAX_OP_SUBSS, UAX_REG_XMM0, UAX_REG_XMM1);
-		BTESH2_JitStoreVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		return(1);
-	}
-
-	if((op->nmid==BTESH2_NMID_FDIV) && (op->fmid==BTESH2_FMID_FREGREG))
-	{
-		BTESH2_JitLoadVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		BTESH2_JitLoadVMFReg(jctx, op->rm, UAX_REG_XMM1);
-		UAX_AsmInsnRegReg(jctx, UAX_OP_DIVSS, UAX_REG_XMM0, UAX_REG_XMM1);
-		BTESH2_JitStoreVMFReg(jctx, op->rn, UAX_REG_XMM0);
-		return(1);
-	}
-#endif
 
 	return(0);
 }
@@ -506,17 +386,17 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	UAX_SetSection(jctx, UAX_CSEG_TEXT);
 	
 	UAX_AsmInsnRegImm(jctx, UAX_OP_SUB, UAX_REG_RSP, BTEJ_X64_FRAMEADJ);
-	BTESH2_JitStoreFrame(jctx, BTEJ_X64_FRIDX_CPU, UAX_REG_RCX);
+//	BTESH2_JitStoreFrame(jctx, BTEJ_X64_FRIDX_CPU, UAX_REG_RCX);
 //	BTESH2_JitStoreFrame(jctx, BTEJ_X64_FRIDX_TRACE, UAX_REG_RDX);
 
 	BTESH2_JitStoreFrame(jctx, BTEJ_X64_FRIDX_RDI, UAX_REG_RDI);
-	BTESH2_JitStoreFrame(jctx, BTEJ_X64_FRIDX_RSI, UAX_REG_RSI);
+//	BTESH2_JitStoreFrame(jctx, BTEJ_X64_FRIDX_RSI, UAX_REG_RSI);
 	UAX_AsmMovRegReg(jctx, UAX_REG_RDI, UAX_REG_RCX);
 	BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, tr->nxtpc);
 
 	for(i=0; i<tr->nops; i++)
 	{
-		if(BTESH2_TryJitOpcode(jctx, cpu, tr->ops[i])>0)
+		if(BTESH2_TryJitOpcode(jctx, cpu, tr, tr->ops[i])>0)
 			continue;
 
 		UAX_AsmMovRegImm(jctx, UAX_REG_RDX, (nlint)(tr->ops[i]));
@@ -526,7 +406,7 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	}
 
 	BTESH2_JitLoadFrame(jctx, BTEJ_X64_FRIDX_RDI, UAX_REG_RDI);
-	BTESH2_JitLoadFrame(jctx, BTEJ_X64_FRIDX_RSI, UAX_REG_RSI);
+//	BTESH2_JitLoadFrame(jctx, BTEJ_X64_FRIDX_RSI, UAX_REG_RSI);
 
 	UAX_AsmInsnRegImm(jctx, UAX_OP_ADD, UAX_REG_RSP, BTEJ_X64_FRAMEADJ);
 	UAX_AsmInsnNone(jctx, UAX_OP_RET);

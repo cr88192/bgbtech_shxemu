@@ -1015,14 +1015,14 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->rn=(opw>>8)&15;
 			op->rm=(opw>>4)&15;
 			op->nmid=BTESH2_NMID_SWAPB;
-			op->fmid=BTESH2_FMID_REGLD;
+			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_SWAP_RegRegB;
 			break;
 		case 0x9: /* 6--9 */
 			op->rn=(opw>>8)&15;
 			op->rm=(opw>>4)&15;
 			op->nmid=BTESH2_NMID_SWAPW;
-			op->fmid=BTESH2_FMID_REGLD;
+			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_SWAP_RegRegW;
 			break;
 		case 0xA: /* 6--A */
