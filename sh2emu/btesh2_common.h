@@ -112,6 +112,12 @@ typedef long nlint;
 #define btesh2_sets32le(ptr, val)	(*(s32 *)(ptr))=(val)
 #define btesh2_sets64le(ptr, val)	(*(s64 *)(ptr))=(val)
 
+#define btesh2_getu8le(ptr)			(*(byte *)(ptr))
+#define btesh2_gets8le(ptr)			(*(sbyte *)(ptr))
+
+#define btesh2_setu8le(ptr, val)	(*(byte *)(ptr))=(val)
+#define btesh2_sets8le(ptr, val)	(*(sbyte *)(ptr))=(val)
+
 default_inline u16 btesh2_bswapu16(u16 val)
 	{ return((val>>8)|(val<<8)); }
 default_inline u32 btesh2_bswapu32(u32 val)
@@ -152,6 +158,12 @@ default_inline void btesh2_sets32le(byte *ptr, s32 val)
 	{ btesh2_setu32le(ptr, (u32)val); }
 default_inline void btesh2_sets64le(byte *ptr, s64 val)
 	{ btesh2_setu64le(ptr, (u64)val); }
+
+#define btesh2_getu8le(ptr)			(*(byte *)(ptr))
+#define btesh2_gets8le(ptr)			(*(sbyte *)(ptr))
+
+#define btesh2_setu8le(ptr, val)	(*(byte *)(ptr))=(val)
+#define btesh2_sets8le(ptr, val)	(*(sbyte *)(ptr))=(val)
 
 default_inline u16 btesh2_getu16be(byte *ptr)
 	{ return(ptr[1]|(ptr[0]<<8)); }

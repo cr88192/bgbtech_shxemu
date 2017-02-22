@@ -18,6 +18,7 @@
 
 #define BTESH2_REG_FPSCR	24
 #define BTESH2_REG_FPUL		25
+#define BTESH2_REG_FLB		26
 
 #define BTESH2_REG_MMUCR	27
 #define BTESH2_REG_PTEH		28
@@ -32,12 +33,16 @@
 #define BTESH2_REG_SGR		42
 #define BTESH2_REG_DBR		43
 
+#define BTESH2_REG_ZZR		47		//Null Register (Placeholder Reg)
+
+
 #define BTESH2_OPFL_CTRLF		1	//opcode effects control-flow
 #define BTESH2_OPFL_FAULT		2	//opcode may fault
 #define BTESH2_OPFL_DLYSLOT		4	//delay-slot
 #define BTESH2_OPFL_INVDLYSLOT	8	//invalid in delay-slot
 #define BTESH2_OPFL_PCADLYSLOTW	16	//adjust PC in delay slot (W)
 #define BTESH2_OPFL_PCADLYSLOTD	32	//adjust PC in delay slot (D)
+#define BTESH2_OPFL_EXTRAWORD	64	//uses an extra word
 
 #define BTESH2_SPFL_SIMPLEMEM_LE	1	//span is simple-case memory (LE)
 
@@ -125,13 +130,13 @@
 #define BTESH2_NMID_JSR			0x11	//JSR
 #define BTESH2_NMID_BRA			0x12	//BRA
 #define BTESH2_NMID_BSR			0x13	//BSR
-#define BTESH2_NMID_BT			0x14	//BRA
-#define BTESH2_NMID_BF			0x15	//BSR
-#define BTESH2_NMID_BTS			0x16	//BRA
-#define BTESH2_NMID_BFS			0x17	//BSR
-#define BTESH2_NMID_DIV1		0x18	//JMP
-#define BTESH2_NMID_DMULU		0x19	//JMP
-#define BTESH2_NMID_DMULS		0x1A	//JMP
+#define BTESH2_NMID_BT			0x14	//BT
+#define BTESH2_NMID_BF			0x15	//BF
+#define BTESH2_NMID_BTS			0x16	//BTS
+#define BTESH2_NMID_BFS			0x17	//BFS
+#define BTESH2_NMID_DIV1		0x18	//DIV1
+#define BTESH2_NMID_DMULU		0x19	//DMULU
+#define BTESH2_NMID_DMULS		0x1A	//DMULS
 #define BTESH2_NMID_TST			0x1B	//TST
 #define BTESH2_NMID_AND			0x1C	//AND
 #define BTESH2_NMID_XOR			0x1D	//XOR
@@ -229,6 +234,9 @@
 #define BTESH2_NMID_FSUB		0x94	//
 #define BTESH2_NMID_FTRC		0x95	//
 #define BTESH2_NMID_MOVCAL		0x96	//
+
+#define BTESH2_NMID_MOVI		0xC0	//
+#define BTESH2_NMID_MOVIV		0xC1	//
 
 
 #define BTESH2_FMID_REGREG		0x01	//Rm, Rn
@@ -366,18 +374,32 @@ void (*Run)(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 #define BTESH2_TR_JHASHLVL	4
 #endif
 
+#define BTESH2_UAXJFL_PREJMP		1	//jump was handled early
+#define BTESH2_UAXJFL_NOPREJMP		2	//disable pre-jump
+
+#define BTESH2_TRJTFL_ICACHE		1
+#define BTESH2_TRJTFL_JCACHE		2
+#define BTESH2_TRJTFL_LINKED		4
+
+#define BTESH2_TRJTFL_NOSTOMP_MASK	6
+#define BTESH2_TRJTFL_NOFREE_MASK	7
+
 struct BTESH2_Trace_s {
 BTESH2_Opcode *ops[BTESH2_TR_MAXOPS];
 u32 srcpc;		//source PC for trace
 u32 nxtpc;		//next PC
 u32 maxpc;		//max PC for trace
-// u32 jmppc;		//jump PC
+u32 jmppc;		//jump PC
 byte nops;		//number of ops in trace
+byte nwops;		//number of word-ops in trace
 byte amiss;
 byte csfl;		//control state flags
 byte jtrig;		//jit trigger count
 byte jtflag;	//JIT flags
-void (*Run)(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
+BTESH2_Trace *(*Run)(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
+BTESH2_Trace *trnext;		//next trace to execute
+BTESH2_Trace *trjmpnext;	//next trace to execute (on a jump)
+BTESH2_Trace *lnknext;		//next trace in linked traces
 };
 
 // struct BTESH2_FastTLB_s {
@@ -401,6 +423,7 @@ int status;
 byte trpc_rov;
 int tr_dtot;
 int tr_dcol;
+int tr_runlim;	//run limit remaining
 u64 tr_tops;	//total operations
 s64 tr_tdt;		//total running time (ms)
 byte csfl;		//control state flags
@@ -412,6 +435,7 @@ BTESH2_Trace *cur_trace;
 u32 *smcdbm[128];		//SMC detection bitmap
 u64 tlbe[128];			//TLB entries
 byte jit_needflush;
+int lsmc;
 
 u32 dbg_lpc;
 int dbg_ld;
@@ -423,6 +447,14 @@ void *slabs;
 
 BTESH2_PhysSpan *pspan;		//predict span
 BTESH2_PhysSpan *pspanb;	//predict span (alt)
+BTESH2_Trace *trnext;
+BTESH2_Trace *trjmpnext;
+
+u32 pspan_pbase;
+u32 pspan_prng3;
+byte *pspan_pdata;
+
+BTESH2_Trace *trlinked[256];	//linked traces
 
 int (*GetAddrByte)(BTESH2_CpuState *cpu, u32 addr);
 int (*GetAddrWord)(BTESH2_CpuState *cpu, u32 addr);
@@ -451,5 +483,7 @@ void BTESH2_FreeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 BTESH2_Trace *BTESH2_AllocTrace(BTESH2_CpuState *cpu);
 void BTESH2_FreeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 void BTESH2_FlushTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
+
+force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc);
 
 #endif

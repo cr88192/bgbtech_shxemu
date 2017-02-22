@@ -212,7 +212,7 @@ static u32 *yuv744_ttab=NULL;
 
 void btesh2_dcgfx_init_yuv655le()
 {
-	int cy, cu, cv, cu1, cv1;
+	int cy, cu, cv, cy1, cu1, cv1;
 	int cr, cg, cb;
 	int i, j, k;
 	u16 pxa;
@@ -234,13 +234,20 @@ void btesh2_dcgfx_init_yuv655le()
 //		cu=cu|(cu>>5);
 //		cv=cv|(cv>>5);
 
+#if 0
 		cu1=(cu-128)<<1; cv1=(cv-128)<<1;
 	//	cg=2*cy-cu1-cv1;
 	//	cg=(4*cy-cu1-cv1)>>1;
 		cg=cy-((cu1+cv1)>>2);
 		cb=cg+cu1;
 		cr=cg+cv1;
-		
+#endif
+
+		cy1=cy; cu1=cu-128; cv1=cv-128;
+		cr=(256*cy1        +359*cv1+128)>>8;
+		cg=(256*cy1- 88*cu1-183*cv1+128)>>8;
+		cb=(256*cy1+454*cu1        +128)>>8;
+
 		if((cr|cg|cb)>>8)
 		{
 			cr=btesh2_clamp255(cr);
@@ -366,10 +373,10 @@ int BTESH2_DCGFX_RedrawScreen()
 	u32 (*tpix32)(u32 px);
 	u32 *fb32, *ilb32, *olb32;
 	byte *fbb, *ilb8;
-	u32 px;
+	u32 px, px0, px1, px2, px3;
 	int xstep, ystep, xcur, ycur;
 	int vxs, vys, vxstr, vystr;
-	int x, y, ix, iy;
+	int x, y, ix, iy, ix0, ix1, ix2, ix3;
 
 	if(btesh2_dcgfx_displaycfg&1)
 	{
@@ -522,12 +529,31 @@ int BTESH2_DCGFX_RedrawScreen()
 
 			if(tpix16==btesh2_dcgfx_redraw_tpix16_yuv655le)
 			{
+				for(x=0; x<btesh2_gfxcon_fbxs; x+=4)
+				{
+					ix0=xcur>>16;	xcur+=xstep;
+					ix1=xcur>>16;	xcur+=xstep;
+					px0=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix0*2);
+					px1=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix1*2);
+					olb32[x+0]=px0;
+					olb32[x+1]=px1;
+
+					ix2=xcur>>16;	xcur+=xstep;
+					ix3=xcur>>16;	xcur+=xstep;
+					px2=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix2*2);
+					px3=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix3*2);
+					olb32[x+2]=px2;
+					olb32[x+3]=px3;
+				}
+
+#if 0
 				for(x=0; x<btesh2_gfxcon_fbxs; x++)
 				{
 					ix=xcur>>16;	xcur+=xstep;
 					px=btesh2_dcgfx_redraw_tpix16_yuv655le(ilb8+ix*2);
 					olb32[x]=px;
 				}
+#endif
 			}else
 			{
 				for(x=0; x<btesh2_gfxcon_fbxs; x++)

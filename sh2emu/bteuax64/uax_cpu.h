@@ -617,10 +617,22 @@
 #define UAX_OP_XORPD				624
 #define UAX_OP_XORPS				625
 
+#define UAX_LBL_LOCALSTART	0xC000
+#define UAX_LBL_NEAR		0x10000		//within +/- 128 bytes
+
+#define UAX_MEMSC_TMASK		0xF0		//type mask
+#define UAX_MEMSC_BYTE		0x10		//BYTE
+#define UAX_MEMSC_WORD		0x20		//BYTE
+#define UAX_MEMSC_DWORD		0x30		//BYTE
+#define UAX_MEMSC_QWORD		0x40		//BYTE
+#define UAX_MEMSC_XMM		0x50		//BYTE
+
 typedef struct UAX_Context_s UAX_Context;
 typedef struct UAX_OpcodeArg_s UAX_OpcodeArg;
 
 typedef struct UAX_OpcodeDesc_s UAX_OpcodeDesc;
+
+#define UAX_MAX_CACHEVAR	6
 
 struct UAX_Context_s {
 byte *sec_buf[8];
@@ -638,6 +650,15 @@ byte rlc_sec[256];	//reloc section
 byte rlc_ty[256];	//reloc type
 int nlbl;
 int nrlc;
+u16 lblrov;			//labels (local/temp)
+
+byte reg_idx[UAX_MAX_CACHEVAR];
+byte reg_reg[UAX_MAX_CACHEVAR];
+int reg_live;
+int reg_resv;
+int reg_save;
+
+int jitfl;
 
 UAX_Context *next;
 };

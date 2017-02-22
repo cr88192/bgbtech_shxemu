@@ -8,8 +8,14 @@ byte *uax_exheap_start;
 byte *uax_exheap_end;
 byte *uax_exheap_pos;
 
+char *uax_gblsym_name[4096];
+void *uax_gblsym_addr[4096];
+int uax_gblsym_num;
+
 int UAX_Init()
 {
+	MEMORY_BASIC_INFORMATION memi;
+	nlint a0, a1, a2;
 	int ln;
 	int i, j, k, l;
 
@@ -60,12 +66,144 @@ int UAX_Init()
 		uax_opx86_nmidx[i]=l;
 	}
 	
-	uax_exheap_start=VirtualAlloc(NULL, 1<<24,
-		MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+	uax_gblsym_name[0]=NULL;
+	uax_gblsym_addr[0]=NULL;
+	uax_gblsym_num=1;
+	
+	uax_exheap_start=NULL;
+
+#ifdef _M_X64
+	a0=(nlint)((void *)UAX_Init);
+	for(i=-64; i<64; i++)
+	{
+		a1=(a0+(i<<24))&(~65535);
+		a2=a1+(1<<24);
+		if((a1>>40)!=(a2>>40))
+			continue;
+		
+		VirtualQuery((PVOID)a1, &memi, 1<<24);
+		if(memi.State&(MEM_COMMIT|MEM_RESERVE))
+			continue;
+		if(!(memi.State&MEM_FREE))
+			continue;
+		if(memi.RegionSize<(1<<24))
+			continue;
+
+		uax_exheap_start=VirtualAlloc((PVOID)a1, 1<<24,
+			MEM_COMMIT|MEM_RESERVE|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
+		if(uax_exheap_start)
+			break;
+	}
+#endif
+	
+	if(!uax_exheap_start)
+	{
+		uax_exheap_start=VirtualAlloc(NULL, 1<<24,
+			MEM_COMMIT|MEM_RESERVE|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
+	}
+
+	if(!uax_exheap_start)
+	{
+		printf("UAX_Init: Failed Alloc ExHeap\n");
+		return(-1);
+	}
+
 	uax_exheap_end=uax_exheap_start+(1<<24);
 	uax_exheap_pos=uax_exheap_start;
 	
+	i=UAX_CheckAddrExHeapRel32((void *)UAX_Init);
+	
+	printf("UAX_Init: ExHeap %p..%p, EXE~=%p, IR32=%d\n",
+		uax_exheap_start, uax_exheap_end, (void *)UAX_Init, i);
+	
 	return(1);
+}
+
+int UAX_CheckAddrExHeapRel32(void *ptr)
+{
+	s64 d0, d1;
+	
+	d0=((byte *)ptr)-uax_exheap_start;
+	d1=((byte *)ptr)-uax_exheap_end;
+	
+	if((d0!=((s32)d0)) || (d1!=((s32)d1)))
+		return(0);
+	return(1);
+}
+
+int UAX_LookupGlobalName(char *name)
+{
+	int i;
+	
+	if(!name)
+		return(0);
+	
+	for(i=0; i<uax_gblsym_num; i++)
+	{
+		if(!uax_gblsym_name[i])
+			continue;
+		if(!strcmp(uax_gblsym_name[i], name))
+			return(i);
+	}
+	
+	return(0);
+}
+
+int UAX_LookupGlobalAddress(void *addr)
+{
+	int i;
+	
+	if(!addr)
+		return(0);
+	
+	for(i=0; i<uax_gblsym_num; i++)
+	{
+//		if(!uax_gblsym_name[i])
+//			continue;
+		if(uax_gblsym_addr[i]==addr)
+			return(i);
+	}
+	
+	return(0);
+}
+
+int UAX_RegisterGlobal(char *name, void *addr)
+{
+	int i, j, k;
+
+	if(name)
+	{
+		i=UAX_LookupGlobalName(name);
+		if(i>0)
+		{
+			uax_gblsym_addr[i]=addr;
+			return(i);
+		}
+
+		i=UAX_LookupGlobalAddress(addr);
+		if((i>0) && !uax_gblsym_name[i])
+		{
+			uax_gblsym_name[i]=strdup(name);
+			return(i);
+		}
+		
+		i=uax_gblsym_num++;
+		uax_gblsym_name[i]=strdup(name);
+		uax_gblsym_addr[i]=addr;
+		return(i);
+	}else
+	{
+		i=UAX_LookupGlobalAddress(addr);
+		if(i>0)
+		{
+			return(i);
+		}
+
+		i=uax_gblsym_num++;
+		uax_gblsym_name[i]=NULL;
+		uax_gblsym_addr[i]=addr;
+		return(i);
+	}
 }
 
 byte *UAX_ExHeapMalloc(int sz)
@@ -114,6 +252,8 @@ byte *UAX_LinkContext(UAX_Context *ctx)
 	byte *gptr[16];
 	int gsz[16];
 	byte *prlc, *plbl;
+	nlint nla;
+	int lbl;
 	int i, j, k;
 	
 	for(i=0; i<ctx->nsec; i++)
@@ -140,16 +280,35 @@ byte *UAX_LinkContext(UAX_Context *ctx)
 	
 	for(i=0; i<ctx->nrlc; i++)
 	{
-		for(j=0; j<ctx->nlbl; j++)
-			if(ctx->lbl_id[j]==ctx->rlc_id[j])
-				break;
-		if(j>=ctx->nlbl)
+		lbl=ctx->rlc_id[i];
+		if(lbl>=UAX_LBL_LOCALSTART)
+		{
+			for(j=0; j<ctx->nlbl; j++)
+				if(ctx->lbl_id[j]==lbl)
+					break;
+			if(j>=ctx->nlbl)
+			{
+				__debugbreak();
+			}
+
+			plbl=gptr[ctx->lbl_sec[j]]+ctx->lbl_ofs[j];
+		}else if(lbl<uax_gblsym_num)
+		{
+			plbl=uax_gblsym_addr[lbl];
+		}else
+		{
+			plbl=NULL;
+		}
+		
+		if(!plbl)
 		{
 			__debugbreak();
 		}
 		
+		nla=(nlint)plbl;
+		
 		prlc=gptr[ctx->rlc_sec[i]]+ctx->rlc_ofs[i];
-		plbl=gptr[ctx->lbl_sec[j]]+ctx->lbl_ofs[j];
+//		plbl=gptr[ctx->lbl_sec[j]]+ctx->lbl_ofs[j];
 		switch(ctx->rlc_ty[i])
 		{
 		case UAX_RLC_REL8:
@@ -163,6 +322,19 @@ byte *UAX_LinkContext(UAX_Context *ctx)
 		case UAX_RLC_REL32:
 			k=(plbl-prlc)-4;
 			*(s32 *)prlc+=k;
+			break;
+
+		case UAX_RLC_ABS8:
+			*(byte *)prlc+=nla;
+			break;
+		case UAX_RLC_ABS16:
+			*(s16 *)prlc+=nla;
+			break;
+		case UAX_RLC_ABS32:
+			*(s32 *)prlc+=nla;
+			break;
+		case UAX_RLC_ABS64:
+			*(s64 *)prlc+=nla;
 			break;
 		}
 	}
@@ -222,11 +394,19 @@ UAX_Context *UAX_AllocContext()
 		tmp->nrlc=0;
 		tmp->nsec=0;
 		
+		tmp->reg_live=0;
+		tmp->reg_resv=0;
+		tmp->reg_save=0;
+		tmp->jitfl=0;
+		tmp->lblrov=UAX_LBL_LOCALSTART;
+		
 		return(tmp);
 	}
 	
 	tmp=malloc(sizeof(UAX_Context));
 	memset(tmp, 0, sizeof(UAX_Context));
+	tmp->lblrov=UAX_LBL_LOCALSTART;
+
 	return(tmp);
 }
 
@@ -313,14 +493,37 @@ int UAX_EmitGetOffs(UAX_Context *ctx)
 	return(ctx->sec_pos[ctx->sec]-ctx->sec_buf[ctx->sec]);
 }
 
-int UAX_EmitRelocTy(UAX_Context *ctx, int lbl, int ty)
+int UAX_GenLabelTemp(UAX_Context *ctx)
+{
+	int i;
+	i=ctx->lblrov++;
+	return(i);
+}
+
+int UAX_EmitLabel(UAX_Context *ctx, int lblid)
 {
 	int i;
 	
-	if(lbl>0)
+	if(lblid>0)
+	{
+		i=ctx->nlbl++;
+		ctx->lbl_id[i]=lblid;
+		ctx->lbl_ofs[i]=UAX_EmitGetOffs(ctx);
+		ctx->lbl_sec[i]=ctx->sec;
+//		ctx->lbl_ty[i]=ty;
+	}
+	return(0);
+}
+
+
+int UAX_EmitRelocTy(UAX_Context *ctx, int lblid, int ty)
+{
+	int i;
+	
+	if(lblid>0)
 	{
 		i=ctx->nrlc++;
-		ctx->rlc_id[i]=lbl;
+		ctx->rlc_id[i]=lblid;
 		ctx->rlc_ofs[i]=UAX_EmitGetOffs(ctx);
 		ctx->rlc_sec[i]=ctx->sec;
 		ctx->rlc_ty[i]=ty;
@@ -376,6 +579,56 @@ int UAX_Asm_OpArgMemP(UAX_OpcodeArg *rm)
 	return(1);
 }
 
+int UAX_Asm_OpArgMem8P(UAX_OpcodeArg *rm)
+{
+	if(!rm->sc)
+		return(0);
+	if((rm->sc&UAX_MEMSC_TMASK) &&
+		((rm->sc&UAX_MEMSC_TMASK)!=UAX_MEMSC_BYTE))
+			return(0);
+	return(1);
+}
+
+int UAX_Asm_OpArgMem16P(UAX_OpcodeArg *rm)
+{
+	if(!rm->sc)
+		return(0);
+	if((rm->sc&UAX_MEMSC_TMASK) &&
+		((rm->sc&UAX_MEMSC_TMASK)!=UAX_MEMSC_WORD))
+			return(0);
+	return(1);
+}
+
+int UAX_Asm_OpArgMem32P(UAX_OpcodeArg *rm)
+{
+	if(!rm->sc)
+		return(0);
+	if((rm->sc&UAX_MEMSC_TMASK) &&
+		((rm->sc&UAX_MEMSC_TMASK)!=UAX_MEMSC_DWORD))
+			return(0);
+	return(1);
+}
+
+int UAX_Asm_OpArgMem64P(UAX_OpcodeArg *rm)
+{
+	if(!rm->sc)
+		return(0);
+	if((rm->sc&UAX_MEMSC_TMASK) &&
+		((rm->sc&UAX_MEMSC_TMASK)!=UAX_MEMSC_QWORD))
+			return(0);
+	return(1);
+}
+
+int UAX_Asm_OpArgMem128P(UAX_OpcodeArg *rm)
+{
+	if(!rm->sc)
+		return(0);
+	if((rm->sc&UAX_MEMSC_TMASK) &&
+		((rm->sc&UAX_MEMSC_TMASK)!=UAX_MEMSC_XMM))
+			return(0);
+	return(1);
+}
+
 int UAX_Asm_OpArgImmP(UAX_OpcodeArg *rm)
 {
 	if(	(rm->sc) ||
@@ -402,8 +655,9 @@ int UAX_Asm_OpArgImm8P(UAX_OpcodeArg *rm)
 {
 	if(!UAX_Asm_OpArgImmP(rm))
 		return(0);
-	if((rm->disp!=((byte)rm->disp)) &&
-		(rm->disp!=((sbyte)rm->disp)))
+//	if((rm->disp!=((byte)rm->disp)) &&
+//		(rm->disp!=((sbyte)rm->disp)))
+	if(rm->disp!=((sbyte)rm->disp))
 			return(0);
 	return(1);
 }
@@ -412,8 +666,9 @@ int UAX_Asm_OpArgImm16P(UAX_OpcodeArg *rm)
 {
 	if(!UAX_Asm_OpArgImmP(rm))
 		return(0);
-	if((rm->disp!=((u16)rm->disp)) &&
-		(rm->disp!=((s16)rm->disp)))
+//	if((rm->disp!=((u16)rm->disp)) &&
+//		(rm->disp!=((s16)rm->disp)))
+	if(rm->disp!=((s16)rm->disp))
 			return(0);
 	return(1);
 }
@@ -422,8 +677,37 @@ int UAX_Asm_OpArgImm32P(UAX_OpcodeArg *rm)
 {
 	if(!UAX_Asm_OpArgImmP(rm))
 		return(0);
-	if((rm->disp!=((u32)rm->disp)) &&
-		(rm->disp!=((s32)rm->disp)))
+//	if((rm->disp!=((u32)rm->disp)) &&
+//		(rm->disp!=((s32)rm->disp)))
+	if(rm->disp!=((s32)rm->disp))
+			return(0);
+	return(1);
+}
+
+
+int UAX_Asm_OpArgImmU8P(UAX_OpcodeArg *rm)
+{
+	if(!UAX_Asm_OpArgImmP(rm))
+		return(0);
+	if(rm->disp!=((byte)rm->disp))
+			return(0);
+	return(1);
+}
+
+int UAX_Asm_OpArgImmU16P(UAX_OpcodeArg *rm)
+{
+	if(!UAX_Asm_OpArgImmP(rm))
+		return(0);
+	if(rm->disp!=((u16)rm->disp))
+			return(0);
+	return(1);
+}
+
+int UAX_Asm_OpArgImmU32P(UAX_OpcodeArg *rm)
+{
+	if(!UAX_Asm_OpArgImmP(rm))
+		return(0);
+	if(rm->disp!=((u32)rm->disp))
 			return(0);
 	return(1);
 }
@@ -529,8 +813,9 @@ int UAX_Asm_RegIsWordP(int reg)
 
 int UAX_Asm_RegIsByteP(int reg)
 {
-	if((reg&0xF0)==0x30)
-		return(1);
+	if(((reg&0xF0)==0x30) ||
+		((reg>=UAX_REG_AH) && (reg<=UAX_REG_BH)))
+			return(1);
 	return(0);
 }
 
@@ -596,7 +881,13 @@ int UAX_Asm_OpArgRegXmmP(UAX_OpcodeArg *rm)
 
 int UAX_Asm_OpArgLabelDisp8P(UAX_OpcodeArg *rm)
 {
-	return(0);
+	if(!UAX_Asm_OpArgLabelP(rm))
+		return(0);
+	if(!(rm->lbl&UAX_LBL_NEAR))
+		return(0);
+	return(1);
+
+//	return(0);
 //	if(!UAX_Asm_OpArgRegP(rm))
 //		return(0);
 //	if(!UAX_Asm_RegIsByteP(rm->breg))
@@ -636,7 +927,7 @@ int UAX_EmitRegRM_Sib(UAX_Context *ctx, UAX_OpcodeArg *rm)
 		}else
 		{
 			UAX_EmitByte(ctx,
-				(((rm->sc-1)&3)<<6) |
+//				(((rm->sc-1)&3)<<6) |
 				(4<<3) |
 				(rm->breg&7));
 		}
@@ -651,7 +942,7 @@ int UAX_EmitRegRM_Sib(UAX_Context *ctx, UAX_OpcodeArg *rm)
 		}else
 		{
 			UAX_EmitByte(ctx,
-				(((rm->sc-1)&3)<<6) |
+//				(((rm->sc-1)&3)<<6) |
 				(4<<3) | 5);
 		}
 	}
@@ -800,11 +1091,17 @@ int UAX_EmitOpString(UAX_Context *ctx, char *str,
 			{
 				if((s1[0]=='/') && (s1[1]=='R'))
 					{ targ0=taa[1]; targ1=taa[0]; break; }
+				if((s1[0]=='/') && (s1[1]>='0') && (s1[1]<='7'))
+					{ targ0=NULL; targ1=taa[0]; break; }
+				if((s1[0]=='|') && (s1[1]=='r'))
+					{ targ0=NULL; targ1=taa[0]; break; }
 				s1++;
 			}
 			
 			i=0x40;
-			if(targ0 && UAX_Asm_RegIsQWordP(targ0->breg))		i|=8;
+//			if(targ0 && UAX_Asm_RegIsQWordP(targ0->breg))		i|=8;
+			if(targ0 && UAX_Asm_OpArgRegQWordP(targ0))		i|=8;
+			if(targ1 && UAX_Asm_OpArgRegQWordP(targ1))		i|=8;
 			if(targ0 && (targ0->breg&8) && (targ0->breg!=UAX_REG_Z))	i|=4;
 			if(targ1 && (targ1->ireg&8) && (targ1->ireg!=UAX_REG_Z))	i|=2;
 			if(targ1 && (targ1->breg&8) && (targ1->breg!=UAX_REG_Z))	i|=1;
@@ -948,24 +1245,24 @@ int UAX_CheckArgsMatchString(UAX_Context *ctx, char *str,
 				if(s[2]=='8')
 				{
 					if(!UAX_Asm_OpArgRegByteP(*ta) &&
-						!UAX_Asm_OpArgMemP(*ta))
+						!UAX_Asm_OpArgMem8P(*ta))
 							break;
 					s+=3; ta++; continue;
 				}
 
 				if((s[2]=='3') && (s[3]=='2'))
 				{	if(!UAX_Asm_OpArgRegDWordP(*ta) &&
-						!UAX_Asm_OpArgMemP(*ta))
+						!UAX_Asm_OpArgMem32P(*ta))
 							break;
 					s+=4; ta++; continue;	}
 				if((s[2]=='6') && (s[3]=='4'))
 				{	if(!UAX_Asm_OpArgRegQWordP(*ta) &&
-						!UAX_Asm_OpArgMemP(*ta))
+						!UAX_Asm_OpArgMem64P(*ta))
 							break;
 					s+=4; ta++; continue;	}
 				if((s[2]=='1') && (s[3]=='6'))
 				{	if(!UAX_Asm_OpArgRegWordP(*ta) &&
-						!UAX_Asm_OpArgMemP(*ta))
+						!UAX_Asm_OpArgMem16P(*ta))
 							break;
 					s+=4; ta++; continue;	}
 			}
@@ -995,10 +1292,20 @@ int UAX_CheckArgsMatchString(UAX_Context *ctx, char *str,
 		{
 			if(!UAX_Asm_OpArgMemP(*ta))
 				break;
-			if(s[1]=='8') { s++; }
-			else if(!strncmp(s+1, "16", 2)) { s+=2; }
-			else if(!strncmp(s+1, "32", 2)) { s+=2; }
-			else if(!strncmp(s+1, "64", 2)) { s+=2; }
+//			if(s[1]=='8') { s++; }
+//			else if(!strncmp(s+1, "16", 2)) { s+=2; }
+//			else if(!strncmp(s+1, "32", 2)) { s+=2; }
+//			else if(!strncmp(s+1, "64", 2)) { s+=2; }
+
+			if(s[1]=='8')
+				{ s++; if(!UAX_Asm_OpArgMem8P(*ta))break; }
+			else if(!strncmp(s+1, "16", 2))
+				{ s+=2; if(!UAX_Asm_OpArgMem16P(*ta))break; }
+			else if(!strncmp(s+1, "32", 2))
+				{ s+=2; if(!UAX_Asm_OpArgMem32P(*ta))break; }
+			else if(!strncmp(s+1, "64", 2))
+				{ s+=2; if(!UAX_Asm_OpArgMem64P(*ta))break; }
+
 			s++; ta++;
 			continue;
 		}
@@ -1028,6 +1335,43 @@ int UAX_CheckArgsMatchString(UAX_Context *ctx, char *str,
 				s+=3; ta++; continue;	}
 			if((s[1]=='3') && (s[2]=='2'))
 			{	if(!UAX_Asm_OpArgImm32P(*ta))
+					break;
+				s+=3; ta++; continue;	}
+			if((s[1]=='6') && (s[2]=='4'))
+			{	if(!UAX_Asm_OpArgImmP(*ta))
+					break;
+				s+=3; ta++; continue;	}
+
+			if(!UAX_Asm_OpArgImmP(*ta))
+				break;
+			s++; ta++; continue;
+		}
+
+		if(s[0]=='u')
+		{
+			if((s[1]=='b') || (s[1]=='8'))
+			{	if(!UAX_Asm_OpArgImmU8P(*ta))
+					break;
+				s+=2; ta++; continue;	}
+			if(s[1]=='w')
+			{	if(!UAX_Asm_OpArgImmU16P(*ta))
+					break;
+				s+=2; ta++; continue;	}
+			if(s[1]=='d')
+			{	if(!UAX_Asm_OpArgImmU32P(*ta))
+					break;
+				s+=2; ta++; continue;	}
+			if(s[1]=='q')
+			{	if(!UAX_Asm_OpArgImmP(*ta))
+					break;
+				s+=2; ta++; continue;	}
+
+			if((s[1]=='1') && (s[2]=='6'))
+			{	if(!UAX_Asm_OpArgImmU16P(*ta))
+					break;
+				s+=3; ta++; continue;	}
+			if((s[1]=='3') && (s[2]=='2'))
+			{	if(!UAX_Asm_OpArgImmU32P(*ta))
 					break;
 				s+=3; ta++; continue;	}
 			if((s[1]=='6') && (s[2]=='4'))
@@ -1118,13 +1462,15 @@ int UAX_CheckArgsMatchString(UAX_Context *ctx, char *str,
 				if(s[2]=='m')
 				{
 					if(!UAX_Asm_OpArgRegXmmP(*ta) &&
-						!UAX_Asm_OpArgMemP(*ta))
+						!UAX_Asm_OpArgMem128P(*ta))
 							break;
 					s+=3; ta++; continue;
 				}
 			
 				if(!UAX_Asm_OpArgRegXmmP(*ta))
 					break;
+
+				if(s[2]=='2')s++;
 				s+=2; ta++; continue;
 			}
 		}
@@ -1240,6 +1586,16 @@ int UAX_OpArgSetupImm(UAX_OpcodeArg *rm, s64 disp)
 	return(0);
 }
 
+int UAX_OpArgSetupLabel(UAX_OpcodeArg *rm, int lblid)
+{
+	rm->sc=0;
+	rm->ireg=UAX_REG_Z;
+	rm->breg=UAX_REG_Z;
+	rm->disp=0;
+	rm->lbl=lblid;
+	return(0);
+}
+
 int UAX_OpArgSetupLdRegDisp(UAX_OpcodeArg *rm, int breg, s32 disp)
 {
 	rm->sc=1;
@@ -1297,6 +1653,15 @@ int UAX_AsmInsnImm(UAX_Context *ctx, int nmid, s64 disp)
 	return(i);
 }
 
+int UAX_AsmInsnLabel(UAX_Context *ctx, int nmid, int lblid)
+{
+	UAX_OpcodeArg ta0, ta1;
+	int i;
+	UAX_OpArgSetupLabel(&ta0, lblid);
+	i=UAX_AssembleInsn(ctx, nmid, &ta0, NULL, NULL);
+	return(i);
+}
+
 int UAX_AsmInsnRegReg(UAX_Context *ctx, int nmid, int dreg, int sreg)
 {
 	UAX_OpcodeArg ta0, ta1;
@@ -1316,6 +1681,18 @@ int UAX_AsmInsnRegImm(UAX_Context *ctx, int nmid, int dreg, s64 disp)
 	i=UAX_AssembleInsn(ctx, nmid, &ta0, &ta1, NULL);
 	return(i);
 }
+
+int UAX_AsmInsnStRegDisp32(UAX_Context *ctx, int nmid,
+	int dreg, s32 disp)
+{
+	UAX_OpcodeArg ta0, ta1;
+	int i;
+	UAX_OpArgSetupLdRegDisp(&ta0, dreg, disp);
+	ta0.sc|=UAX_MEMSC_DWORD;
+	i=UAX_AssembleInsn(ctx, nmid, &ta0, NULL, NULL);
+	return(i);
+}
+
 
 int UAX_AsmInsnRegLdRegDisp(UAX_Context *ctx, int nmid,
 	int dreg, int sreg, s32 disp)
@@ -1350,6 +1727,18 @@ int UAX_AsmInsnStRegDispImm(UAX_Context *ctx, int nmid,
 	return(i);
 }
 
+int UAX_AsmInsnStRegDispImm32(UAX_Context *ctx, int nmid,
+	int dreg, s32 disp, s64 imm)
+{
+	UAX_OpcodeArg ta0, ta1;
+	int i;
+	UAX_OpArgSetupLdRegDisp(&ta0, dreg, disp);
+	ta0.sc|=UAX_MEMSC_DWORD;
+	UAX_OpArgSetupImm(&ta1, imm);
+	i=UAX_AssembleInsn(ctx, nmid, &ta0, &ta1, NULL);
+	return(i);
+}
+
 
 int UAX_AsmInsnRegLdRegIxDisp(UAX_Context *ctx, int nmid,
 	int dreg, int sreg, int sc, int ireg, s32 disp)
@@ -1362,7 +1751,7 @@ int UAX_AsmInsnRegLdRegIxDisp(UAX_Context *ctx, int nmid,
 	return(i);
 }
 
-int UAX_AsmInsnStRegDispIxReg(UAX_Context *ctx, int nmid,
+int UAX_AsmInsnStRegIxDispReg(UAX_Context *ctx, int nmid,
 	int dreg, int sc, int ireg, s32 disp, int sreg)
 {
 	UAX_OpcodeArg ta0, ta1;

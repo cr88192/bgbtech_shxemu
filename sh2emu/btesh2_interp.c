@@ -227,6 +227,9 @@ char *btesh2_print_NameForNameID(int id)
 
 	case BTESH2_NMID_MOVCAL: s="MOVCA.L"; break;
 
+	case BTESH2_NMID_MOVI: s="MOV.I"; break;
+	case BTESH2_NMID_MOVIV: s="MOV.IV"; break;
+
 	default: s="?"; break;
 	}
 	return(s);
@@ -528,18 +531,20 @@ int BTESH2_CpuUartInt(BTESH2_CpuState *cpu)
 
 int BTESH2_RunCpu(BTESH2_CpuState *cpu, int lim)
 {
-	BTESH2_Trace *tr;
+	BTESH2_Trace *tr, *trnxt;
 	u32 pc, lpc;
 	byte ld;
 	int t0, t1, t2, ts;
 	int l, clkl;
 
+	cpu->tr_runlim=lim;
 	lpc=cpu->dbg_lpc; ld=cpu->dbg_ld;
-	l=lim;
+	l=lim; trnxt=NULL;
 //	while(!cpu->status && ((l--)>0))
-	while((l--)>0)
+//	while((l--)>0)
+	while((cpu->tr_runlim--)>0)
 	{
-#if 1
+#if 0
 		pc=cpu->regs[BTESH2_REG_PC];
 		if(pc!=lpc)
 		{
@@ -578,11 +583,28 @@ int BTESH2_RunCpu(BTESH2_CpuState *cpu, int lim)
 #endif
 
 //		printf("PC=%08X\n", cpu->regs[BTESH2_REG_PC]);
-		tr=BTESH2_TraceForAddr(cpu, cpu->regs[BTESH2_REG_PC]);
+
+		if(!trnxt)
+		{
+			tr=BTESH2_TraceForAddr(cpu, cpu->regs[BTESH2_REG_PC]);
+		}else
+		{
+			tr=trnxt;
+		}
+
 //		BTESH2_PrintTrace(cpu, tr);
 		cpu->cur_trace=tr;
-		tr->Run(cpu, tr);
-		cpu->tr_tops+=tr->nops;
+		trnxt=tr->Run(cpu, tr);
+//		cpu->tr_tops+=tr->nops;
+		cpu->tr_tops+=tr->nwops;
+//		while(trnxt && ((l--)>0))
+		while(trnxt && ((cpu->tr_runlim--)>0))
+		{
+			tr=trnxt;
+			trnxt=tr->Run(cpu, tr);
+//			cpu->tr_tops+=tr->nops;
+			cpu->tr_tops+=tr->nwops;
+		}
 		
 		if(cpu->status)
 		{
@@ -680,7 +702,10 @@ int BTESH2_DumpTraces(BTESH2_CpuState *cpu)
 
 int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 {
+	int tpair_v[32768];
+	int tpair_c[32768];
 	BTESH2_Trace *tr;
+	int ntp;
 	int nt, ntl, tno, ano;
 	int i, j, k;
 	
@@ -702,6 +727,40 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 		(BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL));
 	printf("dCol/dTot=%d/%d %.2f%%\n",
 		cpu->tr_dcol, cpu->tr_dtot, (cpu->tr_dcol*100.0)/cpu->tr_dtot);
+	
+	ntp=0;
+	for(i=0; i<65536; i++)
+	{
+		j=btesh2_nmid_pairs[i];
+		if(j)
+		{
+			tpair_v[ntp]=i;
+			tpair_c[ntp]=j;
+			ntp++;
+		}
+	}
+	
+	for(i=0; i<ntp; i++)
+	{
+		for(j=i+1; j<ntp; j++)
+		{
+			if(tpair_c[j]>tpair_c[i])
+			{
+				k=tpair_c[i]; tpair_c[i]=tpair_c[j]; tpair_c[j]=k;
+				k=tpair_v[i]; tpair_v[i]=tpair_v[j]; tpair_v[j]=k;
+			}
+		}
+	}
+	
+	for(i=0; i<32; i++)
+	{
+		j=tpair_v[i];
+		printf("%2d %-8s %-8s %6d\n", i,
+			btesh2_print_NameForNameID((j>>8)&255),
+			btesh2_print_NameForNameID((j   )&255),
+			tpair_c[i]);
+	}
+
 	return(0);
 }
 

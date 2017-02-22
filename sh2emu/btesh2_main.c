@@ -560,7 +560,10 @@ int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
 	case 1: cpu->regs[BTESH2_REG_PTEL]=val; break;
 	case 2: cpu->regs[BTESH2_REG_TTB]=val; break;
 	case 3: cpu->regs[BTESH2_REG_TEA]=val; break;
-	case 4: cpu->regs[BTESH2_REG_MMUCR]=val; break;
+	case 4:
+		cpu->regs[BTESH2_REG_MMUCR]=val;
+		BTESH2_SetupUpdateFMMU(cpu);
+		break;
 	default:
 		printf("MMREG: Unhandled Set A=%08X V=%08X\n", reladdr, val);
 		break;
@@ -1107,6 +1110,8 @@ int btesh2_main_startimage()
 		cpu->SetAddrWord=BTESH2_SetAddrWordFMMU;
 		cpu->SetAddrDWord=BTESH2_SetAddrDWordFMMU;
 
+		BTESH2_SetupUpdateFMMU(cpu);
+
 	//	cpu->regs[BTESH2_REG_VBR]=0xFAFAFAFAU;
 		cpu->regs[BTESH2_REG_SR]=0x000003F3U;
 
@@ -1187,11 +1192,13 @@ int btesh2_main_startimage()
 
 	if(1)
 	{
+#if 0
 		tbuf=malloc(4096);
 		memset(tbuf, 0, 4096);
-
 		sp=BTESH2_AllocPhysSpan();
 		sp->base=0xFF000000;	sp->limit=0xFF000FFF;
+		if(cpu->arch==BTESH2_ARCH_SH4)
+			{ sp->base=0x1F000000;	sp->limit=0x1F000FFF; }
 		sp->range_n3=sp->limit-sp->base-3;
 		sp->data=tbuf;			sp->name="MMREG";
 //		sp->GetB=btesh2_spanmmio_GetB;	sp->GetW=btesh2_spanmmio_GetW;
@@ -1199,6 +1206,12 @@ int btesh2_main_startimage()
 		sp->GetD=btesh2_spanmmreg_GetD;
 		sp->SetD=btesh2_spanmmreg_SetD;
 		i=BTESH2_MemoryAddSpan(img, sp);
+#endif
+
+		BTESH2_MemoryDefineSpanRegs(img, 0x1F000000, 0x1F000000, "MMREGA",
+			btesh2_spanmmreg_GetD, btesh2_spanmmreg_SetD);
+		BTESH2_MemoryDefineSpanRegs(img, 0xFF000000, 0xFF000000, "MMREGB",
+			btesh2_spanmmreg_GetD, btesh2_spanmmreg_SetD);
 	}
 
 	if(1)
@@ -1362,7 +1375,10 @@ int main(int argc, char *argv[])
 
 			if(!strcmp(argv[i], "--help"))
 				{ sh4=127; continue; }
-				
+
+			if(!strcmp(argv[i], "--break"))
+				{ break; }
+
 			printf("unrecognized option %s\n", argv[i]);
 			continue;
 		}

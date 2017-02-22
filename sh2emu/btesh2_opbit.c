@@ -175,18 +175,6 @@ void BTSH_Op_SHAL_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[BTESH2_REG_SR]=s;
 }
 
-void BTSH_Op_SHAR_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
-{
-	u32 i, j, k, s;
-
-	i=cpu->regs[op->rn];
-	s=cpu->regs[BTESH2_REG_SR];
-	k=(((s32)i)>>1);
-	s=(s&(~1))|(i&1);
-	cpu->regs[op->rn]=k;
-	cpu->regs[BTESH2_REG_SR]=s;
-}
-
 void BTSH_Op_SHLL_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j, k, s;
@@ -195,6 +183,18 @@ void BTSH_Op_SHLL_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	s=cpu->regs[BTESH2_REG_SR];
 	k=(i<<1);
 	s=(s&(~1))|((i>>31)&1);
+	cpu->regs[op->rn]=k;
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_SHAR_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j, k, s;
+
+	i=cpu->regs[op->rn];
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(((s32)i)>>1);
+	s=(s&(~1))|(i&1);
 	cpu->regs[op->rn]=k;
 	cpu->regs[BTESH2_REG_SR]=s;
 }
@@ -274,5 +274,55 @@ void BTSH_Op_SHLD_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	j=cpu->regs[op->rm];
 	sh=(s32)j;
 	k=(sh>=0)?(i<<(sh&31)):(sh&31)?(i>>(32-(sh&31))):0;
+	cpu->regs[op->rn]=k;
+}
+
+
+void BTSH_Op_SHAD_RegImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j, k;
+	int sh;
+	cpu->regs[op->rm]=op->imm;
+	i=cpu->regs[op->rn];
+	j=op->imm;
+	sh=(s32)j;
+	k=(sh>=0)?(i<<(sh&31)):
+		(sh&31)?(((s32)i)>>(32-(sh&31))):(((s32)i)>>31);
+	cpu->regs[op->rn]=k;
+}
+
+void BTSH_Op_SHLD_RegImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j, k;
+	int sh;
+	cpu->regs[op->rm]=op->imm;
+	i=cpu->regs[op->rn];
+	j=op->imm;
+	sh=(s32)j;
+	k=(sh>=0)?(i<<(sh&31)):(sh&31)?(i>>(32-(sh&31))):0;
+	cpu->regs[op->rn]=k;
+}
+
+void BTSH_Op_SHAD_RegImmP(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j, k;
+	int sh;
+	cpu->regs[op->rm]=op->imm;
+	i=cpu->regs[op->rn];
+	j=op->imm;
+	sh=(s32)j;
+	k=i<<(sh&31);
+	cpu->regs[op->rn]=k;
+}
+
+void BTSH_Op_SHLD_RegImmP(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j, k;
+	int sh;
+	cpu->regs[op->rm]=op->imm;
+	i=cpu->regs[op->rn];
+	j=op->imm;
+	sh=(s32)j;
+	k=i<<(sh&31);
 	cpu->regs[op->rn]=k;
 }
