@@ -56,7 +56,8 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	BTESH2_Trace *trj;
 	byte nolink;
 
-	nolink=0;
+//	nolink=0;
+	nolink=1;
 
 #if 1
 	if(!tr->trnext && !nolink)

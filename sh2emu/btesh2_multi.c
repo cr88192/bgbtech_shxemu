@@ -47,3 +47,7 @@
 #include "gfxdrv_input.c"
 #include "sound_w32.c"
 #include "sound_ems.c"
+
+#ifdef __linux
+#include "gfxdrv_dummy.c"
+#endif

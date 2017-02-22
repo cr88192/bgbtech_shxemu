@@ -41,6 +41,10 @@ typedef unsigned int uint;
 #endif
 #endif
 
+#ifdef __linux
+#define __debugbreak()	(*((int *)-1)=-1)
+#endif
+
 #ifdef _M_X64
 typedef long long nlint;
 #else

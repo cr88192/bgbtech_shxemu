@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <time.h>
 #include <math.h>
 
@@ -40,6 +41,7 @@ double btesh2_ips;
 
 #ifdef __linux
 static struct termios old_termios;
+int gfxdrv_kill;
 
 void btesh2_ttynoncanon(void)
 {
@@ -851,6 +853,45 @@ void btesh_main_iterate()
 	BTESH2_GfxCon_BlinkState((FRGL_TimeMS()>>9)&1);
 	BTESH2_GfxCon_Redraw();
 
+#ifdef _WIN32
+	while(_kbhit())
+	{
+		j=_getch();
+		
+		if(j=='`')
+			{ err=1; gfxdrv_kill=1; }
+
+		if(j=='\r')
+			j=0x0A0D;
+		
+		kbbuf[kbrov]=j;
+		kbrov=(kbrov+1)&255;
+		kirq=1;
+		
+		if(j>>8)
+		{
+			kbbuf[kbrov]=j;
+			kbrov=(kbrov+1)&255;
+			kirq++;
+		}
+	}
+#endif
+
+#ifdef __linux
+	j=fgetc(stdin);
+	while(j>0)
+	{
+		if(j=='`')
+			{ err=1; gfxdrv_kill=1; }
+		
+		kbbuf[kbrov]=j;
+		kbrov=(kbrov+1)&255;
+		kirq=1;
+
+		j=fgetc(stdin);
+	}
+#endif
+
 	kb=FRGL_GetKeybuf();
 	while(kb && *kb)
 	{
@@ -1458,8 +1499,25 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+#ifdef __linux
+	BTESH2_GfxCon_Startup();
+//	btesh2_cpu=cpu;
+	GfxDrv_MainLoop(btesh_main_iterate);
+
+	if(btesh2_cpu)
+	{
+		BTESH2_DumpRegs(btesh2_cpu);
+
+		printf("%f MIPS\n",
+			btesh2_cpu->tr_tops/(btesh2_cpu->tr_tdt*1000.0));
+	}
+
+	btesh2_resettermios();
+#endif
+
 // #ifndef __EMSCRIPTEN__
-#ifdef _linux
+// #ifdef __linux
+#if 0
 //	ts=CLOCKS_PER_SEC/1000;
 	ts=1;
 	err=0; kirq=0;
