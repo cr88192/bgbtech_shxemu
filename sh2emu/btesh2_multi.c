@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _M_X64
+#define BTESH2_HASJIT
+#endif
+
 #include "btesh2_common.h"
 #include "btesh2_cpu.h"
 #include "btesh2_fatfs.h"
@@ -22,10 +26,14 @@
 #include "btesh2_spimmc.c"
 #include "btesh2_sdfat.c"
 
+#ifdef BTESH2_HASJIT
 #include "bteuax64/uax_multi.c"
 #include "btesh2_jit_opmov.c"
 #include "btesh2_jit_opbra.c"
 #include "btesh2_jit.c"
+#else
+#include "btesh2_nojit.c"
+#endif
 
 #include "btesh2_decode.c"
 #include "btesh2_interp.c"

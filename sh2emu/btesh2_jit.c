@@ -1144,8 +1144,69 @@ int BTESH2_JitLinkTrace(BTESH2_CpuState *cpu, BTESH2_Trace *trj)
 		trj->lnknext=cpu->trlinked[h&255];
 		cpu->trlinked[h&255]=trj;
 		trj->jtflag|=BTESH2_TRJTFL_LINKED;
+		trj->lnkcnt=1;
+	}else
+	{
+		if(trj->lnkcnt<255)
+			trj->lnkcnt++;
 	}
 	
+	return(0);
+}
+
+int BTESH2_JitUnlinkTrace(BTESH2_CpuState *cpu, BTESH2_Trace *trj)
+{
+	BTESH2_Trace *trc, *trl, *tr1, *tr2;
+	int h, hp;
+
+	if(!trj)
+		return(0);
+
+	if(trj->maxpc==0xDEADFEED)
+	{
+		__debugbreak();
+		return;
+	}
+
+	if(trj->srcpc==(u32)(-1))
+	{
+		__debugbreak();
+		return;
+	}
+
+	if((trj->lnkcnt>0) && (trj->lnkcnt<255))
+	{
+		trj->lnkcnt--;
+		if(!trj->lnkcnt)
+		{
+			hp=(trj->srcpc^trj->csfl)*BTESH2_TR_JHASHPR;
+			h=(hp>>BTESH2_TR_JHASHSHR)&(BTESH2_TR_JHASHSZ-1);
+
+			trc=cpu->trlinked[h&255]; trl=NULL;
+			while(trc && (trc!=trj))
+				{ trl=trc; trc=trc->lnknext; }
+			if(trc)
+			{
+				if(trl)
+					{ trl->lnknext=trc->lnknext; }
+				else
+					{ cpu->trlinked[h&255]=trc->lnknext; }
+			}
+
+			trj->jtflag&=~BTESH2_TRJTFL_LINKED;
+			if(!(trj->jtflag&BTESH2_TRJTFL_NOFREE_MASK))
+			{
+				tr1=trj->trnext;	tr2=trj->trjmpnext;
+				trj->trnext=NULL;	trj->trjmpnext=NULL;
+				BTESH2_JitUnlinkTrace(cpu, tr1);
+				BTESH2_JitUnlinkTrace(cpu, tr2);
+
+				BTESH2_FlushTrace(cpu, trj);
+				BTESH2_FreeTrace(cpu, trj);
+			}
+		}
+	}
+
 	return(0);
 }
 

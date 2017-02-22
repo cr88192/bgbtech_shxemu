@@ -2668,6 +2668,10 @@ void BTESH2_FlushTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 		return;
 	}
 	
+	tr->Run=NULL;
+	BTESH2_JitUnlinkTrace(cpu, tr->trnext);
+	BTESH2_JitUnlinkTrace(cpu, tr->trjmpnext);
+	
 	for(i=0; i<tr->nops; i++)
 	{
 		BTESH2_FreeOpcode(cpu, tr->ops[i]);
@@ -2732,6 +2736,7 @@ void BTESH2_FlushTracesFull(BTESH2_CpuState *cpu)
 		{
 			tr1=tr->lnknext;
 			tr->jtflag&=~BTESH2_TRJTFL_LINKED;
+			tr->trnext=NULL;	tr->trjmpnext=NULL;
 			BTESH2_FlushTrace(cpu, tr);
 			BTESH2_FreeTrace(cpu, tr);
 			tr=tr1;

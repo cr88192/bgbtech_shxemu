@@ -367,7 +367,7 @@ void (*Run)(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 
 #define BTESH2_TR_HASHLVL	2
 
-#ifdef X86_64
+#ifdef BTESH2_HASJIT
 #define BTESH2_TR_JHASHPR	262139
 #define BTESH2_TR_JHASHSHR	19
 #define BTESH2_TR_JHASHSZ	4096
@@ -396,6 +396,7 @@ byte amiss;
 byte csfl;		//control state flags
 byte jtrig;		//jit trigger count
 byte jtflag;	//JIT flags
+byte lnkcnt;	//link ref-count
 BTESH2_Trace *(*Run)(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 BTESH2_Trace *trnext;		//next trace to execute
 BTESH2_Trace *trjmpnext;	//next trace to execute (on a jump)
