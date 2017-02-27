@@ -21,6 +21,11 @@ typedef signed long long s64;
 
 typedef volatile u32 vol_u32;
 
+#ifdef ARCH_HAS_FPU
+typedef float f32;
+typedef double f64;
+#endif
+
 #define GPIO_BASE 0xABCD0000
 #define SPI_BASE 0xABCD0040
 #define UART_BASE 0xABCD0100

@@ -635,6 +635,7 @@ void R_DrawSurfaceBlock16_mipN (int mip)
 			for (b=shp2n1; b>=0; b--)
 			{
 #ifdef _WIN32
+// #if 1
 #if 0
 //				l = light;
 //				d = ((l+(l>>2)) & 0xFC00);
@@ -653,7 +654,7 @@ void R_DrawSurfaceBlock16_mipN (int mip)
 				prowdest[b] = pix;
 #endif
 
-#if 1
+#if 0
 				pixa = vid.colormap16[(light & 0xFF00) + psource[b]];
 				pixb = d_8to16table[psource[b]];
 				pixb = VID_ColorMap16(pixb, light);

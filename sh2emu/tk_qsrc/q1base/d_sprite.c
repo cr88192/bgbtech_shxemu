@@ -161,8 +161,10 @@ void D_SpriteDrawSpans (sspan_t *pspan)
 
 				if (spancount > 1)
 				{
-					sstep = (snext - s) / (spancount - 1);
-					tstep = (tnext - t) / (spancount - 1);
+//					sstep = (snext - s) / (spancount - 1);
+//					tstep = (tnext - t) / (spancount - 1);
+					sstep = D_SoftDiv((snext - s), (spancount - 1));
+					tstep = D_SoftDiv((tnext - t), (spancount - 1));
 				}
 			}
 
@@ -321,8 +323,11 @@ void D_SpriteDrawSpans16 (sspan_t *pspan)
 
 				if (spancount > 1)
 				{
-					sstep = (snext - s) / (spancount - 1);
-					tstep = (tnext - t) / (spancount - 1);
+//					sstep = (snext - s) / (spancount - 1);
+//					tstep = (tnext - t) / (spancount - 1);
+
+					sstep = D_SoftDiv((snext - s), (spancount - 1));
+					tstep = D_SoftDiv((tnext - t), (spancount - 1));
 				}
 			}
 

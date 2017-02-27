@@ -1,3 +1,19 @@
+#ifdef _M_X64
+#define UAX_WINX64
+#endif
+
+#ifdef __linux
+#define UAX_SYSVAMD64
+#define UAX_LINUX
+#endif
+
+#ifdef UAX_WINX64
+#ifndef UAX_WINDOWS
+#define UAX_WINDOWS
+#endif
+#endif
+
+
 #define UAX_REG_EAX		0x00
 #define UAX_REG_ECX		0x01
 #define UAX_REG_EDX		0x02
@@ -138,6 +154,8 @@
 #define UAX_CSEG_TEXT	0x00		//.text section
 #define UAX_CSEG_DATA	0x01		//.data section
 #define UAX_CSEG_BSS	0x02		//.bss section
+
+#define UAX_CSEG_DYN	0x04		//dynamic sections
 
 #define UAX_OP_ADC					4
 #define UAX_OP_ADD					5
@@ -632,7 +650,23 @@ typedef struct UAX_OpcodeArg_s UAX_OpcodeArg;
 
 typedef struct UAX_OpcodeDesc_s UAX_OpcodeDesc;
 
+#ifdef UAX_WINX64
 #define UAX_MAX_CACHEVAR	6
+#endif
+
+#ifdef UAX_SYSVAMD64
+#define UAX_MAX_CACHEVAR	4
+#endif
+
+#ifdef UAX_WINX64
+#define UAX_REG_RCCTX			UAX_REG_RDI
+#define BTEJ_X64_FRIDX_RCCTX	BTEJ_X64_FRIDX_RDI
+#endif
+
+#ifdef UAX_SYSVAMD64
+#define UAX_REG_RCCTX			UAX_REG_RBX
+#define BTEJ_X64_FRIDX_RCCTX	BTEJ_X64_FRIDX_RBX
+#endif
 
 struct UAX_Context_s {
 byte *sec_buf[8];

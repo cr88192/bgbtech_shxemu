@@ -22,6 +22,15 @@ u32 btesh2_dcgfx_disp_vpos;
 u32 btesh2_dcgfx_displaybase_odd;
 u32 btesh2_dcgfx_displaybase_even;
 
+u32 btesh2_jxgpu_fbufbase;
+u32 btesh2_jxgpu_zbufbase;
+u32 btesh2_jxgpu_primbase;
+u32 btesh2_jxgpu_primsize;
+u32 btesh2_jxgpu_primsrov;
+u32 btesh2_jxgpu_primerov;
+
+JXGPU_RasterState *btesh2_dcgfx_softgpu=NULL;
+
 u32 btesh2_dcgfx_VregGetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr)
 {
@@ -54,6 +63,14 @@ u32 btesh2_dcgfx_VregGetD(BTESH2_PhysSpan *sp,
 	case 0x00E8:	v=btesh2_dcgfx_disp_vcfg; break;
 	case 0x00EC:	v=btesh2_dcgfx_disp_hpos; break;
 	case 0x00F0:	v=btesh2_dcgfx_disp_vpos; break;
+
+	case 0x0200:	v=btesh2_jxgpu_fbufbase; break;
+	case 0x0204:	v=btesh2_jxgpu_zbufbase; break;
+	case 0x0208:	v=btesh2_jxgpu_primbase; break;
+	case 0x020C:	v=btesh2_jxgpu_primsize; break;
+	case 0x0210:	v=btesh2_jxgpu_primsrov; break;
+	case 0x0214:	v=btesh2_jxgpu_primerov; break;
+
 	default:  break;
 	}
 	return(v);
@@ -92,6 +109,14 @@ int btesh2_dcgfx_VregSetD(BTESH2_PhysSpan *sp,
 	case 0x00E8:	btesh2_dcgfx_disp_vcfg=val; break;
 	case 0x00EC:	btesh2_dcgfx_disp_hpos=val; break;
 	case 0x00F0:	btesh2_dcgfx_disp_vpos=val; break;
+	
+	case 0x0200:	btesh2_jxgpu_fbufbase=val; break;
+	case 0x0204:	btesh2_jxgpu_zbufbase=val; break;
+	case 0x0208:	btesh2_jxgpu_primbase=val; break;
+	case 0x020C:	btesh2_jxgpu_primsize=val; break;
+	case 0x0210:	btesh2_jxgpu_primsrov=val; break;
+	case 0x0214:	btesh2_jxgpu_primerov=val; break;
+
 	default:  break;
 	}
 	return(0);
@@ -117,6 +142,183 @@ int BTESH2_DCGFX_ImageRegister(BTESH2_MemoryImage *img)
 		((btesh2_gfxcon_fbxs+1)<<20);
 
 	return(0);
+}
+
+void BTESH2_DCGFX_UpdateSoftGpu()
+{
+	JXGPU_RasterPrim *ptmp;
+	JXGPU_RasterTexi *texi;
+	byte *prbuf, *prbufe;
+	byte *prsrov, *prerov;
+	byte *fbb, *fzb, *ftb;
+	u32 tag, white, cstep;
+	float sc, ssc, tsc;
+	int vxs, vys, vxstr, vystr;
+	int srpos, erpos, prsz, prszm;
+	int texid, mip, addr, xysz, xyfmt;
+	int i, j, k;
+
+	if(!btesh2_dcgfx_softgpu)
+	{
+		btesh2_dcgfx_softgpu=JXGPU_AllocContext();
+	}
+
+	vxs=(btesh2_dcgfx_displaysize&1023)+1;
+	vys=((btesh2_dcgfx_displaysize>>10)&1023)+1;
+	vystr=((btesh2_dcgfx_displaysize>>20)&1023)-1;
+
+	switch((btesh2_dcgfx_displaycfg>>2)&3)
+	{
+	case 0: case 1:
+		vxs*=2; vxstr=2;
+		white=0xFE10;
+		cstep=0xFBDF;
+		break;
+	case 2:
+		vxs=(vxs*4)/3;
+		vxstr=3;
+		break;
+	case 3:
+		vxstr=4;
+		white=0xFFFFFFFF;
+		cstep=0xFEFEFEFF;
+		break;
+	}
+	
+	fbb=(byte *)(btesh2_dcgfx_vram+(btesh2_dcgfx_displaybase_odd>>2));
+	fzb=(byte *)(btesh2_dcgfx_vram+(btesh2_jxgpu_zbufbase>>2));
+
+	prbuf=(byte *)(btesh2_dcgfx_vram+(btesh2_jxgpu_primbase>>2));
+
+	prsz=btesh2_jxgpu_primsize;
+	prszm=prsz-1;
+	srpos=btesh2_jxgpu_primsrov;
+	erpos=btesh2_jxgpu_primerov;
+	prbufe=(byte *)(prbuf+prsz);
+	prsrov=(byte *)(prbuf+(srpos&prszm));
+	prerov=(byte *)(prbuf+(erpos&prszm));
+	
+	while(srpos<erpos)
+	{
+		tag=btesh2_getu32le(prbuf+((srpos+0)&prszm));
+		if(!(tag&255))
+		{
+			srpos+=4;
+			continue;
+		}
+		
+		switch(tag&255)
+		{
+		case 1:
+			ptmp=JXGPU_AllocPrim(btesh2_dcgfx_softgpu);
+			ptmp->primty=(tag>>16)&65535;
+			texid=btesh2_getu32le(prbuf+((srpos+0x04)&prszm));
+			srpos+=8;
+
+			texi=btesh2_dcgfx_softgpu->texi[texid&4095];
+			ptmp->texid=texid;
+			ptmp->texi=texi;
+			
+			sc=65536.0;
+			ptmp->vtx[0].x=btesh2_getf32le(prbuf+((srpos+0x00)&prszm))*sc;
+			ptmp->vtx[0].y=btesh2_getf32le(prbuf+((srpos+0x04)&prszm))*sc;
+			ptmp->vtx[1].x=btesh2_getf32le(prbuf+((srpos+0x08)&prszm))*sc;
+			ptmp->vtx[1].y=btesh2_getf32le(prbuf+((srpos+0x0C)&prszm))*sc;
+			ptmp->vtx[2].x=btesh2_getf32le(prbuf+((srpos+0x10)&prszm))*sc;
+			ptmp->vtx[2].y=btesh2_getf32le(prbuf+((srpos+0x14)&prszm))*sc;
+			srpos+=0x18;
+
+			if(ptmp->primty&0x10)
+			{
+				if(texi)
+					{ ssc=65536.0*texi->xs; tsc=65536.0*texi->ys; }
+				else
+					{ ssc=65536.0; tsc=65536.0; }
+				ptmp->vtx[0].s=btesh2_getf32le(prbuf+((srpos+0x00)&prszm))*ssc;
+				ptmp->vtx[0].t=btesh2_getf32le(prbuf+((srpos+0x04)&prszm))*tsc;
+				ptmp->vtx[1].s=btesh2_getf32le(prbuf+((srpos+0x08)&prszm))*ssc;
+				ptmp->vtx[1].t=btesh2_getf32le(prbuf+((srpos+0x0C)&prszm))*tsc;
+				ptmp->vtx[2].s=btesh2_getf32le(prbuf+((srpos+0x10)&prszm))*ssc;
+				ptmp->vtx[2].t=btesh2_getf32le(prbuf+((srpos+0x14)&prszm))*tsc;
+				srpos+=0x18;
+			}
+
+			if(ptmp->primty&0x20)
+			{
+				sc=32767.0*65536.0;
+				ptmp->vtx[0].z=btesh2_getf32le(prbuf+((srpos+0x00)&prszm))*sc;
+				ptmp->vtx[1].z=btesh2_getf32le(prbuf+((srpos+0x04)&prszm))*sc;
+				ptmp->vtx[2].z=btesh2_getf32le(prbuf+((srpos+0x08)&prszm))*sc;
+				srpos+=0x0C;
+			}else
+			{
+				ptmp->vtx[0].z=0;
+				ptmp->vtx[1].z=0;
+				ptmp->vtx[2].z=0;
+			}
+
+			if(ptmp->primty&0x40)
+			{
+				ptmp->vtx[0].c=btesh2_getu32le(prbuf+((srpos+0x00)&prszm));
+				ptmp->vtx[1].c=btesh2_getu32le(prbuf+((srpos+0x04)&prszm));
+				ptmp->vtx[2].c=btesh2_getu32le(prbuf+((srpos+0x08)&prszm));
+				srpos+=0x0C;
+			}else
+			{
+				ptmp->vtx[0].c=white;
+				ptmp->vtx[1].c=white;
+				ptmp->vtx[2].c=white;
+			}
+
+			ptmp->next=btesh2_dcgfx_softgpu->prims;
+			btesh2_dcgfx_softgpu->prims=ptmp;
+			break;
+
+		case 2:
+//			ptmp->primty=(tag>>16)&65535;
+			texid=btesh2_getu32le(prbuf+((srpos+0x04)&prszm));
+			addr=btesh2_getu32le(prbuf+((srpos+0x08)&prszm));
+			
+			texi=btesh2_dcgfx_softgpu->texi[texid&4095];
+			if(!texi)
+			{
+				texi=JXGPU_AllocTexi(btesh2_dcgfx_softgpu);
+				btesh2_dcgfx_softgpu->texi[texid&4095]=texi;
+			}
+
+			mip=(tag>>8)&15;
+			ftb=(byte *)(btesh2_dcgfx_vram+(addr>>2));
+			texi->pix[mip]=ftb;
+			if(mip)
+			{
+				srpos+=0x0C;
+				break;
+			}
+			
+			xysz=btesh2_getu32le(prbuf+((srpos+0x0C)&prszm));
+			xyfmt=btesh2_getu32le(prbuf+((srpos+0x10)&prszm));
+			texi->xs=(xysz    )&65535;
+			texi->ys=(xysz>>16)&65535;
+//			texi->ystr=texi->xs;
+			
+			srpos+=0x14;
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	btesh2_jxgpu_primsrov=srpos;
+	
+	btesh2_dcgfx_softgpu->pxbuf=(u16 *)fbb;
+	btesh2_dcgfx_softgpu->zbuf=(u16 *)fzb;
+	btesh2_dcgfx_softgpu->xs=vxs;
+	btesh2_dcgfx_softgpu->ys=vys;
+	btesh2_dcgfx_softgpu->ystr=vystr;
+	btesh2_dcgfx_softgpu->cstepmask=cstep;
+
+	JXGPU_ContextRenderPrims(btesh2_dcgfx_softgpu);
 }
 
 u32 btesh2_dcgfx_redraw_tpix16_555le(byte *px)
@@ -233,6 +435,9 @@ void btesh2_dcgfx_init_yuv655le()
 		cy=cy|(cy>>6);
 //		cu=cu|(cu>>5);
 //		cv=cv|(cv>>5);
+
+		if(cu<128)cu=cu|(cu>>5);
+		if(cv<128)cv=cv|(cv>>5);
 
 #if 0
 		cu1=(cu-128)<<1; cv1=(cv-128)<<1;
@@ -394,6 +599,11 @@ int BTESH2_DCGFX_RedrawScreen()
 
 	if(!btesh2_dcgfx_vram || !btesh2_dcgfx_vramfl)
 		return(0);
+
+	if(btesh2_dcgfx_displaycfg&0x01000000)
+	{
+		BTESH2_DCGFX_UpdateSoftGpu();
+	}
 
 	lastcfg=btesh2_dcgfx_displaycfg;
 	btesh2_dcgfx_vramfl&=~1;

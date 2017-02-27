@@ -39,6 +39,28 @@ extern int			d_aflatcolor;
 
 void (*d_drawspans) (espan_t *pspan);
 
+u32 d_softdiv_rcptab[1024];
+
+int D_SoftDiv(int a, int b)
+{
+	if(b<3)
+	{
+		if(b<0)
+			return(D_SoftDiv(a, -b));
+		if(b==2)
+			return(a>>1);
+		if(b==1)
+			return(a);
+		return(0);
+	}
+	
+	if(b<1024)
+	{
+		return((((s64)a)*d_softdiv_rcptab[b]+0x7FFFFFFF)>>32);
+	}
+
+	return(a/b);
+}
 
 /*
 ===============
@@ -47,6 +69,7 @@ D_Init
 */
 void D_Init (void)
 {
+	int i, j, k;
 
 	r_skydirect = 1;
 
@@ -59,6 +82,12 @@ void D_Init (void)
 	r_recursiveaffinetriangles = true;
 //	r_pixbytes = 1;
 	r_aliasuvscale = 1.0;
+	
+	for(i=2; i<1024; i++)
+	{
+//		d_softdiv_rcptab[i]=0x100000000LL/i;
+		d_softdiv_rcptab[i]=0xFFFFFFFFU/i;
+	}
 }
 
 

@@ -341,6 +341,18 @@ int BTESH2_MemoryDefineSpan(BTESH2_MemoryImage *img,
 	return(i);
 }
 
+int BTESH2_MemoryDefineSpan_InitFF(BTESH2_MemoryImage *img,
+	u32 base, u32 limit, byte *data, char *name)
+{
+	BTESH2_PhysSpan *sp;
+	int i;
+	
+	i=BTESH2_MemoryDefineSpan(img, base, limit, data, name);
+	sp=img->span[i];
+	memset(sp->data, 0xFF, limit-base);
+	return(i);
+}
+
 void btesh2_spandmd_demandInit(BTESH2_PhysSpan *sp)
 {
 	byte **refptr;
@@ -443,7 +455,13 @@ u32 btesh2_spanreg_GetB(BTESH2_PhysSpan *sp,
 {
 	u32 i, j;
 	i=sp->GetD(sp, cpu, reladdr&(~3));
-	j=(i>>((3-(reladdr&3))*8));
+	if(cpu->csfl&1)
+	{
+		j=(i>>((reladdr&3)*8));
+	}else
+	{
+		j=(i>>((3-(reladdr&3))*8));
+	}
 	j=(sbyte)j;
 	return(j);
 }
@@ -453,7 +471,13 @@ u32 btesh2_spanreg_GetW(BTESH2_PhysSpan *sp,
 {
 	u32 i, j;
 	i=sp->GetD(sp, cpu, reladdr&(~3));
-	j=(i>>((3-(reladdr&3))*8));
+	if(cpu->csfl&1)
+	{
+		j=(i>>((reladdr&3)*8));
+	}else
+	{
+		j=(i>>((3-(reladdr&3))*8));
+	}
 	j=(s16)j;
 	return(j);
 }

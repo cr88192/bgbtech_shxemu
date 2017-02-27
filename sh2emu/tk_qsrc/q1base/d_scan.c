@@ -302,8 +302,13 @@ void Turbulent8 (espan_t *pspan)
 
 				if (r_turb_spancount > 1)
 				{
-					r_turb_sstep = (snext - r_turb_s) / (r_turb_spancount - 1);
-					r_turb_tstep = (tnext - r_turb_t) / (r_turb_spancount - 1);
+//					r_turb_sstep = (snext - r_turb_s) / (r_turb_spancount - 1);
+//					r_turb_tstep = (tnext - r_turb_t) / (r_turb_spancount - 1);
+
+					r_turb_sstep = D_SoftDiv((snext - r_turb_s),
+						(r_turb_spancount - 1));
+					r_turb_tstep = D_SoftDiv((tnext - r_turb_t),
+						(r_turb_spancount - 1));
 				}
 			}
 
@@ -436,8 +441,13 @@ void Turbulent16 (espan_t *pspan)
 
 				if (r_turb_spancount > 1)
 				{
-					r_turb_sstep = (snext - r_turb_s) / (r_turb_spancount - 1);
-					r_turb_tstep = (tnext - r_turb_t) / (r_turb_spancount - 1);
+//					r_turb_sstep = (snext - r_turb_s) / (r_turb_spancount - 1);
+//					r_turb_tstep = (tnext - r_turb_t) / (r_turb_spancount - 1);
+
+					r_turb_sstep = D_SoftDiv((snext - r_turb_s),
+						(r_turb_spancount - 1));
+					r_turb_tstep = D_SoftDiv((tnext - r_turb_t),
+						(r_turb_spancount - 1));
 				}
 			}
 
@@ -570,8 +580,11 @@ void D_DrawSpans8 (espan_t *pspan)
 
 				if (spancount > 1)
 				{
-					sstep = (snext - s) / (spancount - 1);
-					tstep = (tnext - t) / (spancount - 1);
+//					sstep = (snext - s) / (spancount - 1);
+//					tstep = (tnext - t) / (spancount - 1);
+
+					sstep = D_SoftDiv((snext - s), (spancount - 1));
+					tstep = D_SoftDiv((tnext - t), (spancount - 1));
 				}
 			}
 
@@ -706,8 +719,11 @@ void D_DrawSpans16 (espan_t *pspan)
 
 				if (spancount > 1)
 				{
-					sstep = (snext - s) / (spancount - 1);
-					tstep = (tnext - t) / (spancount - 1);
+//					sstep = (snext - s) / (spancount - 1);
+//					tstep = (tnext - t) / (spancount - 1);
+
+					sstep = D_SoftDiv((snext - s), (spancount - 1));
+					tstep = D_SoftDiv((tnext - t), (spancount - 1));
 				}
 			}
 

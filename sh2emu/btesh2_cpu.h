@@ -1,8 +1,13 @@
 #ifndef BTESH2_CPU_H
 #define BTESH2_CPU_H
 
-#define BTESH2_ARCH_SH2		1
-#define BTESH2_ARCH_SH4		2
+#define BTESH2_ARCH_SH2				0x01
+#define BTESH2_ARCH_SH4				0x02
+#define BTESH2_ARCH_SH4_NOLINK		0x12
+#define BTESH2_ARCH_NOLINK			0x10
+
+#define BTESH2_ARFL_NOLINK			0x01
+#define BTESH2_ARFL_NOJIT			0x02
 
 #define BTESH2_REG_SP		15
 
@@ -238,6 +243,12 @@
 #define BTESH2_NMID_MOVI		0xC0	//
 #define BTESH2_NMID_MOVIV		0xC1	//
 
+#define BTESH2_NMID_PREF		0xC2	//
+#define BTESH2_NMID_OCBI		0xC3	//
+#define BTESH2_NMID_OCBP		0xC4	//
+#define BTESH2_NMID_OCBWB		0xC5	//
+#define BTESH2_NMID_ICBI		0xC6	//
+
 
 #define BTESH2_FMID_REGREG		0x01	//Rm, Rn
 #define BTESH2_FMID_REGRM		0x02	//Rm
@@ -430,6 +441,7 @@ s64 tr_tdt;		//total running time (ms)
 byte csfl;		//control state flags
 byte arch;		//arch ID
 byte ctfl;		//control temp flags (don't effect control flow)
+byte archfl;	//arch modifier flags
 u32 ptcpc;
 
 BTESH2_Trace *cur_trace;

@@ -23,6 +23,16 @@ typedef signed long long s64;
 typedef unsigned int uint;
 #endif
 
+#ifndef F32_T
+#define F32_T
+typedef float f32;
+#endif
+
+#ifndef F64_T
+#define F64_T
+typedef double f64;
+#endif
+
 #if defined(__x86_64__) || defined(_M_X64)
 #ifndef X86_64
 #define X86_64
@@ -136,6 +146,26 @@ default_inline u64 btesh2_bswapu64(u64 val)
 #define btesh2_gets16be(ptr)		((s16)btesh2_bswapu16(*(u16 *)(ptr)))
 #define btesh2_gets32be(ptr)		((s32)btesh2_bswapu32(*(u32 *)(ptr)))
 #define btesh2_gets64be(ptr)		((s64)btesh2_bswapu64(*(u64 *)(ptr)))
+
+#define btesh2_getf32le(ptr)		(*(f32 *)(ptr))
+#define btesh2_getf64le(ptr)		(*(f64 *)(ptr))
+#define btesh2_setf32le(ptr, val)	(*(f32 *)(ptr))=(val)
+#define btesh2_setf64le(ptr, val)	(*(f64 *)(ptr))=(val)
+
+default_inline f32 btesh2_bswapf32a(u32 val)
+	{ u32 t; t=btesh2_bswapu32(val); return(*(f32 *)(&t)); }
+default_inline f64 btesh2_bswapf64a(u64 val)
+	{ u64 t; t=btesh2_bswapu64(val); return(*(f64 *)(&t)); }
+
+default_inline u32 btesh2_bswapf32b(f32 val)
+	{ return(btesh2_bswapu32(*(u32 *)(&val))); }
+default_inline u64 btesh2_bswapf64b(f64 val)
+	{ return(btesh2_bswapu64(*(u64 *)(&val))); }
+
+#define btesh2_getf32be(ptr)		btesh2_bswapf32a(*(u32 *)(ptr))
+#define btesh2_getf64be(ptr)		btesh2_bswapf64a(*(u64 *)(ptr))
+#define btesh2_setf32be(ptr, val)	(*(u32 *)(ptr))=btesh2_bswapf32b(val)
+#define btesh2_setf64be(ptr, val)	(*(u64 *)(ptr))=btesh2_bswapf64b(val)
 
 #else
 default_inline u16 btesh2_getu16le(byte *ptr)

@@ -1,0 +1,28 @@
+BUILD=.
+MKSUF=.msvc
+LIBSUF=.lib
+DLLSUF=.dll
+EXESUF=.exe
+BINSUF=.exe
+OBJSUF=.obj
+DLLPF=
+
+CC_OUTEXE=cl /Fe
+CC_OUTDLL=cl /LD /Fe
+CC_OUTOBJ=cl /c /Fo
+CC_OUTTOOL=cl /Fe
+
+# MACHTYPE=$(shell echo $MACHTYPE)
+# MACHTYPE=$(shell ./getmachine.sh)
+
+CFLAGS=/Iinclude /I../include /Z7
+DLL_CFLAGS=$(CFLAGS) /DBGBCC_DLL
+# /DMACHTYPE="\"$(MACHTYPE)\""
+CFLAGS_META=/DBGBCC_BGBMETA $(DLL_CFLAGS)
+LDFLAGS=../bgbgc.lib ../bgbdy.lib ../bgbasm.lib \
+	../bgbsvm.lib
+DLL_LDFLAGS=../bgbgc.lib ../bgbdy.lib ../bgbasm.lib
+LDFLAGS_META=
+
+include Makefile.inc
+

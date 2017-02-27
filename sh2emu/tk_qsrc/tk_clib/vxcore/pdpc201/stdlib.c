@@ -242,8 +242,10 @@ __PDPCLIB_API__ int rand(void)
 {
     int ret;
 
-    myseed = myseed * 1103515245UL + 12345;
-    ret = (int)((myseed >> 16) & 0x8fff);
+//    myseed = myseed * 1103515245UL + 12345;
+    myseed = myseed * 65521UL + 1;
+//    ret = (int)((myseed >> 16) & 0x8fff);
+    ret = (int)((myseed >> 16) & 0x7fff);
     return (ret);
 }
 

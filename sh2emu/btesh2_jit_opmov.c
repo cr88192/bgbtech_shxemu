@@ -670,6 +670,7 @@ int BTESH2_TryJitOpcode_MovMem(UAX_Context *jctx,
 		return(1);
 	}
 
+#ifdef UAX_WIN64
 	if((op->nmid==BTESH2_NMID_LDSL) &&
 		(op->fmid==BTESH2_FMID_REGINCLD) &&
 		(op->rn==BTESH2_REG_FPSCR))
@@ -688,6 +689,7 @@ int BTESH2_TryJitOpcode_MovMem(UAX_Context *jctx,
 
 		return(1);
 	}
+#endif
 	
 	return(0);
 }

@@ -142,7 +142,7 @@ int BTESH2_GetAddrByteFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
 	addr1=addr&0x1FFFFFFF;
 	
 	ra1=addr1-cpu->pspan_pbase;
-	if(ra1<=cpu->pspan_prng3)
+	if(ra1<cpu->pspan_prng3)
 		{ return(*(sbyte *)(cpu->pspan_pdata+ra1)); }
 	
 //	mem=cpu->memory;
@@ -205,7 +205,7 @@ int BTESH2_GetAddrWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
 	addr1=addr&0x1FFFFFFF;
 
 	ra1=addr1-cpu->pspan_pbase;
-	if(ra1<=cpu->pspan_prng3)
+	if(ra1<cpu->pspan_prng3)
 		{ return(btesh2_gets16le(cpu->pspan_pdata+ra1)); }
 
 //	mem=cpu->memory;
@@ -286,7 +286,7 @@ default_inline u32 BTESH2_GetAddrDWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
 	addr1=addr&0x1FFFFFFF;
 
 	ra1=addr1-cpu->pspan_pbase;
-	if(ra1<=cpu->pspan_prng3)
+	if(ra1<cpu->pspan_prng3)
 		{ return(btesh2_getu32le(cpu->pspan_pdata+ra1)); }
 
 //	mem=cpu->memory;
@@ -376,7 +376,7 @@ force_inline int BTESH2_SetAddrByteFMMU_NoAT_I(
 	addr1=addr&0x1FFFFFFF;
 
 	ra1=addr1-cpu->pspan_pbase;
-	if(ra1<=cpu->pspan_prng3)
+	if(ra1<cpu->pspan_prng3)
 		{ return(btesh2_setu8le(cpu->pspan_pdata+ra1, val)); }
 
 	sp=cpu->pspan;
@@ -486,7 +486,7 @@ force_inline int BTESH2_SetAddrWordFMMU_NoAT_I(
 	addr1=addr&0x1FFFFFFF;
 
 	ra1=addr1-cpu->pspan_pbase;
-	if(ra1<=cpu->pspan_prng3)
+	if(ra1<cpu->pspan_prng3)
 		{ return(btesh2_setu16le(cpu->pspan_pdata+ra1, val)); }
 
 	sp=cpu->pspan;
@@ -564,7 +564,7 @@ force_inline int BTESH2_SetAddrDWordFMMU_NoAT_I(
 	addr1=addr&0x1FFFFFFF;
 
 	ra1=addr1-cpu->pspan_pbase;
-	if(ra1<=cpu->pspan_prng3)
+	if(ra1<cpu->pspan_prng3)
 		{ return(btesh2_setu32le(cpu->pspan_pdata+ra1, val)); }
 
 	sp=cpu->pspan;

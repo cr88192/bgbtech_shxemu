@@ -8,6 +8,8 @@
 #include "tk_vfile.c"
 #include "tk_ramavi.c"
 
+#include "tk_jxgpu.c"
+
 u32 timer_ticks;
 
 TKFAT_ImageInfo *tkfat_fsimg;
@@ -795,6 +797,12 @@ int tk_exec(char *cmd)
 	if(!strcmp(cmd, "video2"))
 	{
 		test_video2();
+		return(0);
+	}
+
+	if(!strcmp(cmd, "jxgpu"))
+	{
+		tk_jxgpu_test();
 		return(0);
 	}
 

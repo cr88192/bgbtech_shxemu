@@ -158,7 +158,17 @@ void Q_memcpy (void *dest, void *src, int count)
 	if (( ( (nlint)dest | (nlint)src | count) & 3) == 0 )
 	{
 		count>>=2;
-		for (i=0 ; i<count ; i++)
+
+		for (i=0 ; (i+3)<count ; i+=4)
+		{
+			((int *)dest)[i+0] = ((int *)src)[i+0];
+			((int *)dest)[i+1] = ((int *)src)[i+1];
+			((int *)dest)[i+2] = ((int *)src)[i+2];
+			((int *)dest)[i+3] = ((int *)src)[i+3];
+		}
+
+//		for (i=0 ; i<count ; i++)
+		for (; i<count ; i++)
 			((int *)dest)[i] = ((int *)src)[i];
 	}
 	else

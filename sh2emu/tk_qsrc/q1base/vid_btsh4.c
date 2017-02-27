@@ -24,12 +24,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 viddef_t	vid;				// global video state
 
-#define	BASEWIDTH	320
+// #define	BASEWIDTH	320
 // #define	BASEHEIGHT	200
-#define	BASEHEIGHT	240
+// #define	BASEHEIGHT	240
 
 // #define	BASEWIDTH	480
 // #define	BASEHEIGHT	360
+
+#define	BASEWIDTH	640
+#define	BASEHEIGHT	480
 
 //byte	vid_buffer[BASEWIDTH*(BASEHEIGHT+4)];
 // byte	vid_buffer[BASEWIDTH*BASEHEIGHT*2];
@@ -122,16 +125,21 @@ int VID_BlendRatio16(int pixa, int pixb, int rat)
 
 int VID_ColorMap16(int pix, int light)
 {
-	int d, sc, scuv;
+	int d, m, m1, sc, scuv;
 	int y1, u1, v1;
 
-#if 1
+#if 0
 //	d = ((l+(l>>2)) & 0xFC00);
-	d = (light & 0xFC00)-(8<<10);
+//	d = (light & 0xFC00)-(8<<10);
+
+	d = (light & 0xFC00)-(6<<10);
+	d=(d+(d>>1))&((s16)0xFC00);
 
 	pix= pix - d;
-	if(pix<0x0000)pix=0x01EF;
-	if(pix>0xFFFF)pix=0xFDEF;
+//	if(pix<0x0000)pix=0x01EF;
+//	if(pix>0xFFFF)pix=0xFDEF;
+	if(pix<0x0210)pix=0x0210;
+	if(pix>0xFE10)pix=0xFE10;
 #endif
 
 #if 0
@@ -141,8 +149,10 @@ int VID_ColorMap16(int pix, int light)
 
 	sc=(512+128)-((light>>8)&255)*10;
 //	scuv=(256+64)-((light>>8)&255)*5;
-	scuv=256-((light>>8)&255)*4;
+//	scuv=256-((light>>8)&255)*4;
 //	scuv=256-((light>>8)&255)*5;
+//	scuv=384-((light>>8)&255)*5;
+	scuv=sc;
 
 	if(sc<0)sc=0;
 	y1=(pix&0xFC00);
@@ -160,6 +170,53 @@ int VID_ColorMap16(int pix, int light)
 		if(u1>0x001F)u1=0x001F;
 		if(v1<0x0000)v1=0x0000;
 		if(v1>0x03EF)v1=0x03E0;
+	}
+	
+	pix=(y1&0xFC00)|(u1&0x001F)|(v1&0x03E0);
+#endif
+
+#if 0
+	sc=(512+128)-((light>>8)&255)*10;
+
+	if(sc<0)sc=0;
+	y1=(pix&0xFC00);
+	y1=(y1*sc+0x01FFFF)>>8;
+	if(y1>>16)
+	{
+		m=~(y1>>31);
+//		m=(y1<<15)>>31;
+//		y1=(y1&m)|m;
+		y1=(u16)m;
+//		if(y1<0x0000)y1=0x0000;
+//		if(y1>0xFFFF)y1=0xFC00;
+	}
+	
+//	pix=(y1&0xFC00)|(u1&0x001F)|(v1&0x03E0);
+	pix=(y1&0xFC00)|(pix&0x03FF);
+#endif
+
+#if 1
+	sc=(512+128)-((light>>8)&255)*10;
+	scuv=sc;
+
+	if(sc<0)sc=0;
+	y1=(pix&0xFC00);
+	u1=(pix&0x001F);
+	v1=(pix&0x03E0);
+	y1=(y1*sc+0x01FFFF)>>8;
+//	u1=(((u1-0x0010)*scuv+0x00007F)>>8)+0x0010;
+//	v1=(((v1-0x0200)*scuv+0x000FFF)>>8)+0x0200;
+	u1=(((u1-0x0010)*scuv)>>8)+0x0010;
+	v1=(((v1-0x0200)*scuv)>>8)+0x0200;
+
+	if((y1>>16) | (v1>>10) | (u1>>5))
+	{
+		m=~(y1>>31);		m1=~((y1<<15)>>31);
+		y1=(y1&m1)|(m&(~m1));
+		m=~(u1>>31);		m1=~((u1<<26)>>31);
+		u1=(u1&m1)|(m&(~m1));
+		m=~(v1>>31);		m1=~((v1<<21)>>31);
+		v1=(v1&m1)|(m&(~m1));
 	}
 	
 	pix=(y1&0xFC00)|(u1&0x001F)|(v1&0x03E0);
@@ -184,15 +241,22 @@ void	VID_SetPalette (unsigned char *palette)
 //		cg=cg*1.5;
 //		cb=cb*1.5;
 		
-		cy=(2*cg+cr+cb)/4;
-		cu=((cb-cg)/2)+128;
-		cv=((cr-cg)/2)+128;
+//		cy=(2*cg+cr+cb)/4;
+//		cu=((cb-cg)/2)+128;
+//		cv=((cr-cg)/2)+128;
+
+		cy=((  77*cr +150*cg + 29*cb + 127)>>8);
+		cu=((- 43*cr - 85*cg +128*cb + 127)>>8)+128;
+		cv=(( 128*cr -107*cg - 21*cb + 127)>>8)+128;
 
 //		cy+=16;
 		
-		cy=vid_clamp255(cy+1)>>2;
-		cu=vid_clamp255(cu+3)>>3;
-		cv=vid_clamp255(cv+3)>>3;
+//		cy=vid_clamp255(cy+1)>>2;
+//		cu=vid_clamp255(cu+3)>>3;
+//		cv=vid_clamp255(cv+3)>>3;
+		cy=vid_clamp255(cy+2)>>2;
+		cu=vid_clamp255(cu+4)>>3;
+		cv=vid_clamp255(cv+4)>>3;
 		d_8to16table[i]=(cy<<10)|(cv<<5)|cu;
 
 //		d_8to16table[i]=((cy>>2)<<10)|((cv>>3)<<5)|(cu>>3);
@@ -217,9 +281,13 @@ void	VID_ShiftPaletteVec (int dr, int dg, int db, int dpcnt)
 {
 	int cy, cu, cv;
 	
-	cy=(dr+2*dg+db)/4;
-	cu=(db-dg)/2+128;
-	cv=(dr-dg)/2+128;
+//	cy=(dr+2*dg+db)/4;
+//	cu=(db-dg)/2+128;
+//	cv=(dr-dg)/2+128;
+
+	cy=((  77*dr +150*dg + 29*db + 127)>>8);
+	cu=((- 43*dr - 85*dg +128*db + 127)>>8)+128;
+	cv=(( 128*dr -107*dg - 21*db + 127)>>8)+128;
 	
 	cy=vid_clamp255(cy);
 	cu=vid_clamp255(cu);
@@ -243,8 +311,14 @@ void	VID_Init (unsigned char *palette)
 
 	printf("VID_Init:\n");
 
-	vid.maxwarpwidth = vid.width = vid.conwidth = BASEWIDTH;
-	vid.maxwarpheight = vid.height = vid.conheight = BASEHEIGHT;
+//	vid.maxwarpwidth = vid.width = vid.conwidth = BASEWIDTH;
+//	vid.maxwarpheight = vid.height = vid.conheight = BASEHEIGHT;
+
+	vid.width = vid.conwidth = BASEWIDTH;
+	vid.height = vid.conheight = BASEHEIGHT;
+	vid.maxwarpwidth = WARP_WIDTH;
+	vid.maxwarpheight = WARP_HEIGHT;
+
 	vid.aspect = 1.0;
 	vid.numpages = 1;
 	vid.colormap = host_colormap;
@@ -286,7 +360,8 @@ void	VID_Init (unsigned char *palette)
 #if 1
 //	vid_vreg[(0x44/4)]=0x0005;
 //	vid_vreg[(0x44/4)]=0x0001;
-	vid_vreg[(0x44/4)]=0x0081;
+//	vid_vreg[(0x44/4)]=0x0081;
+	vid_vreg[(0x44/4)]=0x0085;
 
 	vid_vreg[(0x5C/4)]=
 		(BASEWIDTH/2-1)|
@@ -362,7 +437,7 @@ void	VID_Update (vrect_t *rects)
 			}
 		}else
 		{
-			memcpy(vid_vram, vid.buffer, BASEWIDTH*BASEHEIGHT*2);
+			Q_memcpy(vid_vram, vid.buffer, BASEWIDTH*BASEHEIGHT*2);
 		}
 		return;
 	}

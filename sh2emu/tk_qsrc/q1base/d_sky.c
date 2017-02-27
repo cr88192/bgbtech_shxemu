@@ -115,8 +115,11 @@ void D_DrawSkyScans8 (espan_t *pspan)
 					u += spancountminus1;
 					D_Sky_uv_To_st (u, v, &snext, &tnext);
 
-					sstep = (snext - s) / spancountminus1;
-					tstep = (tnext - t) / spancountminus1;
+//					sstep = (snext - s) / spancountminus1;
+//					tstep = (tnext - t) / spancountminus1;
+
+					sstep = D_SoftDiv((snext - s), (spancount - 1));
+					tstep = D_SoftDiv((tnext - t), (spancount - 1));
 				}
 			}
 
@@ -195,8 +198,11 @@ void D_DrawSkyScans16 (espan_t *pspan)
 					u += spancountminus1;
 					D_Sky_uv_To_st (u, v, &snext, &tnext);
 
-					sstep = (snext - s) / spancountminus1;
-					tstep = (tnext - t) / spancountminus1;
+//					sstep = (snext - s) / spancountminus1;
+//					tstep = (tnext - t) / spancountminus1;
+
+					sstep = D_SoftDiv((snext - s), (spancount - 1));
+					tstep = D_SoftDiv((tnext - t), (spancount - 1));
 				}
 			}
 

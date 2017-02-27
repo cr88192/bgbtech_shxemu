@@ -2444,7 +2444,8 @@ void	VID_Init (unsigned char *palette)
 	modelist[2].bpp = 8;
 
 //	vid_default = MODE_WINDOWED;
-	vid_default = 2;
+//	vid_default = 2;
+	vid_default = 1;
 
 	windowed_default = vid_default;
 

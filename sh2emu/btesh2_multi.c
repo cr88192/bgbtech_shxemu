@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 
-#ifdef _M_X64
+// #ifdef _M_X64
+#if defined(_M_X64) || defined(__x86_64__)
 #define BTESH2_HASJIT
 #endif
 
@@ -39,6 +41,7 @@
 #include "btesh2_interp.c"
 #include "btesh2_ldelf.c"
 
+#include "softgpu/jxgpu_multi.c"
 #include "btesh2_gfxcon.c"
 #include "btesh2_dcgfx.c"
 #include "btesh2_snddev.c"

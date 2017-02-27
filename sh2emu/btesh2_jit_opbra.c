@@ -20,24 +20,24 @@ int BTESH2_TryJitOpcode_BranchOp(UAX_Context *jctx,
 			l0=UAX_GenLabelTemp(jctx);
 		
 //			UAX_AsmInsnStRegDispImm(jctx, UAX_OP_TEST,
-//				UAX_REG_RDI, offsetof(BTESH2_CpuState, regs)+(BTESH2_REG_SR*4),
+//				UAX_REG_RCCTX, offsetof(BTESH2_CpuState, regs)+(BTESH2_REG_SR*4),
 //				1);
 			BTESH2_JitTestVMRegImm(jctx, BTESH2_REG_SR, 1);
 			UAX_AsmInsnLabel(jctx, UAX_OP_JNE, l0|UAX_LBL_NEAR);
 
 			UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
-				UAX_REG_R8Q, UAX_REG_RDI, offsetof(BTESH2_CpuState, trjmpnext));
+				UAX_REG_R8Q, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trjmpnext));
 
 			BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(op->imm));
 			UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
-				UAX_REG_RDI, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+				UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
 			UAX_EmitLabel(jctx, l0);
 			return(1);
 		}else
 		{
 			l0=UAX_GenLabelTemp(jctx);
 //			UAX_AsmInsnStRegDispImm(jctx, UAX_OP_TEST,
-//				UAX_REG_RDI, offsetof(BTESH2_CpuState, regs)+(BTESH2_REG_SR*4),
+//				UAX_REG_RCCTX, offsetof(BTESH2_CpuState, regs)+(BTESH2_REG_SR*4),
 //				1);
 			BTESH2_JitTestVMRegImm(jctx, BTESH2_REG_SR, 1);
 			UAX_AsmInsnLabel(jctx, UAX_OP_JNE, l0|UAX_LBL_NEAR);
@@ -67,24 +67,24 @@ int BTESH2_TryJitOpcode_BranchOp(UAX_Context *jctx,
 			l0=UAX_GenLabelTemp(jctx);
 		
 //			UAX_AsmInsnStRegDispImm(jctx, UAX_OP_TEST,
-//				UAX_REG_RDI, offsetof(BTESH2_CpuState, regs)+(BTESH2_REG_SR*4),
+//				UAX_REG_RCCTX, offsetof(BTESH2_CpuState, regs)+(BTESH2_REG_SR*4),
 //				1);
 			BTESH2_JitTestVMRegImm(jctx, BTESH2_REG_SR, 1);
 			UAX_AsmInsnLabel(jctx, UAX_OP_JE, l0|UAX_LBL_NEAR);
 
 			UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
-				UAX_REG_R8Q, UAX_REG_RDI, offsetof(BTESH2_CpuState, trjmpnext));
+				UAX_REG_R8Q, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trjmpnext));
 
 			BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(op->imm));
 			UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
-				UAX_REG_RDI, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+				UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
 			UAX_EmitLabel(jctx, l0);
 			return(1);
 		}else
 		{
 			l0=UAX_GenLabelTemp(jctx);
 //			UAX_AsmInsnStRegDispImm(jctx, UAX_OP_TEST,
-//				UAX_REG_RDI, offsetof(BTESH2_CpuState, regs)+(BTESH2_REG_SR*4),
+//				UAX_REG_RCCTX, offsetof(BTESH2_CpuState, regs)+(BTESH2_REG_SR*4),
 //				1);
 			BTESH2_JitTestVMRegImm(jctx, BTESH2_REG_SR, 1);
 			UAX_AsmInsnLabel(jctx, UAX_OP_JE, l0|UAX_LBL_NEAR);
@@ -120,9 +120,9 @@ int BTESH2_TryJitOpcode_BranchOp(UAX_Context *jctx,
 		BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(op->imm));
 
 		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
-			UAX_REG_R8Q, UAX_REG_RDI, offsetof(BTESH2_CpuState, trjmpnext));
+			UAX_REG_R8Q, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trjmpnext));
 		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
-			UAX_REG_RDI, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
 		return(1);
 	}
 #endif
@@ -337,10 +337,10 @@ int BTESH2_TryJitOpcode_CmpOp_OpRR(UAX_Context *jctx,
 			{ UAX_AsmAndRegImm(jctx, r4, (s32)(~1)); }
 
 		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
-			UAX_REG_R8Q, UAX_REG_RDI, offsetof(BTESH2_CpuState, trjmpnext));
+			UAX_REG_R8Q, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trjmpnext));
 		BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(tr->jmppc));
 		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
-			UAX_REG_RDI, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
 
 		UAX_EmitLabel(jctx, l1);
 		if(r4!=r0)
@@ -516,10 +516,10 @@ int BTESH2_TryJitOpcode_CmpOp_OpRI(UAX_Context *jctx,
 			{ UAX_AsmAndRegImm(jctx, r4, (s32)(~1)); }
 
 		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
-			UAX_REG_R8Q, UAX_REG_RDI, offsetof(BTESH2_CpuState, trjmpnext));
+			UAX_REG_R8Q, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trjmpnext));
 		BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(tr->jmppc));
 		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
-			UAX_REG_RDI, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
 
 		UAX_EmitLabel(jctx, l1);
 		if(r4!=r0)
@@ -652,10 +652,10 @@ int BTESH2_TryJitOpcode_TestOp_OpRR(UAX_Context *jctx,
 			{ UAX_AsmAndRegImm(jctx, r4, (s32)(~1)); }
 
 		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
-			UAX_REG_R8Q, UAX_REG_RDI, offsetof(BTESH2_CpuState, trjmpnext));
+			UAX_REG_R8Q, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trjmpnext));
 		BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(tr->jmppc));
 		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
-			UAX_REG_RDI, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
 
 		UAX_EmitLabel(jctx, l1);
 		if(r4!=r0)
@@ -800,10 +800,10 @@ int BTESH2_TryJitOpcode_TestOp_OpRI(UAX_Context *jctx,
 			{ UAX_AsmAndRegImm(jctx, r4, (s32)(~1)); }
 
 		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
-			UAX_REG_R8Q, UAX_REG_RDI, offsetof(BTESH2_CpuState, trjmpnext));
+			UAX_REG_R8Q, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trjmpnext));
 		BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(tr->jmppc));
 		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
-			UAX_REG_RDI, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
 
 		UAX_EmitLabel(jctx, l1);
 		if(r4!=r0)

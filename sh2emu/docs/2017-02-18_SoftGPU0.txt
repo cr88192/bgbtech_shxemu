@@ -1,0 +1,18 @@
+Possible Software GPU Designs.
+
+Tag Buffer:
+* Ring buffer holding commands.
+* Buffer is WORD or DWORD oriented.
+* May contain precooked triangles.
+** Values are encoded as pairs inside a DWORD.
+** Command: Cmd/Tex Vertex*3 (Alpha)*
+*** Cmd: Command
+**** Op: 8 bits (says this is a triangle)
+**** Mode: 8 bits (blending mode/attrib)
+*** Tex: Texture ID
+*** Alpha: Optional alpha bits (3x5).
+** Vertex: X/Y, Z/Clr, S/T
+*** X/Y: Fixed point pixels (12.4).
+*** Z: Logical half-float.
+*** Clr: YUV655
+*** S/T: Fixed-point pixels.

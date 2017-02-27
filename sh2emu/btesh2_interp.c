@@ -529,6 +529,15 @@ int BTESH2_CpuUartInt(BTESH2_CpuState *cpu)
 	return(0);
 }
 
+int BTESH2_CpuNolink(BTESH2_CpuState *cpu)
+{
+	if(cpu->arch==BTESH2_ARCH_SH2)
+		return(1);
+	if(cpu->archfl&BTESH2_ARFL_NOLINK)
+		return(1);
+	return(0);
+}
+
 int BTESH2_RunCpu(BTESH2_CpuState *cpu, int lim)
 {
 	BTESH2_Trace *tr, *trnxt;
@@ -544,26 +553,11 @@ int BTESH2_RunCpu(BTESH2_CpuState *cpu, int lim)
 //	while((l--)>0)
 	while((cpu->tr_runlim--)>0)
 	{
-#if 0
-		pc=cpu->regs[BTESH2_REG_PC];
-		if(pc!=lpc)
+#if 1
+		if(BTESH2_CpuNolink(cpu))
 		{
-			if(cpu->logpc)
-			{
-				if(cpu->nlogpc<cpu->mlogpc)
-				{
-					cpu->logsp[cpu->nlogpc]=
-						cpu->regs[BTESH2_REG_SP];
-					cpu->logpc[cpu->nlogpc++]=pc;
-				}
-			}
-
-			cpu->trpc[cpu->trpc_rov]=pc;
-			cpu->trpc_rov=(cpu->trpc_rov+1)&63;
-			lpc=pc; ld=0;
-		}else
-		{
-			if(!ld)
+			pc=cpu->regs[BTESH2_REG_PC];
+			if(pc!=lpc)
 			{
 				if(cpu->logpc)
 				{
@@ -571,13 +565,31 @@ int BTESH2_RunCpu(BTESH2_CpuState *cpu, int lim)
 					{
 						cpu->logsp[cpu->nlogpc]=
 							cpu->regs[BTESH2_REG_SP];
-						cpu->logpc[cpu->nlogpc++]=pc|1;
+						cpu->logpc[cpu->nlogpc++]=pc;
 					}
 				}
 
-				cpu->trpc[cpu->trpc_rov]=pc|1;
+				cpu->trpc[cpu->trpc_rov]=pc;
 				cpu->trpc_rov=(cpu->trpc_rov+1)&63;
-				ld=1;
+				lpc=pc; ld=0;
+			}else
+			{
+				if(!ld)
+				{
+					if(cpu->logpc)
+					{
+						if(cpu->nlogpc<cpu->mlogpc)
+						{
+							cpu->logsp[cpu->nlogpc]=
+								cpu->regs[BTESH2_REG_SP];
+							cpu->logpc[cpu->nlogpc++]=pc|1;
+						}
+					}
+
+					cpu->trpc[cpu->trpc_rov]=pc|1;
+					cpu->trpc_rov=(cpu->trpc_rov+1)&63;
+					ld=1;
+				}
 			}
 		}
 #endif

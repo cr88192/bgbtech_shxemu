@@ -574,6 +574,66 @@ int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
 }
 
 
+u32 btesh2_peridbg_GetD(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	u32 v;
+
+	switch(reladdr>>2)
+	{
+	default:
+		printf("PERIREG(%s): Unhandled Get A=%08X\n",
+			sp->name, reladdr);
+		v=0; break;
+	}
+	return(v);
+}
+
+int btesh2_peridbg_SetD(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	switch(reladdr>>2)
+	{
+	default:
+		printf("PERIREG(%s): Unhandled Set A=%08X V=%08X\n",
+			sp->name, reladdr, val);
+		break;
+	}
+	return(0);
+}
+
+
+u32 btesh2_periasic_GetD(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr)
+{
+	u32 v;
+
+	switch(reladdr)
+	{
+	case 0x28:
+		v=17; break;
+	default:
+		printf("PERIASIC(%s): Unhandled Get A=%08X\n",
+			sp->name, reladdr);
+		v=0; break;
+	}
+	return(v);
+}
+
+int btesh2_periasic_SetD(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+{
+	switch(reladdr)
+	{
+	default:
+		printf("PERIASIC(%s): Unhandled Set A=%08X V=%08X\n",
+			sp->name, reladdr, val);
+		break;
+	}
+	return(0);
+}
+
+
 u32 btesh2_spanemac_GetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr)
 {
@@ -646,10 +706,11 @@ s64 rtops;
 s32 rtmsec;
 // byte sh4, kirq;
 byte sh4;
+byte archfl;
 int sz, err, ts;
 int kb_ztick;
 
-char *imgname, *mapname, *sdname, *sdclname, *irdname;
+char *imgname, *mapname, *sdname, *sdclname, *irdname, *romname;
 char *kerninit;
 
 int btesh2_main_startimage();
@@ -1102,6 +1163,12 @@ int btesh2_main_startimage()
 	byte *ibuf, *tbuf;
 	int i, j, k, l;
 
+	if(sh4&BTESH2_ARCH_NOLINK)
+	{
+		sh4&=~BTESH2_ARCH_NOLINK;
+		archfl|=BTESH2_ARFL_NOLINK;
+	}
+
 	if(sdname)
 	{
 		BTESH2_SetUseImage(sdname);
@@ -1133,6 +1200,19 @@ int btesh2_main_startimage()
 //		BTESH2_MemoryDefineSpan(img, 0x00000000, 0x0000FFFF, NULL, "SRAM");
 //		BTESH2_MemoryDefineSpan(img, 0x10000000, 0x17FFFFFF, NULL, "DRAM");
 
+//		BTESH2_MemoryDefineSpan(img, 0x00000000, 0x003FFFFF, NULL, "BIOS");
+//		BTESH2_MemoryDefineSpan_InitFF(
+//			img, 0x00000000, 0x003FFFFF, NULL, "BIOS");
+
+//		BTESH2_MemoryDefineSpanRegs(img, 0x00000000, 0x003FFFFF, "BIOS",
+//			btesh2_peridbg_GetD, btesh2_peridbg_SetD);
+
+		if(romname)
+		{
+			BTESH2_MemoryDefineSpan_InitFF(
+				img, 0x00000000, 0x003FFFFF, NULL, "BIOS");
+		}
+
 		BTESH2_MemoryDefineSpan(img, 0x0C000000, 0x17FFFFFF, NULL, "DRAM");
 
 		BTESH2_MemoryDefineSpan(img, 0xF4000000, 0xF400FFFF, NULL, "OCA");
@@ -1140,9 +1220,20 @@ int btesh2_main_startimage()
 		BTESH2_MemoryDefineSpan(img, 0xF6000000, 0xF600FFFF, NULL, "UTLBA");
 		BTESH2_MemoryDefineSpan(img, 0xF7000000, 0xF700FFFF, NULL, "UTLBD");
 
+		BTESH2_MemoryDefineSpanRegs(img, 0x1FC00000, 0x1FFFFFFF, "PERI_REGS_A",
+			btesh2_peridbg_GetD, btesh2_peridbg_SetD);
+		BTESH2_MemoryDefineSpanRegs(img, 0xFFC00000, 0xFFFFFFFF, "PERI_REGS_B",
+			btesh2_peridbg_GetD, btesh2_peridbg_SetD);
+
+		BTESH2_MemoryDefineSpanRegs(img, 0x1F800000, 0x1FBFFFFF, "ASIC_REGS_A",
+			btesh2_periasic_GetD, btesh2_periasic_SetD);
+		BTESH2_MemoryDefineSpanRegs(img, 0xFF800000, 0xFFBFFFFF, "ASIC_REGS_B",
+			btesh2_periasic_GetD, btesh2_periasic_SetD);
+
 		cpu=BTESH2_AllocCpuState();
 		cpu->memory=img;
 		cpu->arch=BTESH2_ARCH_SH4;
+		cpu->archfl=archfl;
 
 		cpu->GetAddrByte=BTESH2_GetAddrByteFMMU;
 		cpu->GetAddrWord=BTESH2_GetAddrWordFMMU;
@@ -1168,6 +1259,7 @@ int btesh2_main_startimage()
 		cpu=BTESH2_AllocCpuState();
 		cpu->memory=img;
 		cpu->arch=BTESH2_ARCH_SH2;
+		cpu->archfl=archfl;
 
 #if 0
 		if(!imgname)
@@ -1249,9 +1341,9 @@ int btesh2_main_startimage()
 		i=BTESH2_MemoryAddSpan(img, sp);
 #endif
 
-		BTESH2_MemoryDefineSpanRegs(img, 0x1F000000, 0x1F000000, "MMREGA",
+		BTESH2_MemoryDefineSpanRegs(img, 0x1F000000, 0x1F00FFFF, "MMREGA",
 			btesh2_spanmmreg_GetD, btesh2_spanmmreg_SetD);
-		BTESH2_MemoryDefineSpanRegs(img, 0xFF000000, 0xFF000000, "MMREGB",
+		BTESH2_MemoryDefineSpanRegs(img, 0xFF000000, 0xFF00FFFF, "MMREGB",
 			btesh2_spanmmreg_GetD, btesh2_spanmmreg_SetD);
 	}
 
@@ -1278,22 +1370,31 @@ int btesh2_main_startimage()
 	cpu->logsp=malloc((1<<18)*sizeof(u32));
 	cpu->mlogpc=1<<18;
 
-	ibuf=loadfile(imgname, &sz);
-//	ibuf=loadfile("vmlinux", &sz);
-//	ibuf=loadfile("boot.elf", &sz);
-	if(!ibuf)
-	{
-		printf("Failed open kernel\n");
-		return(-1);
-	}
+	ibuf=NULL;
 
-	i=BTESH2_BootLoadElf(cpu, ibuf, sz, 0x10000000);
-	if(i<0)
+	if(imgname)
 	{
-		printf("Load Failed\n");
-		return(-1);
+		ibuf=loadfile(imgname, &sz);
+
+	//	ibuf=loadfile("vmlinux", &sz);
+	//	ibuf=loadfile("boot.elf", &sz);
+		if(!ibuf && !romname)
+		{
+			printf("Failed open kernel\n");
+			return(-1);
+		}
+
+		if(ibuf)
+		{
+			i=BTESH2_BootLoadElf(cpu, ibuf, sz, 0x10000000);
+			if(i<0)
+			{
+				printf("Load Failed\n");
+				return(-1);
+			}
+			free(ibuf);
+		}
 	}
-	free(ibuf);
 
 	if(mapname)
 	{
@@ -1308,6 +1409,23 @@ int btesh2_main_startimage()
 
 //	kerninit="rdinit=/bin/ash root=/dev/tmpfs";
 //	kerninit="rdinit=/bin/login";
+
+	if(romname)
+	{
+		ibuf=loadfile(romname, &sz);
+		if(ibuf)
+		{
+			if(!imgname)
+			{
+				if(sh4==BTESH2_ARCH_SH4)
+					cpu->csfl|=BTESH2_CSFL_LE;
+			}
+
+			t0=0;
+			BTESH2_MemCpyIn(cpu, t0, ibuf, sz);
+			printf("Load ROM=%s %08X..%08X\n", romname, t0, t0+sz);
+		}
+	}
 
 	if(irdname)
 	{
@@ -1387,13 +1505,14 @@ int main(int argc, char *argv[])
 //	int sz, err, ts;
 	int i, j, k, l;
 	
-	sh4=0;
+	sh4=0; archfl=0;
 	imgname=NULL;
 	mapname=NULL;
 	sdname=NULL;
 	sdclname=NULL;
 	irdname=NULL;
 	kerninit=NULL;
+	romname=NULL;
 	
 	for(i=1; i<argc; i++)
 	{
@@ -1404,8 +1523,51 @@ int main(int argc, char *argv[])
 			if(!strcmp(argv[i], "-sh2"))
 				{ sh4=BTESH2_ARCH_SH2; continue; }
 
+			if(!strcmp(argv[i], "-sh2nl"))
+			{
+				sh4=BTESH2_ARCH_SH2;
+				archfl|=BTESH2_ARFL_NOLINK;
+				continue;
+			}
+
+			if(!strcmp(argv[i], "-sh4nl"))
+			{
+				sh4=BTESH2_ARCH_SH4;
+				archfl|=BTESH2_ARFL_NOLINK;
+				continue;
+			}
+
+			if(!strcmp(argv[i], "-sh2nj"))
+			{
+				sh4=BTESH2_ARCH_SH2;
+				archfl|=BTESH2_ARFL_NOLINK|BTESH2_ARFL_NOJIT;
+				continue;
+			}
+
+			if(!strcmp(argv[i], "-sh4nj"))
+			{
+				sh4=BTESH2_ARCH_SH4;
+				archfl|=BTESH2_ARFL_NOLINK|BTESH2_ARFL_NOJIT;
+				continue;
+			}
+
+			if(!strcmp(argv[i], "-nolink"))
+			{
+				archfl|=BTESH2_ARFL_NOLINK;
+				continue;
+			}
+
+			if(!strcmp(argv[i], "-nojit"))
+			{
+				archfl|=BTESH2_ARFL_NOJIT;
+				continue;
+			}
+
 			if(!strcmp(argv[i], "-map"))
 				{ mapname=argv[i+1]; i++; continue; }
+
+			if(!strcmp(argv[i], "-rom"))
+				{ romname=argv[i+1]; i++; continue; }
 
 			if(!strcmp(argv[i], "-sd"))
 				{ sdname=argv[i+1]; i++; continue; }
@@ -1416,6 +1578,9 @@ int main(int argc, char *argv[])
 
 			if(!strcmp(argv[i], "--help"))
 				{ sh4=127; continue; }
+
+			if(!strcmp(argv[i], "--break-"))
+				{ continue; }
 
 			if(!strcmp(argv[i], "--break"))
 				{ break; }
@@ -1470,7 +1635,7 @@ int main(int argc, char *argv[])
 	btesh2_ttynoncanon();
 #endif
 
-	if(imgname)
+	if(imgname || romname)
 		btesh2_main_startimage();
 
 #ifdef __EMSCRIPTEN__

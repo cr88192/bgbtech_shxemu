@@ -69,6 +69,9 @@ void IN_Commands (void)
 		default: break;
 		}
 		
+		if(c>=256)
+			continue;
+		
 		Key_Event (c, dn);
 	}
 }

@@ -1,4 +1,9 @@
+#ifdef UAX_LINUX
+#include <sys/mman.h>
+#endif
+
 static int uax_init=0;
+static int uax_fault=0;
 
 int uax_opx86_nmidx[1024];
 
@@ -14,7 +19,9 @@ int uax_gblsym_num;
 
 int UAX_Init()
 {
+#ifdef UAX_WINDOWS
 	MEMORY_BASIC_INFORMATION memi;
+#endif
 	nlint a0, a1, a2;
 	int ln;
 	int i, j, k, l;
@@ -72,7 +79,7 @@ int UAX_Init()
 	
 	uax_exheap_start=NULL;
 
-#ifdef _M_X64
+#ifdef UAX_WINX64
 	a0=(nlint)((void *)UAX_Init);
 	for(i=-64; i<64; i++)
 	{
@@ -96,15 +103,27 @@ int UAX_Init()
 	}
 #endif
 	
+#ifdef UAX_WINDOWS
 	if(!uax_exheap_start)
 	{
 		uax_exheap_start=VirtualAlloc(NULL, 1<<24,
 			MEM_COMMIT|MEM_RESERVE|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
 	}
+#endif
 
+#ifdef UAX_LINUX
 	if(!uax_exheap_start)
 	{
+		uax_exheap_start=mmap(NULL, 1<<24,
+			PROT_READ|PROT_WRITE|PROT_EXEC,
+			MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
+	}
+#endif
+
+	if(!uax_exheap_start || (uax_exheap_start==((byte *)-1)))
+	{
 		printf("UAX_Init: Failed Alloc ExHeap\n");
+		uax_fault=1;
 		return(-1);
 	}
 
