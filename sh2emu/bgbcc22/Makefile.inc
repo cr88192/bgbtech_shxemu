@@ -16,11 +16,16 @@ SRCS=\
 	mm/cc_float16.c \
 	mm/cc_malloc.c \
 	\
+	ccxl/ccxl_cgif.c \
 	ccxl/ccxl_compile.c \
+	ccxl/ccxl_const.c \
 	ccxl/ccxl_expr.c \
+	ccxl/ccxl_global.c \
 	ccxl/ccxl_index.c \
 	ccxl/ccxl_pred.c \
 	ccxl/ccxl_reduce.c \
+	ccxl/ccxl_register.c \
+	ccxl/ccxl_stack.c \
 	ccxl/ccxl_struct.c \
 	ccxl/ccxl_type.c \
 

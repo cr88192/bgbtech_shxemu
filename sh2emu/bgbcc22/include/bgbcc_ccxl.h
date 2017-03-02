@@ -145,15 +145,49 @@
 
 #define CCXL_TERR_STATUS(st)			(0xA800+(st))
 
+#define CCXL_BINOP_ADD			0x00
+#define CCXL_BINOP_SUB			0x01
+#define CCXL_BINOP_MUL			0x02
+#define CCXL_BINOP_DIV			0x03
+#define CCXL_BINOP_MOD			0x04
+#define CCXL_BINOP_AND			0x05
+#define CCXL_BINOP_OR			0x06
+#define CCXL_BINOP_XOR			0x07
+#define CCXL_BINOP_SHL			0x08
+#define CCXL_BINOP_SHR			0x09
+#define CCXL_BINOP_SHRR			0x0A
+#define CCXL_BINOP_MULH			0x0B
+#define CCXL_BINOP_UMULH		0x0C
+#define CCXL_BINOP_UDIV			0x0D
+
+#define CCXL_UNOP_MOV			0x00
+#define CCXL_UNOP_NEG			0x01
+#define CCXL_UNOP_NOT			0x02
+#define CCXL_UNOP_LNOT			0x03
+#define CCXL_UNOP_INC			0x04
+#define CCXL_UNOP_DEC			0x05
+
+#define CCXL_CMP_EQ				0x00
+#define CCXL_CMP_NE				0x01
+#define CCXL_CMP_LT				0x02
+#define CCXL_CMP_GT				0x03
+#define CCXL_CMP_LE				0x04
+#define CCXL_CMP_GE				0x05
+#define CCXL_CMP_AL				0x06
+#define CCXL_CMP_NV				0x07
+
 typedef struct { u64 val; } ccxl_register;
 typedef struct { u32 val; } ccxl_type;
+typedef struct { u32 id; } ccxl_label;
 
 typedef int ccxl_status;
+// typedef int ccxl_label;
 
 
 typedef struct BGBCC_CCXL_RegisterInfo_s BGBCC_CCXL_RegisterInfo;
 typedef struct BGBCC_CCXL_LiteralInfo_s BGBCC_CCXL_LiteralInfo;
 typedef struct BGBCC_CCXL_TypeOverflow_s BGBCC_CCXL_TypeOverflow;
+typedef struct BGBCC_CCXL_BackendFuncs_vt_s BGBCC_CCXL_BackendFuncs_vt;
 
 struct BGBCC_CCXL_RegisterInfo_s {
 BGBCC_CCXL_RegisterInfo *next;
@@ -215,4 +249,3 @@ int base;
 int asz[16];
 byte pn, an;
 };
-

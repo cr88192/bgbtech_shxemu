@@ -1,0 +1,242 @@
+#include <bgbccc.h>
+
+BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_AllocRegisterInfo(
+	BGBCC_TransState *ctx)
+{
+	BGBCC_CCXL_RegisterInfo *rtmp;
+
+	if(ctx->reginfo_free)
+	{
+		rtmp=ctx->reginfo_free;
+		ctx->reginfo_free=rtmp->next;
+		memset(rtmp, 0, sizeof(BGBCC_CCXL_RegisterInfo));
+		return(rtmp);
+	}
+	
+	rtmp=bgbcc_malloc(sizeof(BGBCC_CCXL_RegisterInfo));
+	return(rtmp);
+}
+
+bool BGBCC_CCXL_FreeRegisterInfo(BGBCC_TransState *ctx,
+	BGBCC_CCXL_RegisterInfo *rinf)
+{
+	rinf->next=ctx->reginfo_free;
+	ctx->reginfo_free=rinf;
+	return(true);
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporary(
+	BGBCC_TransState *ctx, ccxl_type bty,
+	ccxl_register *rtreg)
+{
+	return(BGBCC_CCXL_RegisterAllocTemporaryLLn(ctx, bty, rtreg, NULL, 0));
+}
+
+	
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryLLn(
+	BGBCC_TransState *ctx, ccxl_type bty,
+	ccxl_register *rtreg, char *fn, int ln)
+{
+	BGBCC_CCXL_RegisterInfo *ri;
+	ccxl_register treg;
+	int i;
+
+	BGBCC_CCXL_MarkTypeAccessed(ctx, bty);
+
+	if(!ctx->cur_func->regs)
+	{
+		ctx->cur_func->regs=bgbcc_malloc(
+			256*sizeof(BGBCC_CCXL_RegisterInfo *));
+		ctx->cur_func->n_regs=0;
+		ctx->cur_func->m_regs=256;
+	}
+	
+	if(ctx->cur_func->n_regs>=16)
+	{
+		printf("RegAllocDbg:\n");
+		for(i=0; i<ctx->cur_func->n_regs; i++)
+		{
+			ri=ctx->cur_func->regs[i];
+			if(ri)
+			{
+				printf("    R%d: %s:%d\n", i,
+					ri->alc_fn, ri->alc_ln);
+			}
+		}
+	}
+	
+	for(i=0; i<256; i++)
+	{
+		if(!ctx->cur_func->regs[i])
+		{
+			if(i>=ctx->cur_func->n_regs)
+				ctx->cur_func->n_regs=i+1;
+		
+			ri=BGBCC_CCXL_AllocRegisterInfo(ctx);
+			ri->alc_fn=fn;
+			ri->alc_ln=ln;
+
+			ri->type=bty;
+			ri->ucnt=1;
+			ctx->cur_func->regs[i]=ri;
+			treg.val=CCXL_REGTY_REG|
+				(((u64)bty.val)<<CCXL_REGID_TYPESHIFT)|
+				i;
+			*rtreg=treg;
+			return(i);
+		}
+	}
+
+	BGBCC_CCXL_TagError(ctx,
+		CCXL_TERR_STATUS(CCXL_STATUS_ERR_CANTACQUIRE));
+	return(-1);
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryInit(
+	BGBCC_TransState *ctx, ccxl_type bty, ccxl_register *rtreg)
+{
+	BGBCC_CCXL_RegisterInfo *ri;
+	BGBCC_CCXL_LiteralInfo *st;
+	ccxl_status rt;
+	int i, j, k;
+
+	rt=BGBCC_CCXL_RegisterAllocTemporary(
+		ctx, bty, rtreg);
+	if(rt<0)return(rt);
+
+	if(BGBCC_CCXL_TypeValueObjectP(ctx, bty))
+	{
+		st=BGBCC_CCXL_LookupStructureForType(ctx, bty);
+		BGBCC_CCXL_EmitInitObj(ctx, bty, *rtreg, st);
+//		*rtreg.val|=CCXL_REGFL_INIT;
+
+		i=rtreg->val&CCXL_REGID_REGMASK;
+		ri=ctx->cur_func->regs[i];
+		ri->regflags|=BGBCC_REGFL_INITIALIZED;
+	}
+
+	return(rt);
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryInt(
+	BGBCC_TransState *ctx, ccxl_register *rtreg)
+{
+	return(BGBCC_CCXL_RegisterAllocTemporary(
+		ctx, BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_I), rtreg));
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryLong(
+	BGBCC_TransState *ctx, ccxl_register *rtreg)
+{
+	return(BGBCC_CCXL_RegisterAllocTemporary(
+		ctx, BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_L), rtreg));
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryFloat(
+	BGBCC_TransState *ctx, ccxl_register *rtreg)
+{
+	return(BGBCC_CCXL_RegisterAllocTemporary(
+		ctx, BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_F), rtreg));
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryDouble(
+	BGBCC_TransState *ctx, ccxl_register *rtreg)
+{
+	return(BGBCC_CCXL_RegisterAllocTemporary(
+		ctx, BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_D), rtreg));
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryPointer(
+	BGBCC_TransState *ctx, ccxl_register *rtreg)
+{
+	return(BGBCC_CCXL_RegisterAllocTemporary(
+		ctx, BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_P), rtreg));
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryMatch(
+	BGBCC_TransState *ctx, ccxl_register reg, ccxl_register *rtreg)
+{
+	return(BGBCC_CCXL_RegisterAllocTemporary(
+		ctx, BGBCC_CCXL_GetRegType(ctx, reg), rtreg));
+}
+
+ccxl_status BGBCC_CCXL_RegisterAllocTemporaryMatchInit(
+	BGBCC_TransState *ctx, ccxl_register reg, ccxl_register *rtreg)
+{
+	return(BGBCC_CCXL_RegisterAllocTemporaryInit(
+		ctx, BGBCC_CCXL_GetRegType(ctx, reg), rtreg));
+}
+
+ccxl_status BGBCC_CCXL_RegisterCheckRelease(
+	BGBCC_TransState *ctx, ccxl_register reg)
+{
+	BGBCC_CCXL_RegisterInfo *ri;
+	BGBCC_CCXL_LiteralInfo *st;
+	int i;
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_REG)
+	{
+		i=(reg.val&CCXL_REGID_REGMASK);
+		if((i<0) || (i>=256))
+			return(CCXL_STATUS_ERR_BADVALUE);
+		ri=ctx->cur_func->regs[i];
+		ri->ucnt--;
+		if(ri->ucnt>0)
+			return(CCXL_STATUS_NO);
+
+		if(ri->regflags&BGBCC_REGFL_INITIALIZED)
+		{
+			if(BGBCC_CCXL_TypeValueObjectP(ctx, ri->type))
+			{
+				st=BGBCC_CCXL_LookupStructureForType(ctx, ri->type);
+				BGBCC_CCXL_EmitDropObj(ctx, ri->type, reg, st);
+			}
+		}
+
+		ctx->cur_func->regs[i]=NULL;
+		BGBCC_CCXL_FreeRegisterInfo(ctx, ri);
+		return(CCXL_STATUS_YES);
+	}
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_ARG)
+		{ return(CCXL_STATUS_NO); }
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_LOCAL)
+		{ return(CCXL_STATUS_NO); }
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_GLOBAL)
+		{ return(CCXL_STATUS_NO); }
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_INT)
+		{ return(CCXL_STATUS_NO); }
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LONG)
+		{ return(CCXL_STATUS_NO); }
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_FLOAT)
+		{ return(CCXL_STATUS_NO); }
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE)
+		{ return(CCXL_STATUS_NO); }
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_STRING)
+		{ return(CCXL_STATUS_NO); }
+
+	BGBCC_CCXL_TagError(ctx,
+		CCXL_TERR_STATUS(CCXL_STATUS_ERR_CANTRELEASE));
+	return(CCXL_STATUS_ERR_CANTRELEASE);
+}
+
+ccxl_status BGBCC_CCXL_RegisterCheckAcquire(
+	BGBCC_TransState *ctx, ccxl_register reg)
+{
+	BGBCC_CCXL_RegisterInfo *ri;
+	int i;
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_REG)
+	{
+		i=(reg.val&CCXL_REGID_REGMASK);
+		if((i<0) || (i>=256))
+			return(CCXL_STATUS_ERR_BADVALUE);
+		ri=ctx->cur_func->regs[i];
+		ri->ucnt++;
+		return(CCXL_STATUS_YES);
+	}
+	
+	return(CCXL_STATUS_NO);
+//	return(CCXL_STATUS_ERR_CANTACQUIRE);
+}

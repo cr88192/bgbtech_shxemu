@@ -53,21 +53,21 @@ void BGBCC_CCXL_CompileAssign(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "ref"))
 	{
-		BGBCC_FrBC_PopStore(ctx, BCCX_Get(l, "name"));
+		BGBCC_CCXL_PopStore(ctx, BCCX_Get(l, "name"));
 		return;
 	}
 
 	if(BGBCC_CCXL_IsUnaryP(ctx, l, "*"))
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-		BGBCC_FrBC_StackStoreIndexConst(ctx, 0);
+		BGBCC_CCXL_StackStoreIndexConst(ctx, 0);
 		return;
 	}
 
 	if(BCCX_TagIsP(l, "objref"))
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-		BGBCC_FrBC_StackStoreSlot(ctx, BCCX_Get(l, "name"));
+		BGBCC_CCXL_StackStoreSlot(ctx, BCCX_Get(l, "name"));
 		return;
 	}
 
@@ -75,7 +75,7 @@ void BGBCC_CCXL_CompileAssign(BGBCC_TransState *ctx, BCCX_Node *l)
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "array"));
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "index"));
-		BGBCC_FrBC_StackStoreIndex(ctx);
+		BGBCC_CCXL_StackStoreIndex(ctx);
 		return;
 	}
 
@@ -133,10 +133,10 @@ void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 			printf("BGBCC Debug\n");
 		}
 
-		BGBCC_FrBC_PushMark(ctx);
+		BGBCC_CCXL_PushMark(ctx);
 		BGBCC_CCXL_CompileExprListReverse(ctx,
 			BCCX_Fetch(l, "args"));
-		BGBCC_FrBC_StackCallName(ctx, s0);
+		BGBCC_CCXL_StackCallName(ctx, s0);
 		return;
 	}
 
@@ -147,15 +147,15 @@ void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 	if(!c)
 	{
 		BGBCC_CCXL_Error(ctx, "funcall missing function\n");
-		BGBCC_FrBC_StackPushConstInt(ctx, 0);
+		BGBCC_CCXL_StackPushConstInt(ctx, 0);
 		return;
 	}
 
-	BGBCC_FrBC_PushMark(ctx);
+	BGBCC_CCXL_PushMark(ctx);
 	BGBCC_CCXL_CompileExprListReverse(ctx,
 		BCCX_Fetch(l, "args"));
 	BGBCC_CCXL_CompileExpr(ctx, c);
-	BGBCC_FrBC_StackPopCall(ctx);
+	BGBCC_CCXL_StackPopCall(ctx);
 	return;
 }
 
@@ -166,28 +166,29 @@ void BGBCC_CCXL_CompileMethodcall(BGBCC_TransState *ctx, BCCX_Node *l)
 	BCCX_Node *c, *d, *t, *u, *v;
 	int i, j;
 
-	BGBCC_FrBC_PushMark(ctx);
+	BGBCC_CCXL_PushMark(ctx);
 	BGBCC_CCXL_CompileExprListReverse(ctx,
 		BCCX_Fetch(l, "args"));
 
 	BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-	BGBCC_FrBC_StackLoadSlot(ctx, BCCX_Get(l, "name"));
+	BGBCC_CCXL_StackLoadSlot(ctx, BCCX_Get(l, "name"));
 
-	BGBCC_FrBC_StackPopCall(ctx);
+	BGBCC_CCXL_StackPopCall(ctx);
 	return;
 }
 
 
 void BGBCC_CCXL_CompileFormJmpTF(BGBCC_TransState *ctx, BCCX_Node *l,
-	char *brt, char *brf)
+	ccxl_label brt, ccxl_label brf)
 {
-	char *s0, *s1, *s2;
+//	char *s0, *s1, *s2;
+	ccxl_label lbl0, lbl1, lbl2;
 	BCCX_Node *ln, *rn;
 	int i, j, k;
 
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, "&&"))
 	{
-		s0=BGBCC_CCXL_GenSym(ctx);
+		lbl0=BGBCC_CCXL_GenSym(ctx);
 
 		ln=BCCX_Fetch(l, "left");
 		rn=BCCX_Fetch(l, "right");
@@ -197,11 +198,11 @@ void BGBCC_CCXL_CompileFormJmpTF(BGBCC_TransState *ctx, BCCX_Node *l,
 
 		if(BGBCC_CCXL_IsBinaryP(ctx, ln, "&&") ||
 				BGBCC_CCXL_IsBinaryP(ctx, ln, "||"))
-			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, s0, brf); j=1; }
+			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, lbl0, brf); j=1; }
 		else
 			{ BGBCC_CCXL_CompileJCF(ctx, ln, brf); }
 
-		if(j) { BGBCC_CCXL_EmitLabel(ctx, s0); }
+		if(j) { BGBCC_CCXL_EmitLabel(ctx, lbl0); }
 
 		if(BGBCC_CCXL_IsBinaryP(ctx, rn, "&&") ||
 				BGBCC_CCXL_IsBinaryP(ctx, rn, "||"))
@@ -214,7 +215,7 @@ void BGBCC_CCXL_CompileFormJmpTF(BGBCC_TransState *ctx, BCCX_Node *l,
 
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, "||"))
 	{
-		s0=BGBCC_CCXL_GenSym(ctx);
+		lbl0=BGBCC_CCXL_GenSym(ctx);
 
 		ln=BCCX_Fetch(l, "left");
 		rn=BCCX_Fetch(l, "right");
@@ -224,11 +225,11 @@ void BGBCC_CCXL_CompileFormJmpTF(BGBCC_TransState *ctx, BCCX_Node *l,
 
 		if(BGBCC_CCXL_IsBinaryP(ctx, ln, "&&") ||
 				BGBCC_CCXL_IsBinaryP(ctx, ln, "||"))
-			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, brt, s0); j=1; }
+			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, brt, lbl0); j=1; }
 		else
 			{ BGBCC_CCXL_CompileJCF(ctx, ln, brf); }
 
-		if(j) { BGBCC_CCXL_EmitLabel(ctx, s0); }
+		if(j) { BGBCC_CCXL_EmitLabel(ctx, lbl0); }
 
 		if(BGBCC_CCXL_IsBinaryP(ctx, rn, "&&") ||
 				BGBCC_CCXL_IsBinaryP(ctx, rn, "||"))
@@ -246,6 +247,7 @@ void BGBCC_CCXL_CompileFormJmpTF(BGBCC_TransState *ctx, BCCX_Node *l,
 void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 {
 	byte *ips[64];
+	ccxl_label l0, l1, l2, l3;
 	char *s0, *s1, *s2, *s3;
 	BCCX_Node *c, *d, *t, *u, *v, *ln, *rn;
 	int i, j, k;
@@ -253,7 +255,7 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	if(BCCX_TagIsP(l, "return"))
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-		BGBCC_FrBC_StackRet(ctx);
+		BGBCC_CCXL_StackRet(ctx);
 		return;
 	}
 
@@ -261,7 +263,7 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
 		s0=BGBCC_CCXL_VarTypeString(ctx, BCCX_FindTag(l, "type"));
-		BGBCC_FrBC_StackCastSig(ctx, s0);
+		BGBCC_CCXL_StackCastSig(ctx, s0);
 		return;
 	}
 
@@ -282,25 +284,25 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		if(!t)
 		{
 			printf("BGBCC_CCXL_CompileForm: sizeof: bad AST\n");
-			BGBCC_FrBC_StackSizeofSig(ctx, "Pv");
+			BGBCC_CCXL_StackSizeofSig(ctx, "Pv");
 			return;
 		}
 
 		s0=BGBCC_CCXL_VarTypeString(ctx, t);
-		BGBCC_FrBC_StackSizeofSig(ctx, s0);
+		BGBCC_CCXL_StackSizeofSig(ctx, s0);
 		return;
 	}
 
 	if(BCCX_TagIsP(l, "sizeof_expr"))
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-		BGBCC_FrBC_StackSizeofVal(ctx);
+		BGBCC_CCXL_StackSizeofVal(ctx);
 		return;
 	}
 	if(BCCX_TagIsP(l, "offsetof"))
 	{
 		s0=BGBCC_CCXL_VarTypeString(ctx, BCCX_FindTag(l, "type"));
-		BGBCC_FrBC_StackOffsetof(ctx, s0, BCCX_Get(l, "name"));
+		BGBCC_CCXL_StackOffsetof(ctx, s0, BCCX_Get(l, "name"));
 		return;
 	}
 
@@ -317,14 +319,14 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		{
 			BGBCC_CCXL_CompileExpr(ctx, ln);
 			BGBCC_CCXL_CompileExpr(ctx, rn);
-			BGBCC_FrBC_StackBinaryOp(ctx, s0);
-			BGBCC_FrBC_StackDup(ctx);
+			BGBCC_CCXL_StackBinaryOp(ctx, s0);
+			BGBCC_CCXL_StackDup(ctx);
 			BGBCC_CCXL_CompileAssign(ctx, ln);
 			return;
 		}
 
 		BGBCC_CCXL_CompileExpr(ctx, rn);
-		BGBCC_FrBC_StackDup(ctx);
+		BGBCC_CCXL_StackDup(ctx);
 		BGBCC_CCXL_CompileAssign(ctx, ln);
 		return;
 	}
@@ -333,14 +335,14 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "array"));
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "index"));
-		BGBCC_FrBC_StackLoadIndex(ctx);
+		BGBCC_CCXL_StackLoadIndex(ctx);
 		return;
 	}
 
 	if(BCCX_TagIsP(l, "objref"))
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-		BGBCC_FrBC_StackLoadSlot(ctx, BCCX_Get(l, "name"));
+		BGBCC_CCXL_StackLoadSlot(ctx, BCCX_Get(l, "name"));
 		return;
 	}
 
@@ -348,8 +350,8 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	{
 		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "expr"));
 		BGBCC_CCXL_CompileExpr(ctx, t);
-		BGBCC_FrBC_StackUnaryOp(ctx, "++");
-		BGBCC_FrBC_StackDup(ctx);
+		BGBCC_CCXL_StackUnaryOp(ctx, "++");
+		BGBCC_CCXL_StackDup(ctx);
 		BGBCC_CCXL_CompileAssign(ctx, t);
 		return;
 	}
@@ -358,8 +360,8 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	{
 		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "expr"));
 		BGBCC_CCXL_CompileExpr(ctx, t);
-		BGBCC_FrBC_StackUnaryOp(ctx, "--");
-		BGBCC_FrBC_StackDup(ctx);
+		BGBCC_CCXL_StackUnaryOp(ctx, "--");
+		BGBCC_CCXL_StackDup(ctx);
 		BGBCC_CCXL_CompileAssign(ctx, t);
 		return;
 	}
@@ -368,8 +370,8 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	{
 		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "expr"));
 		BGBCC_CCXL_CompileExpr(ctx, t);
-		BGBCC_FrBC_StackDup(ctx);
-		BGBCC_FrBC_StackUnaryOp(ctx, "++");
+		BGBCC_CCXL_StackDup(ctx);
+		BGBCC_CCXL_StackUnaryOp(ctx, "++");
 		BGBCC_CCXL_CompileAssign(ctx, t);
 		return;
 	}
@@ -378,8 +380,8 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	{
 		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "expr"));
 		BGBCC_CCXL_CompileExpr(ctx, t);
-		BGBCC_FrBC_StackDup(ctx);
-		BGBCC_FrBC_StackUnaryOp(ctx, "--");
+		BGBCC_CCXL_StackDup(ctx);
+		BGBCC_CCXL_StackUnaryOp(ctx, "--");
 		BGBCC_CCXL_CompileAssign(ctx, t);
 		return;
 	}
@@ -400,23 +402,23 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 			return;
 		}
 
-		BGBCC_FrBC_StackBeginU(ctx, "i");
-		s0=BGBCC_CCXL_GenSym(ctx);
-		s1=BGBCC_CCXL_GenSym(ctx);
-		BGBCC_CCXL_CompileJCF(ctx, t, s0);
+		BGBCC_CCXL_StackBeginU(ctx, "i");
+		l0=BGBCC_CCXL_GenSym(ctx);
+		l1=BGBCC_CCXL_GenSym(ctx);
+		BGBCC_CCXL_CompileJCF(ctx, t, l0);
 
 		BGBCC_CCXL_CompileExprT(ctx, BCCX_Fetch(l, "then"));
-		BGBCC_FrBC_StackSetU(ctx);
+		BGBCC_CCXL_StackSetU(ctx);
 
-		BGBCC_CCXL_CompileJmp(ctx, s1);
-		BGBCC_CCXL_EmitLabel(ctx, s0);
+		BGBCC_CCXL_CompileJmp(ctx, l1);
+		BGBCC_CCXL_EmitLabel(ctx, l0);
 
 		t=BCCX_Fetch(l, "else");
 		BGBCC_CCXL_CompileExprT(ctx, t);
-		BGBCC_FrBC_StackSetU(ctx);
+		BGBCC_CCXL_StackSetU(ctx);
 
-		BGBCC_CCXL_EmitLabel(ctx, s1);
-		BGBCC_FrBC_StackEndU(ctx);
+		BGBCC_CCXL_EmitLabel(ctx, l1);
+		BGBCC_CCXL_StackEndU(ctx);
 		return;
 	}
 
@@ -441,12 +443,12 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, "&&"))
 	{
-		s0=BGBCC_CCXL_GenSym(ctx);
-		s1=BGBCC_CCXL_GenSym(ctx);
-		s2=BGBCC_CCXL_GenSym(ctx);
-		s3=BGBCC_CCXL_GenSym(ctx);
+		l0=BGBCC_CCXL_GenSym(ctx);
+		l1=BGBCC_CCXL_GenSym(ctx);
+		l2=BGBCC_CCXL_GenSym(ctx);
+		l3=BGBCC_CCXL_GenSym(ctx);
 
-		BGBCC_FrBC_StackBeginU(ctx, "i");
+		BGBCC_CCXL_StackBeginU(ctx, "i");
 
 #if 1
 		ln=BCCX_Fetch(l, "left");
@@ -457,41 +459,41 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 
 		if(BGBCC_CCXL_IsBinaryP(ctx, ln, "&&") ||
 				BGBCC_CCXL_IsBinaryP(ctx, ln, "||"))
-			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, s2, s0); j=1; }
+			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, l2, l0); j=1; }
 		else
-			{ BGBCC_CCXL_CompileJCF(ctx, ln, s0); }
+			{ BGBCC_CCXL_CompileJCF(ctx, ln, l0); }
 
-		if(j) { BGBCC_CCXL_EmitLabel(ctx, s2); }
+		if(j) { BGBCC_CCXL_EmitLabel(ctx, l2); }
 
 		if(BGBCC_CCXL_IsBinaryP(ctx, rn, "&&") ||
 				BGBCC_CCXL_IsBinaryP(ctx, rn, "||"))
-			{ BGBCC_CCXL_CompileFormJmpTF(ctx, rn, s3, s0); k=1; }
+			{ BGBCC_CCXL_CompileFormJmpTF(ctx, rn, l3, l0); k=1; }
 		else
-			{ BGBCC_CCXL_CompileJCF(ctx, rn, s0); }
+			{ BGBCC_CCXL_CompileJCF(ctx, rn, l0); }
 #endif
 
-		if(k) { BGBCC_CCXL_EmitLabel(ctx, s3); }
-		BGBCC_FrBC_StackPushConstInt(ctx, 1);
-		BGBCC_FrBC_StackSetU(ctx);
-		BGBCC_CCXL_CompileJmp(ctx, s1);
+		if(k) { BGBCC_CCXL_EmitLabel(ctx, l3); }
+		BGBCC_CCXL_StackPushConstInt(ctx, 1);
+		BGBCC_CCXL_StackSetU(ctx);
+		BGBCC_CCXL_CompileJmp(ctx, l1);
 
-		BGBCC_CCXL_EmitLabel(ctx, s0);
-		BGBCC_FrBC_StackPushConstInt(ctx, 0);
-		BGBCC_FrBC_StackSetU(ctx);
+		BGBCC_CCXL_EmitLabel(ctx, l0);
+		BGBCC_CCXL_StackPushConstInt(ctx, 0);
+		BGBCC_CCXL_StackSetU(ctx);
 
-		BGBCC_CCXL_EmitLabel(ctx, s1);
-		BGBCC_FrBC_StackEndU(ctx);
+		BGBCC_CCXL_EmitLabel(ctx, l1);
+		BGBCC_CCXL_StackEndU(ctx);
 		return;
 	}
 
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, "||"))
 	{
-		s0=BGBCC_CCXL_GenSym(ctx);
-		s1=BGBCC_CCXL_GenSym(ctx);
-		s2=BGBCC_CCXL_GenSym(ctx);
-		s3=BGBCC_CCXL_GenSym(ctx);
+		l0=BGBCC_CCXL_GenSym(ctx);
+		l1=BGBCC_CCXL_GenSym(ctx);
+		l2=BGBCC_CCXL_GenSym(ctx);
+		l3=BGBCC_CCXL_GenSym(ctx);
 
-		BGBCC_FrBC_StackBeginU(ctx, "i");
+		BGBCC_CCXL_StackBeginU(ctx, "i");
 
 #if 1
 		ln=BCCX_Fetch(l, "left");
@@ -502,36 +504,36 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 
 		if(BGBCC_CCXL_IsBinaryP(ctx, ln, "&&") ||
 				BGBCC_CCXL_IsBinaryP(ctx, ln, "||"))
-			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, s0, s2); j=1; }
+			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, l0, l2); j=1; }
 		else
-			{ BGBCC_CCXL_CompileJCT(ctx, ln, s0); }
+			{ BGBCC_CCXL_CompileJCT(ctx, ln, l0); }
 
-		if(j) { BGBCC_CCXL_EmitLabel(ctx, s2); }
+		if(j) { BGBCC_CCXL_EmitLabel(ctx, l2); }
 
 		if(BGBCC_CCXL_IsBinaryP(ctx, rn, "&&") ||
 				BGBCC_CCXL_IsBinaryP(ctx, rn, "||"))
-			{ BGBCC_CCXL_CompileFormJmpTF(ctx, rn, s0, s3); k=1; }
+			{ BGBCC_CCXL_CompileFormJmpTF(ctx, rn, l0, l3); k=1; }
 		else
-			{ BGBCC_CCXL_CompileJCT(ctx, rn, s0); }
+			{ BGBCC_CCXL_CompileJCT(ctx, rn, l0); }
 #endif
 
-		if(k) { BGBCC_CCXL_EmitLabel(ctx, s3); }
-		BGBCC_FrBC_StackPushConstInt(ctx, 0);
-		BGBCC_FrBC_StackSetU(ctx);
-		BGBCC_CCXL_CompileJmp(ctx, s1);
-		BGBCC_CCXL_EmitLabel(ctx, s0);
-		BGBCC_FrBC_StackPushConstInt(ctx, 1);
-		BGBCC_FrBC_StackSetU(ctx);
+		if(k) { BGBCC_CCXL_EmitLabel(ctx, l3); }
+		BGBCC_CCXL_StackPushConstInt(ctx, 0);
+		BGBCC_CCXL_StackSetU(ctx);
+		BGBCC_CCXL_CompileJmp(ctx, l1);
+		BGBCC_CCXL_EmitLabel(ctx, l0);
+		BGBCC_CCXL_StackPushConstInt(ctx, 1);
+		BGBCC_CCXL_StackSetU(ctx);
 
-		BGBCC_CCXL_EmitLabel(ctx, s1);
-		BGBCC_FrBC_StackEndU(ctx);
+		BGBCC_CCXL_EmitLabel(ctx, l1);
+		BGBCC_CCXL_StackEndU(ctx);
 		return;
 	}
 
 	if(BCCX_TagIsP(l, "boolify"))
 	{
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-		BGBCC_FrBC_StackCastBool(ctx);
+		BGBCC_CCXL_StackCastBool(ctx);
 		return;
 	}
 
@@ -540,8 +542,8 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		if(BCCX_AttrIsP(l, "op", "*"))
 		{
 			BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-			BGBCC_FrBC_StackPushConstInt(ctx, 0);
-			BGBCC_FrBC_StackLoadIndex(ctx);
+			BGBCC_CCXL_StackPushConstInt(ctx, 0);
+			BGBCC_CCXL_StackLoadIndex(ctx);
 			return;
 		}
 
@@ -552,14 +554,14 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 			if(BCCX_TagIsP(t, "ref"))
 			{
 				s0=BCCX_Get(t, "name");
-				BGBCC_FrBC_StackLoadAddr(ctx, s0);
+				BGBCC_CCXL_StackLoadAddr(ctx, s0);
 				return;
 			}
 
 			if(BCCX_TagIsP(t, "objref"))
 			{
 				BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(t, "value"));
-				BGBCC_FrBC_StackLoadSlotAddr(ctx, BCCX_Get(t, "name"));
+				BGBCC_CCXL_StackLoadSlotAddr(ctx, BCCX_Get(t, "name"));
 				return;
 			}
 
@@ -568,7 +570,7 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 			{
 				BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(t, "array"));
 				BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(t, "index"));
-				BGBCC_FrBC_StackLoadIndexAddr(ctx);
+				BGBCC_CCXL_StackLoadIndexAddr(ctx);
 				return;
 			}
 
@@ -578,7 +580,7 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
 
-		BGBCC_FrBC_StackUnaryOp(ctx, BCCX_Get(l, "op"));
+		BGBCC_CCXL_StackUnaryOp(ctx, BCCX_Get(l, "op"));
 		return;
 	}
 
@@ -587,7 +589,7 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "left"));
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "right"));
 
-		BGBCC_FrBC_StackBinaryOp(ctx, BCCX_Get(l, "op"));
+		BGBCC_CCXL_StackBinaryOp(ctx, BCCX_Get(l, "op"));
 		return;
 	}
 
@@ -599,7 +601,7 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		rn=BGBCC_CCXL_ReduceExpr(ctx, rn);
 
 		BGBCC_CCXL_CompileExpr(ctx, ln);
-		BGBCC_FrBC_StackPop(ctx);
+		BGBCC_CCXL_StackPop(ctx);
 		BGBCC_CCXL_CompileExpr(ctx, rn);
 		return;
 	}
@@ -630,13 +632,13 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "list"))
 	{
-		BGBCC_FrBC_StackPushConstInt(ctx, 0);
+		BGBCC_CCXL_StackPushConstInt(ctx, 0);
 		BGBCC_CCXL_StubWarn(ctx);
 		return;
 	}
 
 	BGBCC_CCXL_Error(ctx, "Unhandled expr %s\n", BCCX_Tag(l));
-	BGBCC_FrBC_StackPushConstInt(ctx, 0);
+	BGBCC_CCXL_StackPushConstInt(ctx, 0);
 }
 
 void BGBCC_CCXL_CompileExprT(BGBCC_TransState *ctx, BCCX_Node *l)
@@ -652,24 +654,24 @@ void BGBCC_CCXL_CompileExprT(BGBCC_TransState *ctx, BCCX_Node *l)
 	if(BCCX_TagIsP(l, "ref"))
 	{
 		s0=BCCX_Get(l, "name");	
-		BGBCC_FrBC_PushLoad(ctx, s0);
+		BGBCC_CCXL_PushLoad(ctx, s0);
 		return;
 	}
 
 	if(BCCX_TagIsP(l, "int"))
 	{
-		BGBCC_FrBC_StackPushConstInt(ctx, BCCX_GetInt(l, "value"));
+		BGBCC_CCXL_StackPushConstInt(ctx, BCCX_GetInt(l, "value"));
 		return;
 	}
 	if(BCCX_TagIsP(l, "real"))
 	{
-		BGBCC_FrBC_StackPushConstDouble(ctx, BCCX_GetFloat(l, "value"));
+		BGBCC_CCXL_StackPushConstDouble(ctx, BCCX_GetFloat(l, "value"));
 		return;
 	}
 
 	if(BCCX_TagIsP(l, "string"))
 	{
-		BGBCC_FrBC_StackPushConstString(ctx, BCCX_Get(l, "value"));
+		BGBCC_CCXL_StackPushConstString(ctx, BCCX_Get(l, "value"));
 		return;
 	}
 
@@ -678,7 +680,7 @@ void BGBCC_CCXL_CompileExprT(BGBCC_TransState *ctx, BCCX_Node *l)
 		s0=BCCX_Get(l, "value");
 		if(s0) { i=BGBCP_ParseChar(&s0); }
 			else i=0;
-		BGBCC_FrBC_StackPushConstInt(ctx, i);
+		BGBCC_CCXL_StackPushConstInt(ctx, i);
 		return;
 	}
 
@@ -720,5 +722,5 @@ void BGBCC_CCXL_CompileExprAsType(BGBCC_TransState *ctx,
 
 	BGBCC_CCXL_CompileExpr(ctx, l);
 	s=BGBCC_CCXL_VarTypeString(ctx, ty);
-	BGBCC_FrBC_StackCastSig(ctx, s);
+	BGBCC_CCXL_StackCastSig(ctx, s);
 }

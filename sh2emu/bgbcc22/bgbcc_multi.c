@@ -75,11 +75,16 @@
 #include "mm/ccl_elf.c"
 
 
+#include "ccxl/ccxl_cgif.c"
 #include "ccxl/ccxl_compile.c"
+#include "ccxl/ccxl_const.c"
 #include "ccxl/ccxl_expr.c"
+#include "ccxl/ccxl_global.c"
 #include "ccxl/ccxl_index.c"
 #include "ccxl/ccxl_pred.c"
 #include "ccxl/ccxl_reduce.c"
+#include "ccxl/ccxl_register.c"
+#include "ccxl/ccxl_stack.c"
 #include "ccxl/ccxl_struct.c"
 #include "ccxl/ccxl_type.c"
 

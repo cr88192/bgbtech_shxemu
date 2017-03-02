@@ -60,24 +60,24 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructureForType(
 	BGBCC_CCXL_LiteralInfo *st;
 	int bt;
 
-	if((type.val&FR2C_TY_TYTY_MASK)==FR2C_TY_TYTY_BASIC)
+	if((type.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_BASIC)
 	{
-		bt=type.val&FR2C_TY_BASEMASK;
+		bt=type.val&CCXL_TY_BASEMASK;
 		st=ctx->literals[bt-256];
 		return(st);
 	}
 
-	if((type.val&FR2C_TY_TYTY_MASK)==FR2C_TY_TYTY_OVF1)
+	if((type.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_OVF1)
 	{
-		ovf=*(ctx->tyovf[type.val&FR2C_TYOVF_IDXMASK]);
-//		bt=type.val&FR2C_TYB2_BASEMASK;
+		ovf=*(ctx->tyovf[type.val&CCXL_TYOVF_IDXMASK]);
+//		bt=type.val&CCXL_TYB2_BASEMASK;
 		bt=ovf.base;
 		st=ctx->literals[bt-256];
 		return(st);
 	}
 	
 	BGBCC_CCXL_TagError(ctx,
-		FR2C_TERR_STATUS(FR2C_STATUS_ERR_UNHANDLEDTYPE));
+		CCXL_TERR_STATUS(CCXL_STATUS_ERR_UNHANDLEDTYPE));
 	return(NULL);
 }
 
@@ -171,7 +171,7 @@ ccxl_status BGBCC_CCXL_LookupStructFieldType(
 	}
 	
 //	printf("BGBCC_CCXL_LookupStructFieldType: No Field '%s'\n", name);
-	bty=BGBCC_CCXL_TypeWrapBasicType(FR2C_TY_I);
+	bty=BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_I);
 //	*rty=bty;	
 	return(0);
 }
@@ -196,6 +196,322 @@ ccxl_status BGBCC_CCXL_LookupStructFieldIdType(
 		return(1);
 	}
 	
-	bty=BGBCC_CCXL_TypeWrapBasicType(FR2C_TY_I);
+	bty=BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_I);
 	return(-1);
+}
+
+
+int BGBCC_CCXL_GetArraySizeForSig(
+	BGBCC_TransState *ctx, char *sig)
+{
+	char *s, *t;
+	s=sig;
+	while(*s && (*s=='P'))
+		{ s++; }
+	return(BGBCC_CCXL_GetArraySizeForSig2(ctx, s));
+}
+
+int BGBCC_CCXL_GetArraySizeForSig2(
+	BGBCC_TransState *ctx, char *sig)
+{
+	return(BGBCC_CCXL_GetArraySizeForSig2R(ctx, &sig));
+}
+
+int BGBCC_CCXL_GetArraySizeForSig2R(
+	BGBCC_TransState *ctx, char **rsig)
+{
+	char *s, *t;
+	int i;
+
+	s=*rsig;
+	if(*s=='A')
+	{
+		s++; i=0;
+		while(*s && (*s>='0') && (*s<='9'))
+			{ i=(i*10)+((*s++)-'0'); }
+		if(*s==',')
+			return(-1);		
+		if(*s==';')
+			s++;
+		*rsig=s;
+		return(i);
+	}
+	
+	return(-1);
+}
+
+int BGBCC_CCXL_GetArraySizeForSig3R(
+	BGBCC_TransState *ctx, char **rsig)
+{
+	char *s, *t;
+	int i, j;
+
+	s=*rsig;
+	if(*s=='A')
+	{
+		s++; i=1;
+		while(*s)
+		{
+			j=0;
+			while(*s && (*s>='0') && (*s<='9'))
+				{ j=(j*10)+((*s++)-'0'); }
+			if(*s==',')
+			{
+				i=i*j;
+				s++;
+				continue;
+			}
+			if(*s==';')
+			{
+				i=i*j;
+				s++;
+				break;
+			}
+			i=i*j;
+			break;
+		}
+		
+		*rsig=s;
+		return(i);
+	}
+	
+	return(-1);
+}
+
+ccxl_status BGBCC_CCXL_GetStructSigFixedSize(
+	BGBCC_TransState *ctx, char *sig, int *rsz)
+{
+	BGBCC_CCXL_LiteralInfo *str;
+
+	str=BGBCC_CCXL_LookupStructureForSig2(ctx, sig);
+	if(str)
+	{
+		*rsz=str->decl->fxsize;
+		return(0);
+	}
+
+	*rsz=0;
+	return(-1);
+}
+
+ccxl_status BGBCC_CCXL_GetSigFixedSize(
+	BGBCC_TransState *ctx, char *sig, int *rsz)
+{
+	int asz[16];
+	char *s;
+	int sz, na;
+	int i, j, k;
+
+	switch(*sig)
+	{
+	case 'a':	case 'b':
+	case 'c':	case 'h':
+		sz=1;	break;
+	case 'i':	case 'j':
+		sz=4;	break;
+	case 'l':	case 'm':
+		sz=4;	break;
+	case 's':	case 't':
+	case 'w':	case 'k':
+		sz=2;	break;
+	case 'x':	case 'y':
+		sz=8;	break;
+	case 'f':
+		sz=4;	break;
+	case 'd':
+		sz=8;	break;
+	case 'P':
+		sz=4;	break;
+	case 'A':
+		s=sig+1; na=0; i=0;
+		while(*s)
+		{
+			if((*s>='0') && (*s<='9'))
+				{ i=i*10+((*s++)-'0'); continue; }
+			if(*s==',')
+				{ asz[na++]=i; i=0; s++; continue; }
+			if(*s==';')
+				{ asz[na++]=i; i=0; s++; break; }
+			asz[na++]=i;
+			break;
+		}
+		BGBCC_CCXL_GetSigFixedSize(ctx, s, &sz);
+		j=1;
+		for(i=0; i<na; i++)
+			j*=asz[i];
+		sz=j*sz;
+		break;
+	case 'X':
+		BGBCC_CCXL_GetStructSigFixedSize(ctx, sig, &sz);
+		break;
+	default:
+		sz=4;	break;
+	}
+	
+	*rsz=sz;
+	return(0);
+}
+
+char *BGBCC_CCXL_SigGetReturnSig(
+	BGBCC_TransState *ctx, char *sig)
+{
+	char *s;
+	int i;
+	
+	s=sig;
+	while(*s=='P')s++;
+	if(*s=='(')
+	{
+		i=0;
+		while(*s)
+		{
+			if(*s=='(') { i++; s++; continue; }
+			if(*s==')')
+			{
+				i--; s++;
+				if(!i)break;
+				continue;
+			}
+			s++;
+		}
+		return(s);
+	}
+	
+	return(sig);
+}
+
+
+ccxl_status BGBCC_CCXL_GetStructSigMinMaxSize(
+	BGBCC_TransState *ctx, char *sig, int *rsz, int *ral)
+{
+	BGBCC_CCXL_LiteralInfo *str;
+
+	str=BGBCC_CCXL_LookupStructureForSig2(ctx, sig);
+	if(str && str->decl)
+	{
+		rsz[0]=str->decl->fxmsize;
+		rsz[1]=str->decl->fxnsize;
+		ral[0]=str->decl->fxmalgn;
+		ral[1]=str->decl->fxnalgn;
+		return(0);
+	}
+
+	rsz[0]=0;	rsz[1]=0;
+	ral[0]=1;	ral[1]=1;
+	return(-1);
+}
+
+ccxl_status BGBCC_CCXL_GetSigMinMaxSize(
+	BGBCC_TransState *ctx, char *sig, int *rsz, int *ral)
+{
+	int asz[16];
+	char *s;
+	int sza[2], ala[2];
+	int sz, na, ret;
+	int i, j, k;
+
+	ret=0;
+	switch(*sig)
+	{
+	case 'a':	case 'b':
+	case 'c':	case 'h':
+		sza[0]=1; sza[1]=1;
+		ala[0]=1; ala[1]=1;
+		break;
+	case 'i':	case 'j':
+		sza[0]=4; sza[1]=4;
+		ala[0]=4; ala[1]=4;
+		break;
+	case 'l':	case 'm':
+		sza[0]=4; sza[1]=8;
+		ala[0]=4; ala[1]=8;
+		break;
+	case 's':	case 't':
+	case 'w':	case 'k':
+		sza[0]=2; sza[1]=2;
+		ala[0]=2; ala[1]=2;
+		break;
+	case 'x':	case 'y':
+		sza[0]=8; sza[1]=8;
+		ala[0]=8; ala[1]=8;
+		break;
+	case 'f':
+		sza[0]=4; sza[1]=4;
+		ala[0]=4; ala[1]=4;
+		break;
+	case 'd':
+		sza[0]=8; sza[1]=8;
+		ala[0]=8; ala[1]=8;
+		break;
+	case 'P':
+		sza[0]=4; sza[1]=8;
+		ala[0]=4; ala[1]=8;
+		break;
+	case 'A':
+		s=sig+1; na=0; i=0;
+		while(*s)
+		{
+			if((*s>='0') && (*s<='9'))
+				{ i=i*10+((*s++)-'0'); continue; }
+			if(*s==',')
+				{ asz[na++]=i; i=0; s++; continue; }
+			if(*s==';')
+				{ asz[na++]=i; i=0; s++; break; }
+			asz[na++]=i;
+			break;
+		}
+		BGBCC_CCXL_GetSigMinMaxSize(ctx, s, sza, ala);
+		j=1;
+		for(i=0; i<na; i++)
+			j*=asz[i];
+		sza[0]=j*sza[0];
+		sza[1]=j*sza[1];
+		break;
+	case 'X':
+		ret=BGBCC_CCXL_GetStructSigMinMaxSize(ctx, sig, sza, ala);
+		break;
+	default:
+		sza[0]=0; sza[1]=0;
+		ala[0]=1; ala[1]=1;
+		ret=-1;
+		break;
+	}
+	
+	rsz[0]=sza[0];
+	rsz[1]=sza[1];
+	ral[0]=ala[0];
+	ral[1]=ala[1];
+	return(ret);
+}
+
+ccxl_status BGBCC_CCXL_MarkTypeAccessed(
+	BGBCC_TransState *ctx, ccxl_type type)
+{
+	BGBCC_CCXL_LiteralInfo *obj;
+	int i, j, k, n;
+
+	i=BGBCC_CCXL_TypeObjectLiteralIndex(ctx, type);
+	if(i<0)return(0);
+	obj=ctx->literals[i];
+	if(!obj || !obj->decl)
+		return(0);
+
+	if(obj->decl->regflags&BGBCC_REGFL_ACCESSED)
+		return(0);
+
+	obj->decl->regflags|=BGBCC_REGFL_ACCESSED;
+
+	for(i=0; i<obj->decl->n_args; i++)
+		{ BGBCC_CCXL_MarkTypeAccessed(ctx, obj->decl->args[i]->type); }
+	for(i=0; i<obj->decl->n_locals; i++)
+		{ BGBCC_CCXL_MarkTypeAccessed(ctx, obj->decl->locals[i]->type); }
+
+	n=obj->decl->n_fields;
+	for(i=0; i<n; i++)
+	{
+		BGBCC_CCXL_MarkTypeAccessed(ctx,
+			obj->decl->fields[i]->type);
+	}
+
+	return(1);
 }
