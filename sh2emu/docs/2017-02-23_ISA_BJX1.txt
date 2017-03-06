@@ -95,6 +95,7 @@ Delay Slot:
 For branches, the instruction immediately following the branch is located in a "delay slot". This instruction will execute prior to the jump landing at the target. Branches and PC relative operations are not allowed in this space. However, BT and BF will not execute the delay-slot instruction.
 
 For PC relative instructions, the calculation will be performed relative to 4 bytes after the PC of the instruction.
+* Both Long and Quad operations will use a 32-bit alignment.
 
 
 Opcode Size Suffixes:
@@ -104,6 +105,7 @@ Opcode Size Suffixes:
 * .Q, QWord (64-bit)
 * .W/Q, Word or Quad (Depends on Mode)
 * .L/Q, DWord or Quad (Depends on Mode)
+* .LL/LQ, DWord part followed by DWord or Quad (Depends on Mode)
 
 QWORD Loads/Stores may not be used in 32-bit mode.
 * Registers will only preserve 32 bits.
@@ -581,6 +583,16 @@ XPFX0/Escape32 I-Forms
 **		8Edd-6nm1 MOV.W @(Rm,disp), Rn
 **		8Edd-6nm2 MOV.L @(Rm,disp), Rn
 **		8Edd-6nm3 MOV.Q @(Rm,disp), Rn
+
+**		8Edd-6nm8 MOV.L/Q @(Rm,disp), Rn		//Rn=[Rm+disp*(4|8)]
+**		8Edd-6nm9 MOV.LL/LQ @(Rm,disp4a,disp4b), Rn	//Rn=Rm+disp4a*4 + disp4b*(4|8)
+**		8Edd-6nmA LEA.L/Q @(Rm,disp), Rn		//Rn=Rm+disp*(4|8)
+**		8Edd-6nmB LEA.LL/LQ @(Rm,disp4a,disp4b), Rn	//Rn=Rm+disp4a*4 + disp4b*(4|8)
+
+**		8Edd-6nmC LEA.B @(Rm,disp), Rn		//Rn=Rm+disp*1
+**		8Edd-6nmD LEA.W @(Rm,disp), Rn		//Rn=Rm+disp*2
+**		8Edd-6nmE LEA.L @(Rm,disp), Rn		//Rn=Rm+disp*4
+**		8Edd-6nmF LEA.Q @(Rm,disp), Rn		//Rn=Rm+disp*8
 *	8Eii-7nii ADD #imm16, Rn
 * 	8---
 **		8Edd-80no MOV.B R0, @(Rn,Ro,disp)
@@ -634,6 +646,16 @@ Escape 64 (BJX32: Values truncated to 32-bits)
 * 8E6n-8Em1-dddd-dddd MOV.W @(Rm,disp32), Rn
 * 8E6n-8Em2-dddd-dddd MOV.L @(Rm,disp32), Rn
 * 8E6n-8Em3-dddd-dddd MOV.Q @(Rm,disp32), Rn
+
+* 8E6n-8Em8-dddd-dddd MOV.L/Q @(Rm,disp32), Rn			//Rn=[Rm+disp32*(4|8)]
+* 8E6n-8Em9-dddd-dddd MOV.LL/LQ @(Rm,disp16a,disp16b), Rn		//Rn=Rm+disp16a*4 + disp16b*(4|8)
+* 8E6n-8EmA-dddd-dddd LEA.L/Q @(Rm,disp32), Rn			//Rn=Rm+disp32*(4|8)
+* 8E6n-8EmB-dddd-dddd LEA.LL/LQ @(Rm,disp16a,disp16b), Rn		//Rn=Rm+disp16a*4 + disp16b*(4|8)
+
+* 8E6n-8EmC-dddd-dddd LEA.B @(Rm,disp32), Rn		//Rn=Rm+disp*1
+* 8E6n-8EmD-dddd-dddd LEA.W @(Rm,disp32), Rn		//Rn=Rm+disp*2
+* 8E6n-8EmE-dddd-dddd LEA.L @(Rm,disp32), Rn		//Rn=Rm+disp*4
+* 8E6n-8EmF-dddd-dddd LEA.Q @(Rm,disp32), Rn		//Rn=Rm+disp*8
 
 * 8E7n-8Eii-iiii-iiii ADD #imm40, Rn
 
