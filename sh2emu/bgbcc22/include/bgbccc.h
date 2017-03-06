@@ -56,6 +56,8 @@ typedef signed long long s64;
 typedef struct _dyt_s *dyt;
 typedef struct { u64 v; } dytf;
 
+typedef u32 fourcc;
+
 #ifndef UNDEFINED
 #define UNDEFINED		((void *)(-1))
 #endif
@@ -221,6 +223,7 @@ extern "C" {
 
 #endif
 
+#if 0
 #define BGBCC_LANG_C		1	//C
 #define BGBCC_LANG_CPP		2	//C++
 #define BGBCC_LANG_CS		3	//C#
@@ -237,6 +240,50 @@ extern "C" {
 #define BGBCC_ARCH_PPC		4	//PPC
 #define BGBCC_ARCH_PPC64	5	//PPC64
 
+#define BGBCC_ARCH_SH		6	//SH variants
+#define BGBCC_ARCH_SH64		7	//64-bit SH variants
+
+#define BGBCC_ARCH_SH_SH2	2	//SH2
+#define BGBCC_ARCH_SH_SH4	4	//SH4
+#endif
+
+#if 1
+#define BGBCC_FOURCC(a, b, c, d)	((a)|((b)<<8)|((c)<<16)|((d)<<24))
+
+#define BGBCC_LANG_C		BGBCC_FOURCC('C', ' ', ' ', ' ')
+#define BGBCC_LANG_CPP		BGBCC_FOURCC('C', 'P', 'P', ' ')
+#define BGBCC_LANG_CS		BGBCC_FOURCC('C', 'S', 'R', 'P')
+#define BGBCC_LANG_JAVA		BGBCC_FOURCC('J', 'A', 'V', 'A')
+#define BGBCC_LANG_BS		BGBCC_FOURCC('B', 'S', ' ', ' ')
+#define BGBCC_LANG_CX		BGBCC_FOURCC('C', 'A', 'U', 'X')
+#define BGBCC_LANG_MINIC	BGBCC_FOURCC('M', 'I', 'N', 'C')
+#define BGBCC_LANG_BS2		BGBCC_FOURCC('B', 'S', '2', ' ')
+
+#define BGBCC_ARCH_DEFAULT	0	//any arch
+#define BGBCC_ARCH_X86		BGBCC_FOURCC('X', '8', '6', ' ')
+#define BGBCC_ARCH_X64		BGBCC_FOURCC('X', '6', '4', ' ')
+#define BGBCC_ARCH_ARM		BGBCC_FOURCC('A', 'R', 'M', ' ')
+#define BGBCC_ARCH_PPC		BGBCC_FOURCC('P', 'P', 'C', ' ')
+#define BGBCC_ARCH_PPC64	BGBCC_FOURCC('P', 'P', '6', '4')
+
+#define BGBCC_ARCH_SH		BGBCC_FOURCC('S', 'H', ' ', ' ')
+#define BGBCC_ARCH_SH64		BGBCC_FOURCC('S', 'H', '6', '4')
+
+#define BGBCC_ARCH_SH_SH2	BGBCC_FOURCC('S', 'H', '2', ' ')
+#define BGBCC_ARCH_SH_SH4	BGBCC_FOURCC('S', 'H', '4', ' ')
+#define BGBCC_ARCH_SH_SH2L	BGBCC_FOURCC('S', 'H', '2', 'L')
+#define BGBCC_ARCH_SH_SH4L	BGBCC_FOURCC('S', 'H', '4', 'L')
+#define BGBCC_ARCH_SH_SH2B	BGBCC_FOURCC('S', 'H', '2', 'B')
+#define BGBCC_ARCH_SH_SH4B	BGBCC_FOURCC('S', 'H', '4', 'B')
+
+//output formats.
+//format specifics depend on target.
+#define BGBCC_IMGFMT_OBJ	BGBCC_FOURCC('O', 'B', 'J', ' ')
+#define BGBCC_IMGFMT_EXE	BGBCC_FOURCC('E', 'X', 'E', ' ')
+#define BGBCC_IMGFMT_DLL	BGBCC_FOURCC('D', 'L', 'L', ' ')
+
+#endif
+
 #include <bgbcc_xml.h>
 
 #ifdef BGBCC_BGBMETA
@@ -248,6 +295,7 @@ extern "C" {
 #include <bgbcc_tokord.h>
 
 #include <bgbcc_ccxl.h>
+#include <bgbcc_shcc.h>
 
 typedef struct BGBCP_ParseItem_s BGBCP_ParseItem;
 typedef struct BGBCP_ParseState_s BGBCP_ParseState;
@@ -264,7 +312,12 @@ BCCX_Node *(*func)(BGBCP_ParseState *ctx, char **s);
 };
 
 struct BGBCP_ParseState_s {
-int flags, lang, arch;
+int flags;
+
+fourcc lang;
+fourcc arch;
+fourcc subarch;
+
 BCCX_Node *structs;
 BCCX_Node *types;
 
@@ -281,6 +334,8 @@ BCCX_Node *reduce_tmp;
 char *cur_ns;
 char **cur_nsi;
 char *cur_class;
+
+BGBCC_CCXL_BackendFuncs_vt *back_vt;
 };
 
 struct BGBPP_Def_s {
@@ -314,9 +369,15 @@ ccxl_label *breakstack;
 int contstackpos;
 int breakstackpos;
 
-char *ip;
-char *ips;
-char *ipe;
+// char *ip;
+// char *ips;
+// char *ipe;
+
+BGBCC_CCXL_VirtOp **vop;
+BGBCC_CCXL_VirtTr **vtr;
+int n_vop, m_vop;
+int n_vtr, m_vtr;
+int s_vop;
 
 int *markstack;
 ccxl_register *regstack;
@@ -335,7 +396,11 @@ int cur_idx2;	//method
 int cur_idx3;	//property
 int cur_idx4;	//property
 
-int lang, arch;
+fourcc lang;
+fourcc arch;			//major architecture
+fourcc sub_arch;		//subset architecture
+byte arch_sizeof_long;
+byte arch_sizeof_ptr;
 
 int gs_seq;
 char *lfn;
@@ -392,129 +457,23 @@ BGBCC_CCXL_LiteralInfo *cur_objstack[64];
 BGBCC_CCXL_LiteralInfo *cur_obj;
 int cur_objstackpos;
 
+BGBCC_CCXL_VirtOp *virtop_free;
+BGBCC_CCXL_VirtTr *virttr_free;
+
 BGBCC_CCXL_BackendFuncs_vt *back_vt;
+void *uctx;		//context for backend
 };
 
 struct BGBCC_CCXL_BackendFuncs_vt_s {
-ccxl_status (*StackFn)(BGBCC_TransState *ctx, char *name);
-ccxl_status (*StackLn)(BGBCC_TransState *ctx, int line);
-ccxl_status (*Begin)(BGBCC_TransState *ctx, int tag);
-ccxl_status (*BeginName)(BGBCC_TransState *ctx, int tag, char *name);
-ccxl_status (*AttribStr)(BGBCC_TransState *ctx, int attr, char *str);
-ccxl_status (*AttribLong)(BGBCC_TransState *ctx, int attr, s64 val);
-ccxl_status (*LiteralInt)(BGBCC_TransState *ctx, int tag, s64 val);
-ccxl_status (*LiteralLong)(BGBCC_TransState *ctx, int tag, s64 val);
-ccxl_status (*LiteralFloat)(BGBCC_TransState *ctx, int tag, f64 val);
-ccxl_status (*LiteralDouble)(BGBCC_TransState *ctx, int tag, f64 val);
-ccxl_status (*LiteralStr)(BGBCC_TransState *ctx, int tag, char *str);
-ccxl_status (*LiteralGlobalAddr)(BGBCC_TransState *ctx, int tag, int gblid);
-ccxl_status (*CheckDefinedContextName)(BGBCC_TransState *ctx,
-	int tag, char *str);
-ccxl_status (*Marker)(BGBCC_TransState *ctx, int tag);
-ccxl_status (*End)(BGBCC_TransState *ctx);
-ccxl_status (*EmitMarkEndTrace)(BGBCC_TransState *ctx);
-ccxl_status (*EmitLabel)(BGBCC_TransState *ctx, ccxl_label id);
-ccxl_status (*EmitJump)(BGBCC_TransState *ctx, ccxl_label id);
-ccxl_status (*EmitJumpRegZero)(BGBCC_TransState *ctx,
-	ccxl_type ty, int cmpop, ccxl_register reg, ccxl_label lbl);
-ccxl_status (*EmitJumpRegCmp)(BGBCC_TransState *ctx,
-	ccxl_type ty, int cmpop, ccxl_register sreg, ccxl_register treg,
-	ccxl_label lbl);
-ccxl_status (*EmitMov)(BGBCC_TransState *ctx,
-	ccxl_type ty, ccxl_register dreg, ccxl_register sreg);
-ccxl_status (*EmitCallOp)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src, int na);
-ccxl_status (*EmitCallCsrvOp)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitCallArg)(BGBCC_TransState *ctx,
-	ccxl_register reg);
-ccxl_status (*EmitCallRetDefault)(BGBCC_TransState *ctx);
-ccxl_status (*EmitCallRetV)(BGBCC_TransState *ctx);
-ccxl_status (*EmitCallRetOp)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register src);
+char *tgtname;
+BGBCC_CCXL_BackendFuncs_vt *next;
 
-#if 0
-ccxl_status (*EmitMovInt)(BGBCC_TransState *ctx,
-	ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitMovLong)(BGBCC_TransState *ctx,
-	ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitMovFloat)(BGBCC_TransState *ctx,
-	ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitMovDouble)(BGBCC_TransState *ctx,
-	ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitMovPointer)(BGBCC_TransState *ctx,
-	ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitMovMatchDst)(BGBCC_TransState *ctx,
-	ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitMovMatchSrc)(BGBCC_TransState *ctx,
-	ccxl_register dst, ccxl_register src);
-#endif
-
-ccxl_status (*EmitConv)(BGBCC_TransState *ctx,
-	ccxl_type dtype, ccxl_type stype,
-	ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitUnaryOp)(BGBCC_TransState *ctx,
-	ccxl_type type, int opr,
-	ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitBinaryOp)(BGBCC_TransState *ctx,
-	ccxl_type type, int opr, ccxl_register dst,
-	ccxl_register srca, ccxl_register srcb);
-ccxl_status (*EmitCompareOp)(BGBCC_TransState *ctx,
-	ccxl_type type, int opr, ccxl_register dst,
-	ccxl_register srca, ccxl_register srcb);
-ccxl_status (*EmitLoadIndexImm)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src, int idx);
-ccxl_status (*EmitStoreIndexImm)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src, int idx);
-ccxl_status (*EmitLoadIndex)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	ccxl_register srca, ccxl_register srcb);
-ccxl_status (*EmitStoreIndex)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	ccxl_register srca, ccxl_register srcb);
-ccxl_status (*EmitLeaImm)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src, int idx);
-ccxl_status (*EmitLea)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	ccxl_register srca, ccxl_register srcb);
-ccxl_status (*EmitLdaVar)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src);
-ccxl_status (*EmitSizeofVar)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst);
-ccxl_status (*EmitDiffPtr)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	ccxl_register srca, ccxl_register srcb);
-ccxl_status (*EmitOffsetOf)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	BGBCC_CCXL_LiteralInfo *st, char *name);
-ccxl_status (*EmitLoadSlot)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src,
-	BGBCC_CCXL_LiteralInfo *st, char *name);
-ccxl_status (*EmitStoreSlot)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src,
-	BGBCC_CCXL_LiteralInfo *st, char *name);
-ccxl_status (*EmitLoadSlotAddr)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src,
-	BGBCC_CCXL_LiteralInfo *st, char *name);
-ccxl_status (*EmitLoadSlotAddrID)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register src,
-	BGBCC_CCXL_LiteralInfo *st, int fn);
-ccxl_status (*EmitInitObj)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	BGBCC_CCXL_LiteralInfo *st);
-ccxl_status (*EmitDropObj)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	BGBCC_CCXL_LiteralInfo *st);
-ccxl_status (*EmitInitArr)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, int sz);
-ccxl_status (*EmitInitObjArr)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	BGBCC_CCXL_LiteralInfo *st, int sz);
-ccxl_status (*EmitLoadInitArr)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst, ccxl_register val, int sz);
-ccxl_status (*EmitLoadInitObjArr)(BGBCC_TransState *ctx,
-	ccxl_type type, ccxl_register dst,
-	BGBCC_CCXL_LiteralInfo *st, ccxl_register val, int sz);
+ccxl_status (*SetupParserForArch)(BGBCP_ParseState *ctx);
+ccxl_status (*SetupContextForArch)(BGBCC_TransState *ctx);
+ccxl_status (*FlattenImage)(BGBCC_TransState *ctx,
+	byte *obuf, int *rosz, fourcc imgfmt);
+ccxl_status (*EndFunction)(BGBCC_TransState *ctx,
+	BGBCC_CCXL_LiteralInfo *obj);
 };
 
 #include <bgbcc_auto.h>

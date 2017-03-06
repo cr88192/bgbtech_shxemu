@@ -615,6 +615,11 @@ XPFX0/Escape32 I-Forms
 **		8Edd-C7n9 MOVA.W @(PC,disp8), Rn		//
 **		8Edd-C7nA MOVA.L @(PC,disp8), Rn		//
 **		8Edd-C7nB MOVA.Q @(PC,disp8), Rn		//
+**		8Ejj-C8nj TST #imm12, Rn
+**		8Ejj-C9nj AND #imm12, Rn
+**		8Ejj-CAnj XOR #imm12, Rn
+**		8Ejj-CBnj OR #imm12, Rn
+
 *	8Edd-Dndd MOV.L/Q @(PC,disp16), Rn	//
 *	8Eii-Enii MOV #imm16, Rn
 
@@ -629,6 +634,8 @@ Escape 64 (BJX32: Values truncated to 32-bits)
 * 8E6n-8Em1-dddd-dddd MOV.W @(Rm,disp32), Rn
 * 8E6n-8Em2-dddd-dddd MOV.L @(Rm,disp32), Rn
 * 8E6n-8Em3-dddd-dddd MOV.Q @(Rm,disp32), Rn
+
+* 8E7n-8Eii-iiii-iiii ADD #imm40, Rn
 
 * 8E89-8Edd-dddd-dddd BT disp40
 * 8E8B-8Edd-dddd-dddd BF disp40
@@ -651,6 +658,11 @@ Escape 64 (BJX32: Values truncated to 32-bits)
 * 8EC7-8En9-dddd-dddd MOVA.W @(PC,disp32), Rn		//
 * 8EC7-8EnA-dddd-dddd MOVA.L @(PC,disp32), Rn		//
 * 8EC7-8EnB-dddd-dddd MOVA.Q @(PC,disp32), Rn		//
+
+* 8EC8-8Enj-jjjj-jjjj TST #imm36, Rn				//
+* 8EC9-8Enj-jjjj-jjjj AND #imm36, Rn				//
+* 8ECA-8Enj-jjjj-jjjj XOR #imm36, Rn				//
+* 8ECB-8Enj-jjjj-jjjj OR #imm36, Rn					//
 
 * 8EDn-8Edd-dddd-dddd MOV.L @(PC,disp40), Rn		//
 * 8EEn-8Eii-iiii-iiii MOV #imm40, Rn

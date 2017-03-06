@@ -423,6 +423,13 @@ ccxl_status BGBCC_CCXL_GetSigMinMaxSize(
 		ala[0]=4; ala[1]=4;
 		break;
 	case 'l':	case 'm':
+		if(ctx->arch_sizeof_long)
+		{
+			i=ctx->arch_sizeof_long;
+			sza[0]=i; sza[1]=i;
+			ala[0]=i; ala[1]=i;
+			break;
+		}
 		sza[0]=4; sza[1]=8;
 		ala[0]=4; ala[1]=8;
 		break;
@@ -444,6 +451,13 @@ ccxl_status BGBCC_CCXL_GetSigMinMaxSize(
 		ala[0]=8; ala[1]=8;
 		break;
 	case 'P':
+		if(ctx->arch_sizeof_ptr)
+		{
+			i=ctx->arch_sizeof_ptr;
+			sza[0]=i; sza[1]=i;
+			ala[0]=i; ala[1]=i;
+			break;
+		}
 		sza[0]=4; sza[1]=8;
 		ala[0]=4; ala[1]=8;
 		break;

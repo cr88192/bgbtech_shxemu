@@ -59,7 +59,7 @@
 
 
 #define CCXL_REGTY_REGMASK		0x0F00000000000000ULL
-#define CCXL_REGTY_REG			0x0000000000000000ULL
+#define CCXL_REGTY_TEMP			0x0000000000000000ULL
 #define CCXL_REGTY_ARG			0x0100000000000000ULL
 #define CCXL_REGTY_LOCAL		0x0200000000000000ULL
 #define CCXL_REGTY_GLOBAL		0x0300000000000000ULL
@@ -80,6 +80,9 @@
 #define CCXL_REGID_REGMASK		0x0000000000FFFFFFULL
 #define CCXL_REGID_TYPEMASK		0x00FFFFFFFF000000ULL
 #define CCXL_REGID_TYPESHIFT	24
+
+#define CCXL_REGID_BASEMASK		0x0000000000000FFFULL	//basic register number
+#define CCXL_REGID_SEQMASK		0x0000000000FFF000ULL	//register sequence
 
 #define CCXL_REGINT_MASK		0x00000000FFFFFFFFULL
 #define CCXL_REGLONG_MASK		0x00FFFFFFFFFFFFFFULL
@@ -114,6 +117,8 @@
 #define CCXL_STATUS_ERR_BADOPARGS		-6
 #define CCXL_STATUS_ERR_CANTRELEASE		-7
 #define CCXL_STATUS_ERR_CANTACQUIRE		-8
+#define CCXL_STATUS_ERR_UNSUPPORTED		-9
+#define CCXL_STATUS_ERR_UNIMPLEMENTED	-10
 
 #define CCXL_CMD_VARDECL				0x8000
 #define CCXL_CMD_VARVALUE				0x8001
@@ -176,9 +181,71 @@
 #define CCXL_CMP_AL				0x06
 #define CCXL_CMP_NV				0x07
 
+#define CCXL_VOP_NONE				0x00
+#define CCXL_VOP_DBGFN				0x01
+#define CCXL_VOP_DBGLN				0x02
+#define CCXL_VOP_LABEL				0x03
+#define CCXL_VOP_JMP				0x04
+#define CCXL_VOP_MOV				0x05
+#define CCXL_VOP_JCMP_ZERO			0x06
+#define CCXL_VOP_JCMP				0x07
+#define CCXL_VOP_CALL				0x08
+#define CCXL_VOP_CSRV				0x09
+#define CCXL_VOP_RETDFL				0x0A
+#define CCXL_VOP_RETV				0x0B
+#define CCXL_VOP_RET				0x0C
+#define CCXL_VOP_CONV				0x0D
+#define CCXL_VOP_UNARY				0x0E
+#define CCXL_VOP_BINARY				0x0F
+#define CCXL_VOP_COMPARE			0x10
+#define CCXL_VOP_LDIXIMM			0x11
+#define CCXL_VOP_STIXIMM			0x12
+#define CCXL_VOP_LDIX				0x13
+#define CCXL_VOP_STIX				0x14
+#define CCXL_VOP_LEAIMM				0x15
+#define CCXL_VOP_LEA				0x16
+#define CCXL_VOP_LDAVAR				0x17
+#define CCXL_VOP_SIZEOFVAR			0x18
+#define CCXL_VOP_DIFFPTR			0x19
+#define CCXL_VOP_OFFSETOF			0x1A
+#define CCXL_VOP_LOADSLOT			0x1B
+#define CCXL_VOP_STORESLOT			0x1C
+#define CCXL_VOP_LOADSLOTADDR		0x1D
+#define CCXL_VOP_LOADSLOTADDRID		0x1E
+#define CCXL_VOP_INITOBJ			0x1F
+#define CCXL_VOP_DROPOBJ			0x20
+#define CCXL_VOP_INITARR			0x21
+#define CCXL_VOP_INITOBJARR			0x22
+#define CCXL_VOP_LOADINITARR		0x23
+#define CCXL_VOP_LOADINITOBJARR		0x24
+
+#define CCXL_LBL_GLOBALBASE			0x000000	//globals (main context)
+
+#define CCXL_LBL_GENSYMBASE			0x800000	//gensyms (middle)
+#define CCXL_LBL_GENSYM2BASE		0xC00000	//gensyms (backend)
+
+
 typedef struct { u64 val; } ccxl_register;
 typedef struct { u32 val; } ccxl_type;
 typedef struct { u32 id; } ccxl_label;
+
+typedef union {
+	u32 ui;
+	s32 si;
+	u64 ul;
+	s64 sl;
+	f32 f;
+	f64 d;
+	char *str;
+	struct {
+		int na;
+		ccxl_register *args;
+	}call;
+	struct {
+		int gid;
+		int fid;
+	}obj;
+}ccxl_value;
 
 typedef int ccxl_status;
 // typedef int ccxl_label;
@@ -189,6 +256,9 @@ typedef struct BGBCC_CCXL_LiteralInfo_s BGBCC_CCXL_LiteralInfo;
 typedef struct BGBCC_CCXL_TypeOverflow_s BGBCC_CCXL_TypeOverflow;
 typedef struct BGBCC_CCXL_BackendFuncs_vt_s BGBCC_CCXL_BackendFuncs_vt;
 
+typedef struct BGBCC_CCXL_VirtOp_s BGBCC_CCXL_VirtOp;
+typedef struct BGBCC_CCXL_VirtTr_s BGBCC_CCXL_VirtTr;
+
 struct BGBCC_CCXL_RegisterInfo_s {
 BGBCC_CCXL_RegisterInfo *next;
 BGBCC_CCXL_RegisterInfo *hashnext;		//next in lookup hash
@@ -198,7 +268,9 @@ char *qname;			//assigned qualified name
 char *sig;				//type signature
 char *flagstr;			//flag string
 ccxl_type type;			//assigned type
-int ucnt;				//use count
+byte ucnt;				//use count
+byte type_zb;			//type Z base
+s16 cseq;				//current sequence
 int regtype;			//register type
 int regid;				//register ID
 int validx;				//value index
@@ -218,18 +290,26 @@ BGBCC_CCXL_RegisterInfo **fields;
 BGBCC_CCXL_RegisterInfo **args;
 BGBCC_CCXL_RegisterInfo **locals;
 BGBCC_CCXL_RegisterInfo **regs;
+// u32 *regs_tyseq;
 int n_fields, m_fields;
 int n_args, m_args;
 int n_locals, m_locals;
 int n_regs, m_regs;
-int n_cargs;
+int n_cargs;		//max number of called-function arguments
 int n_eargs;		//end args
 int n_vargs;		//virtual args
+
+BGBCC_CCXL_VirtOp **vop;
+BGBCC_CCXL_VirtTr **vtr;
+int n_vop, m_vop;
+int n_vtr, m_vtr;
+// int s_vop;
 
 ccxl_register *listdata;
 int n_listdata, m_listdata;
 int gblid, regflags;
-int fxsize, fxoffs;		//fixed-format size/offset
+int fxsize;				//fixed-format size
+int fxoffs;				//fixed-format offset (frame var offset)
 int fxmsize, fxnsize;	//fixed min/max size
 int fxmalgn, fxnalgn;	//fixed min/max size
 };
@@ -248,4 +328,20 @@ struct BGBCC_CCXL_TypeOverflow_s {
 int base;
 int asz[16];
 byte pn, an;
+};
+
+struct BGBCC_CCXL_VirtOp_s {
+byte opn;
+byte opr;
+ccxl_type type;
+ccxl_type stype;
+ccxl_register dst;
+ccxl_register srca;
+ccxl_register srcb;
+ccxl_value imm;
+};
+
+struct BGBCC_CCXL_VirtTr_s {
+int b_ops;			//first opcode
+int n_ops;			//num opcodes
 };

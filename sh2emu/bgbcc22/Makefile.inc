@@ -27,7 +27,12 @@ SRCS=\
 	ccxl/ccxl_register.c \
 	ccxl/ccxl_stack.c \
 	ccxl/ccxl_struct.c \
+	ccxl/ccxl_trace.c \
 	ccxl/ccxl_type.c \
+	\
+	shcc/shx_cgif.c \
+	shcc/shx_emit.c \
+	shcc/shx_register.c \
 
 
 META_SRCS = \

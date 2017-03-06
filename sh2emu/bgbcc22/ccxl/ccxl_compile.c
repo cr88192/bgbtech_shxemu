@@ -67,7 +67,8 @@ ccxl_label BGBCC_CCXL_GenSym(BGBCC_TransState *ctx)
 	ccxl_label l;
 //	int id;
 
-	l.id=0xC00000+(ctx->gs_seq++);
+	l.id=CCXL_LBL_GENSYMBASE+(ctx->gs_seq++);
+	return(l);
 
 //	sprintf(buf, "GS%d", ctx->gs_seq++);
 //	return(bgbcc_strdup(buf));
@@ -2793,5 +2794,6 @@ char *BGBCC_CCXL_CompileModule(char *name, BCCX_Node *l)
 		return(NULL);
 	}
 
-	return(ctx->ips);
+//	return(ctx->ips);
+	return(NULL);
 }

@@ -23,6 +23,7 @@ char *bgbcc_lib[16];	//source paths
 int bgbcc_nlib;		//num source paths
 
 int bgbcc_arch;
+int bgbcc_subarch;
 
 int bgbcc_argc;
 char **bgbcc_argv;
@@ -471,33 +472,35 @@ BCCX_Node *BGBCC_LoadCSourceAST(char *name)
 	return(t);
 }
 
-int BGBCC_LoadCSourcesFRBC(
+#if 0
+// int BGBCC_LoadCSourcesCCXL(
 	char **names, int nnames,
 	byte *obuf, int *rsz)
 {
 	return(0);
 }
+#endif
 
-#if 0
-int BGBCC_LoadCSourcesFRBC(
+#if 1
+int BGBCC_LoadCSourcesCCXL(
 	char **names, int nnames,
-	byte *obuf, int *rsz)
+	byte *obuf, int *rsz, fourcc imgfmt)
 {
-	BGBCC_FrCC_State *ctx;
+	BGBCC_TransState *ctx;
 	BCCX_Node *t, *c, *n;
 	int i, sz, omsz;
 
 	omsz=*rsz;
 
-	ctx=bgbcc_malloc(sizeof(BGBCC_FrCC_State));
-	memset(ctx, 0, sizeof(BGBCC_FrCC_State));
+	ctx=bgbcc_malloc(sizeof(BGBCC_TransState));
+	memset(ctx, 0, sizeof(BGBCC_TransState));
 
 	for(i=0; i<nnames; i++)
 	{
-		printf("BGBCC_LoadCSourcesFRBC: %s\n", names[i]);
+		printf("BGBCC_LoadCSourcesCCXL: %s\n", names[i]);
 		t=BGBCC_LoadCSourceAST(names[i]);
 		if(!t)continue;
-		BGBCC_FrCC_CompileModuleCTX(ctx, names[i], t);
+		BGBCC_CCXL_CompileModuleCTX(ctx, names[i], t);
 		BCCX_DeleteTree(t);
 		
 		c=ctx->reduce_tmp;
@@ -510,16 +513,22 @@ int BGBCC_LoadCSourcesFRBC(
 		}
 	}
 
-	sz=BGBCC_FrBC_FlattenImage(ctx, obuf, omsz);
-	if(sz<0)return(-1);
+//	sz=BGBCC_FrBC_FlattenImage(ctx, obuf, omsz);
+
+	sz=omsz;
+	i=BGBCC_CCXL_FlattenImage(ctx, obuf, &sz, imgfmt);
+	if(i<0)return(i);
 	if(*rsz)*rsz=sz;
 	return(0);
 }
 #endif
 
 
-int BGBCC_GetArch()
+u32 BGBCC_GetArch()
 	{ return(bgbcc_arch); }
+
+u32 BGBCC_GetSubArch()
+	{ return(bgbcc_subarch); }
 
 int BGBCC_LoadConfig(char *name)
 {
@@ -561,6 +570,16 @@ int BGBCC_LoadConfig(char *name)
 				{ ccAddDefineString(a[i]); }
 			continue;
 		}
+
+		if(!strcmp(a[0], "arch"))
+		{
+			bgbcc_arch=BGBCP_ArchForName(a[1]);
+			if(a[2])
+				{ bgbcc_subarch=BGBCP_SubArchForName(bgbcc_arch, a[2]); }
+			else
+				{ bgbcc_subarch=BGBCP_SubArchForName(bgbcc_arch, a[1]); }
+			continue;
+		}
 	}
 	
 	return(0);
@@ -574,7 +593,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	int inc_ok;
 	int i, m;
 	char *s, *t;
-	char *mach_name, *gcc_ver, *home, *base;
+	char *mach_name, *gcc_ver, *home, *base, *cfg;
 //#ifdef linux
 //	struct utsname utsbuf;
 //#endif
@@ -583,6 +602,9 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	init=1;
 
 	mach_name=NULL; gcc_ver=NULL;
+	cfg=NULL;
+
+#if 0
 #ifdef __GNUC__
 	sprintf(buf, "%d.%d.%d",
 		__GNUC__,  __GNUC_MINOR__,  __GNUC_PATCHLEVEL__);
@@ -595,6 +617,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 #define MKSTR(arg) #arg
 	mach_name=MACHTYPE;
 	printf("MachName=%s\n", mach_name);
+#endif
 #endif
 
 	m=0;
@@ -616,6 +639,18 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 			if(!strncmp(argv[i], "/Fi", 3))
 			{
 				m|=64;
+				continue;
+			}
+
+			if(!strncmp(argv[i], "/m", 2))
+			{
+				mach_name=argv[i]+2;
+				continue;
+			}
+
+			if(!strncmp(argv[i], "/cfg=", 5))
+			{
+				cfg=argv[i]+5;
 				continue;
 			}
 
@@ -650,6 +685,18 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 				ccAddDefineString(argv[i]+2);
 				continue;
 			}
+			
+			if(!strncmp(argv[i], "-m", 2))
+			{
+				mach_name=argv[i]+2;
+				continue;
+			}
+
+			if(!strncmp(argv[i], "-cfg=", 5))
+			{
+				cfg=argv[i]+5;
+				continue;
+			}
 
 			continue;
 		}
@@ -662,7 +709,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	for(i=0; env[i]; i++)
 	{
 //		printf("ENV %s\n", env[i]);
-#if 1
+#if 0
 //		if(!(m&32) && !(m&64) && 
 		if(
 			!strnicmp(env[i], "Include=", strlen("Include=")))
@@ -735,7 +782,23 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 		}
 	}
 
-#ifdef linux
+	if(cfg)
+	{
+		if((*cfg!='/') && (*cfg!='\\'))
+			{ sprintf(buf, "%s/%s", base, cfg); }
+		else
+			{ strcpy(buf, cfg); }
+		BGBCC_LoadConfig(buf);
+	}
+
+	if(mach_name)
+	{
+		bgbcc_arch=BGBCP_ArchForName(mach_name);
+		bgbcc_subarch=BGBCP_SubArchForName(bgbcc_arch, mach_name);
+	}
+
+// #ifdef linux
+#if 0
 	if(gcc_ver && mach_name && !(m&64))
 	{
 		sprintf(buf, "/usr/lib/gcc/%s/%s/include", mach_name, gcc_ver);
@@ -756,6 +819,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	inc_ok=1;
 #endif
 
+#if 0
 	if(!inc_ok)
 	{
 		BGBPP_AddIncludePathFront("cc_usr/include");
@@ -764,6 +828,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 //		BGBPP_AddIncludePathFront("include");
 //		BGBPP_AddIncludePathFront("");
 	}
+#endif
 
 	BGBPP_AddStaticDefine(NULL, "_BGBMETA", "");
 
@@ -772,7 +837,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	BGBPP_AddStaticDefine(NULL, "__TIME__", "\"23:59:59\"");
 
 //	if(!(m&64))
-	if(1)
+	if(0)
 	{
 #ifdef _WIN32
 		BGBPP_AddStaticDefine(NULL, "_WIN32", "");
@@ -900,6 +965,7 @@ int main(int argc, char *argv[], char **env)
 	byte *obuf;
 	void *p;
 	char *s, *t, *s0;
+	fourcc fmt;
 	int n, m, nuds, nargs, nadds;
 	int t0, dt, te, sz;
 	int i, j;
@@ -1000,8 +1066,11 @@ int main(int argc, char *argv[], char **env)
 
 	if(frbcfn)
 	{
+//		fmt=BGBCC_IMGFMT_OBJ;
+		fmt=BGBCP_ImageFormatForName(frbcfn);
+	
 		obuf=malloc(1<<26); sz=1<<26;
-		i=BGBCC_LoadCSourcesFRBC(uds, nuds, obuf, &sz);
+		i=BGBCC_LoadCSourcesCCXL(uds, nuds, obuf, &sz, fmt);
 		if(i>=0)BGBCC_StoreFile(frbcfn, obuf, sz);
 	}else
 	{

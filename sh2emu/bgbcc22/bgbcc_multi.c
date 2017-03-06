@@ -74,6 +74,9 @@
 #include "mm/ccl_coff.c"
 #include "mm/ccl_elf.c"
 
+#include "mm/dyll_metapath.c"
+#include "mm/dyll_metabin.c"
+
 
 #include "ccxl/ccxl_cgif.c"
 #include "ccxl/ccxl_compile.c"
@@ -86,8 +89,11 @@
 #include "ccxl/ccxl_register.c"
 #include "ccxl/ccxl_stack.c"
 #include "ccxl/ccxl_struct.c"
+#include "ccxl/ccxl_trace.c"
 #include "ccxl/ccxl_type.c"
 
-#include "mm/dyll_metapath.c"
-#include "mm/dyll_metabin.c"
+#include "shcc/shx_cgif.c"
+#include "shcc/shx_emit.c"
+#include "shcc/shx_register.c"
+
 #include "bgbmeta.c"

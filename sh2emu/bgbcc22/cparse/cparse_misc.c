@@ -194,7 +194,7 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 
 #endif
 
-int BGBCP_LangForName(char *name)
+fourcc BGBCP_LangForName(char *name)
 {
 	int lang;
 	char *s;
@@ -275,7 +275,7 @@ char *BGBCP_NameForLang(int lang)
 	return(s);
 }
 
-int BGBCP_ArchForName(char *name)
+fourcc BGBCP_ArchForName(char *name)
 {
 	int i;
 	char *s;
@@ -300,24 +300,83 @@ int BGBCP_ArchForName(char *name)
 	if(!strcmp(name, "PPC"))	i=BGBCC_ARCH_PPC;
 	if(!strcmp(name, "PPC64"))	i=BGBCC_ARCH_PPC64;
 
+	if(!strcmp(name, "SH2"))	i=BGBCC_ARCH_SH;
+	if(!strcmp(name, "SH4"))	i=BGBCC_ARCH_SH;
+
 	return(i);
 }
 
-char *BGBCP_NameForArch(int arch)
+fourcc BGBCP_SubArchForName(int arch, char *name)
+{
+	int i;
+
+	i=0;
+
+	if(!strcmp(name, "SH2"))	i=BGBCC_ARCH_SH_SH2;
+	if(!strcmp(name, "SH4"))	i=BGBCC_ARCH_SH_SH4;
+
+	return(i);
+}
+
+char *BGBCP_NameForArch(fourcc arch)
 {
 	char *s;
 	
 	switch(arch)
 	{
 	case BGBCC_ARCH_DEFAULT: s="default"; break;
-	case BGBCC_ARCH_X86: s="x86"; break;
-	case BGBCC_ARCH_X64: s="x64"; break;
-	case BGBCC_ARCH_ARM: s="ARM"; break;
-	case BGBCC_ARCH_PPC: s="PPC"; break;
+	case BGBCC_ARCH_X86:	s="x86"; break;
+	case BGBCC_ARCH_X64:	s="x64"; break;
+	case BGBCC_ARCH_ARM:	s="ARM"; break;
+	case BGBCC_ARCH_PPC:	s="PPC"; break;
+	case BGBCC_ARCH_SH:		s="SH"; break;
+	case BGBCC_ARCH_SH64:	s="SH64"; break;
 
 	default: s="unknown"; break;
 	}
 	return(s);
+}
+
+char *BGBCP_NameForSubArch(fourcc arch, fourcc subarch)
+{
+	char *s;
+	
+	switch(arch)
+	{
+	default:
+		s=NULL; break;
+	}
+	return(s);
+}
+
+fourcc BGBCP_ImageFormatForName(char *name)
+{
+	u32 fmt;
+	char *s;
+
+	fmt=0;
+
+	if(name)
+	{
+		if(!bgbcc_stricmp(name, "O"))fmt=BGBCC_IMGFMT_OBJ;
+		if(!bgbcc_stricmp(name, "OBJ"))fmt=BGBCC_IMGFMT_OBJ;
+		if(!bgbcc_stricmp(name, "EXE"))fmt=BGBCC_IMGFMT_EXE;
+		if(!bgbcc_stricmp(name, "DLL"))fmt=BGBCC_IMGFMT_DLL;
+		if(fmt)return(fmt);
+
+		s=name+strlen(name);
+		while((s>name) && (*s!='.'))s--;
+
+		if(!bgbcc_stricmp(s, ".o"))fmt=BGBCC_IMGFMT_OBJ;
+		if(!bgbcc_stricmp(s, ".obj"))fmt=BGBCC_IMGFMT_OBJ;
+
+		if(!bgbcc_stricmp(s, ".exe"))fmt=BGBCC_IMGFMT_EXE;
+		if(!bgbcc_stricmp(s, ".dll"))fmt=BGBCC_IMGFMT_DLL;
+		if(!bgbcc_stricmp(s, ".elf"))fmt=BGBCC_IMGFMT_EXE;
+		if(!bgbcc_stricmp(s, ".so"))fmt=BGBCC_IMGFMT_DLL;
+	}
+	
+	return(fmt);
 }
 
 BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
@@ -326,9 +385,11 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 //	VFILE *fd;
 	BGBCP_ParseState *ctx;
 	char *tbuf, *s;
-	BCCX_Node *n, *n1, *n2;
+	BCCX_Node *n, *n1, *n2, *c;
 	int t0, t1, dt, lang, pprs;
 	int i, j, k;
+
+	BGBCC_CCXL_InitTargets();
 
 	lang=BGBCP_LangForName(name);
 	if(!lang)return(NULL);
@@ -349,6 +410,9 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 
 	ctx->lang=lang;
 	ctx->arch=BGBCC_GetArch();
+	ctx->subarch=BGBCC_GetSubArch();
+	
+	BGBCC_CCXL_SetupParserForArch(ctx);
 
 	t0=clock();
 
@@ -409,7 +473,21 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 	s=BGBCP_NameForArch(ctx->arch);
 	BCCX_Set(n, "arch", s);
 
+	s=BGBCP_NameForSubArch(ctx->arch, ctx->subarch);
+	if(s)
+		BCCX_Set(n, "subarch", s);
+
 	free(tbuf);
+
+	c=ctx->reduce_tmp;
+	ctx->reduce_tmp=NULL;
+	while(c)
+	{
+		n1=c->hnext;
+		BCCX_DeleteTree(c);
+		c=n1;
+	}
+
 
 	return(n);
 }

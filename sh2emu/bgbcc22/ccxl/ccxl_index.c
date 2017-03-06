@@ -272,6 +272,14 @@ int BGBCC_CCXL_TryGetSizeofType(BGBCC_TransState *ctx, BCCX_Node *ty)
 	if(!ctx)return(-1);
 	if(!ty)return(-1);
 
+	i=BCCX_GetInt(ty, "ind");
+	if(i)
+	{
+		if(ctx->arch_sizeof_ptr)
+			return(ctx->arch_sizeof_ptr);
+		return(-1);
+	}
+
 	s=NULL;
 	s=BCCX_Get(ty, "name");
 
@@ -287,7 +295,12 @@ int BGBCC_CCXL_TryGetSizeofType(BGBCC_TransState *ctx, BCCX_Node *ty)
 //	if(ctx->arch==BGBCC_ARCH_X86)
 	if(1)
 	{
-		if(!strcmp(s, "long"))return(4);
+		if(!strcmp(s, "long"))
+		{
+			if(ctx->arch_sizeof_long)
+				return(ctx->arch_sizeof_long);
+			return(4);
+		}
 	}
 
 //	if(ctx->arch==BGBCC_ARCH_X64)
@@ -352,7 +365,7 @@ int BGBCC_CCXL_TryGetSizeofName(BGBCC_TransState *ctx, char *name)
 	char *s;
 	int i;
 
-	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, &treg);
+	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, &treg, false);
 	if(i<=0)return(-1);
 
 	ty=BGBCC_CCXL_GetRegType(ctx, treg);
@@ -379,7 +392,7 @@ int BGBCC_CCXL_GetMinMaxSizeofName(BGBCC_TransState *ctx, char *name,
 	char *s;
 	int i;
 
-	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, &treg);
+	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, &treg, false);
 	if(i<=0)return(-1);
 
 	ty=BGBCC_CCXL_GetRegType(ctx, treg);
@@ -409,7 +422,7 @@ int BGBCC_CCXL_GetMinMaxSizeofDerefName(BGBCC_TransState *ctx, char *name,
 	char *s;
 	int i;
 
-	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, &treg);
+	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, &treg, false);
 	if(i<=0)return(-1);
 
 	ty=BGBCC_CCXL_GetRegDerefType(ctx, treg);

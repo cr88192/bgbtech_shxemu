@@ -3,7 +3,23 @@
  */
 
 #define BGBCC_SH_REG_R0			0x00
+#define BGBCC_SH_REG_R1			0x01
+#define BGBCC_SH_REG_R2			0x02
+#define BGBCC_SH_REG_R3			0x03
+#define BGBCC_SH_REG_R4			0x04
+#define BGBCC_SH_REG_R5			0x05
+#define BGBCC_SH_REG_R6			0x06
+#define BGBCC_SH_REG_R7			0x07
+#define BGBCC_SH_REG_R8			0x08
+#define BGBCC_SH_REG_R9			0x09
+#define BGBCC_SH_REG_R10		0x0A
+#define BGBCC_SH_REG_R11		0x0B
+#define BGBCC_SH_REG_R12		0x0C
+#define BGBCC_SH_REG_R13		0x0D
+#define BGBCC_SH_REG_R14		0x0E
+#define BGBCC_SH_REG_R15		0x0F
 
+#define BGBCC_SH_REG_BP			0x0E
 #define BGBCC_SH_REG_SP			0x0F
 
 #define BGBCC_SH_REG_SR			0x10
@@ -134,6 +150,11 @@
 #define BGBCC_SH_NMID_INVDLY		0x60	//
 #define BGBCC_SH_NMID_CLRS			0x61	//
 #define BGBCC_SH_NMID_SETS			0x62	//
+#define BGBCC_SH_NMID_NOTT			0x63	//
+#define BGBCC_SH_NMID_LDTLB			0x64	//
+#define BGBCC_SH_NMID_BRK			0x65	//
+#define BGBCC_SH_NMID_MOVRT			0x66	//
+#define BGBCC_SH_NMID_MOVCAL		0x67	//
 
 #define BGBCC_SH_NMID_FABS			0x80	//
 #define BGBCC_SH_NMID_FADD			0x81	//
@@ -157,7 +178,7 @@
 #define BGBCC_SH_NMID_FSTS			0x93	//
 #define BGBCC_SH_NMID_FSUB			0x94	//
 #define BGBCC_SH_NMID_FTRC			0x95	//
-#define BGBCC_SH_NMID_MOVCAL		0x96	//
+#define BGBCC_SH_NMID_FSRRA			0x96	//
 
 #define BGBCC_SH_NMID_MOVI			0xC0	//
 #define BGBCC_SH_NMID_MOVIV			0xC1	//
@@ -200,15 +221,15 @@
 #define BGBCC_SH_FMID_DREGRN		0x1A	//FRn
 
 
-#define BGBCC_SH_RLC_REL8			0x01	//
-#define BGBCC_SH_RLC_REL16			0x02	//
-#define BGBCC_SH_RLC_REL32			0x03	//
-#define BGBCC_SH_RLC_ABS8			0x04	//
-#define BGBCC_SH_RLC_ABS16			0x05	//
-#define BGBCC_SH_RLC_ABS32			0x06	//
-#define BGBCC_SH_RLC_ABS64			0x07	//
-#define BGBCC_SH_RLC_RELW12			0x08	//
-#define BGBCC_SH_RLC_RELW8			0x09	//
+#define BGBCC_SH_RLC_REL8			0x01	//Relative BYTE
+#define BGBCC_SH_RLC_REL16			0x02	//Relative WORD
+#define BGBCC_SH_RLC_REL32			0x03	//Relative DWORD
+#define BGBCC_SH_RLC_ABS8			0x04	//Absolute BYTE (Low 8 bits)
+#define BGBCC_SH_RLC_ABS16			0x05	//Absolute WORD (Low 16 bits)
+#define BGBCC_SH_RLC_ABS32			0x06	//Absolute DWORD
+#define BGBCC_SH_RLC_ABS64			0x07	//Absolute QWORD
+#define BGBCC_SH_RLC_RELW12			0x08	//Relative Low 12 bits (WORD)
+#define BGBCC_SH_RLC_RELW8			0x09	//Relative Low 8 bit (WORD)
 
 #define BGBCC_SH_CSEG_TEXT		0x00		//.text section
 #define BGBCC_SH_CSEG_DATA		0x01		//.data section
@@ -216,6 +237,14 @@
 
 #define BGBCC_SH_CSEG_DYN		0x04		//.bss section
 
+#define BGBCC_SH_REGCLS_NONE	0
+#define BGBCC_SH_REGCLS_GR		1	//uses a GPR
+#define BGBCC_SH_REGCLS_GR2		2	//uses a pair of GPRs
+#define BGBCC_SH_REGCLS_FR		3	//uses a FR
+#define BGBCC_SH_REGCLS_FR2		4	//uses a pair of FRs
+
+
+#define BGBCC_SH_MAX_CACHEVAR 5
 
 typedef struct BGBCC_SHX_Context_s BGBCC_SHX_Context;
 typedef struct BGBCC_SHX_OpcodeArg_s BGBCC_SHX_OpcodeArg;
@@ -228,10 +257,13 @@ byte *sec_pos[8];
 byte sec;
 byte nsec;
 
+byte is_le;			//is little endian
+byte use_bp;		//use frame pointer
+
 int lbl_ofs[256];	//label offsets
 int rlc_ofs[256];	//reloc offsets
-u16 lbl_id[256];	//label IDs
-u16 rlc_id[256];	//reloc label IDs
+u32 lbl_id[256];	//label IDs
+u32 rlc_id[256];	//reloc label IDs
 byte lbl_sec[256];	//label section
 byte rlc_sec[256];	//reloc section
 byte rlc_ty[256];	//reloc type
@@ -249,14 +281,27 @@ int ofs_s16tab[256];
 int ofs_s32tab[256];
 byte idx_s16tab[256];
 byte idx_s32tab[256];
+
 s16 const_s16tab[256];
 s32 const_s32tab[256];
+u32 const_s16tab_rlc[256];	//reloc label type+ID
+u32 const_s32tab_rlc[256];	//reloc label type+ID
 byte const_ns16;
 byte const_ns32;
 byte nofs_s16tab;
 byte nofs_s32tab;
 
 int jitfl;
+
+ccxl_register regalc_map[6];
+byte regalc_ltcnt[6];	//lifetime count (who to evict)
+byte regalc_utcnt[6];	//current use count (0=unused)
+byte regalc_save;		//register has been saved and may hold a value
+byte regalc_live;		//register is currently holding a value
+
+int frm_size;			//allocated size of frame
+int frm_offs_lcl;		//frame offset of local vars
+int frm_offs_tmp;		//frame offset of temporaries
 
 BGBCC_SHX_Context *next;
 };

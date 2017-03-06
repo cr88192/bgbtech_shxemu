@@ -1,0 +1,38 @@
+BGBCC SH ABI (32-bit)
+* Will be similar to the standard SH ABI, but may deviate on some points.
+
+Data Representation:
+* Data may be either big-endian or little-endian.
+* 64-bit members will have 32-bit alignment.
+
+Register Use:
+* R0/R1: Scratch, Return Value A/B
+* R2: Scratch, Return Struct Address
+* R3: Scratch
+* R4.. R7: Scratch, Function Arg A/B/C/D
+* R8..R11: Preserve
+* R12: Context Pointer (GOT)
+* R13: Preserve
+* R14: Preserve, Frame Pointer
+* R15: Stack Pointer
+* FR0 .. FR3: Scratch, Float Return
+* FR4 ..FR11: Scratch, Float Arguments
+* FR12..FR15: Preserve
+
+Argument Passing:
+* If a 64 bit member is passed, it will use a pair of registers.
+* If not enough registers exist for a 64-bit member, it is passed on the stack.
+** It will be passed entirely on the stack if only one register remains.
+* Stack arguments will be passed with the first non-register argument.
+* FPU registers will only be used on targets with native FPU.
+** Non-FPU cases will pass floating-point arguments in integer registers.
+
+Structure Passing
+* Specifics here will differ from the normal SH ABI.
+* Structs will be passed either in registers or by reference.
+* If it fits within 8 bytes, it will be passed in registers.
+** If it fits within 4 bytes, it will use a single register.
+** As with other arguments, will be passed on the stack as-needed.
+* If it is over 8 bytes, it will be passed by reference.
+* Mixed or integer only structs are passed in integer registers.
+* Float or double only structs are passed in float registers.

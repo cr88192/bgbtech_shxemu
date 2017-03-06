@@ -440,7 +440,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 				ctx->regstackpos=0;
 				ctx->uregstackpos=0;
 				ctx->markstackpos=0;
-				ctx->ip=ctx->ips;
+//				ctx->ip=ctx->ips;
 				ctx->n_goto=0;
 				ctx->n_lbl=0;
 				return;
@@ -463,7 +463,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 //				obj->decl->n_args=0;
 				obj->decl->n_vargs=0;
 
-				ctx->ip=ctx->ips;
+//				ctx->ip=ctx->ips;
 				ctx->n_goto=0;
 				ctx->n_lbl=0;
 
@@ -490,7 +490,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 //				obj->decl->n_args=0;
 				obj->decl->n_vargs=0;
 
-				ctx->ip=ctx->ips;
+//				ctx->ip=ctx->ips;
 				ctx->n_goto=0;
 				ctx->n_lbl=0;
 
@@ -622,7 +622,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		ctx->regstackpos=0;
 		ctx->uregstackpos=0;
 		ctx->markstackpos=0;
-		ctx->ip=ctx->ips;
+//		ctx->ip=ctx->ips;
 		ctx->n_goto=0;
 		ctx->n_lbl=0;
 		break;
@@ -645,7 +645,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		obj->decl->regtype=CCXL_LITID_FUNCTION;
 		BGBCC_CCXL_AddGlobalDecl(ctx, obj->decl);
 
-		ctx->ip=ctx->ips;
+//		ctx->ip=ctx->ips;
 		ctx->n_goto=0;
 		ctx->n_lbl=0;
 		break;
@@ -683,9 +683,11 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		ctx->cur_func=obj->parent->decl;
 		ctx->regstackpos=0;
 		ctx->markstackpos=0;
-		ctx->ip=ctx->ips;
+//		ctx->ip=ctx->ips;
 		ctx->n_goto=0;
 		ctx->n_lbl=0;
+		ctx->n_vop=0;
+		ctx->n_vtr=0;
 		break;
 
 	default:
@@ -755,6 +757,35 @@ void BGBCC_CCXL_EndFunction(BGBCC_TransState *ctx,
 		obj->decl->flagstr=obj->decl->defv->flagstr;
 	}
 
+	if(ctx->back_vt && ctx->back_vt->EndFunction)
+	{
+		ctx->back_vt->EndFunction(ctx, obj);
+	}else
+	{
+#if 1
+		if(ctx->n_vop>0)
+		{
+			obj->decl->vop=bgbcc_malloc(
+				ctx->n_vop*sizeof(BGBCC_CCXL_VirtOp *));
+			obj->decl->n_vop=ctx->n_vop;
+			obj->decl->m_vop=ctx->m_vop;
+			memcpy(obj->decl->vop, ctx->vop,
+				ctx->n_vop*sizeof(BGBCC_CCXL_VirtOp *));
+		}
+
+		if(ctx->n_vtr>0)
+		{
+			obj->decl->vtr=bgbcc_malloc(
+				ctx->n_vtr*sizeof(BGBCC_CCXL_VirtTr *));
+			obj->decl->n_vtr=ctx->n_vtr;
+			obj->decl->m_vtr=ctx->m_vtr;
+			memcpy(obj->decl->vtr, ctx->vtr,
+				ctx->n_vtr*sizeof(BGBCC_CCXL_VirtTr *));
+		}
+#endif
+	}
+
+#if 0
 	if(ctx->ip!=ctx->ips)
 	{
 		i=ctx->ip-ctx->ips;
@@ -764,6 +795,7 @@ void BGBCC_CCXL_EndFunction(BGBCC_TransState *ctx,
 	
 //		BGBCC_CCXL_DbgDisAsmFunction(ctx, obj);
 	}
+#endif
 }
 
 void BGBCC_CCXL_End(BGBCC_TransState *ctx)

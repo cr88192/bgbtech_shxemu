@@ -240,7 +240,23 @@ int BGBCC_CCXL_LookupAsRegister(BGBCC_TransState *ctx,
 {
 	int i;
 
-	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, rreg);
+	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, rreg, false);
+	if(i>0)return(i);
+
+	BGBCC_CCXL_Error(ctx, "Undeclared Variable '%s'\n", name);
+
+	BGBCC_CCXL_TagError(ctx,
+		CCXL_TERR_STATUS(CCXL_STATUS_NO));
+
+	return(CCXL_STATUS_NO);
+}
+
+int BGBCC_CCXL_LookupAsRegisterStore(BGBCC_TransState *ctx,
+	char *name, ccxl_register *rreg)
+{
+	int i;
+
+	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, rreg, true);
 	if(i>0)return(i);
 
 	BGBCC_CCXL_Error(ctx, "Undeclared Variable '%s'\n", name);
@@ -252,18 +268,22 @@ int BGBCC_CCXL_LookupAsRegister(BGBCC_TransState *ctx,
 }
 
 int BGBCC_CCXL_TryLookupAsRegister(BGBCC_TransState *ctx,
-	char *name, ccxl_register *rreg)
+	char *name, ccxl_register *rreg, bool store)
 {
 	ccxl_register treg;
 	ccxl_type ty;
-	int i;
+	int i, j;
 
 	i=BGBCC_CCXL_LookupLocalIndex(ctx, name);
 	if(i>=0)
 	{
+		if(store)
+			ctx->cur_func->locals[i]->cseq++;
+	
 		ty=ctx->cur_func->locals[i]->type;
+		j=i|((ctx->cur_func->locals[i]->cseq&4095)<<12);
 		treg.val=CCXL_REGTY_LOCAL|
-			(((s64)ty.val)<<CCXL_REGID_TYPESHIFT)|i;
+			(((s64)ty.val)<<CCXL_REGID_TYPESHIFT)|j;
 		BGBCC_CCXL_RegisterCheckAcquire(ctx, treg);
 		*rreg=treg;
 		return(CCXL_STATUS_YES);
@@ -272,9 +292,13 @@ int BGBCC_CCXL_TryLookupAsRegister(BGBCC_TransState *ctx,
 	i=BGBCC_CCXL_LookupArgIndex(ctx, name);
 	if(i>=0)
 	{
+		if(store)
+			ctx->cur_func->args[i]->cseq++;
+
 		ty=ctx->cur_func->args[i]->type;
+		j=i|((ctx->cur_func->args[i]->cseq&4095)<<12);
 		treg.val=CCXL_REGTY_ARG|
-			(((s64)ty.val)<<CCXL_REGID_TYPESHIFT)|i;
+			(((s64)ty.val)<<CCXL_REGID_TYPESHIFT)|j;
 		BGBCC_CCXL_RegisterCheckAcquire(ctx, treg);
 		*rreg=treg;
 		return(CCXL_STATUS_YES);
@@ -367,7 +391,7 @@ ccxl_status BGBCC_CCXL_PopStore(BGBCC_TransState *ctx, char *name)
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "Store", __FILE__, __LINE__);
 
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
-	j=BGBCC_CCXL_LookupAsRegister(ctx, name, &dreg);
+	j=BGBCC_CCXL_LookupAsRegisterStore(ctx, name, &dreg);
 	if((i<0) || (j<=0))
 	{
 		if(!j)return(CCXL_STATUS_ERR_LOOKUPFAIL);
@@ -408,6 +432,10 @@ int BGBCC_CCXL_StackGetCntCallArgs(BGBCC_TransState *ctx)
 	int ms, n;
 	ms=ctx->markstack[ctx->markstackpos-1];
 	n=ctx->regstackpos-ms;
+	
+	if(n>ctx->cur_func->n_cargs)
+		ctx->cur_func->n_cargs=n;
+
 	return(n);
 }
 
