@@ -499,6 +499,7 @@ BCCX_Node *BGBCP_Definition(BGBCP_ParseState *ctx, char **str)
 	char b[256];
 	char *s, *s2;
 	BCCX_Node *n, *n1, *n2;
+	int tk0, tk1, tk2;
 	int i, ty;
 
 //	if(	(ctx->lang==BGBCC_LANG_JAVA) ||
@@ -581,10 +582,16 @@ BCCX_Node *BGBCP_Definition(BGBCP_ParseState *ctx, char **str)
 				n=BCCX_Clone(n1);
 				BCCX_CheckDeleteUnlinked(n1);
 
+				tk0=BGBCP_GetTokenCount();
 				n1=BGBCP_BlockStatement2(ctx, &s2);
+				tk1=BGBCP_GetTokenCount();
 
 				BCCX_SetTag(n, "defun");
 				BCCX_AddV(n, BCCX_New1V("body", n1));
+
+				tk2=tk1-tk0;
+				if(tk2>0)
+					BCCX_SetInt(n, "tokens", tk2);
 
 				*str=s2;
 				return(n);
@@ -609,6 +616,7 @@ BCCX_Node *BGBCP_ForceDefinition(BGBCP_ParseState *ctx, char **str)
 	char b[256];
 	char *s, *s2;
 	BCCX_Node *n, *n1, *n2;
+	int tk0, tk1, tk2;
 	int i, ty;
 
 //	if(	(ctx->lang==BGBCC_LANG_JAVA) ||
@@ -673,10 +681,17 @@ BCCX_Node *BGBCP_ForceDefinition(BGBCP_ParseState *ctx, char **str)
 
 				n=BCCX_Clone(n1);
 				BCCX_CheckDeleteUnlinked(n1);
+
+				tk0=BGBCP_GetTokenCount();
 				n1=BGBCP_BlockStatement2(ctx, &s2);
+				tk1=BGBCP_GetTokenCount();
 
 				BCCX_SetTag(n, "defun");
 				BCCX_AddV(n, BCCX_New1V("body", n1));
+
+				tk2=tk1-tk0;
+				if(tk2>0)
+					BCCX_SetInt(n, "tokens", tk2);
 
 				*str=s2;
 				return(n);

@@ -284,6 +284,10 @@ extern "C" {
 
 #endif
 
+
+
+#include <bgbcc_endian.h>
+
 #include <bgbcc_xml.h>
 
 #ifdef BGBCC_BGBMETA
@@ -357,11 +361,16 @@ byte i_cap;	//infer: guess as to whether or not there is var capture
 char *cf_n;
 BCCX_Node *cf_ty;
 
-ccxl_label *goto_name;
-byte **goto_dest;
-ccxl_label *lbl_name;
-byte **lbl_dest;
-int n_goto, n_lbl;
+//ccxl_label *goto_name;
+//byte **goto_dest;
+//ccxl_label *lbl_name;
+//byte **lbl_dest;
+//int n_goto, n_lbl;
+
+char **goto_name;
+ccxl_label *goto_lbl;
+int n_goto, m_goto;
+
 int n_warn, n_error, n_note;
 
 ccxl_label *contstack;

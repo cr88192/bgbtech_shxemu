@@ -1,5 +1,22 @@
 #include <bgbccc.h>
 
+#if 0
+BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructureForType(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	BGBCC_CCXL_LiteralInfo *obj;
+	int i;
+
+	i=BGBCC_CCXL_GetTypeBaseType(ctx, ty);
+	if(i>=256)
+	{
+		obj=ctx->literals[i-256];
+		return(obj);
+	}
+	return(NULL);
+}
+#endif
+
 BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructureForSig(
 	BGBCC_TransState *ctx, char *sig)
 {
@@ -310,7 +327,10 @@ ccxl_status BGBCC_CCXL_GetSigFixedSize(
 	case 'i':	case 'j':
 		sz=4;	break;
 	case 'l':	case 'm':
-		sz=4;	break;
+		if(ctx->arch_sizeof_long)
+			{ sz=ctx->arch_sizeof_long; break; }
+		sz=4;
+		break;
 	case 's':	case 't':
 	case 'w':	case 'k':
 		sz=2;	break;
@@ -320,8 +340,8 @@ ccxl_status BGBCC_CCXL_GetSigFixedSize(
 		sz=4;	break;
 	case 'd':
 		sz=8;	break;
-	case 'P':
-		sz=4;	break;
+//	case 'P':
+//		sz=4;	break;
 	case 'A':
 		s=sig+1; na=0; i=0;
 		while(*s)
@@ -341,6 +361,13 @@ ccxl_status BGBCC_CCXL_GetSigFixedSize(
 			j*=asz[i];
 		sz=j*sz;
 		break;
+
+	case 'P':
+		if(ctx->arch_sizeof_ptr)
+			{ sz=ctx->arch_sizeof_ptr; break; }
+		sz=4;
+		break;
+
 	case 'X':
 		BGBCC_CCXL_GetStructSigFixedSize(ctx, sig, &sz);
 		break;

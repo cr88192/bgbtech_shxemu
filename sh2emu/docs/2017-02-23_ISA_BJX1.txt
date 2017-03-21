@@ -133,6 +133,18 @@ Instructions precded with '!' are extensions specific to this VM.
 * '!?', possible, but debatable.
 * '!!', very uncertain.
 
+SHAD/SHLD Shift (32-bit Mode)
+* 000n-nnnn		//Shift Left N bits
+* 111n-nnnn		//Shift Right (32-N) bits
+* 1110-0000		//All bits are bit 31
+
+SHAD/SHLD Shift (64-bit Mode)
+* 00nn-nnnn		//Shift Left N bits
+* 010n-nnnn		//Shift Left N bits and sign/zero extend
+* 100n-nnnn		//Shift Right (64-N) bits and sign/zero extend
+* 1000-0000		//All bits are bit 31
+* 11nn-nnnn		//Shift Right (64-N) bits
+* 1100-0000		//All bits are bit 63
 
 
 * 0---
@@ -414,7 +426,7 @@ Instructions precded with '!' are extensions specific to this VM.
 **	8Fdd BFS label
 * 9ndd MOV.W/Q @(PC,disp), Rn
 **	BJX32: Load WORD from PC+4+disp*2
-**	BJX64: Load QWORD from PC+4+disp*8 (QWORD Aligned)
+**	BJX64: Load QWORD from PC+4+disp*8 (DWORD Aligned)
 * Addd BRA label
 * Bddd BSR label
 * C---
@@ -537,6 +549,10 @@ XPFX0/Escape32 I-Forms
 **		8Edd-0nm5 MOV.W Rm, @(Rn,R0,disp)	//Move Word Rm to R0+Rn
 **		8Edd-0nm6 MOV.L Rm, @(Rn,R0,disp)	//Rn+R0+disp*4
 **		8Edd-0nm7 MOV.Q Rm, @(Rn,R0,disp)	//Rn+R0+disp*8
+**      8Eoo-0oo8 (Resv Ext No-Arg Ops)
+**      8Eno-0oo9 (Resv Ext Unary Ops)
+**      8Enm-0ooA Resv
+**      8Enm-0ooB (Resv Ext Binary Ops)
 **		8Edd-0nmC MOV.B @(Rm,R0,disp), Rn	//Load Byte From R0+Rm into Rn
 **		8Edd-0nmD MOV.W @(Rm,R0,disp), Rn	//Load Word From R0+Rm into Rn
 **		8Edd-0nmE MOV.L @(Rm,R0,disp), Rn	//Load DWord
@@ -557,12 +573,29 @@ XPFX0/Escape32 I-Forms
 **		8Eii-3ni1 (RESV 48/64)
 **		8Eii-3ni2 CMPHS #imm12, Rn			//Compare for unsigned Greater/Equal
 **		8Eii-3ni3 CMPGE #imm12, Rn			//Compare for signed Greater/Equal
+**		8Edd-3nm4 -
+**		8Edd-3nm5 -
 **		8Eii-3ni6 CMPHI #imm12, Rn			//Compare for unsigned Greater
 **		8Eii-3ni7 CMPGT #imm12, Rn			//Compare for signed Greater
-
 **		8Eii-3nm8 SUB Rm, #imm8, Rn			//Rn=Rm-Imm8
+**		8Eii-3ni9 (RESV 48/64)
+**		8Edd-3nmA -
+**		8Edd-3nmB LEA.L/Q @(Rm,disp), Rn	//
 **		8Eii-3nmC ADD Rm, #imm8, Rn			//Rn=Rm+Imm8
+**		8Edd-3nmD -
+**		8Edd-3nmE -
+**		8Edd-3nmF -
 *	4---
+
+**		8Eii-4m84 MOV.B #imm, @Rn			//Store Imm to memory
+**		8Eii-4m94 MOV.W #imm, @Rn			//
+**		8Eii-4mA4 MOV.L #imm, @Rn			//
+**		8Eii-4mB4 MOV.Q #imm, @Rn			//
+**		8Eii-4mC4 MOV.B #imm, @-Rn			//Store Imm to memory (Dec)
+**		8Eii-4mD4 MOV.W #imm, @-Rn			//
+**		8Eii-4mE4 MOV.L #imm, @-Rn			//
+**		8Eii-4mF4 MOV.Q #imm, @-Rn			//
+
 **		8Eii-4nmC SHAD Rm, #imm, Rn			//Rn=Rm SAL Imm8 | Rn=Rm SAR Imm8
 **		8Eii-4nmD SHLD Rm, #imm, Rn			//Rn=Rm SHL Imm8 | Rn=Rm SHR Imm8
 **		4--E
@@ -584,15 +617,15 @@ XPFX0/Escape32 I-Forms
 **		8Edd-6nm2 MOV.L @(Rm,disp), Rn
 **		8Edd-6nm3 MOV.Q @(Rm,disp), Rn
 
-**		8Edd-6nm8 MOV.L/Q @(Rm,disp), Rn		//Rn=[Rm+disp*(4|8)]
-**		8Edd-6nm9 MOV.LL/LQ @(Rm,disp4a,disp4b), Rn	//Rn=Rm+disp4a*4 + disp4b*(4|8)
-**		8Edd-6nmA LEA.L/Q @(Rm,disp), Rn		//Rn=Rm+disp*(4|8)
-**		8Edd-6nmB LEA.LL/LQ @(Rm,disp4a,disp4b), Rn	//Rn=Rm+disp4a*4 + disp4b*(4|8)
+**		8Edd-6nm8 LEA.B @(Rm,disp), Rn		//Rn=Rm+disp*1
+**		8Edd-6nm9 LEA.W @(Rm,disp), Rn		//Rn=Rm+disp*2
+**		8Edd-6nmA LEA.L @(Rm,disp), Rn		//Rn=Rm+disp*4
+**		8Edd-6nmB LEA.Q @(Rm,disp), Rn		//Rn=Rm+disp*8
+**		8Edd-6nmC MOVZX.B @(Rm,disp), Rn	//Rm+disp*1
+**		8Edd-6nmD MOVZX.W @(Rm,disp), Rn	//Rm+disp*2
+**		8Edd-6nmE MOVZX.L @(Rm,disp), Rn	//Rm+disp*4
+**		8Edd-6nmF MOV.L/Q @(Rm,disp), Rn	//Rm+disp*(4|8)
 
-**		8Edd-6nmC LEA.B @(Rm,disp), Rn		//Rn=Rm+disp*1
-**		8Edd-6nmD LEA.W @(Rm,disp), Rn		//Rn=Rm+disp*2
-**		8Edd-6nmE LEA.L @(Rm,disp), Rn		//Rn=Rm+disp*4
-**		8Edd-6nmF LEA.Q @(Rm,disp), Rn		//Rn=Rm+disp*8
 *	8Eii-7nii ADD #imm16, Rn
 * 	8---
 **		8Edd-80no MOV.B R0, @(Rn,Ro,disp)
@@ -627,6 +660,9 @@ XPFX0/Escape32 I-Forms
 **		8Edd-C7n9 MOVA.W @(PC,disp8), Rn		//
 **		8Edd-C7nA MOVA.L @(PC,disp8), Rn		//
 **		8Edd-C7nB MOVA.Q @(PC,disp8), Rn		//
+
+**		8Edd-C7nF LEA.LL/LQ @(Rn,disp4,disp4), Rn		//
+
 **		8Ejj-C8nj TST #imm12, Rn
 **		8Ejj-C9nj AND #imm12, Rn
 **		8Ejj-CAnj XOR #imm12, Rn
@@ -634,28 +670,32 @@ XPFX0/Escape32 I-Forms
 
 *	8Edd-Dndd MOV.L/Q @(PC,disp16), Rn	//
 *	8Eii-Enii MOV #imm16, Rn
+*	8Eoo-Fooo (Resv Ext-FPU / SIMD)
 
 Escape 64 (BJX32: Values truncated to 32-bits)
+
 * 8E1n-8Emo-dddd-dddd MOV.L Rm, @(Rn,Ro,disp32)		//Rn+4*(Ro+Disp)
 * 8E2n-8Em0-dddd-dddd MOV.B Rm, @(Rn,disp32)
 * 8E2n-8Em1-dddd-dddd MOV.W Rm, @(Rn,disp32)
 * 8E2n-8Em2-dddd-dddd MOV.L Rm, @(Rn,disp32)
 * 8E2n-8Em3-dddd-dddd MOV.Q Rm, @(Rn,disp32)
+
+* 8E3n-8EmB-dddd-dddd LEA.L/Q @(Rm,disp32), Rn	//
+
 * 8E5n-8Emo-dddd-dddd MOV.L @(Rm,Ro,disp32), Rn		//Rm+(Ro+disp)*4
 * 8E6n-8Em0-dddd-dddd MOV.B @(Rm,disp32), Rn
 * 8E6n-8Em1-dddd-dddd MOV.W @(Rm,disp32), Rn
 * 8E6n-8Em2-dddd-dddd MOV.L @(Rm,disp32), Rn
 * 8E6n-8Em3-dddd-dddd MOV.Q @(Rm,disp32), Rn
 
-* 8E6n-8Em8-dddd-dddd MOV.L/Q @(Rm,disp32), Rn			//Rn=[Rm+disp32*(4|8)]
-* 8E6n-8Em9-dddd-dddd MOV.LL/LQ @(Rm,disp16a,disp16b), Rn		//Rn=Rm+disp16a*4 + disp16b*(4|8)
-* 8E6n-8EmA-dddd-dddd LEA.L/Q @(Rm,disp32), Rn			//Rn=Rm+disp32*(4|8)
-* 8E6n-8EmB-dddd-dddd LEA.LL/LQ @(Rm,disp16a,disp16b), Rn		//Rn=Rm+disp16a*4 + disp16b*(4|8)
-
-* 8E6n-8EmC-dddd-dddd LEA.B @(Rm,disp32), Rn		//Rn=Rm+disp*1
-* 8E6n-8EmD-dddd-dddd LEA.W @(Rm,disp32), Rn		//Rn=Rm+disp*2
-* 8E6n-8EmE-dddd-dddd LEA.L @(Rm,disp32), Rn		//Rn=Rm+disp*4
-* 8E6n-8EmF-dddd-dddd LEA.Q @(Rm,disp32), Rn		//Rn=Rm+disp*8
+* 8E6n-8Em8-dddd-dddd LEA.B @(Rm,disp32), Rn		//Rn=Rm+disp*1
+* 8E6n-8Em9-dddd-dddd LEA.W @(Rm,disp32), Rn		//Rn=Rm+disp*2
+* 8E6n-8EmA-dddd-dddd LEA.L @(Rm,disp32), Rn		//Rn=Rm+disp*4
+* 8E6n-8EmB-dddd-dddd LEA.Q @(Rm,disp32), Rn		//Rn=Rm+disp*8
+* 8E6n-8EmC-dddd-dddd MOVZX.B @(Rm,disp32), Rn		//Rn=Rm+disp*1
+* 8E6n-8EmD-dddd-dddd MOVZX.W @(Rm,disp32), Rn		//Rn=Rm+disp*2
+* 8E6n-8EmE-dddd-dddd MOVZX.L @(Rm,disp32), Rn		//Rn=Rm+disp*4
+* 8E6n-8EmF-dddd-dddd MOV.L/Q @(Rm,disp32), Rn		//Rn=[Rm+disp32*(4|8)]
 
 * 8E7n-8Eii-iiii-iiii ADD #imm40, Rn
 
@@ -680,6 +720,7 @@ Escape 64 (BJX32: Values truncated to 32-bits)
 * 8EC7-8En9-dddd-dddd MOVA.W @(PC,disp32), Rn		//
 * 8EC7-8EnA-dddd-dddd MOVA.L @(PC,disp32), Rn		//
 * 8EC7-8EnB-dddd-dddd MOVA.Q @(PC,disp32), Rn		//
+* 8EC7-8EnC-dddd-dddd LEA.LL/LQ @(Rn,disp16,disp16), Rn		//
 
 * 8EC8-8Enj-jjjj-jjjj TST #imm36, Rn				//
 * 8EC9-8Enj-jjjj-jjjj AND #imm36, Rn				//

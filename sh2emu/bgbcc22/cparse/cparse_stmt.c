@@ -881,6 +881,7 @@ BCCX_Node *BGBCP_BlockStatement2(BGBCP_ParseState *ctx, char **str)
 {
 	char b[256];
 	char *s;
+	int tk0, tk1, tk2;
 	int ty;
 	BCCX_Node *n;
 
@@ -896,8 +897,16 @@ BCCX_Node *BGBCP_BlockStatement2(BGBCP_ParseState *ctx, char **str)
 	if(!strcmp(b, "{"))
 	{
 		s=BGBCP_Token(s, b, &ty);
+
+		tk0=BGBCP_GetTokenCount();
 		n=BGBCP_Block(ctx, &s);
+		tk1=BGBCP_GetTokenCount();
+
 		n=BCCX_New1("begin", n);
+
+		tk2=tk1-tk0;
+		if(tk2>0)
+			BCCX_SetInt(n, "tokens", tk2);
 
 		*str=s;
 		return(n);

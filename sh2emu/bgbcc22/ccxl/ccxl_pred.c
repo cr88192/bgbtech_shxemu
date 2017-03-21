@@ -301,6 +301,16 @@ bool BGBCC_CCXL_IsRegPointerP(
 	return(false);
 }
 
+bool BGBCC_CCXL_IsRegSmallIntP(
+	BGBCC_TransState *ctx, ccxl_register reg)
+{
+	ccxl_type tty;
+	tty=BGBCC_CCXL_GetRegType(ctx, reg);
+	if(BGBCC_CCXL_TypeSmallIntP(ctx, tty))
+		return(true);
+	return(false);
+}
+
 bool BGBCC_CCXL_IsRegImmIntP(
 	BGBCC_TransState *ctx, ccxl_register reg)
 {
@@ -422,7 +432,7 @@ bool BGBCC_CCXL_IsRegImm32P(
 	{
 		if(BGBCC_CCXL_IsRegImmIntP(ctx, reg))
 		{
-			i=BGBCC_CCXL_GetRegImmIntValue(ctx, reg);
+//			i=BGBCC_CCXL_GetRegImmIntValue(ctx, reg);
 //			if((i>=(-2048)) && (i<2048))
 				return(true);
 		}

@@ -646,9 +646,21 @@ int BGBCC_CCXL_TypeGetLogicalBaseSize(
 	case CCXL_TY_US: sz=2; break;
 	case CCXL_TY_UI: sz=4; break;
 	case CCXL_TY_UL: sz=8; break;
-	
+
+	case CCXL_TY_NL:	case CCXL_TY_UNL:
+		sz=ctx->arch_sizeof_long;
+		if(!sz)
+			{ sz=-1; }
+		break;
+
 	default:
 		sz=-1; break;
+	}
+	
+	if(ctx->arch_sizeof_ptr)
+	{
+		if(BGBCC_CCXL_TypePointerP(ctx, ty))
+			return(ctx->arch_sizeof_ptr);
 	}
 	
 	return(sz);
@@ -667,6 +679,29 @@ int BGBCC_CCXL_TypeGetLogicalBaseShift(
 	if(sz==4)return(2);
 	if(sz==8)return(3);
 	if(sz==16)return(4);
+	return(-1);
+}
+
+int BGBCC_CCXL_TypeGetLogicalSize(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	BGBCC_CCXL_LiteralInfo *obj;
+	int sz;
+
+	if(BGBCC_CCXL_TypeValueObjectP(ctx, ty))
+	{
+		obj=BGBCC_CCXL_LookupStructureForType(ctx, ty);
+		if(obj->decl->fxmsize &&
+			(obj->decl->fxmsize==obj->decl->fxnsize))
+		{
+			return(obj->decl->fxmsize);
+		}
+	}
+
+	sz=BGBCC_CCXL_TypeGetLogicalBaseSize(ctx, ty);
+	if(sz>0)
+		return(sz);
+
 	return(-1);
 }
 

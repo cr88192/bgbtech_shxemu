@@ -105,7 +105,9 @@ ccxl_status BGBCC_CCXL_EmitCallOp(BGBCC_TransState *ctx,
 	op->type=type;
 	op->dst=dst;
 	op->srca=src;
-	op->imm.si=na;
+	op->imm.call.na=na;
+	op->imm.call.ca=0;
+	op->imm.call.args=bgbcc_malloc(na*sizeof(ccxl_register));
 	BGBCC_CCXL_AddVirtOp(ctx, op);
 	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 	return(0);
@@ -128,6 +130,12 @@ ccxl_status BGBCC_CCXL_EmitCallCsrvOp(BGBCC_TransState *ctx,
 ccxl_status BGBCC_CCXL_EmitCallArg(BGBCC_TransState *ctx,
 	ccxl_register reg)
 {
+	BGBCC_CCXL_VirtOp *op;
+	int i;
+	op=ctx->vop[ctx->n_vop-1];
+	i=op->imm.call.ca++;
+	op->imm.call.args[i]=reg;
+	return(0);
 }
 
 ccxl_status BGBCC_CCXL_EmitCallRetDefault(BGBCC_TransState *ctx)

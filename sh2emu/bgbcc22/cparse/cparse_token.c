@@ -1028,6 +1028,8 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 
 #if 1
 
+int bgbcp_token_cnt;
+
 #define BGBCP_TKHASHSZ 256
 char *BGBCP_Token(char *s, char *b, int *ty)
 {
@@ -1046,6 +1048,7 @@ char *BGBCP_Token(char *s, char *b, int *ty)
 			for(i=0; i<BGBCP_TKHASHSZ; i++)
 				ls[i]=NULL;
 		}
+		bgbcp_token_cnt=0;
 		flush=64;
 		return(NULL);
 	}
@@ -1053,6 +1056,7 @@ char *BGBCP_Token(char *s, char *b, int *ty)
 	if(flush)
 	{
 		flush--;
+		bgbcp_token_cnt++;
 		return(BGBCP_TokenI(s, b, ty, BGBCC_LANG_C, 256));
 	}
 
@@ -1070,6 +1074,7 @@ char *BGBCP_Token(char *s, char *b, int *ty)
 		return(ls1[i]);
 	}
 	
+	bgbcp_token_cnt++;
 	ls[i]=s;
 	ls1[i]=BGBCP_TokenI(s, tb, &(lty[i]), BGBCC_LANG_C, 256);
 	strcpy(b, tb);
@@ -1080,6 +1085,11 @@ char *BGBCP_Token(char *s, char *b, int *ty)
 void BGBCP_FlushToken(char *s)
 {
 	BGBCP_Token(NULL, NULL, NULL);
+}
+
+int BGBCP_GetTokenCount(void)
+{
+	return(bgbcp_token_cnt);
 }
 #else
 

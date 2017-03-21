@@ -1,6 +1,10 @@
 BGBCC SH ABI (32-bit)
 * Will be similar to the standard SH ABI, but may deviate on some points.
 
+BGBCC SH ABI (64-bit)
+* Will be similar to the 32-bit ABI.
+* In native-64 mode, 64-bit types will be passed in a single register.
+
 Data Representation:
 * Data may be either big-endian or little-endian.
 * 64-bit members will have 32-bit alignment.

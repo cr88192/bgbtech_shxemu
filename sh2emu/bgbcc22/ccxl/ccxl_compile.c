@@ -1622,6 +1622,7 @@ BCCX_Node *BGBCC_CCXL_CompileBlock(BGBCC_TransState *ctx,
 
 	BCCX_Node *blkn;
 	BCCX_Node *c, *t, *n, *u;
+	int tk;
 	int i, j, k;
 
 	name=BGBCC_CCXL_QualifyNameNS(ctx, name);
@@ -1641,13 +1642,19 @@ BCCX_Node *BGBCC_CCXL_CompileBlock(BGBCC_TransState *ctx,
 	if(i&BGBCC_TYFL_EXTERN)
 		return(NULL);
 
+	tk=0;
 	if(BCCX_TagIsP(body, "begin"))
+	{
+		tk=BCCX_GetInt(body, "tokens");
 		body=BCCX_Child(body);
+	}
 
 	BGBCC_CCXL_BeginName(ctx, (ctx->cur_struct)?
 		CCXL_CMD_METHOD:CCXL_CMD_FUNCTION, ctx->cf_n);
 
 	BGBCC_CCXL_EmitVarFunc(ctx, ctx->cf_n, ctx->cf_ty, args);
+
+	BGBCC_CCXL_AttribInt(ctx, CCXL_ATTR_SRCTOK, tk);
 
 	BGBCC_CCXL_Begin(ctx, CCXL_CMD_ARGS);
 	c=args;
@@ -2593,6 +2600,7 @@ void BGBCC_CCXL_CompileTopStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 		t=BCCX_FindTag(l, "type");
 		n=BCCX_Fetch(l, "args");
 		v=BCCX_Fetch(l, "body");
+//		tk=BCCX_GetInt(l, "tokens");
 
 		BGBCC_CCXL_CompileBlock(ctx, t, s, n, v);
 		return;

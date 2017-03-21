@@ -232,10 +232,11 @@
 #define BGBCC_SH_RLC_RELW8			0x09	//Relative Low 8 bit (WORD)
 
 #define BGBCC_SH_CSEG_TEXT		0x00		//.text section
-#define BGBCC_SH_CSEG_DATA		0x01		//.data section
-#define BGBCC_SH_CSEG_BSS		0x02		//.bss section
+#define BGBCC_SH_CSEG_GOT		0x01		//.got section
+#define BGBCC_SH_CSEG_DATA		0x02		//.data section
+#define BGBCC_SH_CSEG_BSS		0x03		//.bss section
 
-#define BGBCC_SH_CSEG_DYN		0x04		//.bss section
+#define BGBCC_SH_CSEG_DYN		0x04		//dynamic sections
 
 #define BGBCC_SH_REGCLS_NONE	0
 #define BGBCC_SH_REGCLS_GR		1	//uses a GPR
@@ -250,32 +251,37 @@ typedef struct BGBCC_SHX_Context_s BGBCC_SHX_Context;
 typedef struct BGBCC_SHX_OpcodeArg_s BGBCC_SHX_OpcodeArg;
 
 struct BGBCC_SHX_Context_s {
-char *sec_name[8];
-byte *sec_buf[8];
-byte *sec_end[8];
-byte *sec_pos[8];
+char *sec_name[16];
+byte *sec_buf[16];
+byte *sec_end[16];
+byte *sec_pos[16];
+u32 sec_rva[16];		//relative virtual address (image offset)
+u32 sec_lva[16];		//logical virtual address
 byte sec;
 byte nsec;
 
 byte is_le;			//is little endian
 byte use_bp;		//use frame pointer
+byte need_farjmp;	//function needs far jumps
+byte need_n12jmp;	//function needs at least 12-bit jumps
 
-int lbl_ofs[256];	//label offsets
-int rlc_ofs[256];	//reloc offsets
-u32 lbl_id[256];	//label IDs
-u32 rlc_id[256];	//reloc label IDs
-byte lbl_sec[256];	//label section
-byte rlc_sec[256];	//reloc section
-byte rlc_ty[256];	//reloc type
-int nlbl;
-int nrlc;
+u32 *lbl_ofs;		//label offsets
+u32 *rlc_ofs;		//reloc offsets
+u32 *lbl_id;		//label IDs
+u32 *rlc_id;		//reloc label IDs
+byte *lbl_sec;		//label section
+byte *rlc_sec;		//reloc section
+byte *rlc_ty;		//reloc type
+int nlbl, mlbl;
+int nrlc, mrlc;
 u16 lblrov;			//labels (local/temp)
 
-byte reg_idx[BGBCC_SH_MAX_CACHEVAR];
-byte reg_reg[BGBCC_SH_MAX_CACHEVAR];
-int reg_live;
-int reg_resv;
-int reg_save;
+// byte reg_idx[BGBCC_SH_MAX_CACHEVAR];
+// byte reg_reg[BGBCC_SH_MAX_CACHEVAR];
+// int reg_live;
+// int reg_resv;
+// int reg_save;
+// int reg_dirty;
 
 int ofs_s16tab[256];
 int ofs_s32tab[256];
@@ -298,12 +304,20 @@ byte regalc_ltcnt[6];	//lifetime count (who to evict)
 byte regalc_utcnt[6];	//current use count (0=unused)
 byte regalc_save;		//register has been saved and may hold a value
 byte regalc_live;		//register is currently holding a value
+byte regalc_dirty;
 
 int frm_size;			//allocated size of frame
 int frm_offs_lcl;		//frame offset of local vars
 int frm_offs_tmp;		//frame offset of temporaries
+int lbl_ret;			//label ID for function exit
+int lbl_got;			//label ID for got
 
 BGBCC_SHX_Context *next;
+
+int *got_gblidx;
+int got_n_gblidx;
+int got_m_gblidx;
+int t_got_gblidx[4096];
 };
 
 /*

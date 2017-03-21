@@ -2,9 +2,35 @@
 
 ccxl_label BGBCC_CCXL_LabelFromName(BGBCC_TransState *ctx, char *name)
 {
+	int i;
+	
+	for(i=0; i<ctx->n_goto; i++)
+	{
+		if(!strcmp(ctx->goto_name[i], name))
+			return(ctx->goto_lbl[i]);
+	}
+	
+	if(!ctx->goto_name)
+	{
+		i=256;
+		ctx->goto_name=bgbcc_malloc(i*sizeof(char *));
+		ctx->goto_lbl=bgbcc_malloc(i*sizeof(ccxl_label));
+		ctx->m_goto=i;
+	}
+	
+	if((ctx->n_goto+1)>=ctx->m_goto)
+	{
+		i=ctx->m_goto+(ctx->m_goto>>1);
+		ctx->goto_name=bgbcc_realloc(ctx->goto_name, i*sizeof(char *));
+		ctx->goto_lbl=bgbcc_realloc(ctx->goto_lbl, i*sizeof(ccxl_label));
+		ctx->m_goto=i;
+	}
+	
+	i=ctx->n_goto++;
+	ctx->goto_name[i]=bgbcc_strdup(name);
+	ctx->goto_lbl[i]=BGBCC_CCXL_GenSym(ctx);
+	return(ctx->goto_lbl[i]);
 }
-
-
 
 void BGBCC_CCXL_CompileBreak(BGBCC_TransState *ctx)
 {
@@ -295,7 +321,7 @@ int BGBCC_CCXL_TryGetSizeofType(BGBCC_TransState *ctx, BCCX_Node *ty)
 //	if(ctx->arch==BGBCC_ARCH_X86)
 	if(1)
 	{
-		if(!strcmp(s, "long"))
+		if(!strcmp(s, "long") || !strcmp(s, "ulong"))
 		{
 			if(ctx->arch_sizeof_long)
 				return(ctx->arch_sizeof_long);

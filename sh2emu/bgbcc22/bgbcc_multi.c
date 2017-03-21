@@ -92,8 +92,12 @@
 #include "ccxl/ccxl_trace.c"
 #include "ccxl/ccxl_type.c"
 
+#include "shcc/shx_binop.c"
 #include "shcc/shx_cgif.c"
+#include "shcc/shx_conv.c"
 #include "shcc/shx_emit.c"
+#include "shcc/shx_ldix.c"
 #include "shcc/shx_register.c"
+#include "shcc/shx_struct.c"
 
 #include "bgbmeta.c"

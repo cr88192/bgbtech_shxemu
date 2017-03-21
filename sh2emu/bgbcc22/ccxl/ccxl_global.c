@@ -442,7 +442,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 				ctx->markstackpos=0;
 //				ctx->ip=ctx->ips;
 				ctx->n_goto=0;
-				ctx->n_lbl=0;
+//				ctx->n_lbl=0;
 				return;
 			}
 		}
@@ -464,8 +464,8 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 				obj->decl->n_vargs=0;
 
 //				ctx->ip=ctx->ips;
-				ctx->n_goto=0;
-				ctx->n_lbl=0;
+//				ctx->n_goto=0;
+//				ctx->n_lbl=0;
 
 				obj->decl=decl;
 				obj->littype=CCXL_LITID_FUNCTION;
@@ -491,8 +491,8 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 				obj->decl->n_vargs=0;
 
 //				ctx->ip=ctx->ips;
-				ctx->n_goto=0;
-				ctx->n_lbl=0;
+//				ctx->n_goto=0;
+//				ctx->n_lbl=0;
 
 				ctx->cur_objstack[ctx->cur_objstackpos++]=obj;
 				ctx->cur_obj=obj;
@@ -624,7 +624,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		ctx->markstackpos=0;
 //		ctx->ip=ctx->ips;
 		ctx->n_goto=0;
-		ctx->n_lbl=0;
+//		ctx->n_lbl=0;
 		break;
 
 	case CCXL_CMD_ARGS:
@@ -646,8 +646,8 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		BGBCC_CCXL_AddGlobalDecl(ctx, obj->decl);
 
 //		ctx->ip=ctx->ips;
-		ctx->n_goto=0;
-		ctx->n_lbl=0;
+//		ctx->n_goto=0;
+//		ctx->n_lbl=0;
 		break;
 
 	case CCXL_CMD_S_PROTOTYPE:
@@ -685,7 +685,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		ctx->markstackpos=0;
 //		ctx->ip=ctx->ips;
 		ctx->n_goto=0;
-		ctx->n_lbl=0;
+//		ctx->n_lbl=0;
 		ctx->n_vop=0;
 		ctx->n_vtr=0;
 		break;
@@ -757,10 +757,12 @@ void BGBCC_CCXL_EndFunction(BGBCC_TransState *ctx,
 		obj->decl->flagstr=obj->decl->defv->flagstr;
 	}
 
-	if(ctx->back_vt && ctx->back_vt->EndFunction)
-	{
-		ctx->back_vt->EndFunction(ctx, obj);
-	}else
+//	if(ctx->back_vt && ctx->back_vt->EndFunction)
+//	{
+//		ctx->back_vt->EndFunction(ctx, obj);
+//	}else
+
+	if(1)
 	{
 #if 1
 		if(ctx->n_vop>0)
@@ -972,6 +974,12 @@ void BGBCC_CCXL_End(BGBCC_TransState *ctx)
 			msz+=msz2;	nsz+=nsz2;
 			if(mal2>mal)mal=mal2;
 			if(nal2>nal)nal=nal2;
+
+			obj->decl->fields[i]->fxmoffs=msz;
+			obj->decl->fields[i]->fxnoffs=nsz;
+			
+			if(msz==nsz)
+				obj->decl->fields[i]->fxoffs=msz;
 		}
 		msz=(msz+(mal-1))&(~(mal-1));
 		nsz=(nsz+(nal-1))&(~(nal-1));
@@ -991,6 +999,9 @@ void BGBCC_CCXL_End(BGBCC_TransState *ctx)
 			if(nsz2>nsz)nsz=nsz2;
 			if(mal2>mal)mal=mal2;
 			if(nal2>nal)nal=nal2;
+			obj->decl->fields[i]->fxmoffs=0;
+			obj->decl->fields[i]->fxnoffs=0;
+			obj->decl->fields[i]->fxoffs=0;
 		}
 		msz=(msz+(mal-1))&(~(mal-1));
 		nsz=(nsz+(nal-1))&(~(nal-1));
@@ -1097,6 +1108,9 @@ void BGBCC_CCXL_AttribInt(BGBCC_TransState *ctx, int attr, int val)
 		{
 		case CCXL_ATTR_FLAGS:
 			obj->decl->flagsint=val;
+			break;
+		case CCXL_ATTR_SRCTOK:
+			obj->decl->srctok=val;
 			break;
 		default:
 			break;

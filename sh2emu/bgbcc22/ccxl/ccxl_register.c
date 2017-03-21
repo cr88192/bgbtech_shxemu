@@ -275,3 +275,23 @@ ccxl_status BGBCC_CCXL_RegisterCheckAcquire(
 	return(CCXL_STATUS_NO);
 //	return(CCXL_STATUS_ERR_CANTACQUIRE);
 }
+
+ccxl_status BGBCC_CCXL_RegisterIdentEqualP(
+	BGBCC_TransState *ctx, ccxl_register sreg, ccxl_register treg)
+{
+	if((sreg.val&CCXL_REGTY_REGMASK)!=(treg.val&CCXL_REGTY_REGMASK))
+		return(CCXL_STATUS_NO);
+	
+	if(	((sreg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_TEMP) ||
+		((sreg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_ARG) ||
+		((sreg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_LOCAL))
+	{
+		if((sreg.val&CCXL_REGID_BASEMASK)!=(treg.val&CCXL_REGID_BASEMASK))
+			return(CCXL_STATUS_NO);
+		return(CCXL_STATUS_YES);
+	}
+	
+	if(sreg.val!=treg.val)
+		return(CCXL_STATUS_NO);
+	return(CCXL_STATUS_YES);
+}

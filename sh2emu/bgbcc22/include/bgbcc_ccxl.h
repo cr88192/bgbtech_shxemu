@@ -99,6 +99,7 @@
 #define CCXL_LITID_VALUE		10
 #define CCXL_LITID_CLASS		11
 #define CCXL_LITID_STATICVAR	12
+#define CCXL_LITID_ASMFUNC		13
 
 #define CCXL_LITID_ARR1			16
 #define CCXL_LITID_ARR2			17
@@ -142,6 +143,7 @@
 #define CCXL_ATTR_SIG					0x9001
 #define CCXL_ATTR_FLAGS					0x9002
 #define CCXL_ATTR_VALUE					0x9003
+#define CCXL_ATTR_SRCTOK				0x9004
 
 #define CCXL_TERR_GENERIC				0xA000
 #define CCXL_TERR_STACK_OVERFLOW		0xA001
@@ -238,7 +240,8 @@ typedef union {
 	f64 d;
 	char *str;
 	struct {
-		int na;
+		byte na;
+		byte ca;
 		ccxl_register *args;
 	}call;
 	struct {
@@ -274,6 +277,7 @@ s16 cseq;				//current sequence
 int regtype;			//register type
 int regid;				//register ID
 int validx;				//value index
+int srctok;				//source tokens
 s64 flagsint;			//flags (integer)
 ccxl_register value;	//literal value
 
@@ -310,6 +314,7 @@ int n_listdata, m_listdata;
 int gblid, regflags;
 int fxsize;				//fixed-format size
 int fxoffs;				//fixed-format offset (frame var offset)
+int fxmoffs, fxnoffs;	//fixed min/max size
 int fxmsize, fxnsize;	//fixed min/max size
 int fxmalgn, fxnalgn;	//fixed min/max size
 };

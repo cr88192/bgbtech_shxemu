@@ -1326,6 +1326,7 @@ ccxl_status BGBCC_CCXL_StackSizeofSig(BGBCC_TransState *ctx, char *sig)
 {
 	ccxl_register sreg, dreg;
 	ccxl_type bty;
+	int sz;
 	int i;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "SizeOfSig", __FILE__, __LINE__);
@@ -1333,6 +1334,13 @@ ccxl_status BGBCC_CCXL_StackSizeofSig(BGBCC_TransState *ctx, char *sig)
 //	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 //	bty=BGBCC_CCXL_GetRegType(ctx, sreg);
 	BGBCC_CCXL_TypeFromSig(ctx, &bty, sig);
+
+	sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, bty);
+	if(sz>0)
+	{
+		BGBCC_CCXL_StackPushConstInt(ctx, sz);
+		return(CCXL_STATUS_YES);
+	}
 
 	BGBCC_CCXL_RegisterAllocTemporaryInt(ctx, &dreg);
 	BGBCC_CCXL_EmitSizeofVar(ctx, bty, dreg);
@@ -1371,14 +1379,29 @@ ccxl_status BGBCC_CCXL_StackOffsetof(BGBCC_TransState *ctx,
 	char *sig, char *name)
 {
 	BGBCC_CCXL_LiteralInfo *st;
+	BGBCC_CCXL_RegisterInfo *fi;
 	ccxl_register sreg, dreg;
 	ccxl_type bty;
+	int fn;
 	int i;
 
 //	BGBCC_CCXL_LookupStructure()
 
 	bty=BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_I);
 	st=BGBCC_CCXL_LookupStructureForSig(ctx, sig);
+	if(st->decl && st->decl->fxmsize &&
+		(st->decl->fxmsize==st->decl->fxnsize))
+	{
+		fn=BGBCC_CCXL_LookupStructFieldID(ctx, st, name);
+		fi=st->decl->fields[fn];
+		
+		if(fi->fxmoffs==fi->fxnoffs)
+		{
+			BGBCC_CCXL_StackPushConstInt(ctx, fi->fxmoffs);
+			return(CCXL_STATUS_YES);
+		}
+	}
+
 	BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
 	BGBCC_CCXL_EmitOffsetOf(ctx, bty, dreg, st, name);
 	BGBCC_CCXL_PushRegister(ctx, dreg);
