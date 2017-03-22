@@ -348,6 +348,21 @@ int BGBCC_SHXC_GetGblIndexGotIndex(
 		if(sctx->got_gblidx[i]==gblidx)
 			return(i);
 
+	if(!sctx->got_gblidx)
+	{
+		i=4096;
+		sctx->got_gblidx=bgbcc_malloc(i*sizeof(u32));
+		sctx->got_n_gblidx=0;
+		sctx->got_m_gblidx=i;
+	}
+	
+	if((sctx->got_n_gblidx+1)>=sctx->got_m_gblidx)
+	{
+		i=sctx->got_m_gblidx+(sctx->got_m_gblidx>>1);
+		sctx->got_gblidx=bgbcc_realloc(sctx->got_gblidx, i*sizeof(u32));
+		sctx->got_m_gblidx=i;
+	}
+
 	i=sctx->got_n_gblidx++;
 	sctx->got_gblidx[i]=gblidx;
 	return(i);
@@ -743,7 +758,16 @@ int BGBCC_SHXC_EmitReleaseRegister(
 				sctx->regalc_utcnt[i]--;
 
 			if(!sctx->regalc_utcnt[i])
-				{ sctx->regalc_live&=~(1<<i); }
+			{
+				if((sctx->regalc_dirty)&(1<<i))
+				{
+					creg=bgbcc_shx_cachereg[i];		
+					BGBCC_SHXC_EmitStoreFrameVRegReg(ctx, sctx, reg, creg);
+					sctx->regalc_dirty&=~(1<<i);
+				}
+
+				sctx->regalc_live&=~(1<<i);
+			}
 
 			return(1);
 		}

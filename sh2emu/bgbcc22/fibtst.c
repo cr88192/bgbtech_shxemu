@@ -63,6 +63,7 @@ int hash_str(char *s)
 	return(i&0xFFF);
 }
 
+#if 0
 int bscc_main()
 {
 	long long li;
@@ -103,3 +104,4 @@ int main()
 
 	printf("hashtst %d\n", hash_str("foobarbaz"));
 }
+#endif

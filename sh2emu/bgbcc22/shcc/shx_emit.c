@@ -386,7 +386,7 @@ int BGBCC_SHX_EmitOpNone(BGBCC_SHX_Context *ctx, int nmid)
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -772,7 +772,7 @@ int BGBCC_SHX_EmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -798,7 +798,7 @@ int BGBCC_SHX_EmitOpRegStReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -826,7 +826,7 @@ int BGBCC_SHX_EmitOpLdRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -861,7 +861,7 @@ int BGBCC_SHX_EmitOpRegStDecReg(BGBCC_SHX_Context *ctx,
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -896,7 +896,7 @@ int BGBCC_SHX_EmitOpLdIncRegReg(BGBCC_SHX_Context *ctx,
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -963,7 +963,7 @@ int BGBCC_SHX_EmitOpRegStRegDisp(
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -1029,7 +1029,7 @@ int BGBCC_SHX_EmitOpLdRegDispReg(BGBCC_SHX_Context *ctx,
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -1077,7 +1077,7 @@ int BGBCC_SHX_EmitOpRegStReg2(
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -1125,7 +1125,7 @@ int BGBCC_SHX_EmitOpLdReg2Reg(
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);
@@ -1185,7 +1185,7 @@ int BGBCC_SHX_EmitOpRegImm(BGBCC_SHX_Context *ctx, int nmid, int reg, int imm)
 	{
 		BGBCC_SHX_EmitWord(ctx, opw);
 		if(opw2>=0)
-			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
 	return(0);

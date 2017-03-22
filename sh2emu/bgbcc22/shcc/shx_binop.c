@@ -477,7 +477,7 @@ int BGBCC_SHXC_EmitReturnVoid(
 {
 	int i, j, k;
 
-	i=BGBCC_SHX_EmitOpLabel(sctx,
+	i=BGBCC_SHX_EmitOpAutoLabel(sctx,
 		BGBCC_SH_NMID_BRA, sctx->lbl_ret);
 	return(i);
 }
@@ -495,7 +495,7 @@ int BGBCC_SHXC_EmitReturnVReg(
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_R0);
 	}
 
-	i=BGBCC_SHX_EmitOpLabel(sctx,
+	i=BGBCC_SHX_EmitOpAutoLabel(sctx,
 		BGBCC_SH_NMID_BRA, sctx->lbl_ret);
 	return(i);
 }

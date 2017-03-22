@@ -302,6 +302,7 @@ fourcc BGBCP_ArchForName(char *name)
 
 	if(!strcmp(name, "SH2"))	i=BGBCC_ARCH_SH;
 	if(!strcmp(name, "SH4"))	i=BGBCC_ARCH_SH;
+	if(!strcmp(name, "SH"))		i=BGBCC_ARCH_SH;
 
 	return(i);
 }
@@ -343,6 +344,10 @@ char *BGBCP_NameForSubArch(fourcc arch, fourcc subarch)
 	
 	switch(arch)
 	{
+	case BGBCC_ARCH_SH_SH2:
+		s="SH2"; break;
+	case BGBCC_ARCH_SH_SH4:
+		s="SH4"; break;
 	default:
 		s=NULL; break;
 	}

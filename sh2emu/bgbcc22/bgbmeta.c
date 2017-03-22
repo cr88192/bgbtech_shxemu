@@ -495,6 +495,10 @@ int BGBCC_LoadCSourcesCCXL(
 	ctx=bgbcc_malloc(sizeof(BGBCC_TransState));
 	memset(ctx, 0, sizeof(BGBCC_TransState));
 
+	ctx->arch=bgbcc_arch;
+	ctx->sub_arch=bgbcc_subarch;
+	BGBCC_CCXL_SetupContextForArch(ctx);
+
 	for(i=0; i<nnames; i++)
 	{
 		printf("BGBCC_LoadCSourcesCCXL: %s\n", names[i]);
@@ -791,6 +795,9 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 		BGBCC_LoadConfig(buf);
 	}
 
+	if(!mach_name && !bgbcc_arch)
+		mach_name="SH4";
+
 	if(mach_name)
 	{
 		bgbcc_arch=BGBCP_ArchForName(mach_name);
@@ -974,6 +981,8 @@ int main(int argc, char *argv[], char **env)
 
 	BGBCC_InitEnv(argc, argv, env);
 
+	BGBCC_SHXC_InitIface();
+
 	metafn=NULL;
 	wadfn=NULL;
 	frbcfn=NULL;
@@ -1071,7 +1080,13 @@ int main(int argc, char *argv[], char **env)
 	
 		obuf=malloc(1<<26); sz=1<<26;
 		i=BGBCC_LoadCSourcesCCXL(uds, nuds, obuf, &sz, fmt);
-		if(i>=0)BGBCC_StoreFile(frbcfn, obuf, sz);
+		if((i>=0) && (sz>0))
+		{
+			BGBCC_StoreFile(frbcfn, obuf, sz);
+		}else
+		{
+			printf("Failed to produce output, status=%d\n", i);
+		}
 	}else
 	{
 #if 0

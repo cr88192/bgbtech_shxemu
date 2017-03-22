@@ -2,7 +2,7 @@ BGBCC_CCXL_BackendFuncs_vt bgbgc_shx_vt;
 static int bgbgc_shx_init=0;
 
 	
-int BGBCC_SHX_InitIface()
+int BGBCC_SHXC_InitIface()
 {
 	if(bgbgc_shx_init)
 		return(0);
@@ -105,73 +105,74 @@ int BGBCC_SHXC_TypeGetRegClassP(BGBCC_TransState *ctx, ccxl_type ty)
 
 int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
-	BGBCC_CCXL_LiteralInfo *obj)
+	BGBCC_CCXL_RegisterInfo *obj)
 {
 	int ni, nf;
 	int i, j, k, ka;
 	
+	ctx->cur_func=obj;
 	sctx->use_bp=0;
 	
 	ni=0; nf=0;
 	k=0; ka=0;
 	k-=2*4;		//saved PR, R14
 	k-=6*4;		//saved R8/9/10/11/13, R2
-	for(i=0; i<obj->decl->n_args; i++)
+	for(i=0; i<obj->n_args; i++)
 	{
-		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->decl->args[i]->type);
+		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->args[i]->type);
 		switch(j)
 		{
 		case BGBCC_SH_REGCLS_GR:
-			if(ni<4)	{ k-=4; obj->decl->args[i]->fxoffs=k; ni++; }
-			else		{ obj->decl->args[i]->fxoffs=ka; ka+=4; }
+			if(ni<4)	{ k-=4; obj->args[i]->fxoffs=k; ni++; }
+			else		{ obj->args[i]->fxoffs=ka; ka+=4; }
 			break;
 		case BGBCC_SH_REGCLS_GR2:
-			if(ni<3)	{ k-=8; obj->decl->args[i]->fxoffs=k; ni++; }
-			else		{ obj->decl->args[i]->fxoffs=ka; ka+=8; }
+			if(ni<3)	{ k-=8; obj->args[i]->fxoffs=k; ni++; }
+			else		{ obj->args[i]->fxoffs=ka; ka+=8; }
 			break;
 		case BGBCC_SH_REGCLS_FR:
-			if(nf<8)	{ k-=4; obj->decl->args[i]->fxoffs=k; nf++; }
-			else		{ obj->decl->args[i]->fxoffs=ka; ka+=4; }
+			if(nf<8)	{ k-=4; obj->args[i]->fxoffs=k; nf++; }
+			else		{ obj->args[i]->fxoffs=ka; ka+=4; }
 			break;
 		case BGBCC_SH_REGCLS_FR2:
 			nf+=nf&1;
-			if(nf<7)	{ k-=8; obj->decl->args[i]->fxoffs=k; nf++; }
-			else		{ obj->decl->args[i]->fxoffs=ka; ka+=8; }
+			if(nf<7)	{ k-=8; obj->args[i]->fxoffs=k; nf++; }
+			else		{ obj->args[i]->fxoffs=ka; ka+=8; }
 			break;
 		default:
 			break;
 		}
 	}
 
-	for(i=0; i<obj->decl->n_locals; i++)
+	for(i=0; i<obj->n_locals; i++)
 	{
-		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->decl->locals[i]->type);
+		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->locals[i]->type);
 		switch(j)
 		{
 		case BGBCC_SH_REGCLS_GR:		case BGBCC_SH_REGCLS_FR:
-			k-=4; obj->decl->locals[i]->fxoffs=k;	break;
+			k-=4; obj->locals[i]->fxoffs=k;	break;
 		case BGBCC_SH_REGCLS_GR2:		case BGBCC_SH_REGCLS_FR2:
-			k-=8; obj->decl->locals[i]->fxoffs=k;	break;
+			k-=8; obj->locals[i]->fxoffs=k;	break;
 		default:	break;
 		}
 	}
 	sctx->frm_offs_lcl=k;
 
-	for(i=0; i<obj->decl->n_regs; i++)
+	for(i=0; i<obj->n_regs; i++)
 	{
-		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->decl->regs[i]->type);
+		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->regs[i]->type);
 		switch(j)
 		{
 		case BGBCC_SH_REGCLS_GR:	case BGBCC_SH_REGCLS_FR:
-			k-=4; obj->decl->regs[i]->fxoffs=k;		break;
+			k-=4; obj->regs[i]->fxoffs=k;		break;
 		case BGBCC_SH_REGCLS_GR2:	case BGBCC_SH_REGCLS_FR2:
-			k-=8; obj->decl->regs[i]->fxoffs=k;		break;
+			k-=8; obj->regs[i]->fxoffs=k;		break;
 		default:	break;
 		}
 	}
 	sctx->frm_offs_tmp=k;
 	
-	k-=obj->decl->n_cargs*8;
+	k-=obj->n_cargs*8;
 	k&=~15;
 	
 //	if((-k)>=960)
@@ -185,7 +186,7 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 
 int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
-	BGBCC_CCXL_LiteralInfo *obj)
+	BGBCC_CCXL_RegisterInfo *obj)
 {
 	int p0;
 
@@ -226,7 +227,7 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 
 int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
-	BGBCC_CCXL_LiteralInfo *obj)
+	BGBCC_CCXL_RegisterInfo *obj)
 {
 	int p0;
 
@@ -261,7 +262,7 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 
 ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
-	BGBCC_CCXL_LiteralInfo *obj, BGBCC_CCXL_VirtOp *op)
+	BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtOp *op)
 {
 	switch(op->opn)
 	{
@@ -372,13 +373,13 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 
 ccxl_status BGBCC_SHXC_CompileVirtTr(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
-	BGBCC_CCXL_LiteralInfo *obj, BGBCC_CCXL_VirtTr *tr)
+	BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtTr *tr)
 {
 	int i, j, k;
 	
 	for(i=0; i<tr->n_ops; i++)
 	{
-		BGBCC_SHXC_CompileVirtOp(ctx, sctx, obj, obj->decl->vop[tr->b_ops+i]);
+		BGBCC_SHXC_CompileVirtOp(ctx, sctx, obj, obj->vop[tr->b_ops+i]);
 	}
 
 	return(0);
@@ -391,7 +392,7 @@ ccxl_status BGBCC_SHXC_EndFunction(BGBCC_TransState *ctx,
 }
 
 ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
-	BGBCC_CCXL_LiteralInfo *obj)
+	BGBCC_CCXL_RegisterInfo *obj)
 {
 	BGBCC_SHX_Context *sctx;
 	int l0;
@@ -400,26 +401,29 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 	sctx=ctx->uctx;
 	
 	l0=BGBCC_SHX_GenLabel(sctx);
-	obj->decl->fxoffs=l0;
+	obj->fxoffs=l0;
 	
 	sctx->need_farjmp=0;
 	sctx->need_n12jmp=0;
-	if((obj->decl->srctok*4)>=128)
+//	if((obj->srctok*4)>=128)
+	if((obj->n_vop*6)>=128)
 		sctx->need_n12jmp=1;
-	if((obj->decl->srctok*4)>=2048)
+//	if((obj->srctok*4)>=2048)
+	if((obj->n_vop*6)>=2048)
 		sctx->need_farjmp=1;
 	
 	BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
 
 	BGBCC_SHX_SetSectionName(sctx, ".text");
-	BGBCC_SHX_EmitBAlign(sctx, 4);
+//	BGBCC_SHX_EmitBAlign(sctx, 4);
+	BGBCC_SHX_EmitBAlign(sctx, 16);
 
 	BGBCC_SHX_EmitLabel(sctx, l0);
 	BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj);
 	
-	for(i=0; i<obj->decl->n_vtr; i++)
+	for(i=0; i<obj->n_vtr; i++)
 	{
-		BGBCC_SHXC_CompileVirtTr(ctx, sctx, obj, obj->decl->vtr[i]);
+		BGBCC_SHXC_CompileVirtTr(ctx, sctx, obj, obj->vtr[i]);
 	}
 	
 	BGBCC_SHXC_EmitFrameEpilog(ctx, sctx, obj);
@@ -428,7 +432,7 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 }
 
 ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
-	BGBCC_CCXL_LiteralInfo *obj)
+	BGBCC_CCXL_RegisterInfo *obj)
 {
 	BGBCC_SHX_Context *sctx;
 	int l0, sz;
@@ -437,11 +441,11 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 	sctx=ctx->uctx;
 	
 	l0=BGBCC_SHX_GenLabel(sctx);
-	obj->decl->fxoffs=l0;
+	obj->fxoffs=l0;
 	
-	if(!obj->decl->value.val)
+	if(!obj->value.val)
 	{
-		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->decl->type);
+		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->type);
 
 		BGBCC_SHX_SetSectionName(sctx, ".bss");
 		BGBCC_SHX_EmitBAlign(sctx, 4);
@@ -450,7 +454,7 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 		return(1);
 	}
 	
-	sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->decl->type);
+	sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->type);
 
 	BGBCC_SHX_SetSectionName(sctx, ".data");
 	BGBCC_SHX_EmitBAlign(sctx, 4);
@@ -482,7 +486,7 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 	s32 b, d, b1, d1;
 	int i, j, k;
 
-	en=sctx->is_le;
+	en=(sctx->is_le==0);
 
 	for(i=0; i<sctx->nrlc; i++)
 	{
@@ -510,7 +514,7 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 		case BGBCC_SH_RLC_ABS32:
 			d1=0x0C000000+(ctl-imgbase);
 			b=bgbcc_gets32en(ctr, en);
-			bgbcc_sets32en(ctr, en, b+d);
+			bgbcc_sets32en(ctr, en, b+d1);
 			break;
 
 		case BGBCC_SH_RLC_RELW12:
@@ -529,6 +533,8 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 				__debugbreak();
 			bgbcc_setu16en(ctr, en, (b&0xFF00)|(d1&0x00FF));
 			break;
+		default:
+			__debugbreak();
 		}
 	}
 	
@@ -547,7 +553,7 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 
 	sctx=ctx->uctx;
 
-	en=sctx->is_le;
+	en=(sctx->is_le==0);
 	ne_phdr=1;
 	ne_shdr=sctx->nsec;
 	
@@ -583,7 +589,7 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	ct=obuf;
 	ct[ 0]=0x7F;	ct[ 1]='E';			//magic
 	ct[ 2]='L';		ct[ 3]='F';			//magic
-	ct[ 4]=1;		ct[ 5]=en?1:2;		//width, endian
+	ct[ 4]=1;		ct[ 5]=en?2:1;		//width, endian
 	ct[ 6]=1;		ct[ 7]=0;			//ELF version, OS ABI
 	ct[ 8]=0;		ct[ 9]=0;			//pad
 	ct[10]=0;		ct[11]=0;			//pad
@@ -614,6 +620,10 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	bgbcc_setu32en(ct+24, en, 7);			//access flags
 	bgbcc_setu32en(ct+28, en, 4096);		//alignment
 
+	BGBCC_SHXC_ApplyImageRelocs(ctx, sctx, obuf);
+
+	*rosz=ofs_iend;
+
 	return(0);
 }
 
@@ -621,7 +631,7 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 	byte *obuf, int *rosz, fourcc imgfmt)
 {
 	BGBCC_SHX_Context *sctx;
-	BGBCC_CCXL_LiteralInfo *obj;
+	BGBCC_CCXL_RegisterInfo *obj;
 	int l0;
 	u32 addr;
 	int i, j, k;
@@ -630,19 +640,19 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 	
 	sctx->lbl_got=BGBCC_SHX_GenLabel(sctx);
 
-	for(i=0; i<ctx->n_literals; i++)
+	for(i=0; i<ctx->n_reg_globals; i++)
 	{
-		obj=ctx->literals[i];
+		obj=ctx->reg_globals[i];
 		if(!obj)
 			continue;
 
-		if((obj->littype==CCXL_LITID_FUNCTION) && (obj->decl->vtr))
+		if((obj->regtype==CCXL_LITID_FUNCTION) && (obj->vtr))
 		{
 			BGBCC_SHXC_BuildFunction(ctx, obj);
 			continue;
 		}
 
-		if(obj->littype==CCXL_LITID_GLOBALVAR)
+		if(obj->regtype==CCXL_LITID_GLOBALVAR)
 		{
 			BGBCC_SHXC_BuildGlobal(ctx, obj);
 			continue;

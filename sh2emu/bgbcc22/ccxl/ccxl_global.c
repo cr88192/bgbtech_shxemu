@@ -619,6 +619,8 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		obj->decl->regtype=CCXL_LITID_FUNCTION;
 		BGBCC_CCXL_AddGlobalDecl(ctx, obj->decl);
 
+		obj->decl->type.val=256+obj->decl->gblid;
+
 		ctx->regstackpos=0;
 		ctx->uregstackpos=0;
 		ctx->markstackpos=0;
@@ -644,6 +646,8 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		obj->decl=bgbcc_malloc(sizeof(BGBCC_CCXL_RegisterInfo));
 		obj->decl->regtype=CCXL_LITID_FUNCTION;
 		BGBCC_CCXL_AddGlobalDecl(ctx, obj->decl);
+
+		obj->decl->type.val=256+obj->decl->gblid;
 
 //		ctx->ip=ctx->ips;
 //		ctx->n_goto=0;

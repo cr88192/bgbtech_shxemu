@@ -515,7 +515,7 @@ bool BGBCC_CCXL_TypeFunctionP(
 	if(i>=256)
 	{
 		obj=ctx->literals[i-256];
-		if(obj->littype==CCXL_LITID_FUNCTION)
+		if(obj && obj->littype==CCXL_LITID_FUNCTION)
 			return(true);
 		return(false);
 	}
@@ -538,6 +538,8 @@ bool BGBCC_CCXL_TypeValueObjectP(
 	if(i>=256)
 	{
 		obj=ctx->literals[i-256];
+		if(!obj)
+			return(false);
 		if(obj->littype==CCXL_LITID_STRUCT)
 			return(true);
 		if(obj->littype==CCXL_LITID_UNION)
@@ -573,6 +575,8 @@ bool BGBCC_CCXL_TypeIsObjectP(
 	if(i>=256)
 	{
 		obj=ctx->literals[i-256];
+		if(!obj)
+			return(false);
 		if(obj->littype==CCXL_LITID_STRUCT)
 			return(true);
 		if(obj->littype==CCXL_LITID_UNION)
