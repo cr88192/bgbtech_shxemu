@@ -690,7 +690,8 @@ int BGBCC_CCXL_TypeGetLogicalSize(
 	BGBCC_TransState *ctx, ccxl_type ty)
 {
 	BGBCC_CCXL_LiteralInfo *obj;
-	int sz;
+	ccxl_type tty;
+	int sz, asz, sz1;
 
 	if(BGBCC_CCXL_TypeValueObjectP(ctx, ty))
 	{
@@ -700,6 +701,16 @@ int BGBCC_CCXL_TypeGetLogicalSize(
 		{
 			return(obj->decl->fxmsize);
 		}
+	}
+
+	if(BGBCC_CCXL_TypeArrayP(ctx, ty))
+	{
+		BGBCC_CCXL_TypeDerefType(ctx, ty, &tty);
+		sz1=BGBCC_CCXL_TypeGetLogicalSize(ctx, tty);
+		asz=BGBCC_CCXL_TypeGetArraySize(ctx, ty);
+		sz=sz1*asz;
+		if(sz>0)
+			return(sz);
 	}
 
 	sz=BGBCC_CCXL_TypeGetLogicalBaseSize(ctx, ty);

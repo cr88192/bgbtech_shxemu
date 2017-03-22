@@ -108,13 +108,13 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 	BGBCC_CCXL_RegisterInfo *obj)
 {
 	int ni, nf;
-	int i, j, k, ka;
+	int i, j, k, ka, kf;
 	
 	ctx->cur_func=obj;
 	sctx->use_bp=0;
 	
 	ni=0; nf=0;
-	k=0; ka=0;
+	k=0; ka=0; kf=0;
 	k-=2*4;		//saved PR, R14
 	k-=6*4;		//saved R8/9/10/11/13, R2
 	for(i=0; i<obj->n_args; i++)
@@ -127,7 +127,7 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			else		{ obj->args[i]->fxoffs=ka; ka+=4; }
 			break;
 		case BGBCC_SH_REGCLS_GR2:
-			if(ni<3)	{ k-=8; obj->args[i]->fxoffs=k; ni++; }
+			if(ni<3)	{ k-=8; obj->args[i]->fxoffs=k; ni+=2; }
 			else		{ obj->args[i]->fxoffs=ka; ka+=8; }
 			break;
 		case BGBCC_SH_REGCLS_FR:
@@ -136,11 +136,19 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			break;
 		case BGBCC_SH_REGCLS_FR2:
 			nf+=nf&1;
-			if(nf<7)	{ k-=8; obj->args[i]->fxoffs=k; nf++; }
+			if(nf<7)	{ k-=8; obj->args[i]->fxoffs=k; nf+=2; }
 			else		{ obj->args[i]->fxoffs=ka; ka+=8; }
 			break;
 		default:
 			break;
+		}
+
+		if(BGBCC_CCXL_TypeValueObjectP(ctx, obj->args[i]->type))
+		{
+			obj->args[i]->fxmoffs=kf;
+			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->args[i]->type);
+			j=(j+3)&(~3);
+			kf+=j;
 		}
 	}
 
@@ -154,6 +162,15 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 		case BGBCC_SH_REGCLS_GR2:		case BGBCC_SH_REGCLS_FR2:
 			k-=8; obj->locals[i]->fxoffs=k;	break;
 		default:	break;
+		}
+		
+		if(BGBCC_CCXL_TypeArrayP(ctx, obj->locals[i]->type) ||
+			BGBCC_CCXL_TypeValueObjectP(ctx, obj->locals[i]->type))
+		{
+			obj->locals[i]->fxmoffs=kf;
+			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->locals[i]->type);
+			j=(j+3)&(~3);
+			kf+=j;
 		}
 	}
 	sctx->frm_offs_lcl=k;
@@ -169,8 +186,20 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			k-=8; obj->regs[i]->fxoffs=k;		break;
 		default:	break;
 		}
+
+		if(BGBCC_CCXL_TypeArrayP(ctx, obj->regs[i]->type) ||
+			BGBCC_CCXL_TypeValueObjectP(ctx, obj->regs[i]->type))
+		{
+			obj->regs[i]->fxmoffs=kf;
+			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->regs[i]->type);
+			j=(j+3)&(~3);
+			kf+=j;
+		}
 	}
 	sctx->frm_offs_tmp=k;
+	
+	k-=kf;
+	sctx->frm_offs_fix=k;
 	
 	k-=obj->n_cargs*8;
 	k&=~15;
@@ -189,6 +218,8 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 	BGBCC_CCXL_RegisterInfo *obj)
 {
 	int p0;
+	int ni, nf;
+	int i, j, k;
 
 	BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_STSL,
 		BGBCC_SH_REG_PR, BGBCC_SH_REG_SP);
@@ -215,6 +246,72 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 	BGBCC_SHX_EmitLoadRegLabelRel(sctx, BGBCC_SH_REG_R12, sctx->lbl_got, 0);
 	BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
 		BGBCC_SH_REG_R0, BGBCC_SH_REG_R12);
+
+	ni=0; nf=0;
+	for(i=0; i<obj->n_args; i++)
+	{
+		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->args[i]->type);
+		switch(j)
+		{
+		case BGBCC_SH_REGCLS_GR:
+			if(ni>=4)
+				break;
+			k=obj->args[i]->fxoffs;
+			BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, k, BGBCC_SH_REG_R4+ni);
+			ni++;
+			break;
+		case BGBCC_SH_REGCLS_GR2:
+			if(ni>=3)
+				break;
+			k=obj->args[i]->fxoffs;
+			BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx,
+				k, BGBCC_SH_REG_R4+ni);
+			BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx,
+				k+4, BGBCC_SH_REG_R4+ni+1);
+			ni+=2;
+			break;
+		case BGBCC_SH_REGCLS_FR:
+			if(nf>=8)
+				break;
+			k=obj->args[i]->fxoffs;
+			BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, k, BGBCC_SH_REG_FR4+nf);
+			nf++;
+			break;
+		case BGBCC_SH_REGCLS_FR2:
+			nf+=nf&1;
+			if(nf>=7)
+				break;
+			k=obj->args[i]->fxoffs;
+			BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx,
+				k+4, BGBCC_SH_REG_FR4+nf+0);
+			BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx,
+				k+0, BGBCC_SH_REG_FR4+nf+1);
+			nf+=2;
+			break;
+		default:
+			break;
+		}
+
+		if(BGBCC_CCXL_TypeValueObjectP(ctx, obj->args[i]->type))
+		{
+//			obj->args[i]->fxmoffs=kf;
+//			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->args[i]->type);
+//			j=(j+3)&(~3);
+//			kf+=j;
+		}
+	}
+
+	for(i=0; i<obj->n_locals; i++)
+	{
+		if(BGBCC_CCXL_TypeArrayP(ctx, obj->locals[i]->type) ||
+			BGBCC_CCXL_TypeValueObjectP(ctx, obj->locals[i]->type))
+		{
+			j=obj->locals[i]->fxmoffs;
+			k=obj->locals[i]->fxoffs;
+			BGBCC_SHXC_EmitLdaFrameOfsReg(ctx, sctx, j, BGBCC_SH_REG_R3);
+			BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, k, BGBCC_SH_REG_R3);
+		}
+	}
 
 	sctx->regalc_save=0;
 	sctx->regalc_live=0;

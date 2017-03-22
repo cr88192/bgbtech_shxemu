@@ -48,6 +48,13 @@
 #define BGBCC_SH_REG_DBR		0x2F
 
 #define BGBCC_SH_REG_PC			0x3E
+
+#define BGBCC_SH_REG_FR0		0x40
+#define BGBCC_SH_REG_FR1		0x41
+#define BGBCC_SH_REG_FR2		0x42
+#define BGBCC_SH_REG_FR3		0x43
+#define BGBCC_SH_REG_FR4		0x44
+
 #define BGBCC_SH_REG_ZZR		0xFF		//Null Register (Placeholder Reg)
 
 #define BGBCC_SH_NMID_UNK			0x00	//Unknown
@@ -309,6 +316,7 @@ byte regalc_dirty;
 int frm_size;			//allocated size of frame
 int frm_offs_lcl;		//frame offset of local vars
 int frm_offs_tmp;		//frame offset of temporaries
+int frm_offs_fix;		//fixed-size automatic
 int lbl_ret;			//label ID for function exit
 int lbl_got;			//label ID for got
 
