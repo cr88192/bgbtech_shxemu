@@ -486,8 +486,11 @@ int BGBCC_LoadCSourcesCCXL(
 	char **names, int nnames,
 	byte *obuf, int *rsz, fourcc imgfmt)
 {
+	char tb[256];
 	BGBCC_TransState *ctx;
 	BCCX_Node *t, *c, *n;
+	byte *buf;
+	fourcc lang;
 	int i, sz, omsz;
 
 	omsz=*rsz;
@@ -499,9 +502,25 @@ int BGBCC_LoadCSourcesCCXL(
 	ctx->sub_arch=bgbcc_subarch;
 	BGBCC_CCXL_SetupContextForArch(ctx);
 
+//	if(1)
+	if(imgfmt==BGBCC_IMGFMT_RIL3)
+	{
+		BGBCC_CCXLR3_BeginRecRIL(ctx);
+	}
+
 	for(i=0; i<nnames; i++)
 	{
 		printf("BGBCC_LoadCSourcesCCXL: %s\n", names[i]);
+		
+		lang=BGBCP_LangForName(names[i]);
+		if(lang==BGBCC_IMGFMT_RIL3)
+		{
+			buf=bgbcc_loadfile(names[i], &sz);
+			if(buf)
+				{ BGBCC_CCXLR3_LoadBufferRIL(ctx, buf, sz); }
+			continue;
+		}
+		
 		t=BGBCC_LoadCSourceAST(names[i]);
 		if(!t)continue;
 		BGBCC_CCXL_CompileModuleCTX(ctx, names[i], t);
@@ -515,6 +534,20 @@ int BGBCC_LoadCSourcesCCXL(
 			BCCX_DeleteTree(c);
 			c=n;
 		}
+	}
+
+//	if(ctx->ril_ip)
+//	{
+//		sprintf(tb, "dump/%s_ril3.dat", "tst");
+//		BGBCC_StoreFile(tb, ctx->ril_ips, ctx->ril_ip-ctx->ril_ips);
+//	}
+
+	if(imgfmt==BGBCC_IMGFMT_RIL3)
+	{
+		sz=ctx->ril_ip-ctx->ril_ips;
+		memcpy(obuf, ctx->ril_ips, sz);
+		if(*rsz)*rsz=sz;
+		return(0);
 	}
 
 //	sz=BGBCC_FrBC_FlattenImage(ctx, obuf, omsz);

@@ -259,6 +259,8 @@ extern "C" {
 #define BGBCC_LANG_MINIC	BGBCC_FOURCC('M', 'I', 'N', 'C')
 #define BGBCC_LANG_BS2		BGBCC_FOURCC('B', 'S', '2', ' ')
 
+#define BGBCC_LANG_ASM		BGBCC_FOURCC('A', 'S', 'M', ' ')
+
 #define BGBCC_ARCH_DEFAULT	0	//any arch
 #define BGBCC_ARCH_X86		BGBCC_FOURCC('X', '8', '6', ' ')
 #define BGBCC_ARCH_X64		BGBCC_FOURCC('X', '6', '4', ' ')
@@ -282,6 +284,8 @@ extern "C" {
 #define BGBCC_IMGFMT_EXE	BGBCC_FOURCC('E', 'X', 'E', ' ')
 #define BGBCC_IMGFMT_DLL	BGBCC_FOURCC('D', 'L', 'L', ' ')
 
+#define BGBCC_IMGFMT_RIL3	BGBCC_FOURCC('R', 'I', 'L', '3')
+
 #endif
 
 
@@ -299,6 +303,7 @@ extern "C" {
 #include <bgbcc_tokord.h>
 
 #include <bgbcc_ccxl.h>
+#include <bgbcc_ril3.h>
 #include <bgbcc_shcc.h>
 
 typedef struct BGBCP_ParseItem_s BGBCP_ParseItem;
@@ -381,6 +386,18 @@ int breakstackpos;
 // char *ip;
 // char *ips;
 // char *ipe;
+
+byte *ril_ip;
+byte *ril_ips;
+byte *ril_ipe;
+
+byte *ril_txwin;
+u16 *ril_txhash;
+u16 ril_txrov;
+u16 ril_txrh;
+u16 ril_psidx[64];
+byte ril_pslen[64];
+byte ril_psrov;
 
 BGBCC_CCXL_VirtOp **vop;
 BGBCC_CCXL_VirtTr **vtr;

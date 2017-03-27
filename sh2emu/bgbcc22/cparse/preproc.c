@@ -1599,7 +1599,7 @@ int BGBPP_Line(BGBCP_ParseState *ctx, char *str)
 			continue;
 		}
 
-		if((ty==BTK_OPERATOR) &&
+		if((ty==BTK_OPERATOR) && (ctx->lang!=BGBCC_LANG_ASM) &&
 			(!strcmp(b, "#") || !strcmp(b, "%:")))
 		{
 			if(ty2==BTK_NAME)

@@ -535,6 +535,16 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 		return;
 	}
 
+	if(BCCX_TagIsP(l, "asm_blob"))
+	{
+		c=BCCX_Child(l);
+		s0=BCCX_Text(c);
+
+		BGBCC_CCXL_AddAsmBlob(ctx, s0);
+//		BGBCC_CCXL_Warn(ctx, "inline ASM is unsupported\n");
+		return;
+	}
+
 	if(BCCX_TagIsP(l, "linecomment")) { return; }
 	if(BCCX_TagIsP(l, "blockcomment")) { return; }
 
@@ -2724,6 +2734,14 @@ void BGBCC_CCXL_CompileTopStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "pragma"))
 		{ return; }
+
+	if(BCCX_TagIsP(l, "asm_blob"))
+	{
+		c=BCCX_Child(l);
+		BGBCC_CCXL_AddAsmBlob(ctx, BCCX_Text(c));
+//		BGBCC_CCXL_Warn(ctx, "inline ASM is unsupported\n");
+		return;
+	}
 
 	BGBCC_CCXL_Error(ctx, "unhandled top statement %s\n", BCCX_Tag(l));
 }

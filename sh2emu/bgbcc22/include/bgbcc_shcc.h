@@ -47,6 +47,8 @@
 
 #define BGBCC_SH_REG_DBR		0x2F
 
+#define BGBCC_SH_REG_DR0		0x30
+
 #define BGBCC_SH_REG_PC			0x3E
 
 #define BGBCC_SH_REG_FR0		0x40
@@ -218,15 +220,26 @@
 #define BGBCC_SH_FMID_STREG			0x12	//@Rn
 #define BGBCC_SH_FMID_IMMSTRMN		0x13	//Imm, @(Rm+Rn)
 #define BGBCC_SH_FMID_REGVIMM		0x14	//<Imm>, Rn
-
 #define BGBCC_SH_FMID_FREGREG		0x15	//FRm, FRn
 #define BGBCC_SH_FMID_FREGRM		0x16	//FRm
 #define BGBCC_SH_FMID_FREGRN		0x17	//FRn
-
 #define BGBCC_SH_FMID_DREGREG		0x18	//FRm, FRn
 #define BGBCC_SH_FMID_DREGRM		0x19	//FRm
 #define BGBCC_SH_FMID_DREGRN		0x1A	//FRn
+#define BGBCC_SH_FMID_LABEL			0x1B	//<Lbl>
+#define BGBCC_SH_FMID_LBLREG		0x1C	//<Lbl>, Rn
 
+
+#define BGBCC_SH_OPVTY_NONE			0x00	//None
+#define BGBCC_SH_OPVTY_IMM			0x01	//#Imm
+#define BGBCC_SH_OPVTY_REG			0x02	//Reg
+#define BGBCC_SH_OPVTY_NAME			0x03	//Name
+#define BGBCC_SH_OPVTY_DRREG		0x04	//@Reg
+#define BGBCC_SH_OPVTY_DRREGI		0x05	//@Reg+
+#define BGBCC_SH_OPVTY_DRREGD		0x06	//@-Reg
+
+#define BGBCC_SH_OPVTY_RRMEM		0x08	//@(Reg,Reg)
+#define BGBCC_SH_OPVTY_RDMEM		0x09	//@(Reg,Disp)
 
 #define BGBCC_SH_RLC_REL8			0x01	//Relative BYTE
 #define BGBCC_SH_RLC_REL16			0x02	//Relative WORD
@@ -237,13 +250,18 @@
 #define BGBCC_SH_RLC_ABS64			0x07	//Absolute QWORD
 #define BGBCC_SH_RLC_RELW12			0x08	//Relative Low 12 bits (WORD)
 #define BGBCC_SH_RLC_RELW8			0x09	//Relative Low 8 bit (WORD)
+#define BGBCC_SH_RLC_REL32B			0x0A	//Relative DWORD (Reverse)
+
+#define BGBCC_SH_RLC_RELW12L		0x0B	//Relative Low 12 bits (DWORD)
+#define BGBCC_SH_RLC_RELW8L			0x0C	//Relative Low 8 bit (DWORD)
 
 #define BGBCC_SH_CSEG_TEXT		0x00		//.text section
-#define BGBCC_SH_CSEG_GOT		0x01		//.got section
-#define BGBCC_SH_CSEG_DATA		0x02		//.data section
-#define BGBCC_SH_CSEG_BSS		0x03		//.bss section
+#define BGBCC_SH_CSEG_STRTAB	0x01		//.strtab section
+#define BGBCC_SH_CSEG_GOT		0x02		//.got section
+#define BGBCC_SH_CSEG_DATA		0x03		//.data section
+#define BGBCC_SH_CSEG_BSS		0x04		//.bss section
 
-#define BGBCC_SH_CSEG_DYN		0x04		//dynamic sections
+#define BGBCC_SH_CSEG_DYN		0x05		//dynamic sections
 
 #define BGBCC_SH_REGCLS_NONE	0
 #define BGBCC_SH_REGCLS_GR		1	//uses a GPR
@@ -264,6 +282,7 @@ byte *sec_end[16];
 byte *sec_pos[16];
 u32 sec_rva[16];		//relative virtual address (image offset)
 u32 sec_lva[16];		//logical virtual address
+u32 sec_lsz[16];		//logical size
 byte sec;
 byte nsec;
 
@@ -271,6 +290,7 @@ byte is_le;			//is little endian
 byte use_bp;		//use frame pointer
 byte need_farjmp;	//function needs far jumps
 byte need_n12jmp;	//function needs at least 12-bit jumps
+byte is_pic;		//is PIC.
 
 u32 *lbl_ofs;		//label offsets
 u32 *rlc_ofs;		//reloc offsets
@@ -283,11 +303,15 @@ int nlbl, mlbl;
 int nrlc, mrlc;
 u16 lblrov;			//labels (local/temp)
 
+char **lbln_name;	//named label names
+u32 *lbln_id;		//named label IDs
+int nlbln, mlbln;
+
 // byte reg_idx[BGBCC_SH_MAX_CACHEVAR];
 // byte reg_reg[BGBCC_SH_MAX_CACHEVAR];
 // int reg_live;
 // int reg_resv;
-// int reg_save;
+int reg_save;
 // int reg_dirty;
 
 int ofs_s16tab[256];
@@ -335,9 +359,11 @@ sc==0: register, immediate, or label
 sc!=0: memory reference
  */
 struct BGBCC_SHX_OpcodeArg_s {
+byte ty;		//operand type
 byte sc;		//scale for Reg/RM forms (1,2,3,4 for mem-ref)
 byte ireg;		//index for Reg/RM forms
 byte breg;		//base for Reg/RM forms, or register
 s64 disp;		//displacement for Reg/RM forms, or immed
 int lbl;		//label
+char *name;		//name
 };

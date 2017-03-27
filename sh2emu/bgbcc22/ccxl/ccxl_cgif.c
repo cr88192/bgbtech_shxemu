@@ -11,6 +11,10 @@ ccxl_status BGBCC_CCXL_RegisterBackend(BGBCC_CCXL_BackendFuncs_vt *ivt)
 ccxl_status BGBCC_CCXL_StackFn(BGBCC_TransState *ctx, char *name)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STKFN);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_DBGFN;
 	op->imm.str=bgbcc_strdup(name);
@@ -21,6 +25,10 @@ ccxl_status BGBCC_CCXL_StackFn(BGBCC_TransState *ctx, char *name)
 ccxl_status BGBCC_CCXL_StackLn(BGBCC_TransState *ctx, int line)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STKLN);
+	BGBCC_CCXLR3_EmitArgInt(ctx, line);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_DBGLN;
 	op->imm.si=line;
@@ -31,6 +39,10 @@ ccxl_status BGBCC_CCXL_StackLn(BGBCC_TransState *ctx, int line)
 ccxl_status BGBCC_CCXL_EmitLabel(BGBCC_TransState *ctx, ccxl_label lbl)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LABEL);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, lbl);
+
 	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LABEL;

@@ -37,6 +37,10 @@ void BGBCC_CCXL_CompileBreak(BGBCC_TransState *ctx)
 	ccxl_label l;
 
 	l=ctx->breakstack[ctx->breakstackpos-1];
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMP);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, l);
+
 	BGBCC_CCXL_EmitJump(ctx, l);
 	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 }
@@ -46,6 +50,10 @@ void BGBCC_CCXL_CompileContinue(BGBCC_TransState *ctx)
 	ccxl_label l;
 
 	l=ctx->contstack[ctx->contstackpos-1];
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMP);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, l);
+
 	BGBCC_CCXL_EmitJump(ctx, l);
 	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 }
@@ -57,6 +65,9 @@ void BGBCC_CCXL_CompileBreakFalse(BGBCC_TransState *ctx)
 	ccxl_label l;
 
 	l=ctx->breakstack[ctx->breakstackpos-1];
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMPF);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, l);
 
 	BGBCC_CCXL_PopRegister(ctx, &reg);
 	ty=BGBCC_CCXL_GetRegType(ctx, reg);
@@ -73,6 +84,9 @@ void BGBCC_CCXL_CompileBreakTrue(BGBCC_TransState *ctx)
 
 	l=ctx->breakstack[ctx->breakstackpos-1];
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMPT);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, l);
+
 	BGBCC_CCXL_PopRegister(ctx, &reg);
 	ty=BGBCC_CCXL_GetRegType(ctx, reg);
 	BGBCC_CCXL_EmitJumpRegZero(ctx, ty, CCXL_CMP_NE, reg, l);
@@ -87,6 +101,9 @@ void BGBCC_CCXL_CompileContinueFalse(BGBCC_TransState *ctx)
 	ccxl_label l;
 
 	l=ctx->contstack[ctx->contstackpos-1];
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMPF);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, l);
 
 	BGBCC_CCXL_PopRegister(ctx, &reg);
 	ty=BGBCC_CCXL_GetRegType(ctx, reg);
@@ -103,6 +120,9 @@ void BGBCC_CCXL_CompileContinueTrue(BGBCC_TransState *ctx)
 
 	lbl=ctx->contstack[ctx->contstackpos-1];
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMPT);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, lbl);
+
 	BGBCC_CCXL_PopRegister(ctx, &reg);
 	ty=BGBCC_CCXL_GetRegType(ctx, reg);
 	BGBCC_CCXL_EmitJumpRegZero(ctx, ty, CCXL_CMP_NE, reg, lbl);
@@ -116,6 +136,9 @@ void BGBCC_CCXL_CompileJmp(BGBCC_TransState *ctx, ccxl_label lbl)
 	ccxl_register reg;
 	ccxl_type ty;
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMP);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, lbl);
+
 	BGBCC_CCXL_EmitJump(ctx, lbl);
 	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 }
@@ -124,6 +147,9 @@ void BGBCC_CCXL_CompileJmpFalse(BGBCC_TransState *ctx, ccxl_label lbl)
 {
 	ccxl_register reg;
 	ccxl_type ty;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMPF);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, lbl);
 
 	BGBCC_CCXL_PopRegister(ctx, &reg);
 	ty=BGBCC_CCXL_GetRegType(ctx, reg);
@@ -136,6 +162,9 @@ void BGBCC_CCXL_CompileJmpTrue(BGBCC_TransState *ctx, ccxl_label lbl)
 {
 	ccxl_register reg;
 	ccxl_type ty;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JMPT);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, lbl);
 
 	BGBCC_CCXL_PopRegister(ctx, &reg);
 	ty=BGBCC_CCXL_GetRegType(ctx, reg);
@@ -160,7 +189,11 @@ void BGBCC_CCXL_CompileJmpCond(BGBCC_TransState *ctx,
 	if(!strcmp(op, ">"))	{ opr=CCXL_CMP_GT; }
 	if(!strcmp(op, "<="))	{ opr=CCXL_CMP_LE; }
 	if(!strcmp(op, ">="))	{ opr=CCXL_CMP_GE; }
-	
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JCMP);
+	BGBCC_CCXLR3_EmitArgInt(ctx, opr);
+	BGBCC_CCXLR3_EmitArgLabel(ctx, lbl);
+
 	BGBCC_CCXL_PopRegister(ctx, &regb);
 	BGBCC_CCXL_PopRegister(ctx, &rega);
 	ty=BGBCC_CCXL_GetRegType(ctx, rega);

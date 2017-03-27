@@ -162,7 +162,7 @@ char *BGBCP_EatWhiteOnly2(char *s)
 	if(!s)
 		return(s);
 
-	while(*s && (*s<=' ') && (*s!='\n'))s++;
+	while(*s && (*s<=' ') && (*s!='\r') && (*s!='\n'))s++;
 	return(s);
 }
 
@@ -261,6 +261,70 @@ char *BGBCP_EatWhite(char *s)
 		return(s);
 	}
 #endif
+
+	return(s);
+}
+
+
+char *BGBCP_EatWhiteNLb(char *s)
+{
+	char *fn;
+	int ln;
+	int i;
+
+	if(!s)
+		return(s);
+
+	while(*s && (*s<=' ') && (*s!='\r') && (*s!='\n'))s++;
+
+	if(s[0]=='/')
+	{
+		if(s[1]=='/')
+		{
+			while(*s && (*s!='\n'))s++;
+//			s=BGBCP_EatWhiteNLb(s);
+			return(s);
+		}
+		if(s[1]=='*')
+		{
+			i=BGBCP_SkimLinenum(s, &fn, &ln);
+			if(i)
+			{
+				if(fn)bgbcp_lfn=fn;
+				bgbcp_lln=ln;
+			}
+
+#if 1
+			s+=2; i=1;
+			while(*s)
+			{
+				if(*s=='*')
+				{
+					s++;
+					if(*s=='/')
+					{
+						s++; i--;
+						if(!i)break;
+						continue;
+					}
+					continue;
+				}else if(*s=='/')
+				{
+					s++;
+					if(*s=='*')
+					{
+						s++; i++;
+						continue;
+					}
+					continue;
+				}
+				s++;
+			}
+#endif
+			s=BGBCP_EatWhiteNLb(s);
+			return(s);
+		}
+	}
 
 	return(s);
 }
@@ -500,7 +564,7 @@ int BGBCP_EmitChar(char **str, int j)
 	return(0);
 }
 
-int BGBCP_NameInitChar(int c)
+int BGBCP_NameInitChar(int c, int lang)
 {
 	static int vals[]={
 	0x00AA, 0x00BA, 0x207F, 0x0386, 0x038C, 0x03DA, 0x03DC, 0x03DE,
@@ -570,6 +634,13 @@ int BGBCP_NameInitChar(int c)
 	if((c>='A') && (c<='Z'))return(1);
 	if(c=='_')return(1);
 	if(c=='$')return(1);
+	
+	if(lang==BGBCC_LANG_ASM)
+	{
+		if(c=='.')return(1);
+//		if(c=='/')return(1);
+		if(c=='@')return(1);
+	}
 
 //	if((c>='0') && (c<='9'))return(0);
 	if(c<128)return(0);
@@ -584,10 +655,19 @@ int BGBCP_NameInitChar(int c)
 	return(0);
 }
 
-int BGBCP_NameChar(int c)
+int BGBCP_NameChar(int c, int lang)
 {
 	if((c>='0') && (c<='9'))return(1);
-	if(BGBCP_NameInitChar(c))return(1);
+	if(BGBCP_NameInitChar(c, lang))return(1);
+
+	if(lang==BGBCC_LANG_ASM)
+	{
+		if(c=='.')return(1);
+		if(c=='/')return(1);
+		if(c=='-')return(1);
+		if(c=='@')return(1);
+	}
+
 	return(0);
 }
 
@@ -606,44 +686,13 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 	t=b; te=t+sz-2;
 
 	i=BGBCP_PeekChar(&s);
-	if(BGBCP_NameInitChar(i))
-//	if((*s=='_') || ((*s>='a') && (*s<='z')) || ((*s>='A') && (*s<='Z')))
+	if(BGBCP_NameInitChar(i, lang))
 	{
-#if 0
-		while(
-			(*s=='_') ||
-			((*s>='a') && (*s<='z')) ||
-			((*s>='A') && (*s<='Z')) ||
-			((*s>='0') && (*s<='9')))
-			*t++=*s++;
-#endif
-
 		while(t<te)
 		{
-#if 0
-			if((s[0]=='\\') && ((s[1]=='u') || (s[1]=='U')))
-			{
-				k=2;
-				if(s[1]=='u')k=4;
-				if(s[1]=='U')k=8;
-
-				s+=2; j=0;
-				while(k--)
-				{
-					j<<=4;
-					if((*s>='0') && (*s<='9'))j+=*s-'0';
-					if((*s>='A') && (*s<='F'))j+=*s-'A'+10;
-					if((*s>='a') && (*s<='f'))j+=*s-'a'+10;
-					s++;
-				}
-				BGBCP_EmitChar(&t, j);
-				continue;
-			}
-#endif
-
 			s1=s;
 			i=BGBCP_ParseChar(&s);
-			if(!BGBCP_NameChar(i))
+			if(!BGBCP_NameChar(i, lang))
 				{ s=s1; break; }
 			BGBCP_EmitChar(&t, i);
 		}
@@ -913,6 +962,15 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 	{
 		*ty=BTK_OPERATOR;
 
+//		if(lang==BGBCC_LANG_ASM)
+		if(0)
+		{
+			*t++=*s++;
+			*t++=0;
+			if(*b==':')*ty=BTK_SEPERATOR;
+			return(s);
+		}
+
 		if(lang==BGBCC_LANG_JAVA)
 		{
 			if( !strncmp(s, "<<<=", 4) ||
@@ -1031,7 +1089,7 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 int bgbcp_token_cnt;
 
 #define BGBCP_TKHASHSZ 256
-char *BGBCP_Token(char *s, char *b, int *ty)
+char *BGBCP_TokenLang2(char *s, char *b, int *ty, int lang)
 {
 	static char ltb[BGBCP_TKHASHSZ][256];
 	static char *ls[BGBCP_TKHASHSZ];
@@ -1057,7 +1115,7 @@ char *BGBCP_Token(char *s, char *b, int *ty)
 	{
 		flush--;
 		bgbcp_token_cnt++;
-		return(BGBCP_TokenI(s, b, ty, BGBCC_LANG_C, 256));
+		return(BGBCP_TokenI(s, b, ty, lang, 256));
 	}
 
 //	i=(((nlint)s)*7)&63;
@@ -1076,10 +1134,15 @@ char *BGBCP_Token(char *s, char *b, int *ty)
 	
 	bgbcp_token_cnt++;
 	ls[i]=s;
-	ls1[i]=BGBCP_TokenI(s, tb, &(lty[i]), BGBCC_LANG_C, 256);
+	ls1[i]=BGBCP_TokenI(s, tb, &(lty[i]), lang, 256);
 	strcpy(b, tb);
 	*ty=lty[i];
 	return(ls1[i]);
+}
+
+char *BGBCP_Token(char *s, char *b, int *ty)
+{
+	return(BGBCP_TokenLang2(s, b, ty, BGBCC_LANG_C));
 }
 
 void BGBCP_FlushToken(char *s)

@@ -221,17 +221,19 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 	int ni, nf;
 	int i, j, k;
 
+	sctx->reg_save=0;
+
 	BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_STSL,
 		BGBCC_SH_REG_PR, BGBCC_SH_REG_SP);
-	BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_MOVL,
-		BGBCC_SH_REG_BP, BGBCC_SH_REG_SP);
+//	BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_MOVL,
+//		BGBCC_SH_REG_BP, BGBCC_SH_REG_SP);
 
 	p0=BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
-		BGBCC_SH_REG_SP, -(sctx->frm_size-8));
+		BGBCC_SH_REG_SP, -(sctx->frm_size-4));
 	if(p0<=0)
 	{
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
-			BGBCC_SH_REG_R0, sctx->frm_size-8);
+			BGBCC_SH_REG_R0, sctx->frm_size-4);
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_SUB,
 			BGBCC_SH_REG_R0, BGBCC_SH_REG_SP);
 	}
@@ -240,12 +242,17 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 //		BGBCC_SH_REG_PR, BGBCC_SH_REG_R0);
 //	BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, - 4, BGBCC_SH_REG_R0);
 //	BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, - 8, BGBCC_SH_REG_R14);
-	BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, -16, BGBCC_SH_REG_R12);
 
-	BGBCC_SHX_EmitWord(sctx, 0xC700);
-	BGBCC_SHX_EmitLoadRegLabelRel(sctx, BGBCC_SH_REG_R12, sctx->lbl_got, 0);
-	BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
-		BGBCC_SH_REG_R0, BGBCC_SH_REG_R12);
+	if(sctx->is_pic)
+	{
+//		BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, -16, BGBCC_SH_REG_R12);
+		BGBCC_SHXC_EmitSaveFrameReg(ctx, sctx, BGBCC_SH_REG_R12);
+
+		BGBCC_SHX_EmitWord(sctx, 0xC700);
+		BGBCC_SHX_EmitLoadRegLabelRel(sctx, BGBCC_SH_REG_R12, sctx->lbl_got, 0);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
+			BGBCC_SH_REG_R0, BGBCC_SH_REG_R12);
+	}
 
 	ni=0; nf=0;
 	for(i=0; i<obj->n_args; i++)
@@ -326,6 +333,7 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
 	BGBCC_CCXL_RegisterInfo *obj)
 {
+	int i;
 	int p0;
 
 //	BGBCC_SHXC_EmitLoadFrameOfsReg(ctx, sctx, - 4, BGBCC_SH_REG_R3);
@@ -336,23 +344,32 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 	{
 		BGBCC_SHX_EmitLabel(sctx, sctx->lbl_ret);
 	}
+	
+	for(i=0; i<16; i++)
+	{
+		BGBCC_SHXC_EmitReloadSavedFrameReg(ctx, sctx,
+			BGBCC_SH_REG_R0+i);
+	}
 
 	p0=BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
-		BGBCC_SH_REG_SP, -(sctx->frm_size-8));
+		BGBCC_SH_REG_SP, sctx->frm_size-4);
 	if(p0<=0)
 	{
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
-			BGBCC_SH_REG_R0, sctx->frm_size-8);
+			BGBCC_SH_REG_R0, sctx->frm_size-4);
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
 			BGBCC_SH_REG_R0, BGBCC_SH_REG_SP);
 	}
 
-	BGBCC_SHX_EmitOpLdIncRegReg(sctx, BGBCC_SH_NMID_MOVL,
-		BGBCC_SH_REG_SP, BGBCC_SH_REG_BP);
+//	BGBCC_SHX_EmitOpLdIncRegReg(sctx, BGBCC_SH_NMID_MOVL,
+//		BGBCC_SH_REG_SP, BGBCC_SH_REG_BP);
 	BGBCC_SHX_EmitOpLdIncRegReg(sctx, BGBCC_SH_NMID_LDSL,
 		BGBCC_SH_REG_SP, BGBCC_SH_REG_PR);
 
 	BGBCC_SHX_EmitOpNone(sctx, BGBCC_SH_NMID_RTS);
+	BGBCC_SHX_EmitOpNone(sctx, BGBCC_SH_NMID_NOP);
+	BGBCC_SHX_EmitFlushIndexImm16(sctx);
+	BGBCC_SHX_EmitFlushIndexImm32(sctx);
 	
 	return(0);
 }
@@ -497,8 +514,13 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 
 	sctx=ctx->uctx;
 	
-	l0=BGBCC_SHX_GenLabel(sctx);
-	obj->fxoffs=l0;
+	l0=obj->fxoffs;
+	if(l0<=0)
+	{
+//		l0=BGBCC_SHX_GenLabel(sctx);
+		l0=BGBCC_SHX_GetNamedLabel(sctx, obj->name);
+		obj->fxoffs=l0;
+	}
 	
 	sctx->need_farjmp=0;
 	sctx->need_n12jmp=0;
@@ -537,17 +559,25 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 
 	sctx=ctx->uctx;
 	
-	l0=BGBCC_SHX_GenLabel(sctx);
-	obj->fxoffs=l0;
+	l0=obj->fxoffs;
+	if(l0<=0)
+	{
+//		lbl=BGBCC_SHX_LookupNamedLabel(ctx, name);
+//		l0=BGBCC_SHX_GenLabel(sctx);
+		l0=BGBCC_SHX_GetNamedLabel(sctx, obj->name);
+		obj->fxoffs=l0;
+	}
 	
 	if(!obj->value.val)
 	{
 		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->type);
 
-		BGBCC_SHX_SetSectionName(sctx, ".bss");
-		BGBCC_SHX_EmitBAlign(sctx, 4);
-		BGBCC_SHX_EmitLabel(sctx, l0);
-		BGBCC_SHX_EmitRawBytes(sctx, NULL, sz);
+		BGBCC_SHX_EmitCommSym(sctx, l0, sz);
+
+//		BGBCC_SHX_SetSectionName(sctx, ".bss");
+//		BGBCC_SHX_EmitBAlign(sctx, 4);
+//		BGBCC_SHX_EmitLabel(sctx, l0);
+//		BGBCC_SHX_EmitRawBytes(sctx, NULL, sz);
 		return(1);
 	}
 	
@@ -557,6 +587,19 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 	BGBCC_SHX_EmitBAlign(sctx, 4);
 	BGBCC_SHX_EmitLabel(sctx, l0);
 //	BGBCC_SHX_EmitRawBytes(sctx, NULL, sz);
+	return(1);
+}
+
+ccxl_status BGBCC_SHXC_BuildAsmBlob(BGBCC_TransState *ctx,
+	BGBCC_CCXL_RegisterInfo *obj)
+{
+	BGBCC_SHX_Context *sctx;
+	int l0, sz;
+	int i, j, k;
+
+	sctx=ctx->uctx;
+	
+	BGBCC_SHXC_AssembleBuffer(ctx, sctx, (char *)(obj->text));
 	return(1);
 }
 
@@ -574,11 +617,34 @@ int BGBCC_SHXC_LookupLabelIndex(
 	return(-1);
 }
 
+int BGBCC_SHXC_LookupLabelImgOffs(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int lblid)
+{
+	int i, j, k;
+	
+	j=BGBCC_SHXC_LookupLabelIndex(ctx, sctx, lblid);
+	k=sctx->sec_rva[sctx->lbl_sec[j]]+sctx->lbl_ofs[j];
+	return(k);
+}
+
+int BGBCC_SHXC_LookupLabelImgVA(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int lblid)
+{
+	int i, j, k;
+	
+	j=BGBCC_SHXC_LookupLabelIndex(ctx, sctx, lblid);
+	k=sctx->sec_lva[sctx->lbl_sec[j]]+sctx->lbl_ofs[j];
+	return(k);
+}
+
 ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
 	byte *imgbase)
 {
 	byte *ctl, *ctr;
+	char *s0;
 	int en;
 	s32 b, d, b1, d1;
 	int i, j, k;
@@ -589,7 +655,18 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 	{
 		j=BGBCC_SHXC_LookupLabelIndex(ctx, sctx, sctx->rlc_id[i]);
 		if(j<0)
-			{ __debugbreak(); }
+		{
+			k=sctx->rlc_id[i];
+			s0=BGBCC_SHX_LookupNameForLabel(sctx, k);
+			if(s0)
+			{
+				printf("BGBCC_SHXC_ApplyImageRelocs: Missing Label %s\n", s0);
+			}else
+			{
+				printf("BGBCC_SHXC_ApplyImageRelocs: Missing Label %08X\n", k);
+			}
+//			__debugbreak();
+		}
 		ctl=imgbase+sctx->sec_rva[sctx->lbl_sec[j]]+sctx->lbl_ofs[j];
 		ctr=imgbase+sctx->sec_rva[sctx->rlc_sec[i]]+sctx->rlc_ofs[i];
 		d=ctl-ctr;
@@ -607,6 +684,10 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 			b=bgbcc_gets32en(ctr, en);
 			bgbcc_sets32en(ctr, en, b+d);
 			break;
+		case BGBCC_SH_RLC_REL32B:
+			b=bgbcc_gets32en(ctr, en);
+			bgbcc_sets32en(ctr, en, b-d);
+			break;
 
 		case BGBCC_SH_RLC_ABS32:
 			d1=0x0C000000+(ctl-imgbase);
@@ -617,7 +698,8 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 		case BGBCC_SH_RLC_RELW12:
 			b=bgbcc_getu16en(ctr, en);
 			b1=(b<<20)>>20;
-			d1=b1+(d-4);
+//			d1=b1+(d-4);
+			d1=b1+((d-4)>>1);
 			if(((d1<<20)>>20)!=d1)
 				__debugbreak();
 			bgbcc_setu16en(ctr, en, (b&0xF000)|(d1&0x0FFF));
@@ -625,8 +707,30 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 		case BGBCC_SH_RLC_RELW8:
 			b=bgbcc_getu16en(ctr, en);
 			b1=(b<<24)>>24;
-			d1=b1+(d-4);
+//			d1=b1+(d-4);
+			d1=b1+((d-4)>>1);
 			if(((d1<<24)>>24)!=d1)
+				__debugbreak();
+			bgbcc_setu16en(ctr, en, (b&0xFF00)|(d1&0x00FF));
+			break;
+
+		case BGBCC_SH_RLC_RELW12L:
+			b=bgbcc_getu16en(ctr, en);
+			b1=(b<<20)>>20;
+//			d1=b1+(d-4);
+			d1=b1+((d-2)>>2);
+//			if(((d1<<20)>>20)!=d1)
+			if((d1&4095)!=d1)
+				__debugbreak();
+			bgbcc_setu16en(ctr, en, (b&0xF000)|(d1&0x0FFF));
+			break;
+		case BGBCC_SH_RLC_RELW8L:
+			b=bgbcc_getu16en(ctr, en);
+			b1=(b<<24)>>24;
+//			d1=b1+(d-4);
+			d1=b1+((d-2)>>2);
+//			if(((d1<<24)>>24)!=d1)
+			if((d1&255)!=d1)
 				__debugbreak();
 			bgbcc_setu16en(ctr, en, (b&0xFF00)|(d1&0x00FF));
 			break;
@@ -642,24 +746,37 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	byte *obuf, int *rosz, fourcc imgfmt)
 {
 	BGBCC_SHX_Context *sctx;
+	char *s0;
 	byte *ct;
 	int en, ofs, ofs_sdat, ofs_iend, ofs_mend;
 	int of_phdr, ne_phdr;
 	int of_shdr, ne_shdr;
+	int lb_strt, va_strt;
+	int nm, fl, lva, rva, lsz, sn_strs, imty;
 	int i, j, k;
 
 	sctx=ctx->uctx;
 
+	BGBCC_SHX_EmitGetStrtabLabel(sctx, "");
+
+	for(i=0; i<sctx->nsec; i++)
+	{
+		s0=sctx->sec_name[i];
+		if(s0)
+			BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
+	}
+
 	en=(sctx->is_le==0);
 	ne_phdr=1;
-	ne_shdr=sctx->nsec;
+	ne_shdr=sctx->nsec+1;
 	
 	of_phdr=64;
 	
 	of_shdr=of_phdr+(ne_phdr*32);
+	of_shdr=(of_shdr+15)&(~15);
 
 	ofs_sdat=of_shdr+(ne_shdr*40);
-	ofs_sdat=(ofs_sdat+255)&(~255);
+	ofs_sdat=(ofs_sdat+63)&(~63);
 
 	k=ofs_sdat;
 	for(i=0; i<sctx->nsec; i++)
@@ -669,9 +786,10 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 		j=sctx->sec_pos[i]-sctx->sec_buf[i];
 		sctx->sec_rva[i]=k;
 		sctx->sec_lva[i]=0x0C000000+k;
+		sctx->sec_lsz[i]=j;
 		memcpy(obuf+k, sctx->sec_buf[i], j);
 		k+=j;
-		k=(k+255)&(~255);
+		k=(k+63)&(~63);
 	}
 	ofs_iend=k;
 
@@ -679,9 +797,26 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	j=sctx->sec_pos[i]-sctx->sec_buf[i];
 	sctx->sec_rva[i]=k;
 	k+=j;
-	k=(k+255)&(~255);
+	k=(k+63)&(~63);
 
 	ofs_mend=k;
+	
+	lb_strt=0;
+//	lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "__start");
+//	if(lb_strt<=0)
+//		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "___start");
+	if(lb_strt<=0)
+		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "_start");
+	if(lb_strt<=0)
+		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "__start");
+	
+	if(lb_strt>0)
+		{ va_strt=BGBCC_SHXC_LookupLabelImgVA(ctx, sctx, lb_strt); }
+	else
+	{
+		printf("BGBCC_SHXC_FlattenImageELF: No Entry Point Found\n");
+		va_strt=0;
+	}
 
 	ct=obuf;
 	ct[ 0]=0x7F;	ct[ 1]='E';			//magic
@@ -693,10 +828,16 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	ct[12]=0;		ct[13]=0;			//pad
 	ct[14]=0;		ct[15]=0;			//pad
 
-	bgbcc_setu16en(ct+16, en, 3);		//image type
+	sn_strs=BGBCC_SH_CSEG_STRTAB+1;
+
+	imty=2;
+//	if(sctx->is_pic)
+//		imty=3;
+
+	bgbcc_setu16en(ct+16, en, imty);	//image type
 	bgbcc_setu16en(ct+18, en, 0x2A);	//arch
 	bgbcc_setu32en(ct+20, en, 1);		//ELF version
-	bgbcc_setu32en(ct+24, en, 0);		//entry point
+	bgbcc_setu32en(ct+24, en, va_strt);	//entry point
 	bgbcc_setu32en(ct+28, en, of_phdr);	//program headers offset
 	bgbcc_setu32en(ct+32, en, of_shdr);	//section headers offset
 	bgbcc_setu32en(ct+36, en, 0);		//arch flags
@@ -705,7 +846,7 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	bgbcc_setu16en(ct+44, en, ne_phdr);	//number of program header entries
 	bgbcc_setu16en(ct+46, en, 40);		//section header entry size
 	bgbcc_setu16en(ct+48, en, ne_shdr);	//number of entries in section header
-	bgbcc_setu16en(ct+50, en, 0);		//index of section-header names
+	bgbcc_setu16en(ct+50, en, sn_strs);	//index of section-header names
 
 	ct=obuf+of_phdr;
 	bgbcc_setu32en(ct+ 0, en, 1);			//segment type
@@ -716,6 +857,34 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	bgbcc_setu32en(ct+20, en, ofs_mend);	//size of segment in memory
 	bgbcc_setu32en(ct+24, en, 7);			//access flags
 	bgbcc_setu32en(ct+28, en, 4096);		//alignment
+
+	ct=obuf+of_shdr;
+	ct+=40;
+	for(i=0; i<sctx->nsec; i++)
+	{
+		s0=sctx->sec_name[i];
+		if(s0)
+			nm=BGBCC_SHX_EmitGetStrtabSecOfs(sctx, s0);
+
+		fl=3;
+		if(i==BGBCC_SH_CSEG_TEXT)fl|=4;
+
+		lva=sctx->sec_lva[i];
+		rva=sctx->sec_rva[i];
+		lsz=sctx->sec_lsz[i];
+
+		bgbcc_setu32en(ct+ 0, en, nm);		//name
+		bgbcc_setu32en(ct+ 4, en, 1);		//type
+		bgbcc_setu32en(ct+ 8, en, fl);		//flags
+		bgbcc_setu32en(ct+12, en, lva);		//addr
+		bgbcc_setu32en(ct+16, en, rva);		//offset
+		bgbcc_setu32en(ct+20, en, lsz);		//size
+		bgbcc_setu32en(ct+24, en, 0);		//link
+		bgbcc_setu32en(ct+28, en, 0);		//info
+		bgbcc_setu32en(ct+32, en, 64);		//addralign
+		bgbcc_setu32en(ct+36, en, 0);		//entsize
+		ct+=40;
+	}
 
 	BGBCC_SHXC_ApplyImageRelocs(ctx, sctx, obuf);
 
@@ -734,6 +903,9 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 	int i, j, k;
 
 	sctx=ctx->uctx;
+
+	BGBCC_SHX_SetSectionName(sctx, ".bss");
+	BGBCC_SHX_EmitNamedLabel(sctx, "__bss_start");
 	
 	sctx->lbl_got=BGBCC_SHX_GenLabel(sctx);
 
@@ -754,20 +926,32 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 			BGBCC_SHXC_BuildGlobal(ctx, obj);
 			continue;
 		}
+
+		if(obj->regtype==CCXL_LITID_ASMBLOB)
+		{
+			BGBCC_SHXC_BuildAsmBlob(ctx, obj);
+			continue;
+		}
 	}
 
-	BGBCC_SHX_SetSectionName(sctx, ".got");
-	BGBCC_SHX_EmitBAlign(sctx, 4);
-	BGBCC_SHX_EmitLabel(sctx, sctx->lbl_got);
-	
-	addr=0;
-	for(i=0; i<sctx->got_n_gblidx; i++)
+	if(sctx->got_n_gblidx>0)
 	{
-		j=sctx->got_gblidx[i];
-		l0=ctx->reg_globals[j]->fxoffs;
-		BGBCC_SHX_EmitRelocAbs32(sctx, l0);
-		BGBCC_SHX_EmitDWord(sctx, 0);
+		BGBCC_SHX_SetSectionName(sctx, ".got");
+		BGBCC_SHX_EmitBAlign(sctx, 4);
+		BGBCC_SHX_EmitLabel(sctx, sctx->lbl_got);
+		
+		addr=0;
+		for(i=0; i<sctx->got_n_gblidx; i++)
+		{
+			j=sctx->got_gblidx[i];
+			l0=ctx->reg_globals[j]->fxoffs;
+			BGBCC_SHX_EmitRelocAbs32(sctx, l0);
+			BGBCC_SHX_EmitDWord(sctx, 0);
+		}
 	}
+
+	BGBCC_SHX_SetSectionName(sctx, ".bss");
+	BGBCC_SHX_EmitNamedLabel(sctx, "_end");
 
 	BGBCC_SHXC_FlattenImageELF(ctx, obuf, rosz, imgfmt);
 	return(1);

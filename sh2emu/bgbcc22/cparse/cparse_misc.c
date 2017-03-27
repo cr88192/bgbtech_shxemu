@@ -211,6 +211,8 @@ fourcc BGBCP_LangForName(char *name)
 		if(!strcmp(name, "BS"))lang=BGBCC_LANG_BS;
 		if(!strcmp(name, "BS2"))lang=BGBCC_LANG_BS2;
 		if(!strcmp(name, "Java"))lang=BGBCC_LANG_JAVA;
+		if(!strcmp(name, "S"))lang=BGBCC_LANG_ASM;
+		if(!strcmp(name, "ASM"))lang=BGBCC_LANG_ASM;
 		if(lang)return(lang);
 
 		if(!strcmp(name, "c"))lang=BGBCC_LANG_C;
@@ -221,6 +223,8 @@ fourcc BGBCP_LangForName(char *name)
 		if(!strcmp(name, "bs"))lang=BGBCC_LANG_BS;
 		if(!strcmp(name, "bs2"))lang=BGBCC_LANG_BS2;
 		if(!strcmp(name, "java"))lang=BGBCC_LANG_JAVA;
+		if(!strcmp(name, "s"))lang=BGBCC_LANG_ASM;
+		if(!strcmp(name, "asm"))lang=BGBCC_LANG_ASM;
 		if(lang)return(lang);
 
 		s=name+strlen(name);
@@ -239,6 +243,9 @@ fourcc BGBCP_LangForName(char *name)
 		if(!strcmp(s, ".es"))lang=BGBCC_LANG_BS;
 		if(!strcmp(s, ".bs2"))lang=BGBCC_LANG_BS2;
 
+		if(!strcmp(s, ".s"))lang=BGBCC_LANG_ASM;
+		if(!strcmp(s, ".asm"))lang=BGBCC_LANG_ASM;
+
 		if(!strcmp(s, ".C"))lang=BGBCC_LANG_C;
 		if(!strcmp(s, ".H"))lang=BGBCC_LANG_C;
 
@@ -251,6 +258,14 @@ fourcc BGBCP_LangForName(char *name)
 		if(!strcmp(s, ".JS"))lang=BGBCC_LANG_BS;
 		if(!strcmp(s, ".ES"))lang=BGBCC_LANG_BS;
 		if(!strcmp(s, ".BS2"))lang=BGBCC_LANG_BS2;
+
+		if(!strcmp(s, ".S"))lang=BGBCC_LANG_ASM;
+		if(!strcmp(s, ".ASM"))lang=BGBCC_LANG_ASM;
+
+		if(!strcmp(s, ".ril"))lang=BGBCC_IMGFMT_RIL3;
+		if(!strcmp(s, ".RIL"))lang=BGBCC_IMGFMT_RIL3;
+		if(!strcmp(s, ".ril3"))lang=BGBCC_IMGFMT_RIL3;
+		if(!strcmp(s, ".RIL3"))lang=BGBCC_IMGFMT_RIL3;
 	}
 	
 	return(lang);
@@ -367,6 +382,7 @@ fourcc BGBCP_ImageFormatForName(char *name)
 		if(!bgbcc_stricmp(name, "OBJ"))fmt=BGBCC_IMGFMT_OBJ;
 		if(!bgbcc_stricmp(name, "EXE"))fmt=BGBCC_IMGFMT_EXE;
 		if(!bgbcc_stricmp(name, "DLL"))fmt=BGBCC_IMGFMT_DLL;
+		if(!bgbcc_stricmp(name, "RIL3"))fmt=BGBCC_IMGFMT_RIL3;
 		if(fmt)return(fmt);
 
 		s=name+strlen(name);
@@ -379,6 +395,8 @@ fourcc BGBCP_ImageFormatForName(char *name)
 		if(!bgbcc_stricmp(s, ".dll"))fmt=BGBCC_IMGFMT_DLL;
 		if(!bgbcc_stricmp(s, ".elf"))fmt=BGBCC_IMGFMT_EXE;
 		if(!bgbcc_stricmp(s, ".so"))fmt=BGBCC_IMGFMT_DLL;
+		if(!bgbcc_stricmp(s, ".ril"))fmt=BGBCC_IMGFMT_RIL3;
+		if(!bgbcc_stricmp(s, ".ril3"))fmt=BGBCC_IMGFMT_RIL3;
 	}
 	
 	return(fmt);
@@ -452,9 +470,17 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 	ctx->structs=NULL;
 	ctx->types=NULL;
 
-	BGBCP_SetLinenum(name, tbuf, 1);
-	s=tbuf;
-	n1=BGBCP_Block(ctx, &s);
+	if(lang==BGBCC_LANG_ASM)
+	{
+		n1=BCCX_NewCData(tbuf);
+		n1=BCCX_New1("asm_blob", n1);
+//		BCCX_Set(n1, "text", tbuf);
+	}else
+	{
+		BGBCP_SetLinenum(name, tbuf, 1);
+		s=tbuf;
+		n1=BGBCP_Block(ctx, &s);
+	}
 
 	t1=clock();
 	dt=(1000.0*(t1-t0))/CLOCKS_PER_SEC;

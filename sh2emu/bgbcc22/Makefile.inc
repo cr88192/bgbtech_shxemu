@@ -25,12 +25,14 @@ SRCS=\
 	ccxl/ccxl_pred.c \
 	ccxl/ccxl_reduce.c \
 	ccxl/ccxl_register.c \
+	ccxl/ccxl_ril3.c \
 	ccxl/ccxl_stack.c \
 	ccxl/ccxl_struct.c \
 	ccxl/ccxl_trace.c \
 	ccxl/ccxl_type.c \
 	\
 	shcc/shx_binop.c \
+	shcc/shx_bufasm.c \
 	shcc/shx_cgif.c \
 	shcc/shx_conv.c \
 	shcc/shx_emit.c \

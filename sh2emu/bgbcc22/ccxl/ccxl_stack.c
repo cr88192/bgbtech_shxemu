@@ -183,6 +183,8 @@ ccxl_status BGBCC_CCXL_PushMark(BGBCC_TransState *ctx)
 {
 	int i;
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_MARK);
+
 	BGBCC_CCXL_CheckExpandStack(ctx);
 	
 	i=ctx->markstackpos++;
@@ -371,6 +373,9 @@ ccxl_status BGBCC_CCXL_PushLoad(BGBCC_TransState *ctx, char *name)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "Load", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LOAD);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
+
 	i=BGBCC_CCXL_LookupAsRegister(ctx, name, &treg);
 	if(i<=0)
 	{
@@ -389,6 +394,9 @@ ccxl_status BGBCC_CCXL_PopStore(BGBCC_TransState *ctx, char *name)
 	int i, j, k;
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "Store", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STORE);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
 	j=BGBCC_CCXL_LookupAsRegisterStore(ctx, name, &dreg);
@@ -448,6 +456,9 @@ ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx, char *name)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "CallName", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLN);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
+
 	i=BGBCC_CCXL_LookupLocalIndex(ctx, name);
 	if(i<0)
 		{ i=BGBCC_CCXL_LookupArgIndex(ctx, name); }
@@ -483,6 +494,8 @@ ccxl_status BGBCC_CCXL_StackPopCall(BGBCC_TransState *ctx)
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PopCall", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLP);
+
 //	j=BGBCC_CCXL_LookupAsRegister(ctx, name, &treg);
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
 
@@ -505,6 +518,9 @@ ccxl_status BGBCC_CCXL_StackLoadIndexConst(BGBCC_TransState *ctx, int idx)
 	int i, j, k;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "LoadIndexC", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDIXC);
+	BGBCC_CCXLR3_EmitArgInt(ctx, idx);
 	
 	/* src -- src[idx] */
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
@@ -524,6 +540,9 @@ ccxl_status BGBCC_CCXL_StackStoreIndexConst(BGBCC_TransState *ctx, int idx)
 	int i, j, k;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "StoreIndexC", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STIXC);
+	BGBCC_CCXLR3_EmitArgInt(ctx, idx);
 
 	/* value dest -- */
 	i=BGBCC_CCXL_PopRegister(ctx, &dreg);
@@ -545,6 +564,9 @@ ccxl_status BGBCC_CCXL_StackLoadIndexAddrConst(
 	int i, j, k;
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "LoadIndexAC", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDIXAC);
+	BGBCC_CCXLR3_EmitArgInt(ctx, idx);
 	
 	/* src -- *src */
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
@@ -564,6 +586,8 @@ ccxl_status BGBCC_CCXL_StackLoadIndex(BGBCC_TransState *ctx)
 	int i, j, k;
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "LoadIndex", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDIX);
 	
 	/* src idx -- src[idx] */
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
@@ -590,6 +614,8 @@ ccxl_status BGBCC_CCXL_StackStoreIndex(BGBCC_TransState *ctx)
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "StoreIndex", __FILE__, __LINE__);
 	
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STIX);
+
 	/* value dest index -- */
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	i=BGBCC_CCXL_PopRegister(ctx, &dreg);
@@ -611,7 +637,9 @@ ccxl_status BGBCC_CCXL_StackLoadIndexAddr(BGBCC_TransState *ctx)
 	int i, j, k;
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "LoadIndexA", __FILE__, __LINE__);
-	
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDIXA);
+
 	/* src idx -- src[idx] */
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
@@ -637,6 +665,8 @@ ccxl_status BGBCC_CCXL_StackDup(BGBCC_TransState *ctx)
 	int i, j, k;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "Dup", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_DUP);
 	
 	/* src -- src(1) src(2) */
 //	i=BGBCC_CCXL_PopRegister(ctx, &treg);
@@ -665,6 +695,8 @@ ccxl_status BGBCC_CCXL_StackDupClean(BGBCC_TransState *ctx)
 	int i, j, k;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "DupClean", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_DUPCLEAN);
 	
 	/* src -- src src */
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
@@ -678,6 +710,8 @@ ccxl_status BGBCC_CCXL_StackRetV(BGBCC_TransState *ctx)
 {
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "RetV", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_RETV);
+
 	BGBCC_CCXL_EmitCallRetV(ctx);
 	return(CCXL_STATUS_YES);
 }
@@ -689,6 +723,8 @@ ccxl_status BGBCC_CCXL_StackRet(BGBCC_TransState *ctx)
 	int i, j, k;
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "Ret", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_RET);
 
 	/* src -- */
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
@@ -702,6 +738,8 @@ ccxl_status BGBCC_CCXL_StackCastBool(BGBCC_TransState *ctx)
 {
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "CastBool", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CASTBOOL);
+
 	return(BGBCC_CCXL_StackCastSig(ctx, "b"));
 //	BGBCC_CCXL_StubError(ctx);
 }
@@ -713,6 +751,9 @@ ccxl_status BGBCC_CCXL_StackCastSig(BGBCC_TransState *ctx, char *sig)
 	int i;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "CastSig", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CASTSIG);
+	BGBCC_CCXLR3_EmitArgString(ctx, sig);
 
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	sty=BGBCC_CCXL_GetRegType(ctx, sreg);
@@ -749,6 +790,9 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 	if(opr>=0)
 	{
 		BGBCC_CCXL_DebugPrintStackLLn(ctx, "BinaryOp", __FILE__, __LINE__);
+
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_BINOP);
+		BGBCC_CCXLR3_EmitArgInt(ctx, opr);
 
 		j=BGBCC_CCXL_PopRegister(ctx, &treg);
 		i=BGBCC_CCXL_PopRegister(ctx, &sreg);
@@ -872,6 +916,9 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 	{
 		BGBCC_CCXL_DebugPrintStackLLn(ctx, "CompareOp", __FILE__, __LINE__);
 
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CMPOP);
+		BGBCC_CCXLR3_EmitArgInt(ctx, opr);
+
 		j=BGBCC_CCXL_PopRegister(ctx, &treg);
 		i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 		sty=BGBCC_CCXL_GetRegType(ctx, sreg);
@@ -925,6 +972,9 @@ ccxl_status BGBCC_CCXL_StackUnaryOp(BGBCC_TransState *ctx, char *op)
 	if(!strcmp(op, "!"))opr=CCXL_UNOP_LNOT;
 	if(!strcmp(op, "++"))opr=CCXL_UNOP_INC;
 	if(!strcmp(op, "--"))opr=CCXL_UNOP_DEC;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_UNOP);
+	BGBCC_CCXLR3_EmitArgInt(ctx, opr);
 
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	sty=BGBCC_CCXL_GetRegType(ctx, sreg);
@@ -990,6 +1040,10 @@ ccxl_status BGBCC_CCXL_StackBinaryOpStore(BGBCC_TransState *ctx,
 	{
 		BGBCC_CCXL_DebugPrintStackLLn(ctx,
 			"BinaryOpStore", __FILE__, __LINE__);
+
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STBINOP);
+		BGBCC_CCXLR3_EmitArgInt(ctx, opr);
+		BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 		j=BGBCC_CCXL_PopRegister(ctx, &treg);
 		i=BGBCC_CCXL_PopRegister(ctx, &sreg);
@@ -1115,6 +1169,10 @@ ccxl_status BGBCC_CCXL_StackBinaryOpStore(BGBCC_TransState *ctx,
 		BGBCC_CCXL_DebugPrintStackLLn(ctx,
 			"CompareOpStore", __FILE__, __LINE__);
 
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STCMPOP);
+		BGBCC_CCXLR3_EmitArgInt(ctx, opr);
+		BGBCC_CCXLR3_EmitArgString(ctx, name);
+
 		j=BGBCC_CCXL_PopRegister(ctx, &treg);
 		i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 		sty=BGBCC_CCXL_GetRegType(ctx, sreg);
@@ -1162,7 +1220,7 @@ ccxl_status BGBCC_CCXL_StackUnaryOpName(BGBCC_TransState *ctx,
 	int opr;
 	int i, j, k;
 
-	BGBCC_CCXL_DebugPrintStackLLn(ctx, "UnaryOp", __FILE__, __LINE__);
+	BGBCC_CCXL_DebugPrintStackLLn(ctx, "UnaryOpName", __FILE__, __LINE__);
 
 	j=BGBCC_CCXL_LookupAsRegister(ctx, name, &sreg);
 	if(j<=0)
@@ -1180,6 +1238,10 @@ ccxl_status BGBCC_CCXL_StackUnaryOpName(BGBCC_TransState *ctx,
 	if(!strcmp(op, "!"))opr=CCXL_UNOP_LNOT;
 	if(!strcmp(op, "++"))opr=CCXL_UNOP_INC;
 	if(!strcmp(op, "--"))opr=CCXL_UNOP_DEC;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDUNOP);
+	BGBCC_CCXLR3_EmitArgInt(ctx, opr);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	sty=BGBCC_CCXL_GetRegType(ctx, sreg);
 
@@ -1218,6 +1280,9 @@ ccxl_status BGBCC_CCXL_StackPushConstInt(BGBCC_TransState *ctx, s32 val)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PushConstI", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDCONSTI);
+	BGBCC_CCXLR3_EmitArgInt(ctx, val);
+
 	BGBCC_CCXL_GetRegForIntValue(ctx, &sreg, val);
 	BGBCC_CCXL_PushRegister(ctx, sreg);
 	return(CCXL_STATUS_YES);
@@ -1230,6 +1295,9 @@ ccxl_status BGBCC_CCXL_StackPushConstLong(BGBCC_TransState *ctx, s64 val)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PushConstL", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDCONSTL);
+	BGBCC_CCXLR3_EmitArgInt(ctx, val);
+
 	BGBCC_CCXL_GetRegForLongValue(ctx, &sreg, val);
 	BGBCC_CCXL_PushRegister(ctx, sreg);
 	return(CCXL_STATUS_YES);
@@ -1241,6 +1309,10 @@ ccxl_status BGBCC_CCXL_StackPushConstFloat(
 {
 	ccxl_register sreg;
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PushConstF", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDCONSTF);
+	BGBCC_CCXLR3_EmitArgFloat(ctx, val);
+
 	BGBCC_CCXL_GetRegForFloatValue(ctx, &sreg, val);
 	BGBCC_CCXL_PushRegister(ctx, sreg);
 	return(CCXL_STATUS_YES);
@@ -1252,6 +1324,10 @@ ccxl_status BGBCC_CCXL_StackPushConstDouble(
 {
 	ccxl_register sreg;
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PushConstD", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDCONSTD);
+	BGBCC_CCXLR3_EmitArgFloat(ctx, val);
+
 	BGBCC_CCXL_GetRegForDoubleValue(ctx, &sreg, val);
 	BGBCC_CCXL_PushRegister(ctx, sreg);
 	return(CCXL_STATUS_YES);
@@ -1263,6 +1339,10 @@ ccxl_status BGBCC_CCXL_StackPushConstString(
 {
 	ccxl_register sreg;
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PushConstS", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDCONSTS);
+	BGBCC_CCXLR3_EmitArgString(ctx, val);
+
 	BGBCC_CCXL_GetRegForStringValue(ctx, &sreg, val);
 	BGBCC_CCXL_PushRegister(ctx, sreg);
 	return(CCXL_STATUS_YES);
@@ -1274,6 +1354,10 @@ ccxl_status BGBCC_CCXL_StackPushConstWString(
 {
 	ccxl_register sreg;
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PushConstWS", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDCONSTWS);
+	BGBCC_CCXLR3_EmitArgString(ctx, val);
+
 	BGBCC_CCXL_GetRegForWStringValue(ctx, &sreg, val);
 	BGBCC_CCXL_PushRegister(ctx, sreg);
 	return(CCXL_STATUS_YES);
@@ -1285,6 +1369,9 @@ ccxl_status BGBCC_CCXL_StackPop(BGBCC_TransState *ctx)
 	ccxl_register sreg;
 	int i;
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "Pop", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_POP);
+
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
 	return(CCXL_STATUS_YES);
@@ -1297,6 +1384,9 @@ ccxl_status BGBCC_CCXL_StackLoadAddr(BGBCC_TransState *ctx, char *name)
 	int i;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "LoadA", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDA);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 //	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	i=BGBCC_CCXL_LookupAsRegister(ctx, name, &sreg);
@@ -1331,6 +1421,9 @@ ccxl_status BGBCC_CCXL_StackSizeofSig(BGBCC_TransState *ctx, char *sig)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "SizeOfSig", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_SIZEOFSG);
+	BGBCC_CCXLR3_EmitArgString(ctx, sig);
+
 //	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 //	bty=BGBCC_CCXL_GetRegType(ctx, sreg);
 	BGBCC_CCXL_TypeFromSig(ctx, &bty, sig);
@@ -1361,6 +1454,8 @@ ccxl_status BGBCC_CCXL_StackSizeofVal(BGBCC_TransState *ctx)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "SizeOfVal", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_SIZEOFVAL);
+
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	bty=BGBCC_CCXL_GetRegType(ctx, sreg);
 
@@ -1385,7 +1480,9 @@ ccxl_status BGBCC_CCXL_StackOffsetof(BGBCC_TransState *ctx,
 	int fn;
 	int i;
 
-//	BGBCC_CCXL_LookupStructure()
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_OFFSETOF);
+	BGBCC_CCXLR3_EmitArgString(ctx, sig);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	bty=BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_I);
 	st=BGBCC_CCXL_LookupStructureForSig(ctx, sig);
@@ -1419,6 +1516,9 @@ ccxl_status BGBCC_CCXL_StackLoadSlot(BGBCC_TransState *ctx, char *name)
 	int i, j;
 
 //	BGBCC_CCXL_LookupStructure()
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LOADSLOT);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	sty=BGBCC_CCXL_GetRegType(ctx, sreg);
@@ -1465,6 +1565,9 @@ ccxl_status BGBCC_CCXL_StackStoreSlot(BGBCC_TransState *ctx, char *name)
 	//value obj --
 
 //	BGBCC_CCXL_LookupStructure()
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STORESLOT);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	BGBCC_CCXL_PopRegister(ctx, &dreg);
 	BGBCC_CCXL_PopRegister(ctx, &sreg);
@@ -1524,6 +1627,9 @@ ccxl_status BGBCC_CCXL_StackLoadSlotAddr(BGBCC_TransState *ctx, char *name)
 	int i, j;
 
 //	BGBCC_CCXL_LookupStructure()
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LOADSLOTA);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	sty=BGBCC_CCXL_GetRegType(ctx, sreg);
@@ -1595,6 +1701,9 @@ ccxl_status BGBCC_CCXL_StackBeginU(BGBCC_TransState *ctx, char *sig)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "BeginU", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_BEGINU);
+	BGBCC_CCXLR3_EmitArgString(ctx, sig);
+
 	BGBCC_CCXL_TypeFromSig(ctx, &bty, sig);
 	BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
 	BGBCC_CCXL_PushURegister(ctx, dreg);
@@ -1612,6 +1721,8 @@ ccxl_status BGBCC_CCXL_StackEndU(BGBCC_TransState *ctx)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "EndU", __FILE__, __LINE__);
 
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_ENDU);
+
 	i=BGBCC_CCXL_PopURegister(ctx, &reg);
 	BGBCC_CCXL_PushRegister(ctx, reg);
 	return(CCXL_STATUS_YES);
@@ -1627,6 +1738,8 @@ ccxl_status BGBCC_CCXL_StackSetU(BGBCC_TransState *ctx)
 	int i;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "SetU", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_SETU);
 
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	i=BGBCC_CCXL_PeekURegister(ctx, &dreg);
@@ -1650,6 +1763,9 @@ ccxl_status BGBCC_CCXL_StackInitVar(BGBCC_TransState *ctx, char *name)
 	ccxl_type bty;
 	char *s;
 	int i, j, k, l;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_INITVAR);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	def=BGBCC_CCXL_LookupLocalInfo(ctx, name);
 	if(def)
@@ -1717,6 +1833,9 @@ ccxl_status BGBCC_CCXL_StackInitVarValue(BGBCC_TransState *ctx, char *name)
 	ccxl_type bty;
 	char *s;
 	int i, j, k, l;
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_INITVARVAL);
+	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	def=BGBCC_CCXL_LookupLocalInfo(ctx, name);
 	if(def)

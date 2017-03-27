@@ -430,6 +430,28 @@ BCCX_Node *BCCX_NewText(char *text)
 }
 #endif
 
+#if 1
+BCCX_Node *BCCX_NewText(char *text)
+{
+	BCCX_Node *n;
+	n=BCCX_AllocNode();
+//	n->text=bgbcc_strdup(text);
+	BCCX_Set(n, "$text", text);
+	return(n);
+}
+#endif
+
+#if 1
+BCCX_Node *BCCX_NewCData(char *text)
+{
+	BCCX_Node *n;
+	n=BCCX_AllocNode();
+	n->itag=BCCX_StringToStridx("!CDATA");
+	BCCX_Set(n, "$text", text);
+	return(n);
+}
+#endif
+
 void BCCX_AddV(BCCX_Node *parent, BCCX_Node *child)
 {
 	u16 *an;
@@ -624,6 +646,9 @@ char *BCCX_Tag(BCCX_Node *n)
 	{ return(BCCX_StridxToString(n->itag)); }
 
 // char *BCCX_Text(BCCX_Node *n)	{ return(n->text); }
+
+char *BCCX_Text(BCCX_Node *n)
+	{ return(BCCX_Get(n, "$text")); }
 
 void BCCX_SetTag(BCCX_Node *n, char *s)
 {
