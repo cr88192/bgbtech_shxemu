@@ -277,6 +277,21 @@ void BGBCC_CCXLR3_EmitArgInt(
 	BGBCC_CCXLR3_EmitSVLI(ctx, val);
 }
 
+void BGBCC_CCXLR3_EmitArgTag(
+	BGBCC_TransState *ctx, s64 val)
+{
+	if(!(ctx->ril_ip))
+		return;
+
+	if((val>0x8000) && (val<0x8020))
+		val=val&0x1F;
+	if((val>0x9000) && (val<0x9020))
+		val=0x20|(val&0x1F);
+
+//	BGBCC_CCXLR3_EmitUVLI(ctx, BGBCC_RIL3OP_ARGINT);
+	BGBCC_CCXLR3_EmitSVLI(ctx, val);
+}
+
 void BGBCC_CCXLR3_EmitArgFloat(
 	BGBCC_TransState *ctx, f64 val)
 {

@@ -634,6 +634,7 @@ void BGBCC_CCXLR3_EmitTextByte(BGBCC_TransState *ctx, int val);
 void BGBCC_CCXLR3_EmitRawString(BGBCC_TransState *ctx, char *str);
 void BGBCC_CCXLR3_EmitOp(BGBCC_TransState *ctx, int op);
 void BGBCC_CCXLR3_EmitArgInt(BGBCC_TransState *ctx, s64 val);
+void BGBCC_CCXLR3_EmitArgTag(BGBCC_TransState *ctx, s64 val);
 void BGBCC_CCXLR3_EmitArgFloat(BGBCC_TransState *ctx, f64 val);
 void BGBCC_CCXLR3_EmitBufUVLI(byte **rct, u64 val);
 void BGBCC_CCXLR3_EmitArgString(BGBCC_TransState *ctx, char *str);
@@ -961,6 +962,9 @@ int BGBCC_SHXC_EmitOpNmidVRegVReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx
 int BGBCC_SHXC_EmitJCmpVRegVReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register sreg, ccxl_register treg, int cmp, int lbl);
 int BGBCC_SHXC_EmitJCmpVRegZero(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register sreg, int cmp, int lbl);
 //AHSRC:shcc/shx_struct.c
+int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, int gblid, int fid);
+int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, int gblid, int fid);
+int BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, int gblid, int fid);
 //AHSRC:mm/inflate.c
 int PDUNZ_ReadBit();
 int PDUNZ_Read2Bits();

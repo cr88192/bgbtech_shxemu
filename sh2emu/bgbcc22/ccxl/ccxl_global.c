@@ -398,7 +398,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 	if(name)
 	{
 		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_BEGINNAME);
-		BGBCC_CCXLR3_EmitArgInt(ctx, tag);
+		BGBCC_CCXLR3_EmitArgTag(ctx, tag);
 		BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 		if(tag==CCXL_CMD_STRUCT)
@@ -544,7 +544,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 	}else
 	{
 		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_BEGIN);
-		BGBCC_CCXLR3_EmitArgInt(ctx, tag);
+		BGBCC_CCXLR3_EmitArgTag(ctx, tag);
 //		BGBCC_CCXLR3_EmitArgString(ctx, name);
 	}
 
@@ -1090,7 +1090,7 @@ void BGBCC_CCXL_AttribStr(BGBCC_TransState *ctx, int attr, char *str)
 	int i, j, k;
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_ATTRSTR);
-	BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+	BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 	BGBCC_CCXLR3_EmitArgString(ctx, str);
 
 	obj=ctx->cur_obj;
@@ -1134,7 +1134,7 @@ void BGBCC_CCXL_AttribInt(BGBCC_TransState *ctx, int attr, int val)
 	int i, j, k;
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_ATTRINT);
-	BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+	BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 	BGBCC_CCXLR3_EmitArgInt(ctx, val);
 
 	obj=ctx->cur_obj;
@@ -1170,7 +1170,7 @@ void BGBCC_CCXL_AttribLong(BGBCC_TransState *ctx, int attr, s64 val)
 	int i, j, k;
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_ATTRLONG);
-	BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+	BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 	BGBCC_CCXLR3_EmitArgInt(ctx, val);
 
 	obj=ctx->cur_obj;
@@ -1201,7 +1201,7 @@ void BGBCC_CCXL_AttribLong(BGBCC_TransState *ctx, int attr, s64 val)
 void BGBCC_CCXL_Marker(BGBCC_TransState *ctx, int tag)
 {
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_MARKER);
-	BGBCC_CCXLR3_EmitArgInt(ctx, tag);
+	BGBCC_CCXLR3_EmitArgTag(ctx, tag);
 
 	switch(tag)
 	{
@@ -1288,7 +1288,7 @@ void BGBCC_CCXL_LiteralLong(BGBCC_TransState *ctx, int attr, s64 val)
 	int i, j, k;
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LITLONG);
-	BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+	BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 	BGBCC_CCXLR3_EmitArgInt(ctx, val);
 
 	obj=ctx->cur_obj;
@@ -1315,7 +1315,7 @@ void BGBCC_CCXL_LiteralFloat(BGBCC_TransState *ctx, int attr, double val)
 	int i, j, k;
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LITFLOAT);
-	BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+	BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 	BGBCC_CCXLR3_EmitArgFloat(ctx, val);
 
 	obj=ctx->cur_obj;
@@ -1342,7 +1342,7 @@ void BGBCC_CCXL_LiteralDouble(BGBCC_TransState *ctx, int attr, double val)
 	int i, j, k;
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LITDOUBLE);
-	BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+	BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 	BGBCC_CCXLR3_EmitArgFloat(ctx, val);
 
 	obj=ctx->cur_obj;
@@ -1369,7 +1369,7 @@ void BGBCC_CCXL_LiteralStr(BGBCC_TransState *ctx, int attr, char *str)
 	int i, j, k;
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LITSTR);
-	BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+	BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 	BGBCC_CCXLR3_EmitArgString(ctx, str);
 
 	obj=ctx->cur_obj;
@@ -1396,7 +1396,7 @@ void BGBCC_CCXL_LiteralWStr(BGBCC_TransState *ctx, int attr, char *str)
 	int i, j, k;
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LITWSTR);
-	BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+	BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 	BGBCC_CCXLR3_EmitArgString(ctx, str);
 
 	obj=ctx->cur_obj;
@@ -1430,7 +1430,7 @@ void BGBCC_CCXL_LiteralGlobalAddr(BGBCC_TransState *ctx,
 		if(decl->name)
 		{
 			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LITNAME);
-			BGBCC_CCXLR3_EmitArgInt(ctx, attr);
+			BGBCC_CCXLR3_EmitArgTag(ctx, attr);
 			BGBCC_CCXLR3_EmitArgString(ctx, decl->name);
 		}else
 		{

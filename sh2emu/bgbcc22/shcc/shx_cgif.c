@@ -478,6 +478,28 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 			op->dst, op->srca, op->srcb);
 		break;
 
+	case CCXL_VOP_LOADSLOT:
+		BGBCC_SHXC_EmitLoadSlotVRegVRegImm(ctx, sctx, op->type,
+			op->dst, op->srca, op->imm.obj.gid, op->imm.obj.fid);
+		break;
+	case CCXL_VOP_STORESLOT:
+		BGBCC_SHXC_EmitStoreSlotVRegVRegImm(ctx, sctx, op->type,
+			op->dst, op->srca, op->imm.obj.gid, op->imm.obj.fid);
+		break;
+	case CCXL_VOP_LOADSLOTADDR:
+		BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(ctx, sctx, op->type,
+			op->dst, op->srca, op->imm.obj.gid, op->imm.obj.fid);
+		break;
+	
+	case CCXL_VOP_INITOBJ:
+		break;
+	case CCXL_VOP_DROPOBJ:
+		break;
+	case CCXL_VOP_INITARR:
+		break;
+	case CCXL_VOP_INITOBJARR:
+		break;
+
 	default:
 		BGBCC_CCXL_StubError(ctx);
 		break;
