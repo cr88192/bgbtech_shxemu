@@ -1151,6 +1151,15 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		BGBCC_CCXL_StackLn(ctx, i0);
 		break;
 
+	case BGBCC_RIL3OP_ADD:	BGBCC_CCXL_StackBinaryOp(ctx, "+"); break;
+	case BGBCC_RIL3OP_SUB:	BGBCC_CCXL_StackBinaryOp(ctx, "-"); break;
+	case BGBCC_RIL3OP_MUL:	BGBCC_CCXL_StackBinaryOp(ctx, "*"); break;
+	case BGBCC_RIL3OP_AND:	BGBCC_CCXL_StackBinaryOp(ctx, "&"); break;
+	case BGBCC_RIL3OP_OR:	BGBCC_CCXL_StackBinaryOp(ctx, "|"); break;
+	case BGBCC_RIL3OP_XOR:	BGBCC_CCXL_StackBinaryOp(ctx, "^"); break;
+	case BGBCC_RIL3OP_SHL:	BGBCC_CCXL_StackBinaryOp(ctx, "<<"); break;
+	case BGBCC_RIL3OP_SAR:	BGBCC_CCXL_StackBinaryOp(ctx, ">>"); break;
+
 	default:
 		__debugbreak();
 		break;

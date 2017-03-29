@@ -791,8 +791,29 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 	{
 		BGBCC_CCXL_DebugPrintStackLLn(ctx, "BinaryOp", __FILE__, __LINE__);
 
-		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_BINOP);
-		BGBCC_CCXLR3_EmitArgInt(ctx, opr);
+		switch(opr)
+		{
+		case CCXL_BINOP_ADD:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_ADD); break;
+		case CCXL_BINOP_SUB:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_SUB); break;
+		case CCXL_BINOP_MUL:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_MUL); break;
+		case CCXL_BINOP_AND:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_AND); break;
+		case CCXL_BINOP_OR:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_OR); break;
+		case CCXL_BINOP_XOR:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_XOR); break;
+		case CCXL_BINOP_SHL:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_SHL); break;
+		case CCXL_BINOP_SHR:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_SAR); break;
+		default:
+			BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_BINOP);
+			BGBCC_CCXLR3_EmitArgInt(ctx, opr);
+			break;
+		}
 
 		j=BGBCC_CCXL_PopRegister(ctx, &treg);
 		i=BGBCC_CCXL_PopRegister(ctx, &sreg);

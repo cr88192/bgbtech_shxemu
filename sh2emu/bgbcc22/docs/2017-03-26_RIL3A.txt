@@ -379,3 +379,29 @@ Opcodes (Executable Code)
 * 0x53, JMPF ( Bool -- )
 ** LABEL lbl;
 ** Jump to a label if false.
+
+
+* 0x60, ADD
+* 0x61, SUB
+* 0x62, MUL
+* 0x63, AND
+* 0x64, OR
+* 0x65, XOR
+* 0x66, SHL
+* 0x67, SAR
+
+* 0x68, ADDC
+** SVLI val;
+* 0x69, -
+* 0x6A, MULC
+** SVLI val;
+* 0x6B, ANDC
+** SVLI val;
+* 0x6C, ORC
+** SVLI val;
+* 0x6D, XORC
+** SVLI val;
+* 0x6E, SHLC
+** SVLI val;
+* 0x6F, SARC
+** SVLI val;
