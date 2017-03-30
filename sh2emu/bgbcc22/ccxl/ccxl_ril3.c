@@ -174,6 +174,7 @@ void BGBCC_CCXLR3_UpdateTextByte(
 	ctx->ril_txhash[h*4+2]=ctx->ril_txhash[h*4+1];
 	ctx->ril_txhash[h*4+1]=ctx->ril_txhash[h*4+0];
 	ctx->ril_txhash[h*4+0]=(ctx->ril_txrov-2)&16383;
+//	ctx->ril_txhash[h*4+0]=(ctx->ril_txrov-3)&16383;
 
 	ctx->ril_txwin[ctx->ril_txrov]=val;
 	ctx->ril_txrov=(ctx->ril_txrov+1)&16383;
@@ -203,8 +204,9 @@ int BGBCC_CCXLR3_TextLookupMatch(
 //	h=(((ctx->ril_txrh&0x0000FFFF)*65521)>>16)&255;
 
 //	p=(str[0]<<16)|(str[1]<<8)|str[2];
-	p=(str[0]<<8)|str[1];
 //	h=(((p&0x00FFFFFF)*16777213)>>24)&255;
+
+	p=(str[0]<<8)|str[1];
 	h=(((p&0x0000FFFF)*65521)>>16)&255;
 	
 	bl=0; bd=0;
@@ -214,7 +216,8 @@ int BGBCC_CCXLR3_TextLookupMatch(
 		d=(ctx->ril_txrov-p)&16383;
 		
 		s=str;
-		se=str+252;
+//		se=str+252;
+		se=str+4088;
 		if(se>stre)se=stre;
 		while(s<se)
 		{
@@ -227,6 +230,9 @@ int BGBCC_CCXLR3_TextLookupMatch(
 		if(l>bl)
 			{ bl=l; bd=d; }
 	}
+	
+	if((bd>=16128) || ((bl+bd)>=16384))
+		bl=0;
 	
 	if(bl>=3)
 	{
@@ -397,6 +403,7 @@ void BGBCC_CCXLR3_EmitArgString(
 	}
 
 	l=strlen(str);
+	if(!l)l=1;
 
 	for(i=0; i<64; i++)
 	{
@@ -429,7 +436,8 @@ void BGBCC_CCXLR3_EmitArgString(
 	{
 		BGBCC_CCXLR3_EmitSVLI(ctx, l);
 		s=(byte *)str;
-		while(*s)
+//		while(*s)
+		for(i=0; i<l; i++)
 			BGBCC_CCXLR3_EmitTextByte(ctx, *s++);
 		return;
 	}
@@ -486,6 +494,16 @@ void BGBCC_CCXLR3_EmitArgString(
 	}
 
 	k=ct-ttb;
+
+	if((k+3)>=(l+1))
+	{
+		BGBCC_CCXLR3_EmitSVLI(ctx, l);
+		s=(byte *)str;
+		for(i=0; i<l; i++)
+			BGBCC_CCXLR3_EmitByte(ctx, *s++);
+		return;
+	}
+	
 	BGBCC_CCXLR3_EmitSVLI(ctx, -(k+64));
 	BGBCC_CCXLR3_EmitSVLI(ctx, l);
 	s=ttb;
@@ -627,6 +645,17 @@ f64 BGBCC_CCXLR3_ReadFVLI(BGBCC_TransState *ctx, byte **rcs)
 	return(v);
 }
 
+int BGBCC_CCXLR3_ReadTag(BGBCC_TransState *ctx, byte **rcs)
+{
+	int i;
+	i=BGBCC_CCXLR3_ReadSVLI(ctx, rcs);
+	if((i>=0x00) && (i<=0x1F))
+		i=0x8000+(i&0x1F);
+	if((i>=0x20) && (i<=0x3F))
+		i=0x9000+(i&0x1F);
+	return(i);
+}
+
 int BGBCC_CCXLR3_ReadTextBlob(BGBCC_TransState *ctx, byte **rcs,
 	byte **rbuf, int *rsz)
 {
@@ -672,7 +701,7 @@ int BGBCC_CCXLR3_ReadTextBlob(BGBCC_TransState *ctx, byte **rcs,
 	{
 		j=(ctx->ril_psrov-i-1)&63;
 		sz=ctx->ril_pslen[j];
-		p=ctx->ril_psidx[i];
+		p=ctx->ril_psidx[j];
 
 		if(!tbuf || (sz>=tsz))
 		{
@@ -738,6 +767,8 @@ int BGBCC_CCXLR3_ReadTextBlob(BGBCC_TransState *ctx, byte **rcs,
 			}
 		}
 	}
+	
+	*ct=0;
 	
 	*rcs=cse;
 	return(1);
@@ -816,62 +847,67 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 			bgbcc_free(tbuf);
 		break;
 	case BGBCC_RIL3OP_BEGIN:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		BGBCC_CCXL_Begin(ctx, i0);
 		break;
 	case BGBCC_RIL3OP_BEGINNAME:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
 		BGBCC_CCXL_BeginName(ctx, i0, s0);
 		break;
 	case BGBCC_RIL3OP_MARKER:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		BGBCC_CCXL_Marker(ctx, i0);
 		break;
 
 	case BGBCC_RIL3OP_ATTRINT:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		li1=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
 		BGBCC_CCXL_AttribInt(ctx, i0, li1);
 		break;
 	case BGBCC_RIL3OP_ATTRLONG:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		li1=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
 		BGBCC_CCXL_AttribLong(ctx, i0, li1);
 		break;
+	case BGBCC_RIL3OP_ATTRSTR:
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
+		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_AttribStr(ctx, i0, s1);
+		break;
 
 	case BGBCC_RIL3OP_LITINT:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		li1=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
 		BGBCC_CCXL_LiteralInt(ctx, i0, li1);
 		break;
 	case BGBCC_RIL3OP_LITLONG:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		li1=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
 		BGBCC_CCXL_LiteralLong(ctx, i0, li1);
 		break;
 	case BGBCC_RIL3OP_LITFLOAT:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		f1=BGBCC_CCXLR3_ReadFVLI(ctx, &cs);
 		BGBCC_CCXL_LiteralFloat(ctx, i0, f1);
 		break;
 	case BGBCC_RIL3OP_LITDOUBLE:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		f1=BGBCC_CCXLR3_ReadFVLI(ctx, &cs);
 		BGBCC_CCXL_LiteralDouble(ctx, i0, f1);
 		break;
 	case BGBCC_RIL3OP_LITSTR:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
 		BGBCC_CCXL_LiteralStr(ctx, i0, s1);
 		break;
 	case BGBCC_RIL3OP_LITWSTR:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
 		BGBCC_CCXL_LiteralWStr(ctx, i0, s1);
 		break;
 	case BGBCC_RIL3OP_LITNAME:
-		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		i0=BGBCC_CCXLR3_ReadTag(ctx, &cs);
 		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
 //		decl=BGBCC_CCXL_LookupGlobal(ctx, s1);
 		decl=BGBCC_CCXL_GetGlobal(ctx, s1);

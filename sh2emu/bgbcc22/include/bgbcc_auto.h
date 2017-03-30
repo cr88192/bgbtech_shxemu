@@ -644,6 +644,7 @@ void BGBCC_CCXLR3_BeginRecRIL(BGBCC_TransState *ctx);
 u64 BGBCC_CCXLR3_ReadUVLI(BGBCC_TransState *ctx, byte **rcs);
 s64 BGBCC_CCXLR3_ReadSVLI(BGBCC_TransState *ctx, byte **rcs);
 f64 BGBCC_CCXLR3_ReadFVLI(BGBCC_TransState *ctx, byte **rcs);
+int BGBCC_CCXLR3_ReadTag(BGBCC_TransState *ctx, byte **rcs);
 int BGBCC_CCXLR3_ReadTextBlob(BGBCC_TransState *ctx, byte **rcs,byte **rbuf, int *rsz);
 char *BGBCC_CCXLR3_ReadString(BGBCC_TransState *ctx, byte **rcs);
 ccxl_label BGBCC_CCXLR3_ReadLabel(BGBCC_TransState *ctx, byte **rcs);
