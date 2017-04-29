@@ -20,6 +20,14 @@ void BTSH_Op_ADD_RegImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[op->rn]=i+op->imm;
 }
 
+void BTSH_Op_ADD_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	cpu->regs[op->ro]=i+j;
+}
+
 void BTSH_Op_ADDC_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u64 k;
@@ -294,7 +302,8 @@ void BTSH_Op_MACL_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	{
 		i1=k>>47;
 		if(i1>( 0)) k=( 1LL<<47)-1;
-		if(i1<(-1)) k=(-1LL<<47);
+//		if(i1<(-1)) k=(-1LL<<47);
+		if(i1<(-1)) k=~((1LL<<47)-1);
 	}
 	
 	cpu->regs[BTESH2_REG_MACH]=(u32)(k>>32);
@@ -430,6 +439,15 @@ void BTSH_Op_SUBV_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[op->rn]=k;
 	cpu->regs[BTESH2_REG_SR]=s;
 }
+
+void BTSH_Op_SUB_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	cpu->regs[op->ro]=i-j;
+}
+
 
 void BTSH_Op_TASB_StReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {

@@ -1,96 +1,96 @@
-/*"tests/e_testkern.S"9*/ .section .bss
+/*"tests/e_testkern.S"10*/ .section .bss
 .global timer_ticks
 timer_ticks:.long 0
-/*13*/ .section .text
+/*14*/ .section .text
 .align 2
 .global _start
 .global start
 .global _vector_table
 .extern __start
 .extern timer_ticks
-/*21*/ .extern __bss_start
+/*22*/ .extern __bss_start
 .extern _end
-/*24*/ start:
+/*25*/ start:
 _start:
 nop
 mov.l start_leds,r0
 mov.l pio_addr,r1
 mov.l r0,@r1
-/*31*/ mov.l stack_base,sp
-/*33*/ bsr zero_bss
+/*32*/ mov.l stack_base,sp
+/*34*/ bsr zero_bss
 nop
-/*36*/ mov.l isr_table,r0
+/*37*/ mov.l isr_table,r0
 ldc r0,vbr
-/*39*/ mov#0,r0
+/*40*/ mov#0,r0
 ldc r0,sr
-/*42*/ mov.l a_tk_main,r0
+/*43*/ mov.l a_tk_main,r0
 jsr @r0
 nop
-/*47*/ bra _exit
+/*48*/ bra _exit
 nop
-/*50*/ zero_bss:
+/*51*/ zero_bss:
 mov.l bss_strt,r2
 mov.l bss_end,r3
 mov#0,r4
 .L0:
 mov.l r4,@-r3
-/*57*/ cmp/hi r2,r3
+/*58*/ cmp/hi r2,r3
 bt .L0
 nop
 rts
 nop
 bra _exit
-/*64*/ .align 4
+/*65*/ .align 4
 bss_strt:.long __bss_start
 bss_end:.long _end
 stack_base:.long 0x8FFFFFFC
-/*70*/ _loop:
+/*71*/ _loop:
 bra _loop
 nop
-/*74*/ _exit:
+/*75*/ _exit:
 mov# -1,r0
 jsr @r0
 nop
-/*79*/ _gdb_unhandled_isr:
+/*80*/ _gdb_unhandled_isr:
 mov.l start1_leds,r0
 mov.l pio_addr,r1
 mov.l r0,@r1
 bra _exit
 nop
-/*86*/ _gdb_nmi_isr:
+/*87*/ _gdb_nmi_isr:
 mov.l start2_leds,r0
 mov.l pio_addr,r1
 mov.l r0,@r1
 bra _loop
 nop
-/*93*/ _gdb_illegalinst_isr:
+/*94*/ _gdb_illegalinst_isr:
 mov.l start2_leds,r0
 mov.l pio_addr,r1
 mov.l r0,@r1
 bra _exit
 nop
-/*100*/ _gdb_addresserr_isr:
+/*101*/ _gdb_addresserr_isr:
 mov.l start2_leds,r0
 mov.l pio_addr,r1
 mov.l r0,@r1
 bra _exit
 nop
-/*107*/ _gdb_ihandler_emac:
+/*108*/ _gdb_ihandler_emac:
 mov.l start2_leds,r0
 mov.l pio_addr,r1
 mov.l r0,@r1
 bra _loop
 nop
-/*114*/ _gdb_trapa32_isr:
+/*115*/ _gdb_trapa32_isr:
 rte
 nop
-/*118*/ _gdb_trapa33_isr:
+/*119*/ _gdb_trapa33_isr:
 rte
 nop
-/*122*/ _gdb_trapa34_isr:
+/*123*/ _gdb_trapa34_isr:
 rte
 nop
-/*126*/ _gdb_pit_isr:
+/*127*/ _gdb_pit_isr:
 mov.l r0,@-sp
 mov.l r1,@-sp
 mov.l ticks,r0
@@ -101,9 +101,9 @@ mov.l @sp+,r1
 mov.l @sp+,r0
 rte
 nop
-/*138*/ .align 4
+/*139*/ .align 4
 ticks:.long timer_ticks
-/*141*/ _gdb_ihandler_uart1:
+/*142*/ _gdb_ihandler_uart1:
 rte
 nop
 _gdb_ihandler_uart0:
@@ -112,24 +112,24 @@ nop
 _gdb_ihandler_uart2:
 rte
 nop
-/*151*/ _gdb_ihandler_inttmr:
+/*152*/ _gdb_ihandler_inttmr:
 rte
 nop
-/*155*/ .align 4
+/*156*/ .align 4
 pio_addr:.long 0xABCD0000
 start_leds:.long 0x000000ff
 start1_leds:.long 0x0000004f
 start2_leds:.long 0x0000004e
-/*161*/ .long 0x5A5A5A5A
+/*162*/ .long 0x5A5A5A5A
 a_tk_main:.long __start
 .long 0x5B5B5B5B
 isr_table:.long _vector_table
 .long 0x5C5C5C5C
-/*167*/ .global sleep_0
+/*168*/ .global sleep_0
 sleep_0:
 sleep
 rts
-/*173*/ .global __udivsi3_i4i
+/*174*/ .global __udivsi3_i4i
 __udivsi3_i4i:
 sts pr,r1
 mov.l r4,@-r15
@@ -179,7 +179,7 @@ div1 r5,r4
 rotcl r0
 rts
 div1 r5,r4
-/*224*/ udiv_lgdiv:
+/*225*/ udiv_lgdiv:
 mov.l r5,@-r15
 sdiv_lgdiv:
 xor r4,r0
@@ -192,7 +192,7 @@ mov.l @r15+,r5
 mov.l @r15+,r4
 jmp @r1
 rotcl r0
-/*238*/ .global __sdivsi3_i4i
+/*239*/ .global __sdivsi3_i4i
 .global __sdivsi3_i4
 .global __sdivsi3
 __sdivsi3_i4i:
@@ -234,30 +234,94 @@ sdiv_res_neg:
 neg r0,r0
 jmp @r2
 sts macl,r2
-/*283*/ .global __sqrt_d
-__sqrt_d:
-fmov dr4,dr0
-fsqrt dr0
+/*282*/ .global __sremsi3
+__sremsi3:
+sts.l pr,@-r15
+mov.l r4,@-r15
+mov.l r5,@-r15
+bsr __sdivsi3
+nop
+mov.l @r15+,r5
+mov.l @r15+,r4
+dmuls.l r0,r5
+sts macl,r5
+mov r4,r0
+sub r5,r0
+lds.l @r15+,pr
 rts
 nop
-/*290*/ .global __tk_trapdebug
-__tk_trapdebug:
+/*303*/ .global __va_start_1
+__va_start_1:
+mov.l r5,@(r4,4)
+mov.l r6,@(r4,8)
+mov.l r7,@(r4,12)
+mov.l fr4,@(r4,16)
+mov.l fr5,@(r4,20)
+mov.l fr6,@(r4,24)
+mov.l fr7,@(r4,28)
+mov.l fr8,@(r4,32)
+mov.l fr9,@(r4,36)
+mov.l fr10,@(r4,40)
+mov.l fr11,@(r4,44)
+/*317*/ mov#4,r0
+mov.l r0,@(r4,48)
+mov#0,r0
+mov.l r0,@(r4,52)
+/*322*/ rts
+nop
+/*325*/ .global __va_arg_i
+__va_arg_i:
+mov.l @(r4,48),r0
+mov.l @(r4,r0),r6
+add#4,r0
+mov.l r0,@(r4,48)
+mov r6,r0
 rts
-fmov fr15,fr15
-/*298*/ .global __movmem_i4_even
+/*334*/ nop
+.global __va_arg_l
+__va_arg_l:
+mov.l @(r4,48),r0
+mov.l @(r4,r0),r6
+add#4,r0
+mov.l @(r4,r0),r7
+add#4,r0
+mov.l r0,@(r4,48)
+mov r6,r0
+mov r7,r1
+rts
+nop
+/*348*/ .global __va_arg_f
+__va_arg_f:
+mov.l @(r4,52),r3
+fmov.s @(r4,r0),fr0
+add#4,r0
+mov.l r0,@(r4,52)
+rts
+nop
+.global __va_arg_d
+__va_arg_d:
+mov.l @(r4,52),r0
+fmov.s @(r4,r0),fr0
+add#4,r0
+fmov.s @(r4,r0),fr1
+add#4,r0
+mov.l r0,@(r4,52)
+rts
+nop
+/*385*/ .global __movmem_i4_even
 .global __movmem_i4_odd
-/*301*/ __movmem_i4_even:
+/*388*/ __movmem_i4_even:
 mov.l @r5+,r0
 bra L_movmem_start_even
 mov.l @r5+,r1
-/*306*/ __movmem_i4_odd:
+/*393*/ __movmem_i4_odd:
 mov.l @r5+,r1
 add# -4,r4
 mov.l @r5+,r2
 mov.l @r5+,r3
 mov.l r1,@(4,r4)
 mov.l r2,@(8,r4)
-/*314*/ L_movmem_loop:
+/*401*/ L_movmem_loop:
 mov.l r3,@(12,r4)
 dt r6
 mov.l @r5+,r0
@@ -274,21 +338,21 @@ bf/s L_movmem_loop
 mov.l r2,@(8,r4)
 rts
 mov.l r3,@(12,r4)
-/*332*/ L_movmem_2mod4_end:
+/*419*/ L_movmem_2mod4_end:
 mov.l r0,@(16,r4)
 rts
 mov.l r1,@(20,r4)
-/*338*/ .global __longj
+/*425*/ .global __longj
 __longj:
 mov r4,r1
 mov r5,r2
 add#64,r1
-/*345*/ mov.l @(0,r1),r0
+/*432*/ mov.l @(0,r1),r0
 lds r0,pr
-/*348*/ mov.l @(0,r4),r0
+/*435*/ mov.l @(0,r4),r0
 mov.l @(4,r4),r1
-/*351*/ mov.l @(12,r4),r3
-/*353*/ mov.l @(20,r4),r5
+/*438*/ mov.l @(12,r4),r3
+/*440*/ mov.l @(20,r4),r5
 mov.l @(24,r4),r6
 mov.l @(28,r4),r7
 mov.l @(32,r4),r8
@@ -299,10 +363,10 @@ mov.l @(48,r4),r12
 mov.l @(52,r4),r13
 mov.l @(56,r4),r14
 mov.l @(60,r4),r15
-/*365*/ mov r2,r0
+/*452*/ mov r2,r0
 rts
 nop
-/*369*/ .global __setj
+/*456*/ .global __setj
 __setj:
 mov.l r0,@(0,r4)
 mov.l r1,@(4,r4)
@@ -320,16 +384,16 @@ mov.l r12,@(48,r4)
 mov.l r13,@(52,r4)
 mov.l r14,@(56,r4)
 mov.l r15,@(60,r4)
-/*388*/ mov r4,r1
+/*475*/ mov r4,r1
 add#64,r1
-/*391*/ sts pr,r0
-/*393*/ mov.l r0,@(0,r1)
-/*395*/ mov#0,r0
+/*478*/ sts pr,r0
+/*480*/ mov.l r0,@(0,r1)
+/*482*/ mov#0,r0
 rts
 nop
-/*638*/ .align 4
+/*725*/ .align 4
 _vector_table:
-/*641*/ .long _start
+/*728*/ .long _start
 .long 0xFFFC
 .long _start
 .long 0xFFFC
@@ -350,7 +414,7 @@ _vector_table:
 .long _gdb_ihandler_uart0
 .long _gdb_ihandler_uart2
 .long _gdb_unhandled_isr
-/*663*/ .long _gdb_unhandled_isr
+/*750*/ .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_ihandler_uart1
 .long _gdb_unhandled_isr
@@ -360,7 +424,7 @@ _vector_table:
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
-/*674*/ .long _gdb_unhandled_isr
+/*761*/ .long _gdb_unhandled_isr
 .long _gdb_trapa32_isr
 .long _gdb_trapa33_isr
 .long _gdb_trapa34_isr
@@ -369,7 +433,7 @@ _vector_table:
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
-/*684*/ .long _gdb_unhandled_isr
+/*771*/ .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
@@ -379,7 +443,7 @@ _vector_table:
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
-/*695*/ .long _gdb_unhandled_isr
+/*782*/ .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
@@ -389,14 +453,14 @@ _vector_table:
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
-/*706*/ .long _gdb_unhandled_isr
+/*793*/ .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
 .long _gdb_unhandled_isr
-/*712*/ .section .data
+/*799*/ .section .data
 .weak __fpscr_values
 .global __fpscr_values
 __fpscr_values:
 .long 0
 .long 0x80000
-/*719*/ .end
+/*806*/ .end

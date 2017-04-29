@@ -487,7 +487,7 @@ force_inline int BTESH2_SetAddrWordFMMU_NoAT_I(
 
 	ra1=addr1-cpu->pspan_pbase;
 	if(ra1<cpu->pspan_prng3)
-		{ return(btesh2_setu16le(cpu->pspan_pdata+ra1, val)); }
+		{ btesh2_setu16le(cpu->pspan_pdata+ra1, val); return(0); }
 
 	sp=cpu->pspan;
 	if(sp && ((addr1-sp->base)<=sp->range_n3))
@@ -565,7 +565,7 @@ force_inline int BTESH2_SetAddrDWordFMMU_NoAT_I(
 
 	ra1=addr1-cpu->pspan_pbase;
 	if(ra1<cpu->pspan_prng3)
-		{ return(btesh2_setu32le(cpu->pspan_pdata+ra1, val)); }
+		{ btesh2_setu32le(cpu->pspan_pdata+ra1, val); return(0); }
 
 	sp=cpu->pspan;
 	if(sp && ((addr1-sp->base)<=sp->range_n3))

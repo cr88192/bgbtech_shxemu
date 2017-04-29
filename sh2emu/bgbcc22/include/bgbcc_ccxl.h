@@ -24,6 +24,7 @@
 #define CCXL_TY_F16				0x13		//Float16
 #define CCXL_TY_VARIANT			0x14		//Variant
 #define CCXL_TY_VARARGS			0x15		//VarArgs
+#define CCXL_TY_VALIST			0x16		//va_list
 
 
 
@@ -101,6 +102,7 @@
 #define CCXL_LITID_STATICVAR	12
 #define CCXL_LITID_ASMFUNC		13
 #define CCXL_LITID_ASMBLOB		14
+#define CCXL_LITID_MANIFOBJ		15
 
 #define CCXL_LITID_ARR1			16
 #define CCXL_LITID_ARR2			17
@@ -139,6 +141,7 @@
 #define CCXL_CMD_LIST					0x800F
 #define CCXL_CMD_STATICVARDECL			0x8010
 #define CCXL_CMD_VARDECL				0x8011
+#define CCXL_CMD_MANIFOBJ				0x8012
 
 #define CCXL_ATTR_SIG					0x9001
 #define CCXL_ATTR_FLAGS					0x9002
@@ -221,6 +224,10 @@
 #define CCXL_VOP_INITOBJARR			0x22
 #define CCXL_VOP_LOADINITARR		0x23
 #define CCXL_VOP_LOADINITOBJARR		0x24
+
+#define CCXL_VOP_VA_START			0x25
+#define CCXL_VOP_VA_END				0x26
+#define CCXL_VOP_VA_ARG				0x27
 
 #define CCXL_LBL_GLOBALBASE			0x000000	//globals (main context)
 

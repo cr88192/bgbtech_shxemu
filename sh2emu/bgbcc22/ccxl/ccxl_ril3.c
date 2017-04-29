@@ -383,14 +383,14 @@ void BGBCC_CCXLR3_EmitBufUVLI(
  * -1 .. -64: Index for recently seen string.
  * < (-65): LZ Compressed String
  */
-void BGBCC_CCXLR3_EmitArgString(
-	BGBCC_TransState *ctx, char *str)
+void BGBCC_CCXLR3_EmitArgBlob(
+	BGBCC_TransState *ctx, byte *str, int len)
 {
 	byte ttb[65536];
-	byte *ct;
+	byte *ct, *cte, *tbuf, *tbuf1;
 	byte *s, *se, *rs;
 	int c0, c1;
-	int l, r, t, p, ml, md;
+	int r, t, p, ml, md;
 	int i, j, k;
 
 	if(!(ctx->ril_ip))
@@ -402,23 +402,23 @@ void BGBCC_CCXLR3_EmitArgString(
 		return;
 	}
 
-	l=strlen(str);
-	if(!l)l=1;
+//	l=strlen(str);
+//	if(!l)l=1;
 
 	for(i=0; i<64; i++)
 	{
 		j=(ctx->ril_psrov-i-1)&63;
-		if(ctx->ril_pslen[j]!=l)
+		if(ctx->ril_pslen[j]!=len)
 			continue;
-		s=(byte *)str;
+		s=str;
 		p=ctx->ril_psidx[j];
-		for(k=0; k<l; k++)
+		for(k=0; k<len; k++)
 		{
 			c0=*s; c1=ctx->ril_txwin[p];
 			if(c0!=c1)break;
 			s++; p=(p+1)&16383;
 		}
-		if(k>=l)
+		if(k>=len)
 			break;
 	}
 	if(i<64)
@@ -429,26 +429,42 @@ void BGBCC_CCXLR3_EmitArgString(
 
 	i=ctx->ril_psrov;
 	ctx->ril_psidx[i]=ctx->ril_txrov;
-	ctx->ril_pslen[i]=l;
+	ctx->ril_pslen[i]=len;
 	ctx->ril_psrov=(i+1)&63;
 
-	if(l<8)
+	if(len<8)
 	{
-		BGBCC_CCXLR3_EmitSVLI(ctx, l);
-		s=(byte *)str;
+		BGBCC_CCXLR3_EmitSVLI(ctx, len);
+		s=str;
 //		while(*s)
-		for(i=0; i<l; i++)
+		for(i=0; i<len; i++)
 			BGBCC_CCXLR3_EmitTextByte(ctx, *s++);
 		return;
 	}
 	
-	ct=ttb;
-	s=(byte *)str;
-	se=s+l;
+	tbuf=ttb;
+	ct=tbuf; cte=tbuf+65536;
+	s=str;
+	se=s+len;
 	
 	rs=s;
 	while(s<se)
 	{
+		r=s-rs;
+		if((ct+8+r)>=cte)
+		{
+			i=cte-ct;
+			j=i+(i>>1);
+			k=ct-tbuf;
+			tbuf1=bgbcc_malloc(j);
+			memcpy(tbuf1, tbuf, i);
+			if(tbuf!=ttb)
+				{ bgbcc_free(tbuf); }
+			tbuf=tbuf1;
+			ct=tbuf+k;
+			cte=tbuf+j;
+		}
+
 		if(BGBCC_CCXLR3_TextLookupMatch(ctx, s, se, &ml, &md)>0)
 		{
 			t=0x00;
@@ -495,21 +511,55 @@ void BGBCC_CCXLR3_EmitArgString(
 
 	k=ct-ttb;
 
-	if((k+3)>=(l+1))
+	if((k+3)>=(len+1))
 	{
-		BGBCC_CCXLR3_EmitSVLI(ctx, l);
-		s=(byte *)str;
-		for(i=0; i<l; i++)
+		BGBCC_CCXLR3_EmitSVLI(ctx, len);
+		s=str;
+		for(i=0; i<len; i++)
 			BGBCC_CCXLR3_EmitByte(ctx, *s++);
+
+		if(tbuf!=ttb)
+			{ bgbcc_free(tbuf); }
 		return;
 	}
 	
 	BGBCC_CCXLR3_EmitSVLI(ctx, -(k+64));
-	BGBCC_CCXLR3_EmitSVLI(ctx, l);
-	s=ttb;
+	BGBCC_CCXLR3_EmitSVLI(ctx, len);
+	s=tbuf;
 	while(s<ct)
 		BGBCC_CCXLR3_EmitByte(ctx, *s++);
+
+	if(tbuf!=ttb)
+		{ bgbcc_free(tbuf); }
 	return;
+}
+
+void BGBCC_CCXLR3_EmitArgString(
+	BGBCC_TransState *ctx, char *str)
+{
+	int l;
+	
+	if(!(ctx->ril_ip))
+		return;
+
+	if(!str)
+	{
+		BGBCC_CCXLR3_EmitSVLI(ctx, 0);
+		return;
+	}
+
+	l=strlen(str);
+	if(!l)l=1;
+	BGBCC_CCXLR3_EmitArgBlob(ctx, (byte *)str, l);
+}
+
+void BGBCC_CCXLR3_EmitArgDataBlob(
+	BGBCC_TransState *ctx, byte *buf, int len)
+{
+	if(!(ctx->ril_ip))
+		return;
+
+	BGBCC_CCXLR3_EmitArgBlob(ctx, buf, len);
 }
 
 void BGBCC_CCXLR3_EmitArgLabel(
@@ -1204,14 +1254,33 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 	*rcs=cs;
 }
 
+int BGBCC_CCXLR3_CheckCanLoadNow(
+	BGBCC_TransState *ctx, byte *buf, int bufsz)
+{
+	if(ctx->ril3_norec)
+		return(0);
+	return(1);
+}
+
 void BGBCC_CCXLR3_LoadBufferRIL(
 	BGBCC_TransState *ctx, byte *buf, int bufsz)
 {
+	BGBCC_CCXL_LiteralInfo *obj;
+	BGBCC_CCXL_RegisterInfo *gbl;
 	byte *cs;
 	byte *cse;
+	int i;
 
 	if(!buf)
 		return;
+	
+	if(ctx->ril3_norec)
+	{
+		__debugbreak();
+		return;
+	}
+
+	ctx->ril3_norec=1;
 	
 	BGBCC_CCXLR3_CheckLzWindow(ctx);
 	
@@ -1219,4 +1288,22 @@ void BGBCC_CCXLR3_LoadBufferRIL(
 	cs+=8;
 	while(cs<cse)
 		{ BGBCC_CCXLR3_DecodeBufCmd(ctx, &cs); }
+
+	ctx->ril3_norec=0;
+
+	for(i=0; i<ctx->n_literals; i++)
+	{
+		obj=ctx->literals[i];
+		if(!obj)
+			continue;
+		if(obj->littype!=CCXL_LITID_MANIFOBJ)
+			continue;
+		if(obj->decl->regflags&BGBCC_REGFL_DEMANDLOAD)
+		{
+			obj->decl->regflags&=~BGBCC_REGFL_DEMANDLOAD;
+			obj->decl->regflags|=BGBCC_REGFL_LOADED;
+			BGBCC_CCXLR3_LoadBufferRIL(ctx,
+				obj->decl->text, obj->decl->sz_text);
+		}
+	}
 }

@@ -954,3 +954,8 @@ s64 bgbcc_atoi(char *str)
 	if(sg)li=-li;
 	return(li);
 }
+
+f64 bgbcc_atof(char *str)
+{
+	return(atof(str));
+}

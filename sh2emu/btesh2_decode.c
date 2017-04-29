@@ -1,6 +1,6 @@
 int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 {
-	static const byte ldow2[16]={1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1};
+	static const byte ldow2[16]={1,0,0,1, 0,0,1,0, 0,0,0,0, 0,0,1,1};
 	u16 opw, opw2;
 	int isds;
 	int i, j, k;
@@ -1027,6 +1027,53 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOV;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_MOV_RegReg;
+
+			if(isds)
+			{
+				BTSH_Fixup_MOV_RegReg(cpu, op);
+				break;
+			}
+
+#if 1
+			if(((opw2>>8)&15)==op->rn)
+			{
+				if((opw2&0xF000)==0x3000)
+				{
+					if((opw2&0xF00F)==0x300C)
+					{	op->nmid=BTESH2_NMID_ADD;
+						op->Run=BTSH_Op_ADD_RegRegReg;	}
+					else if((opw2&0xF00F)==0x3008)
+					{	op->nmid=BTESH2_NMID_SUB;
+						op->Run=BTSH_Op_SUB_RegRegReg;	}
+				}
+				else if((opw2&0xF000)==0x2000)
+				{
+					if((opw2&0xF00F)==0x2009)
+					{	op->nmid=BTESH2_NMID_AND;
+						op->Run=BTSH_Op_AND_RegRegReg;	}
+					else if((opw2&0xF00F)==0x200B)
+					{	op->nmid=BTESH2_NMID_OR;
+						op->Run=BTSH_Op_OR_RegRegReg;	}
+					else if((opw2&0xF00F)==0x200A)
+					{	op->nmid=BTESH2_NMID_XOR;
+						op->Run=BTSH_Op_XOR_RegRegReg;	}
+				}
+
+				if(op->nmid!=BTESH2_NMID_MOV)
+				{
+					op->rn=(opw>>4)&15;
+					op->rm=(opw2>>4)&15;
+					op->ro=(opw2>>8)&15;
+					if(op->rm==op->ro)
+						op->rm=op->rn;
+					op->fmid=BTESH2_FMID_REGREGREG;
+					op->fl=BTESH2_OPFL_EXTRAWORD|
+						BTESH2_OPFL_INVDLYSLOT;
+					break;
+				}
+			}
+#endif
+
 			BTSH_Fixup_MOV_RegReg(cpu, op);
 			break;
 		case 0x4: /* 6--4 */
@@ -1451,6 +1498,32 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->Run=BTSH_Op_SHLD_RegImm;
 			if(((s32)op->imm)>=0)
 				op->Run=BTSH_Op_SHLD_RegImmP;
+			break;
+		}
+
+		if(((opw2&0xF00F)==0x2002) && (((opw2>>4)&15)==op->rn))
+		{
+			op->rn=(opw2>>8)&15;
+			op->rm=(opw2>>4)&15;
+			op->nmid=BTESH2_NMID_MOVL;
+			op->fmid=BTESH2_FMID_IMMSTRN;
+
+			op->fl=BTESH2_OPFL_EXTRAWORD|
+				BTESH2_OPFL_INVDLYSLOT;
+			op->Run=BTSH_Op_MOV_StRegImmD;
+			break;
+		}
+
+		if(((opw2&0xF00F)==0x2006) && (((opw2>>4)&15)==op->rn))
+		{
+			op->rn=(opw2>>8)&15;
+			op->rm=(opw2>>4)&15;
+			op->nmid=BTESH2_NMID_MOVL;
+			op->fmid=BTESH2_FMID_IMMDECSTRN;
+
+			op->fl=BTESH2_OPFL_EXTRAWORD|
+				BTESH2_OPFL_INVDLYSLOT;
+			op->Run=BTSH_Op_MOV_DecStRegImmD;
 			break;
 		}
 		

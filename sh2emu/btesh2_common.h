@@ -51,7 +51,8 @@ typedef double f64;
 #endif
 #endif
 
-#ifdef __linux
+//#ifdef __linux
+#ifndef __MSC_VER
 #define __debugbreak()	(*((int *)-1)=-1)
 #endif
 
@@ -93,9 +94,11 @@ typedef long nlint;
 #define default_inline __inline
 #endif
 
+#ifndef __EMSCRIPTEN__
 #ifdef __GNUC__
 #define force_inline inline
 #define default_inline inline
+#endif
 #endif
 
 #ifndef force_inline
@@ -206,8 +209,40 @@ default_inline u32 btesh2_getu32be(byte *ptr)
 default_inline u64 btesh2_getu64be(byte *ptr)
 	{ return(btesh2_getu32le(ptr+4)|(((u64)btesh2_getu32le(ptr))<<32)); }
 
+default_inline void btesh2_setu16be(byte *ptr, u16 val)
+	{ ptr[1]=val; ptr[0]=val>>8; }
+default_inline void btesh2_setu32be(byte *ptr, u32 val)
+	{ ptr[3]=val; ptr[2]=val>>8; ptr[1]=val>>16; ptr[0]=val>>24; }
+default_inline void btesh2_setu64be(byte *ptr, u64 val)
+	{ btesh2_setu32le(ptr+4, val); btesh2_setu32le(ptr+0, val>>32); }
+
 #define btesh2_gets16be(ptr)		((s16)btesh2_getu16be(ptr))
 #define btesh2_gets32be(ptr)		((s32)btesh2_getu32be(ptr))
 #define btesh2_gets64be(ptr)		((s64)btesh2_getu64be(ptr))
+
+
+default_inline f32 btesh2_f32fromu32bits(u32 val)
+	{ return(*(f32 *)(&val)); }
+default_inline f64 btesh2_f64fromu64bits(u64 val)
+	{ return(*(f64 *)(&val)); }
+
+default_inline u32 btesh2_u32fromf32bits(f32 val)
+	{ return(*(u32 *)(&val)); }
+default_inline u64 btesh2_u64fromf64bits(f64 val)
+	{ return(*(u64 *)(&val)); }
+
+#define btesh2_getf32le(ptr)		btesh2_f32fromu32bits(btesh2_getu32le(ptr))
+#define btesh2_getf64le(ptr)		btesh2_f64fromu64bits(btesh2_getu64le(ptr))
+#define btesh2_setf32le(ptr, val)	btesh2_setu32le((ptr), \
+										btesh2_u32fromf32bits(val))
+#define btesh2_setf64le(ptr, val)	btesh2_setu32le((ptr), \
+										btesh2_u64fromf64bits(val))
+
+#define btesh2_getf32be(ptr)		btesh2_f32fromu32bits(btesh2_getu32be(ptr))
+#define btesh2_getf64be(ptr)		btesh2_f64fromu64bits(btesh2_getu64be(ptr))
+#define btesh2_setf32be(ptr, val)	btesh2_setu32be((ptr), \
+										btesh2_u32fromf32bits(val))
+#define btesh2_setf64be(ptr, val)	btesh2_setu32be((ptr), \
+										btesh2_u64fromf64bits(val))
 
 #endif

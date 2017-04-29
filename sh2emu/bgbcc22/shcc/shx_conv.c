@@ -8,7 +8,24 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 
 	dt=dtype.val;
 	st=stype.val;
-	
+
+	if(BGBCC_CCXL_TypePointerP(ctx, dtype))
+	{
+		if(BGBCC_CCXL_TypePointerP(ctx, stype))
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
+
+		if(BGBCC_CCXL_TypeSmallIntP(ctx, stype))
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
+		if(BGBCC_CCXL_TypeSmallLongP(ctx, stype))
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
+
+		BGBCC_CCXL_StubError(ctx);
+		return(0);
+	}
+
 	if(dt==CCXL_TY_I)
 	{
 		if(st==CCXL_TY_SB)
@@ -29,9 +46,11 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, dtype, dreg, sreg)); }
 
 		if(st==CCXL_TY_NL)
-			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, dtype, dreg, sreg)); }
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
 		if(st==CCXL_TY_UNL)
-			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, dtype, dreg, sreg)); }
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
 
 //		if(st==CCXL_TY_L)
 //			{ return(CCXL_STATUS_ERR_UNHANDLEDTYPE); }
@@ -41,6 +60,10 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 //			{ return(CCXL_STATUS_ERR_UNHANDLEDTYPE); }
 //		if(st==CCXL_TY_UNL)
 //			{ return(CCXL_STATUS_ERR_UNHANDLEDTYPE); }
+
+		if(BGBCC_CCXL_TypePointerP(ctx, stype))
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
 	}
 
 	if(dt==CCXL_TY_UI)
@@ -58,13 +81,21 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 		{	return(BGBCC_SHXC_EmitOpNmidVRegVReg(ctx, sctx, dtype,
 				BGBCC_SH_NMID_EXTUW, dreg, sreg));	}
 		if(st==CCXL_TY_I)
-			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, dtype, dreg, sreg)); }
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
 		if(st==CCXL_TY_UI)
-			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, dtype, dreg, sreg)); }
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
 		if(st==CCXL_TY_NL)
-			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, dtype, dreg, sreg)); }
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
 		if(st==CCXL_TY_UNL)
-			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, dtype, dreg, sreg)); }
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
+
+		if(BGBCC_CCXL_TypePointerP(ctx, stype))
+			{ return(BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx,
+				dtype, dreg, sreg)); }
 	}
 
 	if(dt==CCXL_TY_SB)

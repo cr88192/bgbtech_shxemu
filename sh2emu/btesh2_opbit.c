@@ -13,6 +13,14 @@ void BTSH_Op_AND_RegImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[op->rn]=i&op->imm;
 }
 
+void BTSH_Op_AND_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	cpu->regs[op->ro]=i&j;
+}
+
 void BTSH_Op_ANDB_MemImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j;
@@ -42,6 +50,14 @@ void BTSH_Op_OR_RegImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	u32 i, j;
 	i=cpu->regs[op->rn];
 	cpu->regs[op->rn]=i|op->imm;
+}
+
+void BTSH_Op_OR_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	cpu->regs[op->ro]=i|j;
 }
 
 void BTSH_Op_ORB_MemImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -103,6 +119,14 @@ void BTSH_Op_XOR_RegImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	u32 i, j;
 	i=cpu->regs[op->rn];
 	cpu->regs[op->rn]=i^op->imm;
+}
+
+void BTSH_Op_XOR_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	cpu->regs[op->ro]=i^j;
 }
 
 void BTSH_Op_XORB_MemImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)

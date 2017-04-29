@@ -279,7 +279,7 @@ BCCX_Node *BGBCP_ExpressionLit(BGBCP_ParseState *ctx, char **str)
 BCCX_Node *BGBCP_ExpressionPostfix(BGBCP_ParseState *ctx, char **str)
 {
 	char b[256], b2[256];
-	char *s, *t;
+	char *s, *t, *s0;
 	int ty, ty2;
 	BCCX_Node *n, *n1, *n2, *n3;
 	int i;
@@ -348,6 +348,16 @@ BCCX_Node *BGBCP_ExpressionPostfix(BGBCP_ParseState *ctx, char **str)
 //			n=CONS2(SYM("funcall"), n, n1);
 //			n->tag=bgbcc_strdup("funcall");
 //			BCCX_Add(n, BCCX_New1("args", n1));
+
+			if(BCCX_TagIsP(n, "ref"))
+			{
+				s0=BCCX_Get(n, "name");
+				n=BCCX_New1("funcall",
+					BCCX_New1V("args", n1));
+				BCCX_Set(n, "name", s0);
+				continue;
+			}
+
 			n=BCCX_New2("funcall",
 				BCCX_New1V("value", n),
 				BCCX_New1V("args", n1));

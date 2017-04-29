@@ -1,0 +1,137 @@
+Possible: Small and Special-Purpose SIMD Extension
+* Will only do 32 and 64-bit vectors.
+* Not really intended for normal CPU use-cases.
+** Possible, more-powerful SIMD [[BJX1-WV_SIMD]]
+
+SIMD Mode would optionally replace the FPU instructions.
+* The use of SIMD will be set via a VE bit in FPSCR.
+** If VE is clear, then FPU instructions are used.
+* Rounding mode may select between variants of operations.
+
+FPSCR bits:
+* 0000_0003: RM		//Rounding Mode
+* 0004_0000: DN		//Denormalization Mode
+* 0008_0000: PR		//Precision
+* 0010_0000: SZ		//Load/Store Size
+* 0020_0000: FR		//Float Register Bank
+* 0040_0000: SW0	//Swap 0
+* 0080_0000: SW1	//Swap 1
+
+Flags
+* FPSCR.SZ: Selects 32 or 64-bit vector.
+** 0=32 bit
+** 1=64 bit
+* FPSCR.PR: Selects packed Byte or packed Word.
+** 0: 4x Packed Bytes (FRn)
+** 1: 4x Packed Word (DRn)
+* FPSCR.RM (if VE=1):
+** 00=Packed Byte or Word
+** 01=Packed Half or Float
+*** Packed half-float mode: 4x half-float in 64 bits.
+*** In packed float mode, operations would apply to a pair of floats.
+** 10=Resv, WV-SIMD
+** 11=Resv, WV-SIMD
+* FPSCR.SW0
+** Swap Low/High DWords on 64-bit load/store.
+
+SIMD Modes (SZ,PR,RM):
+* 0,0,00: 4x Packed Byte
+* 0,0,01: 2x Packed Half
+* 0,1,00: 2x Packed Word
+* 0,1,01: 1x Float (Resv)
+* 1,0,00: 8x Packed Byte (Resv)
+* 1,0,01: 4x Packed Half
+* 1,1,00: 4x Packed Word
+* 1,1,01: 2x Float
+
+
+Notes:
+* Packed arithmetic will be modular.
+* Packed byte to packed word conversion will load the byte into the high bits of the word.
+* Packed word to byte conversion will preserve the high bits.
+
+Instructions
+* F---
+**	Fnm0 PADD FRm, FRn		//Packed Add (Modular)
+**	Fnm1 PSUB FRm, FRn		//Packed Sub (Modular)
+**	Fnm2 PMULL FRm, FRn		//Packed Mul (Low Bits, Byte/Word)
+***	  Fnm2 PFMUL FRm, FRn		//Packed Mul (Half/Float)
+**	Fnm3 PMULH FRm, FRn		//Packed Mul (High Bits, Byte/Word)
+***	  Fnm3 PFDIV FRm, FRn		//Packed Div (Half/Float)
+**	Fnm4 PADDS FRm, FRn		//Packed Add (Signed Saturate, Byte/Word)
+**	Fnm5 PADDU FRm, FRn		//Packed Add (Unsigned Saturate, Byte/Word)
+**	Fnm6 FMOV.S @(R0,Rm), FRn
+**	Fnm7 FMOV.S FRm, @(R0,Rn)
+**	Fnm8 FMOV.S @Rm, FRn
+**	Fnm9 FMOV.S @Rm+, FRn
+**	FnmA FMOV.S FRm, @Rn
+**	FnmB FMOV.S FRm, @-Rn
+**	FnmC FMOV FRm, FRn
+**	F--D
+***		Fn0D FSTS FPUL, FRn	//Move FPUL to FRn
+***		Fm1D FLDS FRm, FPUL	//Move FRm to FPUL
+***		Fn2D PFLOAT FPUL, FRn	//Packed Word to Half
+***		Fm3D PFTRC FRm, FPUL	//Packed Half to Word
+***		Fn4D PNEG FRn		//Negate packed values
+***		Fn5D PABS FRn		//Absolute of packed values
+***		Fn6D ? FRn
+***		Fn7D PSHUF R0, FRn	//Shuffle (R0=Mask)
+***		Fn8D PCNVBH FPUL, FRn	//convert 4x packed bytes to 4x packed half (32->64) 
+***		Fn9D PCNVHB FRm, FPUL	//convert 4x packed half to 4x packed bytes (64->32)
+***		FnAD PCNVBW FPUL, FRn	//convert 4x packed bytes to 4x packed words (32->64)
+****		  FnAD PCNVHF FPUL, FRn	//Convert 2x Half to 2x Float
+***		FnBD PCNVWB FRm, FPUL	//convert 4x packed words to 4x packed bytes (64->32)
+****		  FnBD PCNVFH FRm, FPUL	//Convert 2x Float to 2x Half
+***		FiCD PSHUFI		//Shuffle Imm
+***		FiDD PSETMD		//Packed Set Mode
+***		FnED PDDPR		//Packed Dot Product
+***		F-FD
+****			F0FD / FSCA			//Sin/Cos
+****			F1FD / FTRV2
+****			F2FD / FSCA			//
+****			F3FD FSCHG			//Flips FPSCR.SZ
+****			F4FD / FSCA			//
+****			F5FD / FTRV2
+****			F6FD / FSCA			//
+****			F7FD / FPCHG		//Flips FPSCR.PR
+****			F8FD / FSCA			//
+****			F9FD / FTRV2
+****			FAFD / FSCA			//
+****			FBFD / FRCHG		//Flips FPSCR.FR
+****			FCFD / FSCA			//
+****			FDFD / FTRV2
+****			FEFD / FSCA			//
+**	FnmE ? (Reserved Ops)
+**	FooF ? (Escape 32 for FPU/SIMD Ops)
+
+PSETMD
+* imm4=tvps
+* T=0: Set VE, PR, and SZ
+** V: FPSCR.VE: 0=FPU, 1=Vector
+** P: FPSCR.PR
+** S: FPSCR.SZ
+* T=1: Set FR and RM(0,1)
+** FR is N/A if no alternate bank of FPU registers exists.
+
+Special:
+* "LDS Rm, FPUL; FSTS FPUL, FRn" is super-op "FMOV.S Rm, FRn"
+* "FLDS FRm, FPUL; STS FPUL, Rn" is super-op "FMOV.S FRm, Rn"
+** The contents of FPUL will be undefined if used when FPSCR.VE=1.
+
+PSHUFI
+* 0: XYWZ
+* 1: XZYW
+* 2: YXZW
+* 3: YZXW
+* 4: ZXYW
+* 5: ZYXW
+* 6: XXXX
+* 7: YYYY
+* 8: WXYZ
+* 9: WXZY
+* 10: WYXZ
+* 11: WYZX
+* 12: WZXY
+* 13: WZYX
+* 14: ZZZZ
+* 15: WWWW

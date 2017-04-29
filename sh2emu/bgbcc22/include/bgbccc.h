@@ -203,6 +203,9 @@ extern "C" {
 	//struct: struct was initialized with data in-code
 	//register: was initialized with an object (destroy on release)
 
+#define BGBCC_REGFL_DEMANDLOAD		0x0010		//demand-load requested
+#define BGBCC_REGFL_LOADED			0x0020		//already loaded
+
 #ifndef BTK_NAME
 #define BTK_NAME	1
 #define BTK_NUMBER	2
@@ -427,6 +430,8 @@ fourcc arch;			//major architecture
 fourcc sub_arch;		//subset architecture
 byte arch_sizeof_long;
 byte arch_sizeof_ptr;
+
+byte ril3_norec;
 
 int gs_seq;
 char *lfn;

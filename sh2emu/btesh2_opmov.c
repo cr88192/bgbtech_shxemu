@@ -257,6 +257,31 @@ void BTSH_Op_MOV_RegLdR0mD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		cpu->regs[op->rm]+cpu->regs[op->ro]);
 }
 
+
+void BTSH_Op_MOV_StRegImmD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+//	cpu->regs[op->rn]=(sbyte)(op->imm);
+//	cpu->regs[op->rn]=op->imm;
+	cpu->regs[op->rm]=op->imm;
+
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrDWord(cpu,
+		cpu->regs[op->rn], op->imm);
+}
+
+void BTSH_Op_MOV_DecStRegImmD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+//	cpu->regs[op->rn]=(sbyte)(op->imm);
+//	cpu->regs[op->rn]=op->imm;
+	cpu->regs[op->rm]=op->imm;
+
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]-=4;
+	BTESH2_SetAddrDWord(cpu,
+		cpu->regs[op->rn], op->imm);
+}
+
+
 void BTSH_Op_SWAP_RegRegB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i;

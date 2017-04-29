@@ -111,6 +111,7 @@ ccxl_status BGBCC_CCXL_RegisterAllocTemporaryLLn(
 			ri->cseq++;
 			ri->type=bty;
 			ri->regid=i|((ri->cseq&4095)<<12);
+			ri->ucnt=1;
 
 			treg.val=CCXL_REGTY_TEMP|
 				(((u64)bty.val)<<CCXL_REGID_TYPESHIFT)|

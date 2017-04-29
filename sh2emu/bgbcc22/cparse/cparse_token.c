@@ -1101,6 +1101,12 @@ char *BGBCP_TokenLang2(char *s, char *b, int *ty, int lang)
 	
 	if(!s)
 	{
+		if(b && ty)
+		{
+			*b=0;
+			*ty=BTK_NULL;
+		}
+
 		if(!flush)
 		{
 			for(i=0; i<BGBCP_TKHASHSZ; i++)

@@ -161,7 +161,7 @@ int BGBCC_SHXA_GetRegId(char *str)
 			if((str[3]>='0') && (str[3]<='9') && !str[4])
 				{ return(t+(str[3]-'0')); }
 			if(!str[3])
-			return(t);
+				return(t);
 		}else if(str[2]=='1')
 		{
 			if((str[3]>='0') && (str[3]<='5') && !str[4])
@@ -432,6 +432,8 @@ int nmid;
 {"div1",	BGBCC_SH_NMID_DIV1},
 {"dmulu",	BGBCC_SH_NMID_DMULU},
 {"dmuls",	BGBCC_SH_NMID_DMULS},
+{"dmulu.l",	BGBCC_SH_NMID_DMULU},
+{"dmuls.l",	BGBCC_SH_NMID_DMULS},
 {"tst",		BGBCC_SH_NMID_TST},
 {"and",		BGBCC_SH_NMID_AND},
 {"xor",		BGBCC_SH_NMID_XOR},
@@ -761,6 +763,9 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 //	BTSHAS_ListingOp *op;
 	char *tk0, *tk1;
 	char *cs, *cs1, *cs2;
+	s64 li;
+	f32 ff;
+	f64 fd;
 	int i, j, k;
 
 	cs=*rcs;
@@ -827,7 +832,28 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 			return(1);
 		}
 
-		if(!strcmp(tk0, "I.long"))
+		if(!strcmp(tk0, "I.rept"))
+		{
+			cs2=cs1;
+			cs2=BGBCC_SHXA_ParseToken(cs2, &tk0);
+			ctx->cnrept=bgbcc_atoi(tk0+1);
+			ctx->csrept=cs2;
+			*rcs=cs2;
+			return(1);
+		}
+
+		if(!strcmp(tk0, "I.endr"))
+		{
+			cs2=cs1;
+			ctx->cnrept--;
+			if(ctx->cnrept>0)
+				cs2=ctx->csrept;
+			*rcs=cs2;
+			return(1);
+		}
+
+		if(!strcmp(tk0, "I.long") ||
+			!strcmp(tk0, "I.int"))
 		{
 			cs2=cs1;
 			cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
@@ -881,17 +907,44 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 				}
 
 				BGBCC_SHX_EmitDWord(ctx, k);
-				*rcs=cs2;
-				return(1);
+//				*rcs=cs2;
+//				return(1);
+			}else if((*tk0=='|') || (*tk0=='C'))
+
+			{
+	//			BGBCC_SHX_EmitDWord(ctx, bgbcc_atoi(tk0+1));
+
+				if(*tk0=='|')
+					i=bgbcc_atoi(tk0+1);
+				if(*tk0=='C')
+					i=(ctx->is_le)?
+						(tk0[1]|(tk0[2]<<8)|(tk0[3]<<16)|(tk0[4]<<24)):
+						(tk0[4]|(tk0[3]<<8)|(tk0[2]<<16)|(tk0[1]<<24));
+				BGBCC_SHX_EmitDWord(ctx, i);
 			}
 
-			BGBCC_SHX_EmitDWord(ctx, bgbcc_atoi(tk0+1));
 			while(*cs2 && *cs2==',')
 			{
 				if(*cs2==',')
 					cs2++;
 				cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
-				BGBCC_SHX_EmitDWord(ctx, bgbcc_atoi(tk0+1));
+//				BGBCC_SHX_EmitDWord(ctx, bgbcc_atoi(tk0+1));
+
+				if(*tk0=='I')
+				{
+					BGBCC_SHX_EmitNamedReloc(ctx, tk0+1,
+						BGBCC_SH_RLC_ABS32);
+					BGBCC_SHX_EmitDWord(ctx, 0);
+					continue;
+				}
+
+				if(*tk0=='|')
+					i=bgbcc_atoi(tk0+1);
+				if(*tk0=='C')
+					i=(ctx->is_le)?
+						(tk0[1]|(tk0[2]<<8)|(tk0[3]<<16)|(tk0[4]<<24)):
+						(tk0[4]|(tk0[3]<<8)|(tk0[2]<<16)|(tk0[1]<<24));
+				BGBCC_SHX_EmitDWord(ctx, i);
 			}
 
 			*rcs=cs2;
@@ -899,17 +952,30 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 		}
 
 		if(!strcmp(tk0, "I.word") ||
-			!strcmp(tk0, "I.short"))
+			!strcmp(tk0, "I.short") ||
+			!strcmp(tk0, "I.hword"))
 		{
 			cs2=cs1;
 			cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
-			BGBCC_SHX_EmitDWord(ctx, bgbcc_atoi(tk0+1));
+//			BGBCC_SHX_EmitWord(ctx, bgbcc_atoi(tk0+1));
+			if(*tk0=='|')
+				i=bgbcc_atoi(tk0+1);
+			if(*tk0=='C')
+				i=(ctx->is_le)?(tk0[1]|(tk0[2]<<8)):(tk0[2]|(tk0[1]<<8));
+			BGBCC_SHX_EmitWord(ctx, i);
+
 			while(*cs2 && *cs2==',')
 			{
 				if(*cs2==',')
 					cs2++;
 				cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
-				BGBCC_SHX_EmitWord(ctx, bgbcc_atoi(tk0+1));
+//				BGBCC_SHX_EmitWord(ctx, bgbcc_atoi(tk0+1));
+
+				if(*tk0=='|')
+					i=bgbcc_atoi(tk0+1);
+				if(*tk0=='C')
+					i=(ctx->is_le)?(tk0[1]|(tk0[2]<<8)):(tk0[2]|(tk0[1]<<8));
+				BGBCC_SHX_EmitWord(ctx, i);
 			}
 
 			*rcs=cs2;
@@ -920,7 +986,7 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 		{
 			cs2=cs1;
 			cs2=BGBCC_SHXA_ParseToken(cs2, &tk0);
-			if(*tk0=='I')
+			if(*tk0=='|')
 				i=bgbcc_atoi(tk0+1);
 			if(*tk0=='C')
 				i=tk0[1];
@@ -930,11 +996,66 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 				if(*cs2==',')
 					cs2++;
 				cs2=BGBCC_SHXA_ParseToken(cs2, &tk0);
-				if(*tk0=='I')
+				if(*tk0=='|')
 					i=bgbcc_atoi(tk0+1);
 				if(*tk0=='C')
 					i=tk0[1];
 				BGBCC_SHX_EmitByte(ctx, i);
+			}
+
+			*rcs=cs2;
+			return(1);
+		}
+
+		if(!strcmp(tk0, "I.quad"))
+		{
+			cs2=cs1;
+			cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
+			BGBCC_SHX_EmitQWord(ctx, bgbcc_atoi(tk0+1));
+			while(*cs2 && *cs2==',')
+			{
+				if(*cs2==',')
+					cs2++;
+				cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
+				BGBCC_SHX_EmitQWord(ctx, bgbcc_atoi(tk0+1));
+			}
+
+			*rcs=cs2;
+			return(1);
+		}
+
+		if(!strcmp(tk0, "I.float") || !strcmp(tk0, "I.single"))
+		{
+			cs2=cs1;
+			cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
+			ff=bgbcc_atof(tk0+1);
+			BGBCC_SHX_EmitDWord(ctx, *(u32 *)(&ff));
+			while(*cs2 && *cs2==',')
+			{
+				if(*cs2==',')
+					cs2++;
+				cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
+				ff=bgbcc_atof(tk0+1);
+				BGBCC_SHX_EmitDWord(ctx, *(u32 *)(&ff));
+			}
+
+			*rcs=cs2;
+			return(1);
+		}
+
+		if(!strcmp(tk0, "I.double"))
+		{
+			cs2=cs1;
+			cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
+			fd=bgbcc_atof(tk0+1);
+			BGBCC_SHX_EmitQWord(ctx, *(u64 *)(&fd));
+			while(*cs2 && *cs2==',')
+			{
+				if(*cs2==',')
+					cs2++;
+				cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
+				fd=bgbcc_atof(tk0+1);
+				BGBCC_SHX_EmitQWord(ctx, *(u64 *)(&fd));
 			}
 
 			*rcs=cs2;
@@ -984,6 +1105,7 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 		}
 
 		if(!strcmp(tk0, "I.global") ||
+			!strcmp(tk0, "I.globl") ||
 			!strcmp(tk0, "I.extern") ||
 			!strcmp(tk0, "I.weak"))
 		{

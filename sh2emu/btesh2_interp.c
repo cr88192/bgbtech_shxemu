@@ -506,6 +506,19 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 				btesh2_print_NameForDRegID(op->rn));
 			break;
 
+		case BTESH2_FMID_IMMSTRN:
+			printf("#%d(->%s), @%s",
+				op->imm,
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn));
+			break;
+		case BTESH2_FMID_IMMDECSTRN:
+			printf("#%d(->%s), @-%s",
+				op->imm,
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn));
+			break;
+
 		case BTESH2_FMID_NONE:
 			break;
 		default:

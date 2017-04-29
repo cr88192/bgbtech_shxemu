@@ -60,7 +60,7 @@ int BGBCC_SHX_EmitByte(BGBCC_SHX_Context *ctx, int val)
 
 	if(!ctx->sec_buf[ctx->sec])
 	{
-		sz=4096;	buf=malloc(sz);
+		sz=4096;	buf=bgbcc_malloc(sz);
 		ctx->sec_buf[ctx->sec]=buf;
 		ctx->sec_end[ctx->sec]=buf+sz;
 		ctx->sec_pos[ctx->sec]=buf;
@@ -72,7 +72,7 @@ int BGBCC_SHX_EmitByte(BGBCC_SHX_Context *ctx, int val)
 		sz=ctx->sec_end[ctx->sec]-buf;
 		ofs=ctx->sec_pos[ctx->sec]-buf;
 		sz=sz+(sz>>1);
-		buf=realloc(buf, sz);
+		buf=bgbcc_realloc(buf, sz);
 		ctx->sec_buf[ctx->sec]=buf;
 		ctx->sec_end[ctx->sec]=buf+sz;
 		ctx->sec_pos[ctx->sec]=buf+ofs;
@@ -167,6 +167,7 @@ int BGBCC_SHX_EmitAscii(BGBCC_SHX_Context *ctx, char *str)
 int BGBCC_SHX_EmitGetStrtabLabel(BGBCC_SHX_Context *ctx, char *str)
 {
 	char *s0;
+	int sn0;
 	int i, j, k;
 	
 	for(i=0; i<ctx->nlbl; i++)
@@ -181,10 +182,12 @@ int BGBCC_SHX_EmitGetStrtabLabel(BGBCC_SHX_Context *ctx, char *str)
 		}
 	}
 	
+	sn0=ctx->sec;
 	k=BGBCC_SHX_GenLabel(ctx);
 	BGBCC_SHX_SetSectionName(ctx, ".strtab");
 	BGBCC_SHX_EmitLabel(ctx, k);
 	BGBCC_SHX_EmitString(ctx, str);
+	ctx->sec=sn0;
 	return(k);
 }
 
@@ -953,6 +956,8 @@ int BGBCC_SHX_EmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	/* 3001=Esc32 */
 	case BGBCC_SH_NMID_CMPHS:	opw=0x3002|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_CMPGE:	opw=0x3003|(rn<<8)|(rm<<4); break;
+
+	case BGBCC_SH_NMID_DMULU:	opw=0x3005|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_CMPHI:	opw=0x3006|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_CMPGT:	opw=0x3007|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_SUB:		opw=0x3008|(rn<<8)|(rm<<4); break;
@@ -960,6 +965,7 @@ int BGBCC_SHX_EmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	case BGBCC_SH_NMID_SUBC:	opw=0x300A|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_SUBV:	opw=0x300B|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_ADD:		opw=0x300C|(rn<<8)|(rm<<4); break;
+	case BGBCC_SH_NMID_DMULS:	opw=0x300D|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_ADDC:	opw=0x300E|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_ADDV:	opw=0x300F|(rn<<8)|(rm<<4); break;
 
@@ -1319,11 +1325,12 @@ int BGBCC_SHX_EmitOpLdReg2Reg(
 
 	if(ro==BGBCC_SH_REG_ZZR)
 	{
-		return(BGBCC_SHX_EmitOpRegStReg(ctx, nmid, rm, rn));
+//		return(BGBCC_SHX_EmitOpRegLdReg(ctx, nmid, rm, rn));
+		return(BGBCC_SHX_EmitOpLdRegReg(ctx, nmid, rm, rn));
 	}
 
 	if((ro!=BGBCC_SH_REG_R0) && (rm==BGBCC_SH_REG_R0))
-		{ i=ro; ro=rm; rn=i; }
+		{ i=ro; ro=rm; rm=i; }
 
 	opw=-1; opw2=-1;
 	switch(nmid)
@@ -1475,6 +1482,40 @@ int BGBCC_SHX_EmitIndexAddImm32(BGBCC_SHX_Context *ctx, int imm)
 	return(i);
 }
 
+int BGBCC_SHX_EmitIndexAddImmPair32(BGBCC_SHX_Context *ctx,
+	s32 imma, s32 immb)
+{
+	int i, n, o;
+
+	for(i=0; i<(ctx->const_ns32-1); i++)
+	{
+		if(	(ctx->const_s32tab[i+0]==imma) &&
+			(ctx->const_s32tab[i+1]==immb) &&
+			!(ctx->const_s32tab_rlc[i+0]) &&
+			!(ctx->const_s32tab_rlc[i+1]))
+		{
+			n=ctx->nofs_s32tab++;
+			o=BGBCC_SHX_EmitGetOffs(ctx);
+			ctx->ofs_s32tab[n]=o;
+			ctx->idx_s32tab[n]=i;
+			return(i);
+		}
+	}
+	
+	i=ctx->const_ns32;
+	ctx->const_ns32+=2;
+	ctx->const_s32tab[i+0]=imma;
+	ctx->const_s32tab[i+1]=immb;
+	ctx->const_s32tab_rlc[i+0]=0;
+	ctx->const_s32tab_rlc[i+1]=0;
+
+	n=ctx->nofs_s32tab++;
+	o=BGBCC_SHX_EmitGetOffs(ctx);
+	ctx->ofs_s32tab[n]=o;
+	ctx->idx_s32tab[n]=i;
+	return(i);
+}
+
 int BGBCC_SHX_EmitIndexAddImm32LblOfs(
 	BGBCC_SHX_Context *ctx, int lbl, int ofs)
 {
@@ -1531,6 +1572,17 @@ int BGBCC_SHX_EmitLoadRegImm(
 {
 	int opw, opw2;
 
+	if(BGBCC_SHXC_EmitRegIsFpReg(NULL, ctx, reg))
+	{
+		opw=0xC700;
+		opw2=0xF009|(((reg+0)&15)<<8);
+
+		BGBCC_SHX_EmitWord(ctx, opw);
+		BGBCC_SHX_EmitIndexAddImm32(ctx, imm);
+		BGBCC_SHX_EmitWord(ctx, opw2);
+		return(1);
+	}
+
 	if((((sbyte)imm)==imm) && ((reg&0xF0)==0x00))
 	{
 		opw=0xE000|((reg&15)<<8)|(imm&255);
@@ -1582,6 +1634,45 @@ int BGBCC_SHX_EmitLoadRegImm(
 	}
 	
 	return(0);
+}
+
+int BGBCC_SHX_EmitLoadRegImm64P(
+	BGBCC_SHX_Context *ctx, int reg, s64 imm)
+{
+	s32 lo, hi;
+	int i;
+
+	lo=imm; hi=imm>>32;
+	i=BGBCC_SHX_EmitLoadRegImmPair32(ctx, reg, lo, hi);
+	return(i);
+}
+
+int BGBCC_SHX_EmitLoadRegImmPair32(
+	BGBCC_SHX_Context *ctx, int reg, s32 imma, s32 immb)
+{
+	int reg2;
+	int opw, opw1, opw2;
+
+	reg2=reg;
+	if(BGBCC_SHXC_EmitRegIsDpReg(NULL, ctx, reg))
+		{ reg2=BGBCC_SH_REG_FR0+((reg&7)*2); }
+
+	if(BGBCC_SHXC_EmitRegIsFpReg(NULL, ctx, reg2))
+	{
+		opw=0xC700;
+		opw1=0xF009|(((reg2+1)&15)<<8);
+		opw2=0xF009|(((reg2+0)&15)<<8);
+
+		BGBCC_SHX_EmitWord(ctx, opw);
+		BGBCC_SHX_EmitIndexAddImmPair32(ctx, imma, immb);
+		BGBCC_SHX_EmitWord(ctx, opw1);
+		BGBCC_SHX_EmitWord(ctx, opw2);
+		return(1);
+	}
+	
+	BGBCC_SHX_EmitLoadRegImm(ctx, 0, reg2+0, imma);
+	BGBCC_SHX_EmitLoadRegImm(ctx, 0, reg2+1, immb);
+	return(1);
 }
 
 int BGBCC_SHX_EmitLoadRegLabelRel(
@@ -1663,9 +1754,11 @@ int BGBCC_SHX_EmitFlushIndexImm32(BGBCC_SHX_Context *ctx)
 		k=ctx->const_s32tab_rlc[j];
 		opc=ctx->ofs_s32tab[i];
 //		opd=((ob-(opc+4))/4)+j;
-		opd=((ob-(opc+2))/4)+j;
+//		opd=((ob-(opc+2))/4)+j;
+		opd=((ob-opc)/4)+j;
 		opw=BGBCC_SHX_EmitGetOffsWord(ctx, opc-2);
-		if((opw&0xF000)!=0xD000)
+//		if((opw&0xF000)!=0xD000)
+		if(((opw&0xF000)!=0xD000) && ((opw&0xFF00)!=0xC700))
 			__debugbreak();
 		opw+=opd;
 		BGBCC_SHX_EmitSetOffsWord(ctx, opc-2, opw);

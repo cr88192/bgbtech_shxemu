@@ -134,6 +134,42 @@ int BTESH2_TryJitOpcode_ArithReg(UAX_Context *jctx,
 		return(1);
 	}
 
+	if((op->nmid==BTESH2_NMID_ADD) && (op->fmid==BTESH2_FMID_REGREGREG))
+	{
+		BTESH2_JitMovVMRegVMReg(jctx, op->ro, op->rn);
+		BTESH2_JitInsnVMRegVMReg(jctx, UAX_OP_ADD, op->ro, op->rm);
+		return(1);
+	}
+
+	if((op->nmid==BTESH2_NMID_SUB) && (op->fmid==BTESH2_FMID_REGREGREG))
+	{
+		BTESH2_JitMovVMRegVMReg(jctx, op->ro, op->rn);
+		BTESH2_JitInsnVMRegVMReg(jctx, UAX_OP_SUB, op->ro, op->rm);
+		return(1);
+	}
+
+	if((op->nmid==BTESH2_NMID_AND) && (op->fmid==BTESH2_FMID_REGREGREG))
+	{
+		BTESH2_JitMovVMRegVMReg(jctx, op->ro, op->rn);
+		BTESH2_JitInsnVMRegVMReg(jctx, UAX_OP_AND, op->ro, op->rm);
+		return(1);
+	}
+
+	if((op->nmid==BTESH2_NMID_OR) && (op->fmid==BTESH2_FMID_REGREGREG))
+	{
+		BTESH2_JitMovVMRegVMReg(jctx, op->ro, op->rn);
+		BTESH2_JitInsnVMRegVMReg(jctx, UAX_OP_OR, op->ro, op->rm);
+		return(1);
+	}
+
+	if((op->nmid==BTESH2_NMID_XOR) && (op->fmid==BTESH2_FMID_REGREGREG))
+	{
+		BTESH2_JitMovVMRegVMReg(jctx, op->ro, op->rn);
+		BTESH2_JitInsnVMRegVMReg(jctx, UAX_OP_XOR, op->ro, op->rm);
+		return(1);
+	}
+
+
 	if((op->nmid==BTESH2_NMID_MOVA) && (op->fmid==BTESH2_FMID_REGLDABS))
 	{
 		BTESH2_JitStoreVMRegImm(jctx, op->rn, (s32)(op->imm));
@@ -450,6 +486,28 @@ int BTESH2_TryJitOpcode_MovMem(UAX_Context *jctx,
 			BTESH2_JitLoadVMReg(jctx, op->rn, UAX_REG_EDX);
 			BTESH2_JitLoadVMReg(jctx, op->ro, UAX_REG_ECX);
 			UAX_AsmAddRegReg(jctx, UAX_REG_EDX, UAX_REG_ECX);
+			BTESH2_JitSetAddrDWord(jctx, cpu);
+			return(1);
+		}
+
+		if(op->fmid==BTESH2_FMID_IMMSTRN)
+		{
+			UAX_AsmMovRegImm(jctx, UAX_REG_R8D, (s32)op->imm);
+			BTESH2_JitStoreVMReg(jctx, op->rm, UAX_REG_R8D);
+//			BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_R8D);
+			BTESH2_JitLoadVMReg(jctx, op->rn, UAX_REG_EDX);
+			BTESH2_JitSetAddrDWord(jctx, cpu);
+			return(1);
+		}
+
+		if(op->fmid==BTESH2_FMID_IMMDECSTRN)
+		{
+			UAX_AsmMovRegImm(jctx, UAX_REG_R8D, (s32)op->imm);
+			BTESH2_JitStoreVMReg(jctx, op->rm, UAX_REG_R8D);
+//			BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_R8D);
+			BTESH2_JitLoadVMReg(jctx, op->rn, UAX_REG_EDX);
+			UAX_AsmSubRegImm(jctx, UAX_REG_EDX, 4);
+			BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EDX);
 			BTESH2_JitSetAddrDWord(jctx, cpu);
 			return(1);
 		}

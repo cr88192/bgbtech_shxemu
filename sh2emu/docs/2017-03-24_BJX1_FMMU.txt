@@ -1,0 +1,163 @@
+Fast MMU:
+* Simplified MMU used by the the emulator and by BJX1.
+* For 32-bit mode, this MMU uses a 2 level page-table with 32-bit entires.
+** Alternate mode could be a 3-level table with 64-bit entries.
+* Note that internal cache or TLB structures are not accessible with FMMU.
+** Use of LDTLB is undefined.
+
+
+=== Common & 32-bit Mode ===
+
+Registers (32 bit Mode Only):
+* Located at a physical base address of 1F00_0000 or FF00_0000.
+* FF00_0000: PTEH (Page Table Entry High)
+** Currently not used by FMMU
+* FF00_0004: PTEL (Page Table Entry Low)
+** Currently not used by FMMU
+* FF00_0008: TTB (Translation Table Base)
+** Used as the address of the active page table.
+* FF00_000C: TEA (Translation Table Address)
+** Used on page faults, holds virtual address of faulted access.
+* FF00_0010: MMUCR (MMU Control Register)
+** MMU Control Bits
+
+MMUCR:
+* Bit 0: AT (Address Translation Enabled)
+** Turns on address translation via a page table.
+* Bit 2: TLB Invalidate
+** Setting this bit will trigger the TLB to be flushed.
+* Bit 8: SV (Single Virtual Address Mode)
+** Serves mostly as a TLB policy hint in FMMU.
+* All other bits reserved/undefined in FMMU.
+
+TTB (2-level):
+* Bits 0..11: Reserved (Zeroed)
+* Bits 12..31: Physical Page Address (of Page Table Directory)
+
+TTB (3-level):
+* Bit 0: Set to indicate use of 64-bit PTE's
+* Bit 1: Page Address is shifted right by 8 bits
+** Only valid if physical address space is larger than 32 bits.
+* Bits 2..3: Reserved (00 in 32-bit Mode)
+* Bits 4..31: Physical Page Address (of Page Table Directory)
+
+Page Table (32-bit PTE):
+* The Page Table Directory will consist of 1024 32-bit Page Directory Entries (PDE's).
+** Each PDE will hold the physical address of a Page Table page, and will follow the same basic format as a PTE.
+* Each Page Table will consist of 1024 32-bit Page Table Entries (PTE's).
+** Each PTE will give the physical address of a data page.
+** Not all entries need to be valid.
+
+Page Table (64-bit PTE):
+* The Page Table Directory will consist of 512 64-bit Page Directory Entries (PDE's).
+* Each Page Table will consist of 512 64-bit Page Table Entries (PTE's).
+* The top level will be a Page-Directory-Directory Table
+** It will contain 4 entries (PDDE's) using the same format as PDE's.
+
+PDE/PTE (32 bit):
+* Bit 0: WT (Write Through)
+** 0=Copy Back
+** 1=Write Through
+* Bit 1: SH (Share Status)
+** Indicates if a page is shared between multiple processes.
+** 0=Local to a given process.
+** 1=Shared between processes.
+* Bit 2: D (Dirty)
+** May be set if a page's contents have been modified.
+* Bit 3: C (Cacheable)
+** 0=Non-Cacheable
+** 1=Cacheable
+* Bit 4: SZ0 (Size Bit 0)
+** Possible: PR.X (Execute Enable)
+* Bit 5: PR.W (Write Enable)
+** Page may be written to.
+* Bit 6: PR.U (User Accessible)
+** 0=Page only accessible in supervisor mode.
+** 1=Page can be accessed in user mode.
+* Bit 7: SZ1 (Size Bit 1)
+* Bit 8: V (Present/Valid)
+** Indicates an entry actually pointing at a page.
+** 0=Entry is not present or not valid.
+*** If 0, then attempts to access this page should fault.
+*** All other bits are undefined, and may be used by the OS.
+** 1=Entry is present and (should be) valid.
+* Bit 9: User Bit 1 (For use by OS)
+* Bit 10: User Bit 2 (For use by OS)
+* Bit 11: User Bit 3 (For use by OS)
+* Bit 12..31: PPN (Physical Page Number)
+
+PDE/PTE (64 bit):
+* Bits 0..31: Same as 32-bit PTE.
+* Bits 32..55: Reserved for Extended Page Number
+* Bits 56..63: Reserved
+
+SZ0/SZ1:
+* In PTEs, these may only be set as (SZ0=1,SZ1=0), Indicating 4kB pages.
+* In PDEs, these may be set as (SZ0=1,SZ1=1), Indicating 2MB/4MB pages (possible).
+** Will be 4MB with 32 bit PTEs.
+** Will be 2MB with 64 bit PTEs.
+** Low order bits of the page number are reserved and are to be set to 0.
+* All other combinations are reserved.
+** Possible: Reassign SZ0 as PR.X (Execute?)
+*** Clearing this bit would mark a non-executable page.
+*** SZ1 would then be renamed SZ.
+
+Virtual Address Ranges (with MMU enabled):
+* 0000_0000 .. 7FFF_FFFF: Translated via page tables (2GB).
+* 8000_0000 .. 9FFF_FFFF: Retains physical addressing.
+* A000_0000 .. BFFF_FFFF: Retains physical addressing.
+* C000_0000 .. DFFF_FFFF: Translated via the MMU (512MB).
+* E000_0000 .. FFFF_FFFF: Reserved for processor/chipset.
+
+Physical Address Space:
+* 29 bit, same as before.
+* 32 bit, mostly the same.
+** Pages may be assigned up to 4GB.
+*** Accessing memory beyond the 512MB mark requires using the MMU.
+** MMU Registers may only accessed via the FF00_0000 base.
+** 0000_0000 .. 1FFF_FFFF: Maps to the same addresses as in 29 bit mode.
+** 2000_0000 .. 9FFF_FFFF: Additional DRAM.
+** A000_0000 .. DFFF_FFFF: MMIO.
+** E000_0000 .. FFFF_FFFF: Reserved for processor/chipset.
+
+
+=== BJX1 64 Bit ===
+
+Registers (64 bit Mode Only):
+* 80_0000_0000: TEA (Translation Table Address)
+** Used on page faults, holds virtual address of faulted access.
+* 80_0000_0008: TTB (Translation Table Base)
+** Used as the address of the active page table.
+* 80_0000_0010: MMUCR (MMU Control Register)
+** MMU Control Bits
+* 80_0000_0018: PTE (Page Table Entry)
+** Currently not used by FMMU
+
+TTB (N-level):
+* Bit 0: Reserved (Set to 1)
+* Bit 1: Reserved (Set to 0)
+* Bits 2..3: Page Table Levels
+** 00=3, 01=4, 10=5, 11=6
+* Bits 12..63: Physical Page Address of Top-level Page Table Directory
+
+Virtual Address Space (MMUCR.AT=0)
+* Maps directly to physical.
+** Address will be masked to the size of the physical address space.
+
+Virtual Address Space (MMUCR.AT=1)
+* Signed 64-bit
+* Addresses >=0 are userland
+* Addresses <0 are system
+** OS is responsible to make sure it can still access MMIO and MMU registers.
+** A sane mapping could be:
+** FFFF_FF80_0000_0000 .. FFFF_FF9F_FFFF_FFFF for Processor/Chipset.
+** FFFF_FFA0_0000_0000 .. FFFF_FFDF_FFFF_FFFF for MMIO.
+** FFFF_8000_0000_0000 .. FFFF_80FF_FFFF_FFFF (Physical Space Alias)
+
+Physical Address Space (40 bit):
+* Currently a 40 bit physical space will be defined.
+* 00_0000_0000 .. 00_FFFF_FFFF: Same as 32-bits
+* 01_0000_0000 .. 7F_FFFF_FFFF: Additional DRAM.
+* 80_0000_0000 .. 9F_FFFF_FFFF: Processor / Chipset
+* A0_0000_0000 .. DF_FFFF_FFFF: MMIO.
+* E0_0000_0000 .. FF_FFFF_FFFF: Reserved

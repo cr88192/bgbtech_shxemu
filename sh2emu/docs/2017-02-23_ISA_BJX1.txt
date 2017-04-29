@@ -563,6 +563,9 @@ XPFX0/Escape32 I-Forms
 **		8Edd-2nm1 MOV.W Rm, @(Rn,disp)		//Store Word Rm to @Rn
 **		8Edd-2nm2 MOV.L Rm, @(Rn,disp)		//Store DWord
 **		8Edd-2nm3 MOV.Q Rm, @(Rn,disp)		//Store QWord
+**		8Edd-2nm4 -
+**      ...
+**		8Edd-2nm8 -
 **		8Eii-2nm9 AND Rm, #imm8, Rn			//Rn=Rm&Imm8
 **		8Eii-2nmA XOR Rm, #imm8, Rn			//
 **		8Eii-2nmB OR Rm, #imm8, Rn			//
@@ -599,7 +602,7 @@ XPFX0/Escape32 I-Forms
 **		8Eii-4nmC SHAD Rm, #imm, Rn			//Rn=Rm SAL Imm8 | Rn=Rm SAR Imm8
 **		8Eii-4nmD SHLD Rm, #imm, Rn			//Rn=Rm SHL Imm8 | Rn=Rm SHR Imm8
 **		4--E
-***			8Est-4n0E CMOV  Rs, Rt, Rn		//Rn=SR.T?Rt:Rs
+***			8Est-4n0E CMOV  Rs, Rt, Rn		//Rn=SR.T?Rs:Rt
 ***			8Est-4n1E ADD   Rs, Rt, Rn		//Rn=Rs+Rt
 ***			8Est-4n2E SUB   Rs, Rt, Rn		//Rn=Rs-Rt
 ***			8Est-4n3E MULS  Rs, Rt, Rn		//Rn=Rs*Rt
@@ -609,6 +612,7 @@ XPFX0/Escape32 I-Forms
 ***			8Est-4n7E OR    Rs, Rt, Rn		//Rn=Rs|Rt
 ***			8Est-4n8E MULSH Rs, Rt, Rn		//Rn=(Rs*Rt) SHR 32
 ***			8Est-4n9E MULUH Rs, Rt, Rn		//Rn=(Rs*Rt) SHR 32
+**		4--F
 
 *	8Edd-5nmo MOV.L @(Rm,Ro,disp), Rn		//Rm+(Ro+disp)*4
 *	6---
@@ -644,7 +648,7 @@ XPFX0/Escape32 I-Forms
 **		8Edd-8Ddd BTS disp16
 **		8Exx-8Exx (Escape 64)
 **		8Edd-8Fdd BFS disp16
-*	8Edd-9ddd MOVA @(PC,disp20), R0			//R0=PC+disp20*4, DWord Aligned
+*	8Edd-9ndd MOVA @(PC,disp16), Rn				//R0=PC+disp16*4, DWord Aligned
 *	8Edd-Addd BRA disp20
 *	8Edd-Bddd BSR disp20
 *	C---
@@ -722,10 +726,11 @@ Escape 64 (BJX32: Values truncated to 32-bits)
 * 8EC7-8EnB-dddd-dddd MOVA.Q @(PC,disp32), Rn		//
 * 8EC7-8EnC-dddd-dddd LEA.LL/LQ @(Rn,disp16,disp16), Rn		//
 
-* 8EC8-8Enj-jjjj-jjjj TST #imm36, Rn				//
-* 8EC9-8Enj-jjjj-jjjj AND #imm36, Rn				//
-* 8ECA-8Enj-jjjj-jjjj XOR #imm36, Rn				//
-* 8ECB-8Enj-jjjj-jjjj OR #imm36, Rn					//
+* 8EC8-8En0-jjjj-jjjj TST #imm32, Rn				//
+* 8EC9-8En0-jjjj-jjjj AND #imm32, Rn				//
+* 8ECA-8En0-jjjj-jjjj XOR #imm32, Rn				//
+* 8ECB-8En0-jjjj-jjjj OR #imm32, Rn					//
 
 * 8EDn-8Edd-dddd-dddd MOV.L @(PC,disp40), Rn		//
 * 8EEn-8Eii-iiii-iiii MOV #imm40, Rn
+**	8EEn-8E00-iiii-iiii MOV #imm32, Rn				//(32-bit mode)

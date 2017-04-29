@@ -772,6 +772,11 @@ char *init;
 {"Testkern, Bench Video Framebuf (SH4)",
 	"pl_ems/testkern_sh4.elf", BTESH2_ARCH_SH4, 
 	"pl_ems/testkern_sh4.map", NULL, "pl_ems/testkern_ird.tar", "video2"},
+
+{"Quake (SH4)",
+	"pl_ems/quake_sh4.elf", BTESH2_ARCH_SH4, 
+	"pl_ems/quake_sh4.map", NULL, "pl_ems/quake_ird.tar", NULL},
+
 {NULL, NULL}
 };
 

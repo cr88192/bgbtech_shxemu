@@ -1,0 +1,2137 @@
+<module lang="C" arch="SH">
+  <types>
+    <var name="byte">
+      <type flags=131072 ind=0 name="char"/>
+    </var>
+    <var name="sbyte">
+      <type flags=65536 ind=0 name="char"/>
+    </var>
+    <var name="u16">
+      <type flags=131072 ind=0 name="short"/>
+    </var>
+    <var name="s16">
+      <type flags=65536 ind=0 name="short"/>
+    </var>
+    <var name="u32">
+      <type flags=131072 ind=0 name="int"/>
+    </var>
+    <var name="s32">
+      <type flags=65536 ind=0 name="int"/>
+    </var>
+    <var name="u64">
+      <type flags=131072 ind=0 name="llong"/>
+    </var>
+    <var name="s64">
+      <type flags=65536 ind=0 name="llong"/>
+    </var>
+    <var name="vol_u32">
+      <type flags=131136 ind=0 name="int"/>
+    </var>
+    <var name="va_list">
+      <type flags=0 ind=0 name="builtin_va_list"/>
+    </var>
+    <var name="bool">
+      <type flags=131072 ind=0 name="char"/>
+    </var>
+    <var name="size_t">
+      <type flags=131072 ind=0 name="int"/>
+    </var>
+  </types>
+  <structs/>
+  <body>
+    <defun name="putc" tokens=36 fn="tests/cl_stub.c" ln=130>
+      <body>
+        <begin tokens=36>
+          <while fn="tests/cl_stub.c" ln=130>
+            <cond>
+              <binary op="&amp;">
+                <left>
+                  <unary op="*">
+                    <value>
+                      <cast>
+                        <value>
+                          <binary op="+">
+                            <left>
+                              <int value=2882339072/>
+                            </left>
+                            <right>
+                              <int value=8/>
+                            </right>
+                          </binary>
+                        </value>
+                        <type flags=131136 ind=1 name="int"/>
+                      </cast>
+                    </value>
+                  </unary>
+                </left>
+                <right>
+                  <int value=8/>
+                </right>
+              </binary>
+            </cond>
+            <body/>
+          </while>
+          <assign fn="tests/cl_stub.c" ln=130>
+            <left>
+              <unary op="*">
+                <value>
+                  <cast>
+                    <value>
+                      <binary op="+">
+                        <left>
+                          <int value=2882339072/>
+                        </left>
+                        <right>
+                          <int value=4/>
+                        </right>
+                      </binary>
+                    </value>
+                    <type flags=131136 ind=1 name="int"/>
+                  </cast>
+                </value>
+              </unary>
+            </left>
+            <right>
+              <ref name="val"/>
+            </right>
+          </assign>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args>
+        <var name="val">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <vars fn="tests/cl_stub.c" ln=136>
+      <proto name="sleep_0">
+        <type flags=0 ind=0 name="void"/>
+        <args/>
+      </proto>
+    </vars>
+    <defun name="kbhit" tokens=19 fn="tests/cl_stub.c" ln=138>
+      <body>
+        <begin tokens=19>
+          <return fn="tests/cl_stub.c" ln=138>
+            <value>
+              <binary op="&amp;">
+                <left>
+                  <unary op="*">
+                    <value>
+                      <cast>
+                        <value>
+                          <binary op="+">
+                            <left>
+                              <int value=2882339072/>
+                            </left>
+                            <right>
+                              <int value=8/>
+                            </right>
+                          </binary>
+                        </value>
+                        <type flags=131136 ind=1 name="int"/>
+                      </cast>
+                    </value>
+                  </unary>
+                </left>
+                <right>
+                  <int value=1/>
+                </right>
+              </binary>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="int"/>
+      <args/>
+    </defun>
+    <defun name="getch" tokens=42 fn="tests/cl_stub.c" ln=141>
+      <body>
+        <begin tokens=42>
+          <while fn="tests/cl_stub.c" ln=141>
+            <cond>
+              <unary op="!">
+                <value>
+                  <binary op="&amp;">
+                    <left>
+                      <unary op="*">
+                        <value>
+                          <cast>
+                            <value>
+                              <binary op="+">
+                                <left>
+                                  <int value=2882339072/>
+                                </left>
+                                <right>
+                                  <int value=8/>
+                                </right>
+                              </binary>
+                            </value>
+                            <type flags=131136 ind=1 name="int"/>
+                          </cast>
+                        </value>
+                      </unary>
+                    </left>
+                    <right>
+                      <int value=1/>
+                    </right>
+                  </binary>
+                </value>
+              </unary>
+            </cond>
+            <body>
+              <funcall name="sleep_0" fn="tests/cl_stub.c" ln=141>
+                <args/>
+              </funcall>
+            </body>
+          </while>
+          <return fn="tests/cl_stub.c" ln=141>
+            <value>
+              <unary op="*">
+                <value>
+                  <cast>
+                    <value>
+                      <binary op="+">
+                        <left>
+                          <int value=2882339072/>
+                        </left>
+                        <right>
+                          <int value=0/>
+                        </right>
+                      </binary>
+                    </value>
+                    <type flags=131136 ind=1 name="int"/>
+                  </cast>
+                </value>
+              </unary>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="int"/>
+      <args/>
+    </defun>
+    <defun name="puts" tokens=24 fn="tests/cl_stub.c" ln=148>
+      <body>
+        <begin tokens=24>
+          <vars fn="tests/cl_stub.c" ln=148>
+            <var name="s">
+              <type flags=0 ind=1 name="char"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=152>
+            <left>
+              <ref name="s"/>
+            </left>
+            <right>
+              <ref name="msg"/>
+            </right>
+          </assign>
+          <while fn="tests/cl_stub.c" ln=152>
+            <cond>
+              <unary op="*">
+                <value>
+                  <ref name="s"/>
+                </value>
+              </unary>
+            </cond>
+            <body>
+              <begin tokens=8>
+                <funcall name="putc" fn="tests/cl_stub.c" ln=152>
+                  <args>
+                    <unary op="*">
+                      <value>
+                        <postinc>
+                          <expr>
+                            <ref name="s"/>
+                          </expr>
+                        </postinc>
+                      </value>
+                    </unary>
+                  </args>
+                </funcall>
+              </begin>
+            </body>
+          </while>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args>
+        <var name="msg">
+          <type flags=0 ind=1 name="char"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="gets" tokens=118 fn="tests/cl_stub.c" ln=157>
+      <body>
+        <begin tokens=118>
+          <vars fn="tests/cl_stub.c" ln=157>
+            <var name="t">
+              <type flags=0 ind=1 name="char"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=157>
+            <var name="i">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=162>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <ref name="buf"/>
+            </right>
+          </assign>
+          <while fn="tests/cl_stub.c" ln=162>
+            <cond>
+              <int value=1/>
+            </cond>
+            <body>
+              <begin tokens=94>
+                <assign fn="tests/cl_stub.c" ln=162>
+                  <left>
+                    <ref name="i"/>
+                  </left>
+                  <right>
+                    <funcall name="getch">
+                      <args/>
+                    </funcall>
+                  </right>
+                </assign>
+                <if fn="tests/cl_stub.c" ln=162>
+                  <cond>
+                    <binary op="||">
+                      <left>
+                        <binary op="==">
+                          <left>
+                            <ref name="i"/>
+                          </left>
+                          <right>
+                            <charstring value=""/>
+                          </right>
+                        </binary>
+                      </left>
+                      <right>
+                        <binary op="==">
+                          <left>
+                            <ref name="i"/>
+                          </left>
+                          <right>
+                            <int value=127/>
+                          </right>
+                        </binary>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=27>
+                      <if fn="tests/cl_stub.c" ln=162>
+                        <cond>
+                          <binary op="&gt;">
+                            <left>
+                              <ref name="t"/>
+                            </left>
+                            <right>
+                              <ref name="buf"/>
+                            </right>
+                          </binary>
+                        </cond>
+                        <then>
+                          <begin tokens=10>
+                            <funcall name="puts" fn="tests/cl_stub.c" ln=162>
+                              <args>
+                                <string value=" "/>
+                              </args>
+                            </funcall>
+                            <postdec fn="tests/cl_stub.c" ln=162>
+                              <expr>
+                                <ref name="t"/>
+                              </expr>
+                            </postdec>
+                          </begin>
+                        </then>
+                      </if>
+                      <assign fn="tests/cl_stub.c" ln=162>
+                        <left>
+                          <unary op="*">
+                            <value>
+                              <ref name="t"/>
+                            </value>
+                          </unary>
+                        </left>
+                        <right>
+                          <int value=0/>
+                        </right>
+                      </assign>
+                      <continue fn="tests/cl_stub.c" ln=162/>
+                    </begin>
+                  </then>
+                </if>
+                <if fn="tests/cl_stub.c" ln=162>
+                  <cond>
+                    <binary op="==">
+                      <left>
+                        <ref name="i"/>
+                      </left>
+                      <right>
+                        <charstring value="&#13;"/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=8>
+                      <funcall name="putc" fn="tests/cl_stub.c" ln=162>
+                        <args>
+                          <charstring value="&#10;"/>
+                        </args>
+                      </funcall>
+                      <break fn="tests/cl_stub.c" ln=162/>
+                    </begin>
+                  </then>
+                </if>
+                <if fn="tests/cl_stub.c" ln=162>
+                  <cond>
+                    <binary op="==">
+                      <left>
+                        <ref name="i"/>
+                      </left>
+                      <right>
+                        <charstring value="&#10;"/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=8>
+                      <funcall name="putc" fn="tests/cl_stub.c" ln=162>
+                        <args>
+                          <charstring value="&#10;"/>
+                        </args>
+                      </funcall>
+                      <break fn="tests/cl_stub.c" ln=162/>
+                    </begin>
+                  </then>
+                </if>
+                <funcall name="putc" fn="tests/cl_stub.c" ln=162>
+                  <args>
+                    <ref name="i"/>
+                  </args>
+                </funcall>
+                <assign fn="tests/cl_stub.c" ln=162>
+                  <left>
+                    <unary op="*">
+                      <value>
+                        <postinc>
+                          <expr>
+                            <ref name="t"/>
+                          </expr>
+                        </postinc>
+                      </value>
+                    </unary>
+                  </left>
+                  <right>
+                    <ref name="i"/>
+                  </right>
+                </assign>
+              </begin>
+            </body>
+          </while>
+          <assign fn="tests/cl_stub.c" ln=162>
+            <left>
+              <unary op="*">
+                <value>
+                  <ref name="t"/>
+                </value>
+              </unary>
+            </left>
+            <right>
+              <int value=0/>
+            </right>
+          </assign>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args>
+        <var name="buf">
+          <type flags=0 ind=1 name="char"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="print_hex" tokens=120 fn="tests/cl_stub.c" ln=186>
+      <body>
+        <begin tokens=120>
+          <vars fn="tests/cl_stub.c" ln=190>
+            <var name="chrs">
+              <type flags=0 ind=1 name="char"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=190>
+            <left>
+              <ref name="chrs"/>
+            </left>
+            <right>
+              <string value="0123456789ABCDEF"/>
+            </right>
+          </assign>
+          <funcall name="putc" fn="tests/cl_stub.c" ln=193>
+            <args>
+              <getindex>
+                <array>
+                  <ref name="chrs"/>
+                </array>
+                <index>
+                  <binary op="&amp;">
+                    <left>
+                      <binary op="&gt;&gt;">
+                        <left>
+                          <ref name="v"/>
+                        </left>
+                        <right>
+                          <int value=28/>
+                        </right>
+                      </binary>
+                    </left>
+                    <right>
+                      <int value=15/>
+                    </right>
+                  </binary>
+                </index>
+              </getindex>
+            </args>
+          </funcall>
+          <funcall name="putc" fn="tests/cl_stub.c" ln=193>
+            <args>
+              <getindex>
+                <array>
+                  <ref name="chrs"/>
+                </array>
+                <index>
+                  <binary op="&amp;">
+                    <left>
+                      <binary op="&gt;&gt;">
+                        <left>
+                          <ref name="v"/>
+                        </left>
+                        <right>
+                          <int value=24/>
+                        </right>
+                      </binary>
+                    </left>
+                    <right>
+                      <int value=15/>
+                    </right>
+                  </binary>
+                </index>
+              </getindex>
+            </args>
+          </funcall>
+          <funcall name="putc" fn="tests/cl_stub.c" ln=193>
+            <args>
+              <getindex>
+                <array>
+                  <ref name="chrs"/>
+                </array>
+                <index>
+                  <binary op="&amp;">
+                    <left>
+                      <binary op="&gt;&gt;">
+                        <left>
+                          <ref name="v"/>
+                        </left>
+                        <right>
+                          <int value=20/>
+                        </right>
+                      </binary>
+                    </left>
+                    <right>
+                      <int value=15/>
+                    </right>
+                  </binary>
+                </index>
+              </getindex>
+            </args>
+          </funcall>
+          <funcall name="putc" fn="tests/cl_stub.c" ln=193>
+            <args>
+              <getindex>
+                <array>
+                  <ref name="chrs"/>
+                </array>
+                <index>
+                  <binary op="&amp;">
+                    <left>
+                      <binary op="&gt;&gt;">
+                        <left>
+                          <ref name="v"/>
+                        </left>
+                        <right>
+                          <int value=16/>
+                        </right>
+                      </binary>
+                    </left>
+                    <right>
+                      <int value=15/>
+                    </right>
+                  </binary>
+                </index>
+              </getindex>
+            </args>
+          </funcall>
+          <funcall name="putc" fn="tests/cl_stub.c" ln=193>
+            <args>
+              <getindex>
+                <array>
+                  <ref name="chrs"/>
+                </array>
+                <index>
+                  <binary op="&amp;">
+                    <left>
+                      <binary op="&gt;&gt;">
+                        <left>
+                          <ref name="v"/>
+                        </left>
+                        <right>
+                          <int value=12/>
+                        </right>
+                      </binary>
+                    </left>
+                    <right>
+                      <int value=15/>
+                    </right>
+                  </binary>
+                </index>
+              </getindex>
+            </args>
+          </funcall>
+          <funcall name="putc" fn="tests/cl_stub.c" ln=193>
+            <args>
+              <getindex>
+                <array>
+                  <ref name="chrs"/>
+                </array>
+                <index>
+                  <binary op="&amp;">
+                    <left>
+                      <binary op="&gt;&gt;">
+                        <left>
+                          <ref name="v"/>
+                        </left>
+                        <right>
+                          <int value=8/>
+                        </right>
+                      </binary>
+                    </left>
+                    <right>
+                      <int value=15/>
+                    </right>
+                  </binary>
+                </index>
+              </getindex>
+            </args>
+          </funcall>
+          <funcall name="putc" fn="tests/cl_stub.c" ln=193>
+            <args>
+              <getindex>
+                <array>
+                  <ref name="chrs"/>
+                </array>
+                <index>
+                  <binary op="&amp;">
+                    <left>
+                      <binary op="&gt;&gt;">
+                        <left>
+                          <ref name="v"/>
+                        </left>
+                        <right>
+                          <int value=4/>
+                        </right>
+                      </binary>
+                    </left>
+                    <right>
+                      <int value=15/>
+                    </right>
+                  </binary>
+                </index>
+              </getindex>
+            </args>
+          </funcall>
+          <funcall name="putc" fn="tests/cl_stub.c" ln=193>
+            <args>
+              <getindex>
+                <array>
+                  <ref name="chrs"/>
+                </array>
+                <index>
+                  <binary op="&amp;">
+                    <left>
+                      <ref name="v"/>
+                    </left>
+                    <right>
+                      <int value=15/>
+                    </right>
+                  </binary>
+                </index>
+              </getindex>
+            </args>
+          </funcall>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args>
+        <var name="v">
+          <type flags=131072 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="print_hex_n" tokens=168 fn="tests/cl_stub.c" ln=203>
+      <body>
+        <begin tokens=168>
+          <vars fn="tests/cl_stub.c" ln=207>
+            <var name="chrs">
+              <type flags=0 ind=1 name="char"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=207>
+            <left>
+              <ref name="chrs"/>
+            </left>
+            <right>
+              <string value="0123456789ABCDEF"/>
+            </right>
+          </assign>
+          <if fn="tests/cl_stub.c" ln=210>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=7/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <funcall name="putc" fn="tests/cl_stub.c" ln=210>
+                <args>
+                  <getindex>
+                    <array>
+                      <ref name="chrs"/>
+                    </array>
+                    <index>
+                      <binary op="&amp;">
+                        <left>
+                          <binary op="&gt;&gt;">
+                            <left>
+                              <ref name="v"/>
+                            </left>
+                            <right>
+                              <int value=28/>
+                            </right>
+                          </binary>
+                        </left>
+                        <right>
+                          <int value=15/>
+                        </right>
+                      </binary>
+                    </index>
+                  </getindex>
+                </args>
+              </funcall>
+            </then>
+          </if>
+          <if fn="tests/cl_stub.c" ln=210>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=6/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <funcall name="putc" fn="tests/cl_stub.c" ln=210>
+                <args>
+                  <getindex>
+                    <array>
+                      <ref name="chrs"/>
+                    </array>
+                    <index>
+                      <binary op="&amp;">
+                        <left>
+                          <binary op="&gt;&gt;">
+                            <left>
+                              <ref name="v"/>
+                            </left>
+                            <right>
+                              <int value=24/>
+                            </right>
+                          </binary>
+                        </left>
+                        <right>
+                          <int value=15/>
+                        </right>
+                      </binary>
+                    </index>
+                  </getindex>
+                </args>
+              </funcall>
+            </then>
+          </if>
+          <if fn="tests/cl_stub.c" ln=210>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=5/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <funcall name="putc" fn="tests/cl_stub.c" ln=210>
+                <args>
+                  <getindex>
+                    <array>
+                      <ref name="chrs"/>
+                    </array>
+                    <index>
+                      <binary op="&amp;">
+                        <left>
+                          <binary op="&gt;&gt;">
+                            <left>
+                              <ref name="v"/>
+                            </left>
+                            <right>
+                              <int value=20/>
+                            </right>
+                          </binary>
+                        </left>
+                        <right>
+                          <int value=15/>
+                        </right>
+                      </binary>
+                    </index>
+                  </getindex>
+                </args>
+              </funcall>
+            </then>
+          </if>
+          <if fn="tests/cl_stub.c" ln=210>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=4/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <funcall name="putc" fn="tests/cl_stub.c" ln=210>
+                <args>
+                  <getindex>
+                    <array>
+                      <ref name="chrs"/>
+                    </array>
+                    <index>
+                      <binary op="&amp;">
+                        <left>
+                          <binary op="&gt;&gt;">
+                            <left>
+                              <ref name="v"/>
+                            </left>
+                            <right>
+                              <int value=16/>
+                            </right>
+                          </binary>
+                        </left>
+                        <right>
+                          <int value=15/>
+                        </right>
+                      </binary>
+                    </index>
+                  </getindex>
+                </args>
+              </funcall>
+            </then>
+          </if>
+          <if fn="tests/cl_stub.c" ln=210>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=3/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <funcall name="putc" fn="tests/cl_stub.c" ln=210>
+                <args>
+                  <getindex>
+                    <array>
+                      <ref name="chrs"/>
+                    </array>
+                    <index>
+                      <binary op="&amp;">
+                        <left>
+                          <binary op="&gt;&gt;">
+                            <left>
+                              <ref name="v"/>
+                            </left>
+                            <right>
+                              <int value=12/>
+                            </right>
+                          </binary>
+                        </left>
+                        <right>
+                          <int value=15/>
+                        </right>
+                      </binary>
+                    </index>
+                  </getindex>
+                </args>
+              </funcall>
+            </then>
+          </if>
+          <if fn="tests/cl_stub.c" ln=210>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=2/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <funcall name="putc" fn="tests/cl_stub.c" ln=210>
+                <args>
+                  <getindex>
+                    <array>
+                      <ref name="chrs"/>
+                    </array>
+                    <index>
+                      <binary op="&amp;">
+                        <left>
+                          <binary op="&gt;&gt;">
+                            <left>
+                              <ref name="v"/>
+                            </left>
+                            <right>
+                              <int value=8/>
+                            </right>
+                          </binary>
+                        </left>
+                        <right>
+                          <int value=15/>
+                        </right>
+                      </binary>
+                    </index>
+                  </getindex>
+                </args>
+              </funcall>
+            </then>
+          </if>
+          <if fn="tests/cl_stub.c" ln=210>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=1/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <funcall name="putc" fn="tests/cl_stub.c" ln=210>
+                <args>
+                  <getindex>
+                    <array>
+                      <ref name="chrs"/>
+                    </array>
+                    <index>
+                      <binary op="&amp;">
+                        <left>
+                          <binary op="&gt;&gt;">
+                            <left>
+                              <ref name="v"/>
+                            </left>
+                            <right>
+                              <int value=4/>
+                            </right>
+                          </binary>
+                        </left>
+                        <right>
+                          <int value=15/>
+                        </right>
+                      </binary>
+                    </index>
+                  </getindex>
+                </args>
+              </funcall>
+            </then>
+          </if>
+          <if fn="tests/cl_stub.c" ln=210>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=0/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <funcall name="putc" fn="tests/cl_stub.c" ln=210>
+                <args>
+                  <getindex>
+                    <array>
+                      <ref name="chrs"/>
+                    </array>
+                    <index>
+                      <binary op="&amp;">
+                        <left>
+                          <ref name="v"/>
+                        </left>
+                        <right>
+                          <int value=15/>
+                        </right>
+                      </binary>
+                    </index>
+                  </getindex>
+                </args>
+              </funcall>
+            </then>
+          </if>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args>
+        <var name="v">
+          <type flags=131072 ind=0 name="int"/>
+        </var>
+        <var name="n">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="print_hex_genw" tokens=35 fn="tests/cl_stub.c" ln=220>
+      <body>
+        <begin tokens=35>
+          <vars fn="tests/cl_stub.c" ln=220>
+            <var name="w">
+              <type flags=131072 ind=0 name="int"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=220>
+            <var name="i">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=225>
+            <left>
+              <ref name="i"/>
+            </left>
+            <right>
+              <int value=1/>
+            </right>
+          </assign>
+          <while fn="tests/cl_stub.c" ln=225>
+            <cond>
+              <binary op="&gt;=">
+                <left>
+                  <ref name="v"/>
+                </left>
+                <right>
+                  <int value=16/>
+                </right>
+              </binary>
+            </cond>
+            <body>
+              <begin tokens=10>
+                <assign fn="tests/cl_stub.c" ln=228>
+                  <left>
+                    <ref name="v"/>
+                  </left>
+                  <right>
+                    <binary op="&gt;&gt;">
+                      <left>
+                        <ref name="v"/>
+                      </left>
+                      <right>
+                        <int value=4/>
+                      </right>
+                    </binary>
+                  </right>
+                </assign>
+                <postinc fn="tests/cl_stub.c" ln=228>
+                  <expr>
+                    <ref name="i"/>
+                  </expr>
+                </postinc>
+              </begin>
+            </body>
+          </while>
+          <return fn="tests/cl_stub.c" ln=241>
+            <value>
+              <ref name="i"/>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="int"/>
+      <args>
+        <var name="v">
+          <type flags=131072 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="print_decimal" tokens=118 fn="tests/cl_stub.c" ln=244>
+      <body>
+        <begin tokens=118>
+          <vars fn="tests/cl_stub.c" ln=244>
+            <var name="tb">
+              <type flags=0 ind=0 name="char">
+                <size>
+                  <int value=256/>
+                </size>
+              </type>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=244>
+            <var name="t">
+              <type flags=0 ind=1 name="char"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=244>
+            <var name="i">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+            <var name="k">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+            <var name="s">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=250>
+            <left>
+              <ref name="k"/>
+            </left>
+            <right>
+              <ref name="val"/>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=250>
+            <left>
+              <ref name="s"/>
+            </left>
+            <right>
+              <int value=0/>
+            </right>
+          </assign>
+          <if fn="tests/cl_stub.c" ln=250>
+            <cond>
+              <binary op="&lt;">
+                <left>
+                  <ref name="k"/>
+                </left>
+                <right>
+                  <int value=0/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <begin tokens=10>
+                <assign fn="tests/cl_stub.c" ln=250>
+                  <left>
+                    <ref name="k"/>
+                  </left>
+                  <right>
+                    <unary op="-">
+                      <value>
+                        <ref name="k"/>
+                      </value>
+                    </unary>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=250>
+                  <left>
+                    <ref name="s"/>
+                  </left>
+                  <right>
+                    <int value=1/>
+                  </right>
+                </assign>
+              </begin>
+            </then>
+          </if>
+          <assign fn="tests/cl_stub.c" ln=254>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <ref name="tb"/>
+            </right>
+          </assign>
+          <if fn="tests/cl_stub.c" ln=254>
+            <cond>
+              <unary op="!">
+                <value>
+                  <ref name="k"/>
+                </value>
+              </unary>
+            </cond>
+            <then>
+              <assign fn="tests/cl_stub.c" ln=254>
+                <left>
+                  <unary op="*">
+                    <value>
+                      <postinc>
+                        <expr>
+                          <ref name="t"/>
+                        </expr>
+                      </postinc>
+                    </value>
+                  </unary>
+                </left>
+                <right>
+                  <charstring value="0"/>
+                </right>
+              </assign>
+            </then>
+          </if>
+          <while fn="tests/cl_stub.c" ln=254>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="k"/>
+                </left>
+                <right>
+                  <int value=0/>
+                </right>
+              </binary>
+            </cond>
+            <body>
+              <begin tokens=22>
+                <assign fn="tests/cl_stub.c" ln=254>
+                  <left>
+                    <ref name="i"/>
+                  </left>
+                  <right>
+                    <binary op="%">
+                      <left>
+                        <ref name="k"/>
+                      </left>
+                      <right>
+                        <int value=10/>
+                      </right>
+                    </binary>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=254>
+                  <left>
+                    <unary op="*">
+                      <value>
+                        <postinc>
+                          <expr>
+                            <ref name="t"/>
+                          </expr>
+                        </postinc>
+                      </value>
+                    </unary>
+                  </left>
+                  <right>
+                    <binary op="+">
+                      <left>
+                        <charstring value="0"/>
+                      </left>
+                      <right>
+                        <ref name="i"/>
+                      </right>
+                    </binary>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=254>
+                  <left>
+                    <ref name="k"/>
+                  </left>
+                  <right>
+                    <binary op="/">
+                      <left>
+                        <ref name="k"/>
+                      </left>
+                      <right>
+                        <int value=10/>
+                      </right>
+                    </binary>
+                  </right>
+                </assign>
+              </begin>
+            </body>
+          </while>
+          <if fn="tests/cl_stub.c" ln=254>
+            <cond>
+              <ref name="s"/>
+            </cond>
+            <then>
+              <assign fn="tests/cl_stub.c" ln=254>
+                <left>
+                  <unary op="*">
+                    <value>
+                      <postinc>
+                        <expr>
+                          <ref name="t"/>
+                        </expr>
+                      </postinc>
+                    </value>
+                  </unary>
+                </left>
+                <right>
+                  <charstring value="-"/>
+                </right>
+              </assign>
+            </then>
+          </if>
+          <while fn="tests/cl_stub.c" ln=264>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="t"/>
+                </left>
+                <right>
+                  <ref name="tb"/>
+                </right>
+              </binary>
+            </cond>
+            <body>
+              <begin tokens=10>
+                <postdec fn="tests/cl_stub.c" ln=264>
+                  <expr>
+                    <ref name="t"/>
+                  </expr>
+                </postdec>
+                <funcall name="putc" fn="tests/cl_stub.c" ln=264>
+                  <args>
+                    <unary op="*">
+                      <value>
+                        <ref name="t"/>
+                      </value>
+                    </unary>
+                  </args>
+                </funcall>
+              </begin>
+            </body>
+          </while>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args>
+        <var name="val">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="print_decimal_n" tokens=106 fn="tests/cl_stub.c" ln=268>
+      <body>
+        <begin tokens=106>
+          <vars fn="tests/cl_stub.c" ln=268>
+            <var name="tb">
+              <type flags=0 ind=0 name="char">
+                <size>
+                  <int value=256/>
+                </size>
+              </type>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=268>
+            <var name="t">
+              <type flags=0 ind=1 name="char"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=268>
+            <var name="i">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+            <var name="k">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+            <var name="n">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+            <var name="s">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=274>
+            <left>
+              <ref name="k"/>
+            </left>
+            <right>
+              <ref name="val"/>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=274>
+            <left>
+              <ref name="s"/>
+            </left>
+            <right>
+              <int value=0/>
+            </right>
+          </assign>
+          <if fn="tests/cl_stub.c" ln=274>
+            <cond>
+              <binary op="&lt;">
+                <left>
+                  <ref name="k"/>
+                </left>
+                <right>
+                  <int value=0/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <begin tokens=10>
+                <assign fn="tests/cl_stub.c" ln=274>
+                  <left>
+                    <ref name="k"/>
+                  </left>
+                  <right>
+                    <unary op="-">
+                      <value>
+                        <ref name="k"/>
+                      </value>
+                    </unary>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=274>
+                  <left>
+                    <ref name="s"/>
+                  </left>
+                  <right>
+                    <int value=1/>
+                  </right>
+                </assign>
+              </begin>
+            </then>
+          </if>
+          <assign fn="tests/cl_stub.c" ln=278>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <ref name="tb"/>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=278>
+            <left>
+              <ref name="n"/>
+            </left>
+            <right>
+              <ref name="num"/>
+            </right>
+          </assign>
+          <while fn="tests/cl_stub.c" ln=280>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="n"/>
+                </left>
+                <right>
+                  <int value=0/>
+                </right>
+              </binary>
+            </cond>
+            <body>
+              <begin tokens=25>
+                <assign fn="tests/cl_stub.c" ln=280>
+                  <left>
+                    <ref name="i"/>
+                  </left>
+                  <right>
+                    <binary op="%">
+                      <left>
+                        <ref name="k"/>
+                      </left>
+                      <right>
+                        <int value=10/>
+                      </right>
+                    </binary>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=280>
+                  <left>
+                    <unary op="*">
+                      <value>
+                        <postinc>
+                          <expr>
+                            <ref name="t"/>
+                          </expr>
+                        </postinc>
+                      </value>
+                    </unary>
+                  </left>
+                  <right>
+                    <binary op="+">
+                      <left>
+                        <charstring value="0"/>
+                      </left>
+                      <right>
+                        <ref name="i"/>
+                      </right>
+                    </binary>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=280>
+                  <left>
+                    <ref name="k"/>
+                  </left>
+                  <right>
+                    <binary op="/">
+                      <left>
+                        <ref name="k"/>
+                      </left>
+                      <right>
+                        <int value=10/>
+                      </right>
+                    </binary>
+                  </right>
+                </assign>
+                <postdec fn="tests/cl_stub.c" ln=280>
+                  <expr>
+                    <ref name="n"/>
+                  </expr>
+                </postdec>
+              </begin>
+            </body>
+          </while>
+          <while fn="tests/cl_stub.c" ln=290>
+            <cond>
+              <binary op="&gt;">
+                <left>
+                  <ref name="t"/>
+                </left>
+                <right>
+                  <ref name="tb"/>
+                </right>
+              </binary>
+            </cond>
+            <body>
+              <begin tokens=10>
+                <postdec fn="tests/cl_stub.c" ln=290>
+                  <expr>
+                    <ref name="t"/>
+                  </expr>
+                </postdec>
+                <funcall name="putc" fn="tests/cl_stub.c" ln=290>
+                  <args>
+                    <unary op="*">
+                      <value>
+                        <ref name="t"/>
+                      </value>
+                    </unary>
+                  </args>
+                </funcall>
+              </begin>
+            </body>
+          </while>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args>
+        <var name="val">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+        <var name="num">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="printf" tokens=308 fn="tests/cl_stub.c" ln=313>
+      <body>
+        <begin tokens=308>
+          <vars fn="tests/cl_stub.c" ln=313>
+            <var name="lst">
+              <type flags=0 ind=0 name="builtin_va_list"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=313>
+            <var name="pcfill">
+              <type flags=0 ind=0 name="char"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=313>
+            <var name="s">
+              <type flags=0 ind=1 name="char"/>
+            </var>
+            <var name="s1">
+              <type flags=0 ind=1 name="char"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=313>
+            <var name="v">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+            <var name="w">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+          </vars>
+          <funcall name="__builtin_va_start" fn="tests/cl_stub.c" ln=320>
+            <args>
+              <ref name="lst"/>
+            </args>
+          </funcall>
+          <assign fn="tests/cl_stub.c" ln=322>
+            <left>
+              <ref name="s"/>
+            </left>
+            <right>
+              <ref name="str"/>
+            </right>
+          </assign>
+          <while fn="tests/cl_stub.c" ln=322>
+            <cond>
+              <unary op="*">
+                <value>
+                  <ref name="s"/>
+                </value>
+              </unary>
+            </cond>
+            <body>
+              <begin tokens=265>
+                <if fn="tests/cl_stub.c" ln=322>
+                  <cond>
+                    <binary op="!=">
+                      <left>
+                        <unary op="*">
+                          <value>
+                            <ref name="s"/>
+                          </value>
+                        </unary>
+                      </left>
+                      <right>
+                        <charstring value="%"/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=10>
+                      <funcall name="putc" fn="tests/cl_stub.c" ln=322>
+                        <args>
+                          <unary op="*">
+                            <value>
+                              <postinc>
+                                <expr>
+                                  <ref name="s"/>
+                                </expr>
+                              </postinc>
+                            </value>
+                          </unary>
+                        </args>
+                      </funcall>
+                      <continue fn="tests/cl_stub.c" ln=322/>
+                    </begin>
+                  </then>
+                </if>
+                <if fn="tests/cl_stub.c" ln=330>
+                  <cond>
+                    <binary op="==">
+                      <left>
+                        <getindex>
+                          <array>
+                            <ref name="s"/>
+                          </array>
+                          <index>
+                            <int value=1/>
+                          </index>
+                        </getindex>
+                      </left>
+                      <right>
+                        <charstring value="%"/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=12>
+                      <assign op="+" fn="tests/cl_stub.c" ln=330>
+                        <left>
+                          <ref name="s"/>
+                        </left>
+                        <right>
+                          <int value=2/>
+                        </right>
+                      </assign>
+                      <funcall name="putc" fn="tests/cl_stub.c" ln=330>
+                        <args>
+                          <charstring value="%"/>
+                        </args>
+                      </funcall>
+                      <continue fn="tests/cl_stub.c" ln=330/>
+                    </begin>
+                  </then>
+                </if>
+                <postinc fn="tests/cl_stub.c" ln=330>
+                  <expr>
+                    <ref name="s"/>
+                  </expr>
+                </postinc>
+                <if fn="tests/cl_stub.c" ln=337>
+                  <cond>
+                    <binary op="==">
+                      <left>
+                        <unary op="*">
+                          <value>
+                            <ref name="s"/>
+                          </value>
+                        </unary>
+                      </left>
+                      <right>
+                        <charstring value="0"/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=9>
+                      <assign fn="tests/cl_stub.c" ln=337>
+                        <left>
+                          <ref name="pcfill"/>
+                        </left>
+                        <right>
+                          <charstring value="0"/>
+                        </right>
+                      </assign>
+                      <postinc fn="tests/cl_stub.c" ln=337>
+                        <expr>
+                          <ref name="s"/>
+                        </expr>
+                      </postinc>
+                    </begin>
+                  </then>
+                  <else>
+                    <begin tokens=6>
+                      <assign fn="tests/cl_stub.c" ln=337>
+                        <left>
+                          <ref name="pcfill"/>
+                        </left>
+                        <right>
+                          <charstring value="&#32;"/>
+                        </right>
+                      </assign>
+                    </begin>
+                  </else>
+                </if>
+                <assign fn="tests/cl_stub.c" ln=346>
+                  <left>
+                    <ref name="w"/>
+                  </left>
+                  <right>
+                    <int value=0/>
+                  </right>
+                </assign>
+                <if fn="tests/cl_stub.c" ln=346>
+                  <cond>
+                    <binary op="&amp;&amp;">
+                      <left>
+                        <binary op="&gt;=">
+                          <left>
+                            <unary op="*">
+                              <value>
+                                <ref name="s"/>
+                              </value>
+                            </unary>
+                          </left>
+                          <right>
+                            <charstring value="0"/>
+                          </right>
+                        </binary>
+                      </left>
+                      <right>
+                        <binary op="&lt;=">
+                          <left>
+                            <unary op="*">
+                              <value>
+                                <ref name="s"/>
+                              </value>
+                            </unary>
+                          </left>
+                          <right>
+                            <charstring value="9"/>
+                          </right>
+                        </binary>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=36>
+                      <while fn="tests/cl_stub.c" ln=346>
+                        <cond>
+                          <binary op="&amp;&amp;">
+                            <left>
+                              <binary op="&gt;=">
+                                <left>
+                                  <unary op="*">
+                                    <value>
+                                      <ref name="s"/>
+                                    </value>
+                                  </unary>
+                                </left>
+                                <right>
+                                  <charstring value="0"/>
+                                </right>
+                              </binary>
+                            </left>
+                            <right>
+                              <binary op="&lt;=">
+                                <left>
+                                  <unary op="*">
+                                    <value>
+                                      <ref name="s"/>
+                                    </value>
+                                  </unary>
+                                </left>
+                                <right>
+                                  <charstring value="9"/>
+                                </right>
+                              </binary>
+                            </right>
+                          </binary>
+                        </cond>
+                        <body>
+                          <assign fn="tests/cl_stub.c" ln=346>
+                            <left>
+                              <ref name="w"/>
+                            </left>
+                            <right>
+                              <binary op="+">
+                                <left>
+                                  <binary op="*">
+                                    <left>
+                                      <ref name="w"/>
+                                    </left>
+                                    <right>
+                                      <int value=10/>
+                                    </right>
+                                  </binary>
+                                </left>
+                                <right>
+                                  <binary op="-">
+                                    <left>
+                                      <unary op="*">
+                                        <value>
+                                          <postinc>
+                                            <expr>
+                                              <ref name="s"/>
+                                            </expr>
+                                          </postinc>
+                                        </value>
+                                      </unary>
+                                    </left>
+                                    <right>
+                                      <charstring value="0"/>
+                                    </right>
+                                  </binary>
+                                </right>
+                              </binary>
+                            </right>
+                          </assign>
+                        </body>
+                      </while>
+                    </begin>
+                  </then>
+                </if>
+                <switch fn="tests/cl_stub.c" ln=357>
+                  <cond>
+                    <unary op="*">
+                      <value>
+                        <postinc>
+                          <expr>
+                            <ref name="s"/>
+                          </expr>
+                        </postinc>
+                      </value>
+                    </unary>
+                  </cond>
+                  <body>
+                    <case fn="tests/cl_stub.c" ln=357>
+                      <value>
+                        <charstring value="d"/>
+                      </value>
+                    </case>
+                  </body>
+                </switch>
+              </begin>
+            </body>
+          </while>
+          <funcall name="__builtin_va_end" fn="tests/cl_stub.c" ln=399>
+            <args>
+              <ref name="lst"/>
+            </args>
+          </funcall>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args>
+        <var name="str">
+          <type flags=0 ind=1 name="char"/>
+        </var>
+        <rest/>
+      </args>
+    </defun>
+    <vars fn="tests/cl_stub.c" ln=404>
+      <var name="tk_malloc_rov">
+        <value>
+          <cast>
+            <value>
+              <int value=0/>
+            </value>
+            <type flags=0 ind=1 name="void"/>
+          </cast>
+        </value>
+        <type flags=131072 ind=1 name="char"/>
+      </var>
+    </vars>
+    <defun name="malloc" tokens=53 fn="tests/cl_stub.c" ln=406>
+      <body>
+        <begin tokens=53>
+          <vars fn="tests/cl_stub.c" ln=406>
+            <var name="p">
+              <type flags=131072 ind=1 name="char"/>
+            </var>
+          </vars>
+          <if fn="tests/cl_stub.c" ln=410>
+            <cond>
+              <unary op="!">
+                <value>
+                  <ref name="tk_malloc_rov"/>
+                </value>
+              </unary>
+            </cond>
+            <then>
+              <begin tokens=11>
+                <assign fn="tests/cl_stub.c" ln=413>
+                  <left>
+                    <ref name="tk_malloc_rov"/>
+                  </left>
+                  <right>
+                    <cast>
+                      <value>
+                        <int value=285212672/>
+                      </value>
+                      <type flags=131072 ind=1 name="char"/>
+                    </cast>
+                  </right>
+                </assign>
+              </begin>
+            </then>
+          </if>
+          <assign fn="tests/cl_stub.c" ln=416>
+            <left>
+              <ref name="sz"/>
+            </left>
+            <right>
+              <binary op="&amp;">
+                <left>
+                  <binary op="+">
+                    <left>
+                      <ref name="sz"/>
+                    </left>
+                    <right>
+                      <int value=3/>
+                    </right>
+                  </binary>
+                </left>
+                <right>
+                  <unary op="~">
+                    <value>
+                      <int value=3/>
+                    </value>
+                  </unary>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=416>
+            <left>
+              <ref name="p"/>
+            </left>
+            <right>
+              <ref name="tk_malloc_rov"/>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=416>
+            <left>
+              <ref name="tk_malloc_rov"/>
+            </left>
+            <right>
+              <binary op="+">
+                <left>
+                  <ref name="p"/>
+                </left>
+                <right>
+                  <ref name="sz"/>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <return fn="tests/cl_stub.c" ln=416>
+            <value>
+              <ref name="p"/>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=1 name="void"/>
+      <args>
+        <var name="sz">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="free" tokens=1 fn="tests/cl_stub.c" ln=424>
+      <body>
+        <begin tokens=1/>
+      </body>
+      <type flags=0 ind=0 name="int"/>
+      <args>
+        <var name="ptr">
+          <type flags=0 ind=1 name="void"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="TK_GetTimeMs" tokens=29 fn="tests/cl_stub.c" ln=429>
+      <body>
+        <begin tokens=29>
+          <vars fn="tests/cl_stub.c" ln=429>
+            <var name="sreg">
+              <type flags=131072 ind=1 name="int"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=429>
+            <var name="ms">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=434>
+            <left>
+              <ref name="sreg"/>
+            </left>
+            <right>
+              <cast>
+                <value>
+                  <int value=8355840/>
+                </value>
+                <type flags=0 ind=1 name="int"/>
+              </cast>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=436>
+            <left>
+              <ref name="ms"/>
+            </left>
+            <right>
+              <getindex>
+                <array>
+                  <ref name="sreg"/>
+                </array>
+                <index>
+                  <int value=4/>
+                </index>
+              </getindex>
+            </right>
+          </assign>
+          <return fn="tests/cl_stub.c" ln=436>
+            <value>
+              <ref name="ms"/>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=131072 ind=0 name="int"/>
+      <args/>
+    </defun>
+    <defun name="clock" tokens=9 fn="tests/cl_stub.c" ln=440>
+      <body>
+        <begin tokens=9>
+          <return fn="tests/cl_stub.c" ln=440>
+            <value>
+              <funcall name="TK_GetTimeMs">
+                <args/>
+              </funcall>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="int"/>
+      <args/>
+    </defun>
+    <vars fn="tests/cl_stub.c" ln=446>
+      <proto name="main">
+        <type flags=0 ind=0 name="int"/>
+        <args>
+          <var name="argc">
+            <type flags=0 ind=0 name="int"/>
+          </var>
+          <var name="argv">
+            <type flags=0 ind=1 name="char">
+              <size>
+                <int value=0/>
+              </size>
+            </type>
+          </var>
+        </args>
+      </proto>
+    </vars>
+    <defun name="__start" tokens=28 fn="tests/cl_stub.c" ln=448>
+      <body>
+        <begin tokens=28>
+          <vars fn="tests/cl_stub.c" ln=448>
+            <var name="t_argv">
+              <type flags=0 ind=1 name="char">
+                <size>
+                  <int value=4/>
+                </size>
+              </type>
+            </var>
+          </vars>
+          <funcall name="puts" fn="tests/cl_stub.c" ln=452>
+            <args>
+              <string value="__start: OK A&#10;"/>
+            </args>
+          </funcall>
+          <assign fn="tests/cl_stub.c" ln=454>
+            <left>
+              <getindex>
+                <array>
+                  <ref name="t_argv"/>
+                </array>
+                <index>
+                  <int value=0/>
+                </index>
+              </getindex>
+            </left>
+            <right>
+              <string value="tk_dummy"/>
+            </right>
+          </assign>
+          <funcall name="main" fn="tests/cl_stub.c" ln=454>
+            <args>
+              <int value=1/>
+            </args>
+          </funcall>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="void"/>
+      <args/>
+    </defun>
+  </body>
+</module>

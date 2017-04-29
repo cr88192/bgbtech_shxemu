@@ -48,6 +48,13 @@
 #define BGBCC_SH_REG_DBR		0x2F
 
 #define BGBCC_SH_REG_DR0		0x30
+#define BGBCC_SH_REG_DR1		0x31
+#define BGBCC_SH_REG_DR2		0x32
+#define BGBCC_SH_REG_DR3		0x33
+#define BGBCC_SH_REG_DR4		0x34
+#define BGBCC_SH_REG_DR5		0x35
+#define BGBCC_SH_REG_DR6		0x36
+#define BGBCC_SH_REG_DR7		0x37
 
 #define BGBCC_SH_REG_PC			0x3E
 
@@ -56,6 +63,23 @@
 #define BGBCC_SH_REG_FR2		0x42
 #define BGBCC_SH_REG_FR3		0x43
 #define BGBCC_SH_REG_FR4		0x44
+
+#define BGBCC_SH_REG_FR12		0x4C
+#define BGBCC_SH_REG_FR13		0x4D
+#define BGBCC_SH_REG_FR14		0x4E
+#define BGBCC_SH_REG_FR15		0x4F
+
+#define BGBCC_SH_REG_LR0		0x50
+#define BGBCC_SH_REG_LR1		0x51
+#define BGBCC_SH_REG_LR2		0x52
+#define BGBCC_SH_REG_LR3		0x53
+#define BGBCC_SH_REG_LR4		0x54
+#define BGBCC_SH_REG_LR5		0x55
+#define BGBCC_SH_REG_LR6		0x56
+#define BGBCC_SH_REG_LR7		0x57
+
+#define BGBCC_SH_REG_RTMASK		0xF0
+#define BGBCC_SH_REG_RTMASK3	0xF8
 
 #define BGBCC_SH_REG_ZZR		0xFF		//Null Register (Placeholder Reg)
 
@@ -270,6 +294,10 @@
 #define BGBCC_SH_REGCLS_FR2		4	//uses a pair of FRs
 
 
+#define BGBCC_SH_FPSCR_PR		0x00080000	//
+#define BGBCC_SH_FPSCR_SZ		0x00100000	//
+#define BGBCC_SH_FPSCR_FR		0x00200000	//
+
 #define BGBCC_SH_MAX_CACHEVAR 5
 
 typedef struct BGBCC_SHX_Context_s BGBCC_SHX_Context;
@@ -291,6 +319,9 @@ byte use_bp;		//use frame pointer
 byte need_farjmp;	//function needs far jumps
 byte need_n12jmp;	//function needs at least 12-bit jumps
 byte is_pic;		//is PIC.
+byte use_fpr;		//uses floating point registers
+byte use_dbr;		//uses fp double registers
+byte is_vararg;		//function is varargs
 
 u32 *lbl_ofs;		//label offsets
 u32 *rlc_ofs;		//reloc offsets
@@ -313,6 +344,10 @@ int nlbln, mlbln;
 // int reg_resv;
 int reg_save;
 // int reg_dirty;
+int freg_save;
+
+u32 dfl_fpscr;		//default FPSCR state
+u32 cur_fpscr;		//current FPSCR state
 
 int ofs_s16tab[256];
 int ofs_s32tab[256];
@@ -337,6 +372,13 @@ byte regalc_save;		//register has been saved and may hold a value
 byte regalc_live;		//register is currently holding a value
 byte regalc_dirty;
 
+ccxl_register fregalc_map[4];
+byte fregalc_ltcnt[4];	//lifetime count (who to evict)
+byte fregalc_utcnt[4];	//current use count (0=unused)
+byte fregalc_save;		//register has been saved and may hold a value
+byte fregalc_live;		//register is currently holding a value
+byte fregalc_dirty;
+
 int frm_size;			//allocated size of frame
 int frm_offs_lcl;		//frame offset of local vars
 int frm_offs_tmp;		//frame offset of temporaries
@@ -345,6 +387,9 @@ int lbl_ret;			//label ID for function exit
 int lbl_got;			//label ID for got
 
 BGBCC_SHX_Context *next;
+
+char *csrept;
+int cnrept;
 
 int *got_gblidx;
 int got_n_gblidx;

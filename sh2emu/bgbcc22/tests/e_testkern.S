@@ -1,4 +1,5 @@
-#ifdef ARCH_SH4
+// #ifdef ARCH_SH4
+#if 1
 #define X(n)	n
 #define STACK_BASE	0x8FFFFFFC
 #else
@@ -277,6 +278,92 @@ sdiv_res_neg:
 	neg r0,r0
 	jmp @r2
 	sts macl,r2
+
+.global X(__sremsi3)
+X(__sremsi3):
+	sts.l pr, @-r15
+	mov.l r4,@-r15
+	mov.l r5,@-r15
+	bsr __sdivsi3
+	nop
+	mov.l @r15+, r5
+	mov.l @r15+, r4
+	dmuls.l r0, r5
+	sts macl,r5
+	mov r4, r0
+	sub r5, r0
+	lds.l @r15+, pr
+	rts
+	nop
+	
+
+#endif
+
+#if 1
+.global X(__va_start_1)
+X(__va_start_1):
+	mov.l  r5, @(r4,  4)
+	mov.l  r6, @(r4,  8)
+	mov.l  r7, @(r4, 12)
+	mov.l fr4, @(r4, 16)
+	mov.l fr5, @(r4, 20)
+	mov.l fr6, @(r4, 24)
+	mov.l fr7, @(r4, 28)
+	mov.l fr8, @(r4, 32)
+	mov.l fr9, @(r4, 36)
+	mov.l fr10, @(r4, 40)
+	mov.l fr11, @(r4, 44)
+	
+	mov #4, r0
+	mov.l  r0, @(r4,  48)
+	mov #0, r0
+	mov.l  r0, @(r4,  52)
+
+	rts
+	nop
+
+.global X(__va_arg_i)
+X(__va_arg_i):
+	mov.l @(r4, 48), r0
+	mov.l @(r4, r0), r6
+	add #4, r0
+	mov.l  r0, @(r4,  48)
+	mov r6, r0
+	rts
+//	bra _exit
+	nop
+.global X(__va_arg_l)
+X(__va_arg_l):
+	mov.l @(r4, 48), r0
+	mov.l @(r4, r0), r6
+	add #4, r0
+	mov.l @(r4, r0), r7
+	add #4, r0
+	mov.l  r0, @(r4, 48)
+	mov r6, r0
+	mov r7, r1
+	rts
+	nop
+
+.global X(__va_arg_f)
+X(__va_arg_f):
+	mov.l @(r4, 52), r3
+	fmov.s @(r4, r0), fr0
+	add #4, r0
+	mov.l  r0, @(r4, 52)
+	rts
+	nop
+.global X(__va_arg_d)
+X(__va_arg_d):
+	mov.l @(r4, 52), r0
+	fmov.s @(r4, r0), fr0
+	add #4, r0
+	fmov.s @(r4, r0), fr1
+	add #4, r0
+	mov.l  r0, @(r4, 52)
+	rts
+	nop
+
 #endif
 
 #ifdef ARCH_SH4

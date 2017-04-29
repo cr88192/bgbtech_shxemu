@@ -732,6 +732,10 @@ char *BGBCC_CCXL_VarTypeString_FlattenName(BGBCC_TransState *ctx,
 		if(!strcmp(s, "variant_va"))
 			{ *t++='C'; *t++='z'; }
 
+		if(!strcmp(s, "builtin_va_list") ||
+				!strcmp(s, "gnuc_va_list"))
+			{ *t++='D'; *t++='z'; }
+
 		if(!strcmp(s, "vec2"))
 			{ *t++='C'; *t++='a'; }
 		if(!strcmp(s, "vec3"))

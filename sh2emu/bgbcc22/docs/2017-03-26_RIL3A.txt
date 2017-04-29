@@ -16,12 +16,23 @@ The header is directly followed by instructions, which proceed until the end of 
 
 === Values ===
 
-UVLI:
+UVLI (32-bit):
 * 0x00000000..0x0000007F	0xxx-xxxx
 * 0x00000080..0x00003FFF	10xx-xxxx xxxx-xxxx
 * 0x00004000..0x001FFFFF	110x-xxxx xxxx-xxxx xxxx-xxxx
 * 0x00200000..0x0FFFFFFF	1110-xxxx xxxx-xxxx xxxx-xxxx xxxx-xxxx
 * 0x10000000..0xFFFFFFFF	1111-0xxx xxxx-xxxx xxxx-xxxx xxxx-xxxx xxxx-xxxx
+
+UVLI (64-bit):
+* 0x0000000000000000..0x000000000000007F	0xxx-xxxx
+* 0x0000000000000080..0x0000000000003FFF	10xx-xxxx xxxx-xxxx
+* 0x0000000000004000..0x00000000001FFFFF	110x-xxxx xxxx-xxxx(x2)
+* 0x0000000000200000..0x000000000FFFFFFF	1110-xxxx xxxx-xxxx(x3)
+* 0x0000000010000000..0x00000007FFFFFFFF	1111-0xxx xxxx-xxxx(x4)
+* 0x0000008000000000..0x000003FFFFFFFFFF	1111-10xx xxxx-xxxx(x5)
+* 0x0000400000000000..0x0001FFFFFFFFFFFF	1111-110x xxxx-xxxx(x6)
+* 0x0020000000000000..0x00FFFFFFFFFFFFFF	1111-1110 xxxx-xxxx(x7)
+* 0x1000000000000000..0xFFFFFFFFFFFFFFFF	1111-1111 xxxx-xxxx(x8)
 * ...
 
 SVLI:
@@ -75,11 +86,67 @@ LZ strings will have the initial size encode the compressed size (relative to 64
 
 Wide strings are given as UTF-8 or M-UTF-8.
 
+DataBlob:
+* Encoded the same as Strings or TextBlobs, but holding binary data.
+
 Opcode:
 * Encoded as a UVLI
 
 Label:
 * Encoded as a SVLI. Represented as an ID number, where the source and destination will have matching ID numbers.
+
+=== Expressions ===
+
+Typical Calling Sequence:
+* MARK
+* args...
+* CALLN name
+* --> Value
+
+Function arguments are evaluated in right-to-left order, and are left on the stack for the call. The mark operation indicates the logical end of a function argument list. The argument list may be longer than the number of function arguments in the case of vararg calls.
+
+Function calls will always leave a value on the stack even if the return type for the function is void; however, void return values may not be used in expressions. Void return values are to be discarded.
+
+If an arithmetic operation is performed between values with matching types, the operation is performed as that type.
+If an arithmetic operation is performed between values of non-matching types, then the value will be converted to the common supertype.
+
+=== Type Signatures ===
+
+Typed signatures are encoded as strings, with characters indicating value types.
+
+* 'a': signed char
+* 'b': bool
+* 'c': char
+* 'd': double
+* 'e': long double
+* 'f': float
+* 'g': float128
+* 'h': unsigned char
+* 'i': int
+* 'j': unsigned int
+* 'k': float16/half
+* 'l': long
+* 'm': unsigned long
+* 'n': int128
+* 'o': unsigned int128
+* 'p': intptr
+* 'q': reserved
+* 'r': variant (64-bit tagged value)
+* 's': short
+* 't': unsigned short
+* 'u': reserved
+* 'v': void
+* 'w': wchar
+* 'x': long long
+* 'y': unsigned long long
+* 'z': vararg
+* 'Da': auto
+* 'Dz': va_list
+* 'A{sz};{sig}: Array
+* 'P{sig}': Pointer
+* 'U{name};': Extended Type
+* 'X{name};': Struct/Union
+* '({args}){ret}': Function Signature
 
 
 === Operators ===
@@ -102,6 +169,7 @@ Begin/Commands
 * 0x800F, LIST
 * 0x8010, STATICVARDECL
 * 0x8011, VARDECL
+* 0x8012, MANIFOBJ
 
 Attribute/Literal
 * 0x9001, SIG
@@ -128,6 +196,7 @@ Commands/Attributes (Alt)
 * 0x0F, LIST
 * 0x10, STATICVARDECL
 * 0x11, VARDECL
+* 0x12, MANIFOBJ
 * ...
 * 0x21, SIG
 * 0x22, FLAGS
@@ -146,11 +215,11 @@ Binary Operator
 * 0x06, OR
 * 0x07, XOR
 * 0x08, SHL
-* 0x09, SHR
-* 0x0A, SHRR
-* 0x0B, MULH
-* 0x0C, UMULH
-* 0x0D, UDIV
+* 0x09, SHR (SAR / Arithmetic)
+* 0x0A, SHRR (SHR / Logical)
+* 0x0B, MULH (Signed Multiply, High DWord)
+* 0x0C, UMULH (Unsigned Multiply, High DWord)
+* 0x0D, UDIV (Unsigned Divide)
 
 Unary Operator
 * 0x00, MOV
@@ -235,6 +304,9 @@ Opcodes (Structural)
 * 0x16, LITNAME
 ** SVLI tag;
 ** STRING name;
+* 0x17, LITDATA
+** SVLI tag;
+** DATABLOB data;
 
 Opcodes (Executable Code)
 * 0x20, MARK ( -- Mark )
@@ -405,3 +477,42 @@ Opcodes (Executable Code)
 ** SVLI val;
 * 0x6F, SARC
 ** SVLI val;
+
+
+=== Global Objects ===
+
+Manifest Object:
+* Defines a blob of data (RIL3 bytecode) with a list of exported names.
+** This RIL3 object is decoded independently of the parent.
+** Will be demand-loaded when one of the exported names is needed.
+* BEGINNAME, MANIFOBJ, "objname"
+** ATTRSTR NAME, objname
+** ATTRSTR IMPLEMENTS, names
+** LITDATA BODY, body
+* END
+
+Function:
+* BEGINNAME FUNCTION, "funcname"
+** ATTRSTR NAME, name
+** ATTRSTR SIG, sig
+** ATTRSTR FLAGS, flags
+** BEGIN ARGS
+*** arg vardecls...
+** END
+** BEGIN LOCALS
+*** local vardecls...
+** END
+** BEGIN BODY
+*** body opcodes...
+** END
+* END
+
+VarDecl:
+* BEGINNAME VARDECL, name
+** ATTRSTR NAME, name
+** ATTRSTR SIG, sig
+** ATTRSTR FLAGS, flags
+** BEGIN VARVALUE
+*** LIT* VALUE, value
+** END
+* END

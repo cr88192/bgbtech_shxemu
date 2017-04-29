@@ -356,7 +356,7 @@ static char *bgbcp_basetypes_c[]={
 "__m2f", "__m3f", "__m4f",
 "__variant", "__variantf",
 "__variant_va", "__variant_this", "__variant_cls",
-"__gnuc_va_list",
+"__gnuc_va_list", "__builtin_va_list",
 "_Bool",
 NULL
 };

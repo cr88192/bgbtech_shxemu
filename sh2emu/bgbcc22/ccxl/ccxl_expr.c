@@ -133,6 +133,34 @@ void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 			printf("BGBCC Debug\n");
 		}
 
+		if(!strcmp(s0, "__builtin_va_end"))
+		{
+			BGBCC_CCXL_CompileExprListReverse(ctx,
+				BCCX_Fetch(l, "args"));
+			BGBCC_CCXL_StackVaEnd(ctx);
+			BGBCC_CCXL_StackPushConstInt(ctx, 0);
+			return;
+		}
+
+		if(!strcmp(s0, "__builtin_va_start"))
+		{
+			BGBCC_CCXL_CompileExprListReverse(ctx,
+				BCCX_Fetch(l, "args"));
+			BGBCC_CCXL_StackVaStart(ctx);
+			BGBCC_CCXL_StackPushConstInt(ctx, 0);
+			return;
+		}
+
+		if(!strcmp(s0, "__builtin_va_arg"))
+		{
+			BGBCC_CCXL_CompileExprListReverse(ctx,
+				BCCX_Fetch(l, "args"));
+			BGBCC_CCXL_StackVaArg(ctx);
+
+//			BGBCC_CCXL_StackPushConstInt(ctx, 0);
+			return;
+		}
+
 		BGBCC_CCXL_PushMark(ctx);
 		BGBCC_CCXL_CompileExprListReverse(ctx,
 			BCCX_Fetch(l, "args"));
@@ -264,6 +292,14 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
 		s0=BGBCC_CCXL_VarTypeString(ctx, BCCX_FindTag(l, "type"));
 		BGBCC_CCXL_StackCastSig(ctx, s0);
+		return;
+	}
+
+	if(BCCX_TagIsP(l, "var"))
+	{
+//		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
+		s0=BGBCC_CCXL_VarTypeString(ctx, BCCX_FindTag(l, "type"));
+		BGBCC_CCXL_StackLitTypeSig(ctx, s0);
 		return;
 	}
 
@@ -542,8 +578,9 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		if(BCCX_AttrIsP(l, "op", "*"))
 		{
 			BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
-			BGBCC_CCXL_StackPushConstInt(ctx, 0);
-			BGBCC_CCXL_StackLoadIndex(ctx);
+//			BGBCC_CCXL_StackPushConstInt(ctx, 0);
+//			BGBCC_CCXL_StackLoadIndex(ctx);
+			BGBCC_CCXL_StackLoadIndexConst(ctx, 0);
 			return;
 		}
 

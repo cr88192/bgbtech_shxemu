@@ -1,0 +1,230 @@
+/*"tests/cl_stub.c"13*/ typedef unsigned char byte;
+typedef signed char sbyte;
+typedef unsigned short u16;
+typedef signed short s16;
+typedef unsigned int u32;
+typedef signed int s32;
+typedef unsigned long long u64;
+typedef signed long long s64;
+/*22*/ typedef volatile u32 vol_u32;
+/*105*/ typedef __builtin_va_list va_list;
+/*118*/ typedef unsigned char bool;
+/*128*/ typedef unsigned int size_t;
+/*130*/ void putc(int val)
+{
+while((*(vol_u32*)(0xABCD0100+0x08))&8);
+(*(vol_u32*)(0xABCD0100+0x04))=val;
+}
+/*136*/ void sleep_0();
+/*138*/ int kbhit(void)
+{return((*(vol_u32*)(0xABCD0100+0x08))&1);}
+/*141*/ int getch(void)
+{
+while(!((*(vol_u32*)(0xABCD0100+0x08))&1))
+sleep_0();
+return((*(vol_u32*)(0xABCD0100+0x00)));
+}
+/*148*/ void puts(char*msg)
+{
+char*s;
+/*152*/ s=msg;
+while(*s)
+{putc(*s++);}
+}
+/*157*/ void gets(char*buf)
+{
+char*t;
+int i;
+/*162*/ t=buf;
+while(1)
+{
+i=getch();
+if((i=='\x08')||(i==127))
+{
+if(t>buf)
+{
+puts("\x08 \x08");
+t--;
+}
+*t=0;
+continue;
+}
+if(i=='\r')
+{putc('\n');break;}
+if(i=='\n')
+{putc('\n');break;}
+putc(i);
+*t++ =i;
+}
+*t=0;
+}
+/*186*/ void print_hex(u32 v)
+{
+/*190*/ char*chrs;
+chrs="0123456789ABCDEF";
+/*193*/ putc(chrs[(v>>28)&15]);
+putc(chrs[(v>>24)&15]);
+putc(chrs[(v>>20)&15]);
+putc(chrs[(v>>16)&15]);
+putc(chrs[(v>>12)&15]);
+putc(chrs[(v>>8)&15]);
+putc(chrs[(v>>4)&15]);
+putc(chrs[(v)&15]);
+}
+/*203*/ void print_hex_n(u32 v,int n)
+{
+/*207*/ char*chrs;
+chrs="0123456789ABCDEF";
+/*210*/ if(n>7)putc(chrs[(v>>28)&15]);
+if(n>6)putc(chrs[(v>>24)&15]);
+if(n>5)putc(chrs[(v>>20)&15]);
+if(n>4)putc(chrs[(v>>16)&15]);
+if(n>3)putc(chrs[(v>>12)&15]);
+if(n>2)putc(chrs[(v>>8)&15]);
+if(n>1)putc(chrs[(v>>4)&15]);
+if(n>0)putc(chrs[(v)&15]);
+}
+/*220*/ int print_hex_genw(u32 v)
+{
+u32 w;
+int i;
+/*225*/ i=1;
+while(v>=16)
+/*228*/ {v=v>>4;i++;}
+/*241*/ return(i);
+}
+/*244*/ void print_decimal(int val)
+{
+char tb[256];
+char*t;
+int i,k,s;
+/*250*/ k=val;s=0;
+if(k<0)
+{k= -k;s=1;}
+/*254*/ t=tb;
+if(!k)*t++ ='0';
+while(k>0)
+{
+i=k%10;
+*t++ ='0'+i;
+k=k/10;
+}
+if(s)*t++ ='-';
+/*264*/ while(t>tb)
+{t--;putc(*t);}
+}
+/*268*/ void print_decimal_n(int val,int num)
+{
+char tb[256];
+char*t;
+int i,k,n,s;
+/*274*/ k=val;s=0;
+if(k<0)
+{k= -k;s=1;}
+/*278*/ t=tb;n=num;
+/*280*/ while(n>0)
+{
+i=k%10;
+*t++ ='0'+i;
+k=k/10;
+n--;
+}
+/*290*/ while(t>tb)
+{t--;putc(*t);}
+}
+/*313*/ void printf(char*str,...)
+{
+va_list lst;
+char pcfill;
+char*s,*s1;
+int v,w;
+/*320*/ __builtin_va_start(lst,str);
+/*322*/ s=str;
+while(*s)
+{
+if(*s!='%')
+{putc(*s++);continue;}
+/*330*/ if(s[1]=='%')
+{s+=2;putc('%');continue;}
+s++;
+/*337*/ if(*s=='0')
+{
+pcfill='0';
+s++;
+}else
+{
+pcfill=' ';
+}
+/*346*/ w=0;
+if((*s>='0')&&(*s<='9'))
+{
+while((*s>='0')&&(*s<='9'))
+w=(w*10)+((*s++)-'0');
+}
+/*357*/ switch(*s++)
+{
+case'd':
+/*361*/ v=__builtin_va_arg(lst,int);
+/*365*/ if(w)
+{
+print_decimal_n(v,w);
+}else
+{
+print_decimal(v);
+}
+break;
+case'X':
+v=__builtin_va_arg(lst,int);
+/*376*/ if(!w)w=print_hex_genw(v);
+print_hex_n(v,w);
+break;
+case's':
+s1=__builtin_va_arg(lst,char*);
+puts(s1);
+break;
+/*384*/ case'p':
+s1=__builtin_va_arg(lst,char*);
+print_hex((u32)s1);
+break;
+/*395*/ default:
+break;
+}
+/*399*/ }
+__builtin_va_end(lst);
+}
+/*404*/ byte*tk_malloc_rov=((void*)0);
+/*406*/ void*malloc(int sz)
+{
+byte*p;
+/*410*/ if(!tk_malloc_rov)
+{
+/*413*/ tk_malloc_rov=(byte*)0x11000000;
+}
+/*416*/ sz=(sz+3)&(~3);
+p=tk_malloc_rov;
+tk_malloc_rov=p+sz;
+return(p);
+/*422*/ }
+/*424*/ int free(void*ptr)
+{
+/*427*/ }
+/*429*/ u32 TK_GetTimeMs(void)
+{
+u32*sreg;
+int ms;
+/*434*/ sreg=(int*)0x007F8000;
+/*436*/ ms=sreg[4];
+return(ms);
+}
+/*440*/ int clock(void)
+{
+return(TK_GetTimeMs());
+/*444*/ }
+/*446*/ int main(int argc,char*argv[]);
+/*448*/ void __start()
+{
+char*t_argv[4];
+/*452*/ puts("__start: OK A\n");
+/*454*/ t_argv[0]="tk_dummy";
+main(1,t_argv);
+}

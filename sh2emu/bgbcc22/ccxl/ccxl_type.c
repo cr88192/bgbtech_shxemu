@@ -413,6 +413,26 @@ bool BGBCC_CCXL_TypeVoidP(
 	return(false);
 }
 
+bool BGBCC_CCXL_TypeVarArgsP(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	if(BGBCC_CCXL_TypePointerP(ctx, ty))
+		return(false);
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_VARARGS)
+		return(true);
+	return(false);
+}
+
+bool BGBCC_CCXL_TypeVaListP(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	if(BGBCC_CCXL_TypePointerP(ctx, ty))
+		return(false);
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_VALIST)
+		return(true);
+	return(false);
+}
+
 bool BGBCC_CCXL_TypeEqualP(
 	BGBCC_TransState *ctx,
 	ccxl_type dty, ccxl_type sty)
@@ -554,6 +574,7 @@ bool BGBCC_CCXL_TypeValueObjectP(
 	case CCXL_TY_I128:
 	case CCXL_TY_UI128:
 	case CCXL_TY_F128:
+	case CCXL_TY_VALIST:
 		return(true);
 	}
 	return(false);
@@ -656,6 +677,19 @@ int BGBCC_CCXL_TypeGetLogicalBaseSize(
 		if(!sz)
 			{ sz=-1; }
 		break;
+	
+	case CCXL_TY_F16:
+		sz=2; break;
+	
+	case CCXL_TY_I128:
+	case CCXL_TY_UI128:
+	case CCXL_TY_F128:
+		sz=16; break;
+
+	case CCXL_TY_VARIANT:
+		sz=8; break;
+	case CCXL_TY_VALIST:
+		sz=64; break;
 
 	default:
 		sz=-1; break;
@@ -683,6 +717,10 @@ int BGBCC_CCXL_TypeGetLogicalBaseShift(
 	if(sz==4)return(2);
 	if(sz==8)return(3);
 	if(sz==16)return(4);
+	if(sz==32)return(5);
+	if(sz==64)return(6);
+	if(sz==128)return(7);
+	if(sz==256)return(8);
 	return(-1);
 }
 
@@ -696,7 +734,7 @@ int BGBCC_CCXL_TypeGetLogicalSize(
 	if(BGBCC_CCXL_TypeValueObjectP(ctx, ty))
 	{
 		obj=BGBCC_CCXL_LookupStructureForType(ctx, ty);
-		if(obj->decl->fxmsize &&
+		if(obj && obj->decl->fxmsize &&
 			(obj->decl->fxmsize==obj->decl->fxnsize))
 		{
 			return(obj->decl->fxmsize);
@@ -1179,6 +1217,19 @@ ccxl_status BGBCC_CCXL_TypeFromSig(
 	case 'x': bty=CCXL_TY_L; break;
 	case 'y': bty=CCXL_TY_UL; break;
 	case 'z': bty=CCXL_TY_VARARGS; break;
+	case 'C':
+		switch(s[1])
+		{
+		default:  bty=-1; break;
+		}
+		break;
+	case 'D':
+		switch(s[1])
+		{
+		case 'z': bty=CCXL_TY_VALIST; break;
+		default:  bty=-1; break;
+		}
+		break;
 	case 'X': case 'Y':
 		st=BGBCC_CCXL_LookupStructureForSig(ctx, s);
 		if(st)
@@ -1342,6 +1393,15 @@ char *BGBCC_CCXL_TypeGetSig(
 		case CCXL_TY_UNL: *t++='m'; break;
 
 		case CCXL_TY_S: *t++='i'; break;
+
+		case CCXL_TY_I128: *t++='n'; break;
+		case CCXL_TY_UI128: *t++='o'; break;
+		case CCXL_TY_F128: *t++='g'; break;
+		case CCXL_TY_F16: *t++='k'; break;
+		case CCXL_TY_VARIANT: *t++='r'; break;
+		case CCXL_TY_VARARGS: *t++='z'; break;
+		case CCXL_TY_VALIST: *t++='D'; *t++='z'; break;
+
 		default:
 			break;
 		}

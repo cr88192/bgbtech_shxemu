@@ -1,0 +1,152 @@
+Possible More-powerful SIMD for the BJX1 ISA.
+* Will add 16x 128-bit vector registers (XR0..XR15).
+** May be paired as 8x 256-bit vector registers (YR0..YR7).
+** Possible, TBD.
+* Packed Byte, Word, Long, Float, Double
+* FPUL register is extended to a context-dependent size
+
+
+VV (Arith):
+* wwtttrrr
+** ww=00: 32 (FRn)
+** ww=01: 64 (DRn)
+** ww=10: 128 (XRn)
+** ww=11: 256 (YRn)
+** tt=000: Pack Byte
+** tt=001: Resv
+** tt=010: Pack Word
+** tt=011: Pack Half
+** tt=100: Pack Long (DWord)
+** tt=101: Pack Float
+** tt=110: Resv
+** tt=111: Pack Double
+** r=0 (reserved)
+
+* 32-bit
+** 00000rrr=4x Byte
+** 00001rrr=Resv
+** 00010rrr=2x Word
+** 00011rrr=2x Half
+** 00100rrr=Long (Scalar FRn)
+** 00101rrr=Float (Scalar FRn)
+** 00110rrr=Resv
+** 00111rrr=Resv
+* 64-bit
+** 01000rrr=8x Byte
+** 01001rrr=Resv
+** 01010rrr=4x Word
+** 01011rrr=4x Half
+** 01100rrr=2x Long (FRn Pair)
+** 01101rrr=2x Float (FRn Pair)
+** 01110rrr=Resv
+** 01111rrr=Double (Scalar DRn)
+* 128-bit
+** 10000rrr=16x Byte
+** 10001rrr=Resv
+** 10010rrr=8x Word
+** 10011rrr=8x Half
+** 10100rrr=2x Long (FRn Pair)
+** 10101rrr=4x Float (FRn Pair)
+** 10110rrr=Resv
+** 10111rrr=2x Double (Scalar DRn)
+
+VV (PMOV):
+* wwww-rrrr
+* wwww:
+** 0000: FRm, FRn	//Copy FRn
+** 0001: DRm, FRn	//Copy FRn Pair
+** 0010: XRm, FRn	//Copy 4x
+** 0011: Resv
+** 0100: FRm, DRn	//Copy FRn Pair (Resv)
+** 0101: DRm, DRn	//Copy DRn
+** 0110: XRm, DRn	//Copy DRn Pair
+** 0111: Resv
+** 1000: FRm, XRn	//Copy 4x FRn
+** 1001: DRm, XRn	//Copy DRn Pair
+** 1010: XRm, XRn	//Copy XRn
+** 1011: YRm, XRn	//Copy XRn Pair
+** 1100: Resv
+** 1101: Resv
+** 1110: XRm, YRn	//Copy XRn Pair (Resv)
+** 1111: YRm, YRn	//Copy YRn
+
+
+VV (PMOV.S):
+* wwrr
+
+VV (PSHUF):
+* wwttmmmm
+** tt=00: Byte
+** tt=01: Word/Half
+** tt=10: Long/Float
+** tt=11: Double
+* mmmm=Shuffle Register
+** 2-elem: 2x 2b
+** 4-elem: 4x 2b (8-bit)
+** 8-elem: 8x 3b (24-bit)
+** 16-elem: 16x 4b (64-bit; register pair for 32-bit)
+
+Non-extended Instructions
+* Will function as in Mini-SIMD
+* rm=10: XRn/YRn: 4xPL/2xPQ | 8xPL/4xPQ
+* rm=11: XRn/YRn: 4xPF/2xPD | 8xPF/4xPD
+
+Instructions (Extended)
+* F---
+**	8Evv-Fnm0 PADD FRm, FRn			//Packed Add (I=Modular)
+**	8Evv-Fnm1 PSUB FRm, FRn			//Packed Sub (I=Modular)
+**	8Evv-Fnm2 PMULL FRm, FRn		//I: Packed Mul (Low Bits)
+***		8Evv-Fnm2 PFMUL FRm, FRn		//F: Packed Float Mul
+**	8Evv-Fnm3 PMULH FRm, FRn		//I: Packed Mul (High Bits)
+***		8Evv-Fnm3 PFDIV FRm, FRn		//F: Packed Float Div
+**	8Evv-Fnm4 PADDS FRm, FRn		//I: Packed Add (Signed Saturate)
+**	8Evv-Fnm5 PADDU FRm, FRn		//I: Packed Add (Unsigned Saturate)
+**	8Evo-Fnm6 PMOV.S @(Rm,Ro), FRn
+**	8Evo-Fnm7 PMOV.S FRm, @(Rn,Ro)
+**	8Evd-Fnm8 PMOV.S @(Rm,disp4), FRn
+**	8Ev0-Fnm9 PMOV.S @Rm+, FRn
+**	8Evd-FnmA PMOV.S FRm, @(Rn,disp4)
+**	8Ev0-FnmB PMOV.S FRm, @-Rn
+**	8Evv-FnmC PMOV FRm, FRn
+**	F--D
+***		8Evv-Fn0D PSTS FPUL, FRn
+***		8Evv-Fm1D PLDS FRm, FPUL
+***		8Evv-Fn2D ? FRn
+***		8Evv-Fm3D ? FRm
+***		8Evv-Fn4D PNEG FRn		//Negate packed values
+***		8Evv-Fn5D PABS FRn		//Absolute of packed values
+***		8Evv-Fn6D ? FRn
+***		8Evm-Fn7D PSHUF Rm, FRn			//Shuffle (R0=Mask)
+***		8Ev0-Fn8D PCNVBH FPUL, FRn	//packed conv byte->half
+***		8Ev0-Fn9D PCNVHB FRm, FPUL	//packed conv half->byte
+***		8Ev0-FnAD PCNVBW FPUL, FRn	//packed conv byte->word
+***		8Ev0-FnBD PCNVWB FRm, FPUL	//packed conv word->byte
+***		8Evv-F-CD -
+***		8Eii-FiDD PSETMD	//Packed Set Mode (Ext/Resv)
+***		8Evv-FnED PDDPR		//Packed Dot Product
+***		F-FD
+****			F0FD / FSCA			//Sin/Cos
+****			F1FD / FTRV2
+****			F2FD / FSCA			//
+****			F3FD FSCHG			//Flips FPSCR.SZ
+****			F4FD / FSCA			//
+****			F5FD / FTRV2
+****			F6FD / FSCA			//
+****			F7FD / FPCHG		//Flips FPSCR.PR
+****			F8FD / FSCA			//
+****			F9FD / FTRV2
+****			FAFD / FSCA			//
+****			FBFD / FRCHG		//Flips FPSCR.FR
+****			FCFD / FSCA			//
+****			FDFD / FTRV2
+****			FEFD / FSCA			//
+**	FnmE ?
+**      FooF ? (Escape 32 for FPU/SIMD Ops)
+
+64-Bit I-Forms
+*	8EFn-8Em6-vodd-dddd PMOV.S @(Ro,Rm,disp24), FRn
+*	8EFn-8Em7-vodd-dddd PMOV.S FRm, @(Ro,Rn,disp24)
+*	8EFn-8Em8-vddd-dddd PMOV.S @(Rm,disp28), FRn
+* /	8EFn-8Em9-vddd-dddd PMOV.S @Rm+, FRn
+*	8EFn-8EmA-vddd-dddd PMOV.S FRm, @(Rn,disp28)
+* /	8EFn-8EmB-vddd-dddd PMOV.S FRm, @-Rn

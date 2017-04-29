@@ -35,7 +35,19 @@ BCCX_Node *BGBCP_FunArgs(BGBCP_ParseState *ctx, char **str)
 			continue;
 		}
 
-		n=BGBCP_Expression(ctx, &s);
+		n=NULL;
+		if((ctx->lang==BGBCC_LANG_C) || (ctx->lang==BGBCC_LANG_CPP))
+		{
+			n=BGBCP_DefType(ctx, &s);
+			if(n)
+			{
+				n1=BGBCP_VarDefinition(ctx, &s, n);
+				if(n1)n=n1;
+			}
+		}
+
+		if(!n)
+			{ n=BGBCP_Expression(ctx, &s); }
 //		lst=BCCX_AddEnd(lst, n);
 		lst=BCCX_AddEnd2(lst, &lste, n);
 

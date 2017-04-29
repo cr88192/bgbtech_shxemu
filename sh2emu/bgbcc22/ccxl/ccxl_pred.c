@@ -863,6 +863,18 @@ double BGBCC_CCXL_GetRegImmDoubleValue(
 	return(0);
 }
 
+char *BGBCC_CCXL_GetRegImmStringValue(
+	BGBCC_TransState *ctx, ccxl_register reg)
+{
+	u64 fl;
+	u32 fi;
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_STRING)
+		{ return(ctx->strtab+(reg.val&CCXL_REGINT_MASK)); }
+
+	return(NULL);
+}
+
 int BGBCC_CCXL_GetRegImm12Value(
 	BGBCC_TransState *ctx, ccxl_register reg, ccxl_type type)
 {

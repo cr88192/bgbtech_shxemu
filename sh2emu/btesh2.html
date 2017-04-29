@@ -15,7 +15,7 @@
       div.emscripten { text-align: center; }      
       div.emscripten_border { border: 1px solid black; }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.emscripten { border: 0px none; }
+      canvas.emscripten { border: 0px none; background-color: black; }
 
       #emscripten_logo {
         display: inline-block;
@@ -103,7 +103,7 @@
   </head>
   <body>
     <a href="http://emscripten.org">
-      <?xml version="1.0" encoding="UTF-8" standalone="no"?><svg
+      <svg
    version="1.1"
    id="Layer_1"
    x="0px"
@@ -1201,7 +1201,7 @@
 <span id='controls'>
   <span><input type="checkbox" id="resize">Resize canvas</span>
   <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span>
-  <span><input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked, 
+  <span><input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
                                                                             document.getElementById('resize').checked)">
   </span>
 </span>
@@ -1297,22 +1297,31 @@
     </script>
     <script>
 
-        (function() {
-          var memoryInitializer = 'btesh2.html.mem';
-          if (typeof Module['locateFile'] === 'function') {
-            memoryInitializer = Module['locateFile'](memoryInitializer);
-          } else if (Module['memoryInitializerPrefixURL']) {
-            memoryInitializer = Module['memoryInitializerPrefixURL'] + memoryInitializer;
-          }
-          var xhr = Module['memoryInitializerRequest'] = new XMLHttpRequest();
-          xhr.open('GET', memoryInitializer, true);
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', 'btesh2.wasm', true);
           xhr.responseType = 'arraybuffer';
-          xhr.send(null);
-        })();
+          xhr.onload = function() {
+            Module.wasmBinary = xhr.response;
 
-        var script = document.createElement('script');
-        script.src = "btesh2.js";
-        document.body.appendChild(script);
+          (function() {
+            var memoryInitializer = 'btesh2.html.mem';
+            if (typeof Module['locateFile'] === 'function') {
+              memoryInitializer = Module['locateFile'](memoryInitializer);
+            } else if (Module['memoryInitializerPrefixURL']) {
+              memoryInitializer = Module['memoryInitializerPrefixURL'] + memoryInitializer;
+            }
+            var xhr = Module['memoryInitializerRequest'] = new XMLHttpRequest();
+            xhr.open('GET', memoryInitializer, true);
+            xhr.responseType = 'arraybuffer';
+            xhr.send(null);
+          })();
+
+          var script = document.createElement('script');
+          script.src = "btesh2.js";
+          document.body.appendChild(script);
+
+          };
+          xhr.send(null);
 
 </script>
   </body>

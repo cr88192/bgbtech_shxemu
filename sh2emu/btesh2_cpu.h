@@ -279,6 +279,10 @@
 #define BTESH2_FMID_DREGREG		0x18	//FRm, FRn
 #define BTESH2_FMID_DREGRM		0x19	//FRm
 #define BTESH2_FMID_DREGRN		0x1A	//FRn
+#define BTESH2_FMID_IMMSTRN		0x1B	//Imm, @Rn
+#define BTESH2_FMID_IMMDECSTRN	0x1C	//Imm, @-Rn
+
+#define BTESH2_FMID_REGREGREG	0x1D	//Rn, Rm, Ro
 
 
 typedef unsigned char byte;
