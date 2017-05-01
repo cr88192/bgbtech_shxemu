@@ -97,6 +97,9 @@ int bscc_main()
 void print_hex_n(unsigned int v, int n);
 void print_decimal(int val);
 
+void print_float(double val);
+void print_float_ss(float val);
+
 #if 1
 int main()
 {
@@ -150,5 +153,9 @@ int main()
 
 	printf("hashtst %d\n", hash_str("foobarbaz"));
 	puts("main: D\n");
+	
+//	print_float(3.14159);
+	print_float_ss(3.14159f);
+	puts("main: E\n");
 }
 #endif

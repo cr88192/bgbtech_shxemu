@@ -702,6 +702,13 @@ void BGBCC_CCXL_CompileExprT(BGBCC_TransState *ctx, BCCX_Node *l)
 	}
 	if(BCCX_TagIsP(l, "real"))
 	{
+		s0=BCCX_Get(l, "tysuf");
+		if(s0 && !stricmp(s0, "F"))
+		{
+			BGBCC_CCXL_StackPushConstFloat(ctx, BCCX_GetFloat(l, "value"));
+			return;
+		}
+
 		BGBCC_CCXL_StackPushConstDouble(ctx, BCCX_GetFloat(l, "value"));
 		return;
 	}

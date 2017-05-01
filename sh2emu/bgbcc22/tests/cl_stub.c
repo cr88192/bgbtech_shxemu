@@ -1,3 +1,5 @@
+#define ARCH_SH4
+
 #ifdef ARCH_SH4
 
 #ifndef ARCH_HAS_FPU
@@ -302,6 +304,27 @@ void print_float(double val)
 	
 	ip=(int)val;
 	fp=(int)((val-ip)*1000000);
+
+	*(int *)-1=-1;
+
+	if(sg)putc('-');
+	print_decimal(ip);
+	putc('.');
+	print_decimal_n(fp, 6);
+}
+
+void print_float_ss(float val)
+{
+	int ip, fp, sg;
+	
+	sg=0;
+	if(val<0.0f)
+		{ val=-val; sg=1; }
+	
+	ip=(int)val;
+	fp=(int)((val-ip)*1000000.0f);
+
+	*(int *)-1=-1;
 
 	if(sg)putc('-');
 	print_decimal(ip);

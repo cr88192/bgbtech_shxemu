@@ -73,6 +73,12 @@ typedef u32 fourcc;
 #define DYTF_FALSE		(dytfPtrF((void *)3))
 #define DYTF_AUXNULL	(dytfPtrF((void *)4))
 
+#ifdef _MSC_VER
+#define BGBCC_DBGBREAK	__debugbreak();
+#else
+#define BGBCC_DBGBREAK
+#endif
+
 #define BGBCC_CCXL_StubError(ctx)	\
 	BGBCC_CCXL_StubErrorLLn(ctx, __FILE__, __LINE__)
 #define BGBCC_CCXL_StubWarn(ctx)	\

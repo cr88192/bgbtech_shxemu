@@ -293,6 +293,9 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 
 	sctx->reg_save=0;
 	sctx->freg_save=0;
+	
+	sctx->sreg_held=0x00F4;
+	sctx->sfreg_held=0x0FF0;
 
 	if(sctx->is_vararg)
 	{
@@ -444,7 +447,10 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 	sctx->fregalc_save=0;
 	sctx->fregalc_live=0;
 	sctx->fregalc_dirty=0;
-	
+
+	sctx->sreg_held=0x0000;
+	sctx->sfreg_held=0x0000;
+
 	sctx->lbl_ret=BGBCC_SHX_GenLabelTemp(sctx);
 	
 	return(0);
@@ -465,7 +471,10 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 	{
 		BGBCC_SHX_EmitLabel(sctx, sctx->lbl_ret);
 	}
-	
+
+	sctx->sreg_held=0x0003;
+	sctx->sfreg_held=0x0003;
+
 	BGBCC_SHXC_ResetFpscrDefaults(ctx, sctx);
 	
 	for(i=0; i<16; i++)
@@ -511,6 +520,9 @@ int BGBCC_SHXC_EmitVaArg(
 	ccxl_register sreg)
 {
 	int i, j, k;
+
+	sctx->sreg_live|=0x0010;
+	sctx->sfreg_live|=0x0000;
 
 	BGBCC_SHXC_EmitLoadFrameVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_R4);
 //	BGBCC_SHXC_EmitCallName(ctx, sctx, "__va_arg_i");
@@ -728,6 +740,9 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
 	BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtOp *op)
 {
+	sctx->sreg_live=sctx->sreg_held;
+	sctx->sfreg_live=sctx->sfreg_held;
+
 	switch(op->opn)
 	{
 	case CCXL_VOP_NONE:
@@ -740,6 +755,7 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 		break;
 	case CCXL_VOP_LABEL:
 		BGBCC_SHXC_EmitLabelFlushRegisters(ctx, sctx);
+		BGBCC_SHXC_ResetFpscrLocal(ctx, sctx);
 		BGBCC_SHX_EmitLabel(sctx,
 			op->imm.si);
 		break;
@@ -771,6 +787,8 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 		BGBCC_SHXC_EmitLabelFlushRegisters(ctx, sctx);
 		break;
 	case CCXL_VOP_CALL:
+		sctx->sreg_live|=0x00F2;
+		sctx->sfreg_live|=0x0FF2;
 		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_EmitCallVReg(ctx, sctx,
 			op->type, op->srca,
@@ -955,7 +973,9 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 	BGBCC_CCXL_RegisterInfo *obj)
 {
 	BGBCC_SHX_Context *sctx;
+	char *s0;
 	int l0, sz;
+	s64 li;
 	int i, j, k;
 
 	sctx=ctx->uctx;
@@ -987,7 +1007,48 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 	BGBCC_SHX_SetSectionName(sctx, ".data");
 	BGBCC_SHX_EmitBAlign(sctx, 4);
 	BGBCC_SHX_EmitLabel(sctx, l0);
-//	BGBCC_SHX_EmitRawBytes(sctx, NULL, sz);
+	
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, obj->value))
+	{
+		if(BGBCC_CCXL_TypeSmallIntP(ctx, obj->type) ||
+			BGBCC_CCXL_TypePointerP(ctx, obj->type))
+		{
+			i=BGBCC_CCXL_GetRegImmIntValue(ctx, obj->value);
+			BGBCC_SHX_EmitDWord(sctx, i);
+			return(1);
+		}
+
+		if(BGBCC_CCXL_TypeSgLongP(ctx, obj->type))
+		{
+			i=BGBCC_CCXL_GetRegImmIntValue(ctx, obj->value);
+			BGBCC_SHX_EmitQWord(sctx, i);
+			return(1);
+		}
+	}
+
+	if(BGBCC_CCXL_IsRegImmLongP(ctx, obj->value))
+	{
+		if(BGBCC_CCXL_TypeSgLongP(ctx, obj->type))
+		{
+			li=BGBCC_CCXL_GetRegImmLongValue(ctx, obj->value);
+			BGBCC_SHX_EmitQWord(sctx, li);
+			return(1);
+		}
+	}
+
+	if(BGBCC_CCXL_IsRegImmStringP(ctx, obj->value))
+	{
+		if(BGBCC_CCXL_TypePointerP(ctx, obj->type))
+		{
+			s0=BGBCC_CCXL_GetRegImmStringValue(ctx, obj->value);
+			k=BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
+			BGBCC_SHX_EmitRelocTy(sctx, k, BGBCC_SH_RLC_ABS32);
+			BGBCC_SHX_EmitDWord(sctx, 0);
+			return(1);
+		}
+	}
+	
+	BGBCC_SHX_EmitRawBytes(sctx, NULL, sz);
 	return(1);
 }
 

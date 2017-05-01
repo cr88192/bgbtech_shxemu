@@ -271,6 +271,16 @@ bool BGBCC_CCXL_IsRegLongP(
 	return(false);
 }
 
+bool BGBCC_CCXL_IsRegSgLongP(
+	BGBCC_TransState *ctx, ccxl_register reg)
+{
+	ccxl_type tty;
+	tty=BGBCC_CCXL_GetRegType(ctx, reg);
+	if(BGBCC_CCXL_TypeSgLongP(ctx, tty))
+		return(true);
+	return(false);
+}
+
 bool BGBCC_CCXL_IsRegFloatP(
 	BGBCC_TransState *ctx, ccxl_register reg)
 {

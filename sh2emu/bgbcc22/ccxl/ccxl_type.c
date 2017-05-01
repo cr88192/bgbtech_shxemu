@@ -131,6 +131,21 @@ bool BGBCC_CCXL_TypeUnsignedLongP(
 	return(false);
 }
 
+bool BGBCC_CCXL_TypeSgLongP(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	if(BGBCC_CCXL_TypeArrayP(ctx, ty))
+		return(false);
+	if(BGBCC_CCXL_TypePointerP(ctx, ty))
+		return(false);
+
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_L)
+		return(true);
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_UL)
+		return(true);
+	return(false);
+}
+
 bool BGBCC_CCXL_TypeFloatP(
 	BGBCC_TransState *ctx, ccxl_type ty)
 {
@@ -1886,7 +1901,7 @@ ccxl_status BGBCC_CCXL_GetTypeBinaryDest(
 
 		if(BGBCC_CCXL_TypeFloatP(ctx, rty))
 		{
-			*rdty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_D);
+			*rdty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_F);
 			return(BGBCC_CCXL_TypeSupportsOperatorP(ctx, *rdty, opr)?
 				CCXL_STATUS_YES:CCXL_STATUS_NO);
 //			return(CCXL_STATUS_YES);
@@ -1978,7 +1993,7 @@ ccxl_status BGBCC_CCXL_GetTypeBinaryDest(
 	{
 		if(BGBCC_CCXL_TypeSmallIntP(ctx, rty))
 		{
-			*rdty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_D);
+			*rdty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_F);
 			return(BGBCC_CCXL_TypeSupportsOperatorP(ctx, *rdty, opr)?
 				CCXL_STATUS_YES:CCXL_STATUS_NO);
 //			return(CCXL_STATUS_YES);

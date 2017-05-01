@@ -33,7 +33,20 @@ UVLI (64-bit):
 * 0x0000400000000000..0x0001FFFFFFFFFFFF	1111-110x xxxx-xxxx(x6)
 * 0x0020000000000000..0x00FFFFFFFFFFFFFF	1111-1110 xxxx-xxxx(x7)
 * 0x1000000000000000..0xFFFFFFFFFFFFFFFF	1111-1111 xxxx-xxxx(x8)
+
+UVLI (128-bit):
+* 0x0000000000000000..0x000000000000007F	0xxx-xxxx
+* 0x0000000000000080..0x0000000000003FFF	10xx-xxxx xxxx-xxxx
 * ...
+* 0x0020000000000000..0x00FFFFFFFFFFFFFF	1111-1110 xxxx-xxxx(x7)
+* 0x1000000000000000..0x7FFFFFFFFFFFFFFF	1111-1111 0xxx-xxxx xxxx-xxxx(x7)
+* 0x8000000000000000..0x3FFFFFFFFFFFFFFFFF	1111-1111 10xx-xxxx xxxx-xxxx(x8)
+* ...
+
+
+Normal UVLI and SVLI values will use the 64-bit variety.
+* The 32-bit case is a subset, and will be used for Tags and IDs.
+
 
 SVLI:
 * Folds sign into LSB
@@ -94,6 +107,7 @@ Opcode:
 
 Label:
 * Encoded as a SVLI. Represented as an ID number, where the source and destination will have matching ID numbers.
+
 
 === Expressions ===
 
@@ -451,6 +465,13 @@ Opcodes (Executable Code)
 * 0x53, JMPF ( Bool -- )
 ** LABEL lbl;
 ** Jump to a label if false.
+
+* 0x54, LITTYPESIG ( -- T )
+** STRING sig;
+** Pushes an undefined value of a given type.
+* 0x55, VA_START ( Arg List -- )
+* 0x56, VA_END ( List -- )
+* 0x57, VA_ARG ( Type List -- Val )
 
 
 * 0x60, ADD

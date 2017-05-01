@@ -173,11 +173,51 @@ void BGBCC_CCXL_CompileJmpTrue(BGBCC_TransState *ctx, ccxl_label lbl)
 	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 }
 
+void BGBCC_CCXL_ConvImm(BGBCC_TransState *ctx,
+	ccxl_type dty, ccxl_type sty, ccxl_register sreg, ccxl_register *rdreg)
+{
+	double f;
+	s64 li;
+	int i;
+
+	if(BGBCC_CCXL_TypeSmallIntP(ctx, dty))
+	{
+		i=BGBCC_CCXL_GetRegImmIntValue(ctx, sreg);
+		BGBCC_CCXL_GetRegForIntValue(ctx, rdreg, i);
+		return;
+	}
+
+	if(BGBCC_CCXL_TypeSmallLongP(ctx, dty))
+	{
+		li=BGBCC_CCXL_GetRegImmLongValue(ctx, sreg);
+		BGBCC_CCXL_GetRegForLongValue(ctx, rdreg, li);
+		return;
+	}
+
+	if(BGBCC_CCXL_TypeFloatP(ctx, dty))
+	{
+		f=BGBCC_CCXL_GetRegImmFloatValue(ctx, sreg);
+		BGBCC_CCXL_GetRegForFloatValue(ctx, rdreg, f);
+		return;
+	}
+
+	if(BGBCC_CCXL_TypeDoubleP(ctx, dty))
+	{
+		f=BGBCC_CCXL_GetRegImmDoubleValue(ctx, sreg);
+		BGBCC_CCXL_GetRegForDoubleValue(ctx, rdreg, f);
+		return;
+	}
+
+	*rdreg=sreg;
+}
+
 void BGBCC_CCXL_CompileJmpCond(BGBCC_TransState *ctx,
 	char *op, ccxl_label lbl)
 {
 	ccxl_register rega, regb;
-	ccxl_type ty;
+	ccxl_register rega2, regb2;
+	ccxl_type sty, tty, dty;
+//	ccxl_type ty;
 	int opr;
 
 	if(!op)return;
@@ -196,11 +236,42 @@ void BGBCC_CCXL_CompileJmpCond(BGBCC_TransState *ctx,
 
 	BGBCC_CCXL_PopRegister(ctx, &regb);
 	BGBCC_CCXL_PopRegister(ctx, &rega);
-	ty=BGBCC_CCXL_GetRegType(ctx, rega);
-	BGBCC_CCXL_EmitJumpRegCmp(ctx, ty, opr, rega, regb, lbl);
+
+	sty=BGBCC_CCXL_GetRegType(ctx, rega);
+	tty=BGBCC_CCXL_GetRegType(ctx, regb);
+	BGBCC_CCXL_GetTypeCompareBinaryDest(ctx, opr, sty, tty, &dty);
+
+	if(	!BGBCC_CCXL_TypeEqualP(ctx, dty, sty) ||
+		!BGBCC_CCXL_TypeEqualP(ctx, dty, tty))
+	{
+		if(BGBCC_CCXL_IsRegImmP(ctx, regb) &&
+			BGBCC_CCXL_TypeDoubleP(ctx, dty))
+		{
+			dty=sty;
+			BGBCC_CCXL_ConvImm(ctx, dty, tty, regb, &regb);
+		}
+	}
+
+	if(BGBCC_CCXL_TypeEqualP(ctx, dty, sty) &&
+		BGBCC_CCXL_TypeEqualP(ctx, dty, tty))
+	{
+//		ty=BGBCC_CCXL_GetRegType(ctx, rega);
+		BGBCC_CCXL_EmitJumpRegCmp(ctx, dty, opr, rega, regb, lbl);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, rega);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, regb);
+		BGBCC_CCXL_EmitMarkEndTrace(ctx);
+		return;
+	}
+
+	BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &rega2);
+	BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &regb2);
+	BGBCC_CCXL_EmitConv(ctx, dty, sty, rega2, rega);
+	BGBCC_CCXL_EmitConv(ctx, dty, tty, regb2, regb);
 	BGBCC_CCXL_RegisterCheckRelease(ctx, rega);
 	BGBCC_CCXL_RegisterCheckRelease(ctx, regb);
-	BGBCC_CCXL_EmitMarkEndTrace(ctx);
+	BGBCC_CCXL_EmitJumpRegCmp(ctx, dty, opr, rega2, regb2, lbl);
+	BGBCC_CCXL_RegisterCheckRelease(ctx, rega2);
+	BGBCC_CCXL_RegisterCheckRelease(ctx, regb2);
 }
 
 void BGBCC_CCXL_CompileJCO(BGBCC_TransState *ctx, char *op,

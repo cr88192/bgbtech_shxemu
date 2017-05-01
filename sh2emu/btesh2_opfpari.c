@@ -38,6 +38,7 @@ void BTSH_Op_FADD_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FADD_FRR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FADD_FRR;
 	}
 }
@@ -78,6 +79,7 @@ void BTSH_Op_FCMPEQ_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FCMPEQ_FRR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FCMPEQ_FRR;
 	}
 }
@@ -117,6 +119,7 @@ void BTSH_Op_FCMPGT_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FCMPGT_FRR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FCMPGT_FRR;
 	}
 }
@@ -152,6 +155,7 @@ void BTSH_Op_FDIV_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FDIV_FRR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FDIV_FRR;
 	}
 }
@@ -218,6 +222,7 @@ void BTSH_Op_FMOV_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		}
 
 		BTSH_Op_FMOV_FRR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FMOV_FRR;
 	}
 }
@@ -253,6 +258,7 @@ void BTSH_Op_FMUL_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FMUL_FRR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FMUL_FRR;
 	}
 }
@@ -292,6 +298,7 @@ void BTSH_Op_FSQRT_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FSQRT_FR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGRN;
 		op->Run=BTSH_Op_FSQRT_FR;
 	}
 }
@@ -339,6 +346,7 @@ void BTSH_Op_FLOAT_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FLOAT_FR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGRN;
 		op->Run=BTSH_Op_FLOAT_FR;
 	}
 }
@@ -376,6 +384,7 @@ void BTSH_Op_FTRC_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FTRC_FR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGRM;
 		op->Run=BTSH_Op_FTRC_FR;
 	}
 }
@@ -411,6 +420,7 @@ void BTSH_Op_FSUB_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	}else
 	{
 		BTSH_Op_FSUB_FRR(cpu, op);
+		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FSUB_FRR;
 	}
 }
@@ -453,10 +463,11 @@ void BTSH_Op_FMOV_RegLd(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	{
 		cpu->fregs[op->rn^0]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]+0);
 		cpu->fregs[op->rn^1]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]+4);
-//		op->fmid=BTESH2_FMID_DREGREG;
+		op->fmid=BTESH2_FMID_DREGREG;
 	}else
 	{
 		cpu->fregs[op->rn]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]);
+		op->fmid=BTESH2_FMID_FREGREG;
 	}
 }
 
@@ -467,10 +478,11 @@ void BTSH_Op_FMOV_RegSt(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	{
 		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+0, cpu->fregs[op->rm^0]);
 		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+4, cpu->fregs[op->rm^1]);
-//		op->fmid=BTESH2_FMID_DREGREG;
+		op->fmid=BTESH2_FMID_DREGREG;
 	}else
 	{
 		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn], cpu->fregs[op->rm]);
+		op->fmid=BTESH2_FMID_FREGREG;
 	}
 }
 

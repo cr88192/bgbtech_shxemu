@@ -452,31 +452,31 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 			break;
 
 		case BTESH2_FMID_REGLDDISP:
-			printf("@(%s+%d), %s",
+			printf("@(%s, %d), %s",
 				btesh2_print_NameForRegID(op->rm), op->imm,
 				btesh2_print_NameForRegID(op->rn));
 			break;
 		case BTESH2_FMID_REGSTDISP:
-			printf("%s, @(%s+%d)",
+			printf("%s, @(%s, %d)",
 				btesh2_print_NameForRegID(op->rm),
 				btesh2_print_NameForRegID(op->rn), op->imm);
 			break;
 
 		case BTESH2_FMID_REGSTR0N:
-			printf("%s, @(%s+%s)",
+			printf("%s, @(%s, %s)",
 				btesh2_print_NameForRegID(op->rm),
 				btesh2_print_NameForRegID(op->ro),
 				btesh2_print_NameForRegID(op->rn));
 			break;
 		case BTESH2_FMID_REGLDR0M:
-			printf("@(%s+%s), %s",
+			printf("@(%s, %s), %s",
 				btesh2_print_NameForRegID(op->ro),
 				btesh2_print_NameForRegID(op->rm),
 				btesh2_print_NameForRegID(op->rn));
 			break;
 
 		case BTESH2_FMID_IMMSTRMN:
-			printf("#%d, @(%s+%s)",
+			printf("#%d, @(%s, %s)",
 				op->imm,
 				btesh2_print_NameForRegID(op->rm),
 				btesh2_print_NameForRegID(op->rn));
@@ -507,13 +507,13 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 			break;
 
 		case BTESH2_FMID_IMMSTRN:
-			printf("#%d(->%s), @%s",
+			printf("#%d (=> %s), @%s",
 				op->imm,
 				btesh2_print_NameForRegID(op->rm),
 				btesh2_print_NameForRegID(op->rn));
 			break;
 		case BTESH2_FMID_IMMDECSTRN:
-			printf("#%d(->%s), @-%s",
+			printf("#%d (=> %s), @-%s",
 				op->imm,
 				btesh2_print_NameForRegID(op->rm),
 				btesh2_print_NameForRegID(op->rn));
@@ -791,6 +791,7 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 
 int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 {
+	u64 d0, d1, d2, d3;
 	BTESH2_DumpTraces(cpu);
 	BTESH2_StatTraces(cpu);
 
@@ -819,6 +820,40 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 			cpu->fregs[ 8], cpu->fregs[ 9], cpu->fregs[10], cpu->fregs[11]);
 		printf("FR12 =%08X | FR13=%08X | FR14 =%08X | FR15 =%08X\n",
 			cpu->fregs[12], cpu->fregs[13], cpu->fregs[14], cpu->fregs[15]);
+
+		printf("\n");
+		printf("FR0 =% e |FR1 =% e |FR2 =% e |FR3 =% e\n",
+			((float *)cpu->fregs)[ 0], ((float *)cpu->fregs)[ 1],
+			((float *)cpu->fregs)[ 2], ((float *)cpu->fregs)[ 3]);
+		printf("FR4 =% e |FR5 =% e |FR6 =% e |FR7 =% e\n",
+			((float *)cpu->fregs)[ 4], ((float *)cpu->fregs)[ 5],
+			((float *)cpu->fregs)[ 6], ((float *)cpu->fregs)[ 7]);
+		printf("FR8 =% e |FR9 =% e |FR10=% e |FR11=% e\n",
+			((float *)cpu->fregs)[ 8], ((float *)cpu->fregs)[ 9],
+			((float *)cpu->fregs)[10], ((float *)cpu->fregs)[11]);
+		printf("FR12=% e |FR13=% e |FR14=% e |FR15=% e\n",
+			((float *)cpu->fregs)[12], ((float *)cpu->fregs)[13],
+			((float *)cpu->fregs)[14], ((float *)cpu->fregs)[15]);
+
+#if 1
+		printf("\n");
+		d0=(((u64)cpu->fregs[ 0])<<32)|(cpu->fregs[ 1]);
+		d1=(((u64)cpu->fregs[ 2])<<32)|(cpu->fregs[ 3]);
+		d2=(((u64)cpu->fregs[ 4])<<32)|(cpu->fregs[ 5]);
+		d3=(((u64)cpu->fregs[ 8])<<32)|(cpu->fregs[ 7]);
+		printf("DR0 =% e |DR1 =% e |DR2 =% e |DR3 =% e\n",
+			*(double *)(&d0), *(double *)(&d1),
+			*(double *)(&d2), *(double *)(&d3));
+		d0=(((u64)cpu->fregs[ 8])<<32)|(cpu->fregs[ 9]);
+		d1=(((u64)cpu->fregs[10])<<32)|(cpu->fregs[11]);
+		d2=(((u64)cpu->fregs[12])<<32)|(cpu->fregs[13]);
+		d3=(((u64)cpu->fregs[14])<<32)|(cpu->fregs[15]);
+		printf("DR4 =% e |DR5 =% e |DR6 =% e |DR7 =% e\n",
+			*(double *)(&d0), *(double *)(&d1),
+			*(double *)(&d2), *(double *)(&d3));
+
+		printf("\n");
+#endif
 	}
 
 	printf("SR   =%08X | GBR =%08X | VBR  =%08X | fla  =%08X\n",

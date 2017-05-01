@@ -821,6 +821,17 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 		tty=BGBCC_CCXL_GetRegType(ctx, treg);
 		BGBCC_CCXL_GetTypeBinaryDest(ctx, opr, sty, tty, &dty);
 
+		if(	!BGBCC_CCXL_TypeEqualP(ctx, dty, sty) ||
+			!BGBCC_CCXL_TypeEqualP(ctx, dty, tty))
+		{
+			if(BGBCC_CCXL_IsRegImmP(ctx, treg) &&
+				BGBCC_CCXL_TypeDoubleP(ctx, dty))
+			{
+				dty=sty;
+				BGBCC_CCXL_ConvImm(ctx, dty, tty, treg, &treg);
+			}
+		}
+
 		if(BGBCC_CCXL_TypeArrayOrPointerP(ctx, sty) &&
 			BGBCC_CCXL_TypeArrayOrPointerP(ctx, tty) &&
 			(opr==CCXL_BINOP_SUB))

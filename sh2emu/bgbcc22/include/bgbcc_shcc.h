@@ -77,6 +77,14 @@
 #define BGBCC_SH_REG_LR5		0x55
 #define BGBCC_SH_REG_LR6		0x56
 #define BGBCC_SH_REG_LR7		0x57
+#define BGBCC_SH_REG_LR8		0x58
+#define BGBCC_SH_REG_LR9		0x59
+#define BGBCC_SH_REG_LR10		0x5A
+#define BGBCC_SH_REG_LR11		0x5B
+#define BGBCC_SH_REG_LR12		0x5C
+#define BGBCC_SH_REG_LR13		0x5D
+#define BGBCC_SH_REG_LR14		0x5E
+#define BGBCC_SH_REG_LR15		0x5F		//Invalid
 
 #define BGBCC_SH_REG_RTMASK		0xF0
 #define BGBCC_SH_REG_RTMASK3	0xF8
@@ -378,6 +386,11 @@ byte fregalc_utcnt[4];	//current use count (0=unused)
 byte fregalc_save;		//register has been saved and may hold a value
 byte fregalc_live;		//register is currently holding a value
 byte fregalc_dirty;
+
+u16 sreg_live;			//scratch registers live (per 3AC operation)
+u16 sreg_held;			//scratch registers live-held (multiple ops)
+u16 sfreg_live;			//scratch registers live (per 3AC operation)
+u16 sfreg_held;			//scratch registers live-held (multiple ops)
 
 int frm_size;			//allocated size of frame
 int frm_offs_lcl;		//frame offset of local vars

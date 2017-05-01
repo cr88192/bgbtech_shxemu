@@ -36,7 +36,9 @@ SRCS=\
 	shcc/shx_cgif.c \
 	shcc/shx_conv.c \
 	shcc/shx_emit.c \
+	shcc/shx_fpreg.c \
 	shcc/shx_ldix.c \
+	shcc/shx_lpreg.c \
 	shcc/shx_register.c \
 	shcc/shx_struct.c \
 
