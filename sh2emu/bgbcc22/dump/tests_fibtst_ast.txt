@@ -215,9 +215,9 @@
         </args>
       </proto>
     </vars>
-    <defun name="main" tokens=178 fn="tests/fibtst.c" ln=104>
+    <defun name="main" tokens=182 fn="tests/fibtst.c" ln=104>
       <body>
-        <begin tokens=178>
+        <begin tokens=182>
           <vars fn="tests/fibtst.c" ln=104>
             <var name="i">
               <type flags=0 ind=0 name="int"/>
@@ -430,12 +430,17 @@
               <string value="main: D&#10;"/>
             </args>
           </funcall>
-          <funcall name="print_float_ss" fn="tests/fibtst.c" ln=158>
+          <funcall name="print_float" fn="tests/fibtst.c" ln=157>
             <args>
-              <real value=3.141590 tysuf="F"/>
+              <real value=3.141590/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=158>
+          <funcall name="puts" fn="tests/fibtst.c" ln=159>
+            <args>
+              <string value="&#10;"/>
+            </args>
+          </funcall>
+          <funcall name="puts" fn="tests/fibtst.c" ln=161>
             <args>
               <string value="main: E&#10;"/>
             </args>

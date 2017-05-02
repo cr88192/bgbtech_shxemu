@@ -305,7 +305,7 @@ void print_float(double val)
 	ip=(int)val;
 	fp=(int)((val-ip)*1000000);
 
-	*(int *)-1=-1;
+//	*(int *)-1=-1;
 
 	if(sg)putc('-');
 	print_decimal(ip);
@@ -322,9 +322,9 @@ void print_float_ss(float val)
 		{ val=-val; sg=1; }
 	
 	ip=(int)val;
-	fp=(int)((val-ip)*1000000.0f);
+	fp=(int)((val-ip)*1000000);
 
-	*(int *)-1=-1;
+//	*(int *)-1=-1;
 
 	if(sg)putc('-');
 	print_decimal(ip);

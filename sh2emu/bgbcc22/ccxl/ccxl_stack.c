@@ -827,7 +827,7 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 			if(BGBCC_CCXL_IsRegImmP(ctx, treg) &&
 				BGBCC_CCXL_TypeDoubleP(ctx, dty))
 			{
-				dty=sty;
+				dty=sty; tty=sty;
 				BGBCC_CCXL_ConvImm(ctx, dty, tty, treg, &treg);
 			}
 		}

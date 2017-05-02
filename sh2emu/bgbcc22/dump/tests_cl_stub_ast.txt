@@ -1563,9 +1563,9 @@
         </var>
       </args>
     </defun>
-    <defun name="print_float" tokens=91 fn="tests/cl_stub.c" ln=297>
+    <defun name="print_float" tokens=80 fn="tests/cl_stub.c" ln=297>
       <body>
-        <begin tokens=91>
+        <begin tokens=80>
           <vars fn="tests/cl_stub.c" ln=297>
             <var name="ip">
               <type flags=0 ind=0 name="int"/>
@@ -1661,31 +1661,6 @@
               </cast>
             </right>
           </assign>
-          <assign fn="tests/cl_stub.c" ln=308>
-            <left>
-              <unary op="*">
-                <value>
-                  <cast>
-                    <value>
-                      <unary op="-">
-                        <value>
-                          <int value=1/>
-                        </value>
-                      </unary>
-                    </value>
-                    <type flags=0 ind=1 name="int"/>
-                  </cast>
-                </value>
-              </unary>
-            </left>
-            <right>
-              <unary op="-">
-                <value>
-                  <int value=1/>
-                </value>
-              </unary>
-            </right>
-          </assign>
           <if fn="tests/cl_stub.c" ln=310>
             <cond>
               <ref name="sg"/>
@@ -1722,9 +1697,9 @@
         </var>
       </args>
     </defun>
-    <defun name="print_float_ss" tokens=93 fn="tests/cl_stub.c" ln=316>
+    <defun name="print_float_ss" tokens=81 fn="tests/cl_stub.c" ln=316>
       <body>
-        <begin tokens=93>
+        <begin tokens=81>
           <vars fn="tests/cl_stub.c" ln=316>
             <var name="ip">
               <type flags=0 ind=0 name="int"/>
@@ -1812,37 +1787,12 @@
                       </binary>
                     </left>
                     <right>
-                      <real value=1000000.000000 tysuf="F"/>
+                      <int value=1000000/>
                     </right>
                   </binary>
                 </value>
                 <type flags=0 ind=0 name="int"/>
               </cast>
-            </right>
-          </assign>
-          <assign fn="tests/cl_stub.c" ln=327>
-            <left>
-              <unary op="*">
-                <value>
-                  <cast>
-                    <value>
-                      <unary op="-">
-                        <value>
-                          <int value=1/>
-                        </value>
-                      </unary>
-                    </value>
-                    <type flags=0 ind=1 name="int"/>
-                  </cast>
-                </value>
-              </unary>
-            </left>
-            <right>
-              <unary op="-">
-                <value>
-                  <int value=1/>
-                </value>
-              </unary>
             </right>
           </assign>
           <if fn="tests/cl_stub.c" ln=329>

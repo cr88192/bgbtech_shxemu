@@ -46,6 +46,7 @@ puts("\n");
 /*152*/ puts("main: C\n");
 /*154*/ printf("hashtst %d\n",hash_str("foobarbaz"));
 puts("main: D\n");
-/*158*/ print_float_ss(3.14159 f);
-puts("main: E\n");
+/*157*/ print_float(3.14159);
+/*159*/ puts("\n");
+/*161*/ puts("main: E\n");
 }

@@ -121,6 +121,48 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 	k-=2*4;		//saved PR, R14
 	k-=6*4;		//saved R8/9/10/11/13, R2
 
+	for(i=0; i<obj->n_locals; i++)
+	{
+		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->locals[i]->type);
+		switch(j)
+		{
+		case BGBCC_SH_REGCLS_FR:	case BGBCC_SH_REGCLS_FR2:
+			sctx->use_fpr=1;	break;
+		default:		break;
+		}
+
+		if(BGBCC_CCXL_TypeArrayP(ctx, obj->locals[i]->type) ||
+			BGBCC_CCXL_TypeValueObjectP(ctx, obj->locals[i]->type))
+		{
+//			k-=4; obj->locals[i]->fxoffs=k;
+			obj->locals[i]->fxmoffs=kf;
+			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->locals[i]->type);
+			j=(j+3)&(~3);
+			kf+=j;
+		}
+	}
+
+	for(i=0; i<obj->n_regs; i++)
+	{
+		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->regs[i]->type);
+		switch(j)
+		{
+		case BGBCC_SH_REGCLS_FR:	case BGBCC_SH_REGCLS_FR2:
+			sctx->use_fpr=1;	break;
+		default:		break;
+		}
+
+		if(BGBCC_CCXL_TypeArrayP(ctx, obj->regs[i]->type) ||
+			BGBCC_CCXL_TypeValueObjectP(ctx, obj->regs[i]->type))
+		{
+//			k-=4; obj->regs[i]->fxoffs=k;
+			obj->regs[i]->fxmoffs=kf;
+			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->regs[i]->type);
+			j=(j+3)&(~3);
+			kf+=j;
+		}
+	}
+
 	for(i=0; i<obj->n_args; i++)
 	{
 		if(BGBCC_CCXL_TypeVarArgsP(ctx, obj->args[i]->type))
@@ -134,32 +176,22 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			sctx->use_fpr=1;	break;
 		default:		break;
 		}
-	}
 
-	for(i=0; i<obj->n_locals; i++)
-	{
-		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->locals[i]->type);
-		switch(j)
+		if(BGBCC_CCXL_TypeValueObjectP(ctx, obj->args[i]->type))
 		{
-		case BGBCC_SH_REGCLS_FR:	case BGBCC_SH_REGCLS_FR2:
-			sctx->use_fpr=1;	break;
-		default:		break;
-		}
-	}
-
-	for(i=0; i<obj->n_regs; i++)
-	{
-		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->regs[i]->type);
-		switch(j)
-		{
-		case BGBCC_SH_REGCLS_FR:	case BGBCC_SH_REGCLS_FR2:
-			sctx->use_fpr=1;	break;
-		default:		break;
+//			k-=4; obj->args[i]->fxoffs=k;
+			obj->args[i]->fxmoffs=kf;
+			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->args[i]->type);
+			j=(j+3)&(~3);
+			kf+=j;
 		}
 	}
 
 	if(sctx->use_fpr)
 		{ k-=4*4; }		//saved FR12/13/14/15
+
+	k-=kf;
+	sctx->frm_offs_fix=k;
 
 	for(i=0; i<obj->n_args; i++)
 	{
@@ -193,10 +225,10 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 		if(BGBCC_CCXL_TypeValueObjectP(ctx, obj->args[i]->type))
 		{
 			k-=4; obj->args[i]->fxoffs=k;
-			obj->args[i]->fxmoffs=kf;
-			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->args[i]->type);
-			j=(j+3)&(~3);
-			kf+=j;
+//			obj->args[i]->fxmoffs=kf;
+//			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->args[i]->type);
+//			j=(j+3)&(~3);
+//			kf+=j;
 		}
 	}
 
@@ -225,10 +257,10 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			BGBCC_CCXL_TypeValueObjectP(ctx, obj->locals[i]->type))
 		{
 			k-=4; obj->locals[i]->fxoffs=k;
-			obj->locals[i]->fxmoffs=kf;
-			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->locals[i]->type);
-			j=(j+3)&(~3);
-			kf+=j;
+//			obj->locals[i]->fxmoffs=kf;
+//			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->locals[i]->type);
+//			j=(j+3)&(~3);
+//			kf+=j;
 		}
 	}
 	sctx->frm_offs_lcl=k;
@@ -257,19 +289,23 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			BGBCC_CCXL_TypeValueObjectP(ctx, obj->regs[i]->type))
 		{
 			k-=4; obj->regs[i]->fxoffs=k;
-			obj->regs[i]->fxmoffs=kf;
-			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->regs[i]->type);
-			j=(j+3)&(~3);
-			kf+=j;
+//			obj->regs[i]->fxmoffs=kf;
+//			j=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->regs[i]->type);
+//			j=(j+3)&(~3);
+//			kf+=j;
 		}
 	}
 	sctx->frm_offs_tmp=k;
 	
-	k-=kf;
-	sctx->frm_offs_fix=k;
-	
-	k-=obj->n_cargs*8;
-	k&=~15;
+	k-=obj->n_cargs*4;
+//	k-=obj->n_cargs*8;
+//	k&=~15;
+//	k&=~3;
+
+	if((-k)>=60)
+	{
+		j=-1;
+	}
 	
 //	if((-k)>=960)
 	if((-k)>=1012)

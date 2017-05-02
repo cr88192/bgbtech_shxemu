@@ -188,6 +188,11 @@ ccxl_status BGBCC_CCXL_EmitConv(BGBCC_TransState *ctx,
 	ccxl_register dst, ccxl_register src)
 {
 	BGBCC_CCXL_VirtOp *op;
+	
+	if(BGBCC_CCXL_TypeSmallIntP(ctx, stype) &&
+		BGBCC_CCXL_IsRegDoubleP(ctx, src))
+			{ BGBCC_DBGBREAK }
+	
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_CONV;
 	op->type=dtype;

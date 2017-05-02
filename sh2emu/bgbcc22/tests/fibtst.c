@@ -154,8 +154,10 @@ int main()
 	printf("hashtst %d\n", hash_str("foobarbaz"));
 	puts("main: D\n");
 	
-//	print_float(3.14159);
-	print_float_ss(3.14159f);
+	print_float(3.14159);
+//	print_float_ss(3.14159f);
+	puts("\n");
+
 	puts("main: E\n");
 }
 #endif

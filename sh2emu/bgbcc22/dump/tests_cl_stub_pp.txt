@@ -142,7 +142,6 @@ if(val<0)
 {val= -val;sg=1;}
 /*305*/ ip=(int)val;
 fp=(int)((val-ip)*1000000);
-/*308*/ *(int*)-1= -1;
 /*310*/ if(sg)putc('-');
 print_decimal(ip);
 putc('.');
@@ -155,8 +154,7 @@ int ip,fp,sg;
 if(val<0.0 f)
 {val= -val;sg=1;}
 /*324*/ ip=(int)val;
-fp=(int)((val-ip)*1000000.0 f);
-/*327*/ *(int*)-1= -1;
+fp=(int)((val-ip)*1000000);
 /*329*/ if(sg)putc('-');
 print_decimal(ip);
 putc('.');

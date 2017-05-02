@@ -969,6 +969,8 @@ int BGBCC_SHXC_EmitTryGetFpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sc
 int BGBCC_SHXC_EmitGetDpRegisterI(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
 int BGBCC_SHXC_EmitGetFpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
 int BGBCC_SHXC_EmitReleaseFpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
+int BGBCC_SHXC_EmitSyncFpRegisters(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx);
+int BGBCC_SHXC_EmitLabelFlushFpRegisters(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx);
 int BGBCC_SHXC_EmitBinaryVRegVRegFloat(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register treg);
 int BGBCC_SHXC_EmitBinaryVRegVRegVRegFloat(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register sreg, ccxl_register treg);
 int BGBCC_SHXC_EmitUnaryVRegVRegFloat(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register sreg);

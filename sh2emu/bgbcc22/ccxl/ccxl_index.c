@@ -247,7 +247,7 @@ void BGBCC_CCXL_CompileJmpCond(BGBCC_TransState *ctx,
 		if(BGBCC_CCXL_IsRegImmP(ctx, regb) &&
 			BGBCC_CCXL_TypeDoubleP(ctx, dty))
 		{
-			dty=sty;
+			dty=sty; tty=sty;
 			BGBCC_CCXL_ConvImm(ctx, dty, tty, regb, &regb);
 		}
 	}

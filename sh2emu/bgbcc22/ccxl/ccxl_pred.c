@@ -1272,7 +1272,8 @@ int BGBCC_CCXL_GetTypeOperationBaseZ(
 	case CCXL_TY_P:		case CCXL_TY_S:
 		z1=CCXL_TY_P; break;
 	default:
-		z1=z; break;
+		z1=CCXL_TY_P; break;
+//		z1=z; break;
 	}
 	return(z1);
 }

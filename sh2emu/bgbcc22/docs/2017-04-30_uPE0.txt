@@ -67,8 +67,8 @@ struct uPeMainHeader
 	WORD  mDllCharacteristics;			//009E: (Ignore?)
 	DWORD mSizeOfStackReserve;			//00A0:
 	DWORD mSizeOfStackCommit;			//00A4:
-	DWORD mSizeOfHeapReserve;			//00A8: (Ignore?)
-	DWORD mSizeOfHeapCommit;			//00AC: (Ignore?)
+	DWORD mSizeOfHeapReserve;			//00A8: (NOMMU?)
+	DWORD mSizeOfHeapCommit;			//00AC: (NOMMU?)
 	DWORD mLoaderFlags;					//00B0: (Reserved, 0)
 	DWORD mNumberOfRvaAndSizes;			//00B4:
 //00B8: Data Directories
@@ -156,5 +156,5 @@ The relocations are given as 16 bit numbers:
 ** 7: Reserved
 ** 8: Reserved
 ** 9: MIPS-specific fixup.
-*** uPE: Fixup PBO Index Offset (16-bit)
+*** uPE(SH): Fixup PBO Index Offset (16-bit Op)
 ** 10: Fixup a 64-bit address.
