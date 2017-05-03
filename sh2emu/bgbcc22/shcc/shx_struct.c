@@ -9,7 +9,8 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	int nm1, nm2, ty, sz;
 	int i, j, k;
 
-	obj=ctx->reg_globals[gblid];
+//	obj=ctx->reg_globals[gblid];
+	obj=ctx->literals[gblid]->decl;
 	fi=obj->fields[fid];
 
 	ty=type.val;
@@ -69,7 +70,8 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 	int nm1, nm2, ty, sz;
 	int i, j, k;
 
-	obj=ctx->reg_globals[gblid];
+//	obj=ctx->reg_globals[gblid];
+	obj=ctx->literals[gblid]->decl;
 	fi=obj->fields[fid];
 
 	ty=type.val;
@@ -127,7 +129,8 @@ int BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(
 	int nm1, nm2, ty, sz;
 	int i, j, k;
 
-	obj=ctx->reg_globals[gblid];
+//	obj=ctx->reg_globals[gblid];
+	obj=ctx->literals[gblid]->decl;
 	fi=obj->fields[fid];
 
 	ty=type.val;
@@ -189,8 +192,8 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 
 	nm1=BGBCC_SH_NMID_MOVL;
 	nm2=BGBCC_SH_NMID_MOVL;
-	if((sz&3)==1)nm2=BGBCC_SH_NMID_MOVB;
-	if((sz&3)==2)nm2=BGBCC_SH_NMID_MOVW;
+	if(((sz&3)==1) && (al<=1))nm2=BGBCC_SH_NMID_MOVB;
+	if(((sz&3)==2) && (al<=2))nm2=BGBCC_SH_NMID_MOVW;
 
 	if(sz<=4)
 	{

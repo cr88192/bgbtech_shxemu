@@ -68,6 +68,42 @@ int hash_str(char *s)
 	return(i&0xFFF);
 }
 
+#if 1
+
+typedef struct test0_s test0_t;
+
+struct test0_s {
+int xi;
+int yi;
+// double xd;
+// double yd;
+};
+
+int test_struct0()
+{
+	test0_t t0, t1;
+	test0_t *pt0, *pt1;
+	int z;
+	
+	pt0=&t0;
+	pt0->xi=3;
+	pt0->yi=4;
+	z=pt0->xi+pt0->yi;
+	printf("test_struct0: A %d\n", z);
+
+	t1=t0;
+	pt1=&t1;
+//	z=t1.xi+t1.yi;
+	z=pt1->xi+pt1->yi;
+	
+	*(int *)-1=-1;
+	printf("test_struct0: B %d\n", z);
+
+	return(0);
+}
+
+#endif
+
 #if 0
 int bscc_main()
 {
@@ -159,5 +195,7 @@ int main()
 	puts("\n");
 
 	puts("main: E\n");
+	
+	test_struct0();
 }
 #endif

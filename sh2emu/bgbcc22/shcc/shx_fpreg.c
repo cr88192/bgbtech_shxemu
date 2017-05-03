@@ -301,15 +301,20 @@ int BGBCC_SHXC_EmitStoreStackOfsFpReg(
 		}
 
 #if 1
-		if((ofs1+8)<128)
+//		if((ofs1+8)<128)
+		if((ofs1+4)<128)
 		{
 			BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV,
 				BGBCC_SH_REG_SP, BGBCC_SH_REG_R0);
+//			BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
+//				BGBCC_SH_REG_R0, ofs1+8);
 			BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
-				BGBCC_SH_REG_R0, ofs1+8);
+				BGBCC_SH_REG_R0, ofs1+4);
 
-			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_FMOVS,
+//			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_FMOVS,
+//				dreg2+0, BGBCC_SH_REG_R0);
+			BGBCC_SHX_EmitOpRegStReg(sctx, BGBCC_SH_NMID_FMOVS,
 				dreg2+0, BGBCC_SH_REG_R0);
 			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_FMOVS,
 				dreg2+1, BGBCC_SH_REG_R0);
@@ -477,16 +482,22 @@ int BGBCC_SHXC_EmitStoreBRegOfsFpReg(
 		dreg2=BGBCC_SH_REG_FR0+((dreg&7)*2);
 
 #if 1
-		if((ofs+8)<128)
+//		if((ofs+8)<128)
+		if((ofs+4)<128)
 		{
 			BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV,
 				breg, BGBCC_SH_REG_R0);
+//			BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
+//				BGBCC_SH_REG_R0, ofs+8);
 			BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
 				BGBCC_SH_REG_R0, ofs+8);
 
-			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_FMOVS,
+//			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_FMOVS,
+//				dreg2+0, BGBCC_SH_REG_R0);
+			BGBCC_SHX_EmitOpRegStReg(sctx, BGBCC_SH_NMID_FMOVS,
 				dreg2+0, BGBCC_SH_REG_R0);
+
 			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_FMOVS,
 				dreg2+1, BGBCC_SH_REG_R0);
 			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R0);
@@ -873,6 +884,8 @@ int BGBCC_SHXC_EmitLabelFlushFpRegisters(
 		sctx->fregalc_dirty&=~(1<<i);
 		sctx->fregalc_live&=~(1<<i);
 	}
+
+	return(0);
 }
 
 

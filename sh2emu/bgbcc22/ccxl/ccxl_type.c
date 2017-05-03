@@ -704,7 +704,11 @@ int BGBCC_CCXL_TypeGetLogicalBaseSize(
 	case CCXL_TY_VARIANT:
 		sz=8; break;
 	case CCXL_TY_VALIST:
-		sz=64; break;
+//		sz=64; break;
+		sz=ctx->arch_sizeof_valist;
+		if(!sz)
+			{ sz=-1; }
+		break;
 
 	default:
 		sz=-1; break;

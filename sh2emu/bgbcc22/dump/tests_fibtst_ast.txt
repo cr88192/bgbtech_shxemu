@@ -1,6 +1,20 @@
 <module lang="C" arch="SH">
-  <types/>
-  <structs/>
+  <types>
+    <var name="test0_t">
+      <type flags=0 ind=0 name="test0_s"/>
+    </var>
+  </types>
+  <structs>
+    <struct name="test0_s" flags=0>
+      <body>
+        <vars fn="tests/fibtst.c" ln=75>
+          <var name="xi">
+            <type flags=0 ind=0 name="int"/>
+          </var>
+        </vars>
+      </body>
+    </struct>
+  </structs>
   <body>
     <vars fn="tests/fibtst.c" ln=14>
       <proto name="printf">
@@ -172,7 +186,179 @@
         </var>
       </args>
     </defun>
-    <vars fn="tests/fibtst.c" ln=97>
+    <vars fn="tests/fibtst.c" ln=75/>
+    <defun name="test_struct0" tokens=93 fn="tests/fibtst.c" ln=82>
+      <body>
+        <begin tokens=93>
+          <vars fn="tests/fibtst.c" ln=82>
+            <var name="t0">
+              <type flags=0 ind=0 name="test0_s"/>
+            </var>
+            <var name="t1">
+              <type flags=0 ind=0 name="test0_s"/>
+            </var>
+          </vars>
+          <vars fn="tests/fibtst.c" ln=82>
+            <var name="pt0">
+              <type flags=0 ind=1 name="test0_s"/>
+            </var>
+            <var name="pt1">
+              <type flags=0 ind=1 name="test0_s"/>
+            </var>
+          </vars>
+          <vars fn="tests/fibtst.c" ln=82>
+            <var name="z">
+              <type flags=0 ind=0 name="int"/>
+            </var>
+          </vars>
+          <assign fn="tests/fibtst.c" ln=88>
+            <left>
+              <ref name="pt0"/>
+            </left>
+            <right>
+              <unary op="&amp;">
+                <value>
+                  <ref name="t0"/>
+                </value>
+              </unary>
+            </right>
+          </assign>
+          <assign fn="tests/fibtst.c" ln=88>
+            <left>
+              <objref name="xi">
+                <value>
+                  <ref name="pt0"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <int value=3/>
+            </right>
+          </assign>
+          <assign fn="tests/fibtst.c" ln=88>
+            <left>
+              <objref name="yi">
+                <value>
+                  <ref name="pt0"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <int value=4/>
+            </right>
+          </assign>
+          <assign fn="tests/fibtst.c" ln=88>
+            <left>
+              <ref name="z"/>
+            </left>
+            <right>
+              <binary op="+">
+                <left>
+                  <objref name="xi">
+                    <value>
+                      <ref name="pt0"/>
+                    </value>
+                  </objref>
+                </left>
+                <right>
+                  <objref name="yi">
+                    <value>
+                      <ref name="pt0"/>
+                    </value>
+                  </objref>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <funcall name="printf" fn="tests/fibtst.c" ln=88>
+            <args>
+              <string value="test_struct0: A %d&#10;"/>
+            </args>
+          </funcall>
+          <assign fn="tests/fibtst.c" ln=94>
+            <left>
+              <ref name="t1"/>
+            </left>
+            <right>
+              <ref name="t0"/>
+            </right>
+          </assign>
+          <assign fn="tests/fibtst.c" ln=94>
+            <left>
+              <ref name="pt1"/>
+            </left>
+            <right>
+              <unary op="&amp;">
+                <value>
+                  <ref name="t1"/>
+                </value>
+              </unary>
+            </right>
+          </assign>
+          <assign fn="tests/fibtst.c" ln=97>
+            <left>
+              <ref name="z"/>
+            </left>
+            <right>
+              <binary op="+">
+                <left>
+                  <objref name="xi">
+                    <value>
+                      <ref name="pt1"/>
+                    </value>
+                  </objref>
+                </left>
+                <right>
+                  <objref name="yi">
+                    <value>
+                      <ref name="pt1"/>
+                    </value>
+                  </objref>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/fibtst.c" ln=99>
+            <left>
+              <unary op="*">
+                <value>
+                  <cast>
+                    <value>
+                      <unary op="-">
+                        <value>
+                          <int value=1/>
+                        </value>
+                      </unary>
+                    </value>
+                    <type flags=0 ind=1 name="int"/>
+                  </cast>
+                </value>
+              </unary>
+            </left>
+            <right>
+              <unary op="-">
+                <value>
+                  <int value=1/>
+                </value>
+              </unary>
+            </right>
+          </assign>
+          <funcall name="printf" fn="tests/fibtst.c" ln=99>
+            <args>
+              <string value="test_struct0: B %d&#10;"/>
+            </args>
+          </funcall>
+          <return fn="tests/fibtst.c" ln=102>
+            <value>
+              <int value=0/>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="int"/>
+      <args/>
+    </defun>
+    <vars fn="tests/fibtst.c" ln=133>
       <proto name="print_hex_n">
         <type flags=0 ind=0 name="void"/>
         <args>
@@ -185,7 +371,7 @@
         </args>
       </proto>
     </vars>
-    <vars fn="tests/fibtst.c" ln=97>
+    <vars fn="tests/fibtst.c" ln=133>
       <proto name="print_decimal">
         <type flags=0 ind=0 name="void"/>
         <args>
@@ -195,7 +381,7 @@
         </args>
       </proto>
     </vars>
-    <vars fn="tests/fibtst.c" ln=100>
+    <vars fn="tests/fibtst.c" ln=136>
       <proto name="print_float">
         <type flags=0 ind=0 name="void"/>
         <args>
@@ -205,7 +391,7 @@
         </args>
       </proto>
     </vars>
-    <vars fn="tests/fibtst.c" ln=100>
+    <vars fn="tests/fibtst.c" ln=136>
       <proto name="print_float_ss">
         <type flags=0 ind=0 name="void"/>
         <args>
@@ -215,10 +401,10 @@
         </args>
       </proto>
     </vars>
-    <defun name="main" tokens=182 fn="tests/fibtst.c" ln=104>
+    <defun name="main" tokens=186 fn="tests/fibtst.c" ln=140>
       <body>
-        <begin tokens=182>
-          <vars fn="tests/fibtst.c" ln=104>
+        <begin tokens=186>
+          <vars fn="tests/fibtst.c" ln=140>
             <var name="i">
               <type flags=0 ind=0 name="int"/>
             </var>
@@ -235,7 +421,7 @@
               <type flags=0 ind=0 name="int"/>
             </var>
           </vars>
-          <assign fn="tests/fibtst.c" ln=108>
+          <assign fn="tests/fibtst.c" ln=144>
             <left>
               <ref name="t"/>
             </left>
@@ -245,22 +431,22 @@
               </funcall>
             </right>
           </assign>
-          <funcall name="puts" fn="tests/fibtst.c" ln=112>
+          <funcall name="puts" fn="tests/fibtst.c" ln=148>
             <args>
               <string value="main: A&#10;"/>
             </args>
           </funcall>
-          <funcall name="print_hex_n" fn="tests/fibtst.c" ln=114>
+          <funcall name="print_hex_n" fn="tests/fibtst.c" ln=150>
             <args>
               <int value=305419896/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=114>
+          <funcall name="puts" fn="tests/fibtst.c" ln=150>
             <args>
               <string value="&#10;"/>
             </args>
           </funcall>
-          <assign fn="tests/fibtst.c" ln=117>
+          <assign fn="tests/fibtst.c" ln=153>
             <left>
               <ref name="k"/>
             </left>
@@ -268,7 +454,7 @@
               <int value=305419896/>
             </right>
           </assign>
-          <for fn="tests/fibtst.c" ln=117>
+          <for fn="tests/fibtst.c" ln=153>
             <init>
               <assign>
                 <left>
@@ -298,7 +484,7 @@
             </step>
             <body>
               <begin tokens=38>
-                <assign fn="tests/fibtst.c" ln=117>
+                <assign fn="tests/fibtst.c" ln=153>
                   <left>
                     <ref name="j"/>
                   </left>
@@ -313,17 +499,17 @@
                     </binary>
                   </right>
                 </assign>
-                <funcall name="print_hex_n" fn="tests/fibtst.c" ln=117>
+                <funcall name="print_hex_n" fn="tests/fibtst.c" ln=153>
                   <args>
                     <ref name="j"/>
                   </args>
                 </funcall>
-                <funcall name="puts" fn="tests/fibtst.c" ln=117>
+                <funcall name="puts" fn="tests/fibtst.c" ln=153>
                   <args>
                     <string value="("/>
                   </args>
                 </funcall>
-                <funcall name="print_hex_n" fn="tests/fibtst.c" ln=117>
+                <funcall name="print_hex_n" fn="tests/fibtst.c" ln=153>
                   <args>
                     <binary op="%">
                       <left>
@@ -335,12 +521,12 @@
                     </binary>
                   </args>
                 </funcall>
-                <funcall name="puts" fn="tests/fibtst.c" ln=117>
+                <funcall name="puts" fn="tests/fibtst.c" ln=153>
                   <args>
                     <string value=") "/>
                   </args>
                 </funcall>
-                <assign fn="tests/fibtst.c" ln=117>
+                <assign fn="tests/fibtst.c" ln=153>
                   <left>
                     <ref name="k"/>
                   </left>
@@ -351,22 +537,22 @@
               </begin>
             </body>
           </for>
-          <funcall name="puts" fn="tests/fibtst.c" ln=117>
+          <funcall name="puts" fn="tests/fibtst.c" ln=153>
             <args>
               <string value="&#10;"/>
             </args>
           </funcall>
-          <funcall name="print_decimal" fn="tests/fibtst.c" ln=135>
+          <funcall name="print_decimal" fn="tests/fibtst.c" ln=171>
             <args>
               <int value=305419896/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=135>
+          <funcall name="puts" fn="tests/fibtst.c" ln=171>
             <args>
               <string value="&#10;"/>
             </args>
           </funcall>
-          <assign fn="tests/fibtst.c" ln=139>
+          <assign fn="tests/fibtst.c" ln=175>
             <left>
               <ref name="i"/>
             </left>
@@ -378,22 +564,22 @@
               </funcall>
             </right>
           </assign>
-          <funcall name="puts" fn="tests/fibtst.c" ln=142>
+          <funcall name="puts" fn="tests/fibtst.c" ln=178>
             <args>
               <string value="main: B&#10;"/>
             </args>
           </funcall>
-          <funcall name="print_decimal" fn="tests/fibtst.c" ln=144>
+          <funcall name="print_decimal" fn="tests/fibtst.c" ln=180>
             <args>
               <ref name="i"/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=144>
+          <funcall name="puts" fn="tests/fibtst.c" ln=180>
             <args>
               <string value="&#10;"/>
             </args>
           </funcall>
-          <assign fn="tests/fibtst.c" ln=147>
+          <assign fn="tests/fibtst.c" ln=183>
             <left>
               <ref name="dt"/>
             </left>
@@ -410,40 +596,43 @@
               </binary>
             </right>
           </assign>
-          <funcall name="printf" fn="tests/fibtst.c" ln=149>
+          <funcall name="printf" fn="tests/fibtst.c" ln=185>
             <args>
               <string value="V=%d Dt=%dms&#10;"/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=152>
+          <funcall name="puts" fn="tests/fibtst.c" ln=188>
             <args>
               <string value="main: C&#10;"/>
             </args>
           </funcall>
-          <funcall name="printf" fn="tests/fibtst.c" ln=154>
+          <funcall name="printf" fn="tests/fibtst.c" ln=190>
             <args>
               <string value="hashtst %d&#10;"/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=154>
+          <funcall name="puts" fn="tests/fibtst.c" ln=190>
             <args>
               <string value="main: D&#10;"/>
             </args>
           </funcall>
-          <funcall name="print_float" fn="tests/fibtst.c" ln=157>
+          <funcall name="print_float" fn="tests/fibtst.c" ln=193>
             <args>
               <real value=3.141590/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=159>
+          <funcall name="puts" fn="tests/fibtst.c" ln=195>
             <args>
               <string value="&#10;"/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=161>
+          <funcall name="puts" fn="tests/fibtst.c" ln=197>
             <args>
               <string value="main: E&#10;"/>
             </args>
+          </funcall>
+          <funcall name="test_struct0" fn="tests/fibtst.c" ln=199>
+            <args/>
           </funcall>
         </begin>
       </body>

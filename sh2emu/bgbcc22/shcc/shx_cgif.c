@@ -31,6 +31,7 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 
 	ctx->arch_sizeof_long=4;
 	ctx->arch_sizeof_ptr=4;
+	ctx->arch_sizeof_valist=64;
 	ctx->uctx=shctx;
 
 	shctx->is_le=0;

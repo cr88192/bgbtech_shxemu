@@ -436,6 +436,7 @@ fourcc arch;			//major architecture
 fourcc sub_arch;		//subset architecture
 byte arch_sizeof_long;
 byte arch_sizeof_ptr;
+byte arch_sizeof_valist;
 
 byte ril3_norec;
 

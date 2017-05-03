@@ -13,18 +13,40 @@ int i;
 while(*s)i=i*251+(*s++);
 return(i&0xFFF);
 }
-/*97*/ void print_hex_n(unsigned int v,int n);
+/*73*/ typedef struct test0_s test0_t;
+/*75*/ struct test0_s{
+int xi;
+int yi;
+/*80*/ };
+/*82*/ int test_struct0()
+{
+test0_t t0,t1;
+test0_t*pt0,*pt1;
+int z;
+/*88*/ pt0= &t0;
+pt0->xi=3;
+pt0->yi=4;
+z=pt0->xi+pt0->yi;
+printf("test_struct0: A %d\n",z);
+/*94*/ t1=t0;
+pt1= &t1;
+/*97*/ z=pt1->xi+pt1->yi;
+/*99*/ *(int*)-1= -1;
+printf("test_struct0: B %d\n",z);
+/*102*/ return(0);
+}
+/*133*/ void print_hex_n(unsigned int v,int n);
 void print_decimal(int val);
-/*100*/ void print_float(double val);
+/*136*/ void print_float(double val);
 void print_float_ss(float val);
-/*104*/ int main()
+/*140*/ int main()
 {
 int i,j,k,t,dt;
-/*108*/ t=clock();
-/*112*/ puts("main: A\n");
-/*114*/ print_hex_n(0x12345678,8);
+/*144*/ t=clock();
+/*148*/ puts("main: A\n");
+/*150*/ print_hex_n(0x12345678,8);
 puts("\n");
-/*117*/ k=0x12345678;
+/*153*/ k=0x12345678;
 for(i=0;i<10;i++)
 {
 j=k/10;
@@ -35,18 +57,19 @@ puts(") ");
 k=j;
 }
 puts("\n");
-/*135*/ print_decimal(0x12345678);
+/*171*/ print_decimal(0x12345678);
 puts("\n");
-/*139*/ i=fib(36);
-/*142*/ puts("main: B\n");
-/*144*/ print_decimal(i);
+/*175*/ i=fib(36);
+/*178*/ puts("main: B\n");
+/*180*/ print_decimal(i);
 puts("\n");
-/*147*/ dt=clock()-t;
-/*149*/ printf("V=%d Dt=%dms\n",i,dt);
-/*152*/ puts("main: C\n");
-/*154*/ printf("hashtst %d\n",hash_str("foobarbaz"));
+/*183*/ dt=clock()-t;
+/*185*/ printf("V=%d Dt=%dms\n",i,dt);
+/*188*/ puts("main: C\n");
+/*190*/ printf("hashtst %d\n",hash_str("foobarbaz"));
 puts("main: D\n");
-/*157*/ print_float(3.14159);
-/*159*/ puts("\n");
-/*161*/ puts("main: E\n");
+/*193*/ print_float(3.14159);
+/*195*/ puts("\n");
+/*197*/ puts("main: E\n");
+/*199*/ test_struct0();
 }

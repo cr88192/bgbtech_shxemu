@@ -628,7 +628,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	char buf[256];
 	static int init=0;
 	int inc_ok;
-	int i, m;
+	int i, m, endian;
 	char *s, *t;
 	char *mach_name, *gcc_ver, *home, *base, *cfg;
 //#ifdef linux
@@ -933,6 +933,41 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 		sprintf(buf, "%d", _MSC_EXTENSIONS);
 		BGBPP_AddStaticDefine(NULL, "_MSC_EXTENSIONS", buf);
 #endif
+	}
+	
+	if(bgbcc_arch==BGBCC_ARCH_SH)
+	{
+		BGBPP_AddStaticDefine(NULL, "__superh__", "");
+		BGBPP_AddStaticDefine(NULL, "__sh__", "");
+		
+		if((bgbcc_subarch==BGBCC_ARCH_SH_SH2) ||
+			(bgbcc_subarch==BGBCC_ARCH_SH_SH2L) ||
+			(bgbcc_subarch==BGBCC_ARCH_SH_SH2B))
+				BGBPP_AddStaticDefine(NULL, "__sh2__", "");
+		if((bgbcc_subarch==BGBCC_ARCH_SH_SH4) ||
+			(bgbcc_subarch==BGBCC_ARCH_SH_SH4L) ||
+			(bgbcc_subarch==BGBCC_ARCH_SH_SH4B))
+				BGBPP_AddStaticDefine(NULL, "__sh4__", "");
+
+		endian=0;
+
+		if((bgbcc_subarch==BGBCC_ARCH_SH_SH2L) ||
+			(bgbcc_subarch==BGBCC_ARCH_SH_SH4L))
+				endian=1;
+
+		if((bgbcc_subarch==BGBCC_ARCH_SH_SH2B) ||
+			(bgbcc_subarch==BGBCC_ARCH_SH_SH4B))
+				endian=2;
+				
+		if((bgbcc_subarch==BGBCC_ARCH_SH_SH2) && !endian)
+			endian=2;
+		if((bgbcc_subarch==BGBCC_ARCH_SH_SH4) && !endian)
+			endian=1;
+
+		if(endian==1)
+			BGBPP_AddStaticDefine(NULL, "__LITTLE_ENDIAN__", "");
+		if(endian==2)
+			BGBPP_AddStaticDefine(NULL, "__BIG_ENDIAN__", "");
 	}
 
 //	BGBPP_AddStaticDefine(NULL, "__STDC__", "1");
