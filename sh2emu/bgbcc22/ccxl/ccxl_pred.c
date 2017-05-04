@@ -179,6 +179,32 @@ ccxl_type BGBCC_CCXL_GetRegDerefType(
 	return(dty);
 }
 
+ccxl_type BGBCC_CCXL_GetTypeReturnType(
+	BGBCC_TransState *ctx, ccxl_type bty)
+{
+	BGBCC_CCXL_LiteralInfo *obj;
+	char *sig;
+	ccxl_type dty;
+	int i, j, k;
+
+	//HACK
+	if(BGBCC_CCXL_TypeFunctionP(ctx, bty))
+	{
+		i=BGBCC_CCXL_TypeObjectLiteralIndex(ctx, bty);
+		obj=ctx->literals[i];
+
+		sig=obj->decl->sig;
+		sig=BGBCC_CCXL_SigGetReturnSig(ctx, sig);
+		BGBCC_CCXL_TypeFromSig(ctx,
+			&dty, sig);
+		return(dty);
+	}
+
+	BGBCC_CCXL_StubWarn(ctx);
+	dty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_I);
+	return(dty);
+}
+
 ccxl_type BGBCC_CCXL_GetRegReturnType(
 	BGBCC_TransState *ctx, ccxl_register reg)
 {

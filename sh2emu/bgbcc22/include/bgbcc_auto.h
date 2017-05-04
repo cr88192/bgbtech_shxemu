@@ -544,6 +544,7 @@ int BGBCC_CCXL_GetRegID(BGBCC_TransState *ctx, ccxl_register reg);
 ccxl_type BGBCC_CCXL_MakeTypeID(BGBCC_TransState *ctx, int id);
 ccxl_type BGBCC_CCXL_GetRegType(BGBCC_TransState *ctx, ccxl_register reg);
 ccxl_type BGBCC_CCXL_GetRegDerefType(BGBCC_TransState *ctx, ccxl_register reg);
+ccxl_type BGBCC_CCXL_GetTypeReturnType(BGBCC_TransState *ctx, ccxl_type bty);
 ccxl_type BGBCC_CCXL_GetRegReturnType(BGBCC_TransState *ctx, ccxl_register reg);
 ccxl_type BGBCC_CCXL_GetRegPointerToType(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegIntP(BGBCC_TransState *ctx, ccxl_register reg);

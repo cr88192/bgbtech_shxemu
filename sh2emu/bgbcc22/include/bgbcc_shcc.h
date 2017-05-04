@@ -398,6 +398,7 @@ int frm_offs_tmp;		//frame offset of temporaries
 int frm_offs_fix;		//fixed-size automatic
 int lbl_ret;			//label ID for function exit
 int lbl_got;			//label ID for got
+int frm_offs_retstr;	//offset of return struct
 
 BGBCC_SHX_Context *next;
 

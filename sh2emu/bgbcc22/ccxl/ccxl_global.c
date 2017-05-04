@@ -1104,15 +1104,15 @@ void BGBCC_CCXL_End(BGBCC_TransState *ctx)
 			nal2=obj->decl->fields[i]->fxnalgn;
 			msz=(msz+(mal2-1))&(~(mal2-1));
 			nsz=(nsz+(nal2-1))&(~(nal2-1));
-			msz+=msz2;	nsz+=nsz2;
-			if(mal2>mal)mal=mal2;
-			if(nal2>nal)nal=nal2;
 
 			obj->decl->fields[i]->fxmoffs=msz;
 			obj->decl->fields[i]->fxnoffs=nsz;
-			
 			if(msz==nsz)
 				obj->decl->fields[i]->fxoffs=msz;
+
+			msz+=msz2;	nsz+=nsz2;
+			if(mal2>mal)mal=mal2;
+			if(nal2>nal)nal=nal2;
 		}
 		msz=(msz+(mal-1))&(~(mal-1));
 		nsz=(nsz+(nal-1))&(~(nal-1));

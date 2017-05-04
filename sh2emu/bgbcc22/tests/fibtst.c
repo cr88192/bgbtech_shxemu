@@ -79,11 +79,23 @@ int yi;
 // double yd;
 };
 
+int test_struct1(test0_t t2)
+{
+	test0_t t3;
+	int z1, z2;
+	
+	t3=t2;
+
+	z1=t2.xi+t2.yi;
+	z2=t3.xi+t3.yi;
+	printf("test_struct1: A %d %d\n", z1, z2);
+}
+
 int test_struct0()
 {
 	test0_t t0, t1;
 	test0_t *pt0, *pt1;
-	int z;
+	int z, z0;
 	
 	pt0=&t0;
 	pt0->xi=3;
@@ -91,13 +103,23 @@ int test_struct0()
 	z=pt0->xi+pt0->yi;
 	printf("test_struct0: A %d\n", z);
 
+	z0=pt0->xi+pt0->yi;
+	printf("test_struct0: B-0 %d\n", z0);
+
 	t1=t0;
+
+	z0=pt0->xi+pt0->yi;
+	printf("test_struct0: B-1 %d\n", z0);
+
 	pt1=&t1;
 //	z=t1.xi+t1.yi;
 	z=pt1->xi+pt1->yi;
+	z0=pt0->xi+pt0->yi;
 	
-	*(int *)-1=-1;
-	printf("test_struct0: B %d\n", z);
+//	*(int *)-1=-1;
+	printf("test_struct0: B-2 %d %d\n", z, z0);
+	
+	test_struct1(t1);
 
 	return(0);
 }
