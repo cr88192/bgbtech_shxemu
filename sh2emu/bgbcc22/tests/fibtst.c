@@ -79,6 +79,21 @@ int yi;
 // double yd;
 };
 
+test0_t test0_init={ 3, 4 };
+
+int arrtst[16]={1,2,3,4,5};
+
+#if 1
+int arrtst2[16][16]={
+{1,2,3,4,5},
+{2,3,4,5,6},
+{3,4,5,6,7},
+{4,5,6,7,8}
+};
+#endif
+
+void *ptrtst=hash_str;
+
 int test_struct1(test0_t t2)
 {
 	test0_t t3;
@@ -122,6 +137,21 @@ int test_struct0()
 	test_struct1(t1);
 
 	return(0);
+}
+
+int test_ar2d_0()
+{
+	int i, j, k;
+	
+	for(i=0; i<4; i++)
+	{
+		for(j=0; j<6; j++)
+		{
+			k=arrtst2[i][j];
+			printf("%d ", k);
+		}
+		printf("\n");
+	}
 }
 
 #endif
@@ -219,5 +249,11 @@ int main()
 	puts("main: E\n");
 	
 	test_struct0();
+
+	puts("main: F\n");
+	
+	test_ar2d_0();
+
+	puts("main: G\n");
 }
 #endif

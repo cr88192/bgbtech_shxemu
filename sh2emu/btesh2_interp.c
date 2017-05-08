@@ -792,10 +792,12 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 {
 	u64 d0, d1, d2, d3;
+	int i, j, k, l;
+	
 	BTESH2_DumpTraces(cpu);
-	BTESH2_StatTraces(cpu);
+//	BTESH2_StatTraces(cpu);
 
-	printf("Current:\n");
+	printf("Current GPRs:\n");
 	printf("R0   =%08X | R1  =%08X | R2   =%08X | R3   =%08X\n",
 		cpu->regs[ 0], cpu->regs[ 1], cpu->regs[ 2], cpu->regs[ 3]);
 	printf("R4   =%08X | R5  =%08X | R6   =%08X | R7   =%08X\n",
@@ -807,11 +809,13 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 
 	if(cpu->arch==BTESH2_ARCH_SH4)
 	{
+		printf("Banked GPRs:\n");
 		printf("R0_B =%08X | R1_B=%08X | R2_B =%08X | R3_B =%08X\n",
 			cpu->regs[32], cpu->regs[33], cpu->regs[34], cpu->regs[35]);
 		printf("R4_B =%08X | R5_B=%08X | R6_B =%08X | R7_B =%08X\n",
 			cpu->regs[36], cpu->regs[37], cpu->regs[38], cpu->regs[39]);
 
+		printf("FPU Regs (Raw):\n");
 		printf("FR0  =%08X | FR1 =%08X | FR2  =%08X | FR3  =%08X\n",
 			cpu->fregs[ 0], cpu->fregs[ 1], cpu->fregs[ 2], cpu->fregs[ 3]);
 		printf("FR4  =%08X | FR5 =%08X | FR6  =%08X | FR7  =%08X\n",
@@ -821,7 +825,17 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 		printf("FR12 =%08X | FR13=%08X | FR14 =%08X | FR15 =%08X\n",
 			cpu->fregs[12], cpu->fregs[13], cpu->fregs[14], cpu->fregs[15]);
 
-		printf("\n");
+		printf("FPU Regs (Raw, Bank B):\n");
+		printf("XF0  =%08X | XF1 =%08X | XF2  =%08X | XF3  =%08X\n",
+			cpu->fregs[16], cpu->fregs[17], cpu->fregs[18], cpu->fregs[19]);
+		printf("XF4  =%08X | XF5 =%08X | XF6  =%08X | XF7  =%08X\n",
+			cpu->fregs[20], cpu->fregs[21], cpu->fregs[22], cpu->fregs[23]);
+		printf("XF8  =%08X | XF9 =%08X | XF10 =%08X | XF11 =%08X\n",
+			cpu->fregs[24], cpu->fregs[25], cpu->fregs[26], cpu->fregs[27]);
+		printf("XF12 =%08X | XF13=%08X | XF14 =%08X | XF15 =%08X\n",
+			cpu->fregs[28], cpu->fregs[29], cpu->fregs[30], cpu->fregs[31]);
+
+		printf("FPU Regs (Float):\n");
 		printf("FR0 =% e |FR1 =% e |FR2 =% e |FR3 =% e\n",
 			((float *)cpu->fregs)[ 0], ((float *)cpu->fregs)[ 1],
 			((float *)cpu->fregs)[ 2], ((float *)cpu->fregs)[ 3]);
@@ -836,29 +850,65 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 			((float *)cpu->fregs)[14], ((float *)cpu->fregs)[15]);
 
 #if 1
-		printf("\n");
+		printf("FPU Regs (Double):\n");
 		d0=(((u64)cpu->fregs[ 0])<<32)|(cpu->fregs[ 1]);
 		d1=(((u64)cpu->fregs[ 2])<<32)|(cpu->fregs[ 3]);
 		d2=(((u64)cpu->fregs[ 4])<<32)|(cpu->fregs[ 5]);
 		d3=(((u64)cpu->fregs[ 8])<<32)|(cpu->fregs[ 7]);
-		printf("DR0 =% e |DR1 =% e |DR2 =% e |DR3 =% e\n",
+		printf("DR0 =% e |DR2 =% e |DR4 =% e |DR6 =% e\n",
 			*(double *)(&d0), *(double *)(&d1),
 			*(double *)(&d2), *(double *)(&d3));
 		d0=(((u64)cpu->fregs[ 8])<<32)|(cpu->fregs[ 9]);
 		d1=(((u64)cpu->fregs[10])<<32)|(cpu->fregs[11]);
 		d2=(((u64)cpu->fregs[12])<<32)|(cpu->fregs[13]);
 		d3=(((u64)cpu->fregs[14])<<32)|(cpu->fregs[15]);
-		printf("DR4 =% e |DR5 =% e |DR6 =% e |DR7 =% e\n",
+		printf("DR8 =% e |DR10=% e |DR12=% e |DR14=% e\n",
 			*(double *)(&d0), *(double *)(&d1),
 			*(double *)(&d2), *(double *)(&d3));
 
-		printf("\n");
+//		printf("\n");
+#endif
+
+#if 0
+		printf("FPU Regs (Float, Bank B):\n");
+		printf("XF0 =% e |XF1 =% e |XF2 =% e |XF3 =% e\n",
+			((float *)cpu->fregs)[16], ((float *)cpu->fregs)[17],
+			((float *)cpu->fregs)[18], ((float *)cpu->fregs)[19]);
+		printf("XF4 =% e |XF5 =% e |XF6 =% e |XF7 =% e\n",
+			((float *)cpu->fregs)[20], ((float *)cpu->fregs)[21],
+			((float *)cpu->fregs)[22], ((float *)cpu->fregs)[23]);
+		printf("XF8 =% e |XF9 =% e |XF10=% e |XF11=% e\n",
+			((float *)cpu->fregs)[24], ((float *)cpu->fregs)[25],
+			((float *)cpu->fregs)[26], ((float *)cpu->fregs)[27]);
+		printf("XF12=% e |XF13=% e |XF14=% e |XF15=% e\n",
+			((float *)cpu->fregs)[28], ((float *)cpu->fregs)[29],
+			((float *)cpu->fregs)[30], ((float *)cpu->fregs)[31]);
+#endif
+#if 0
+		printf("FPU Regs (Double, Bank B):\n");
+		d0=(((u64)cpu->fregs[16])<<32)|(cpu->fregs[17]);
+		d1=(((u64)cpu->fregs[18])<<32)|(cpu->fregs[19]);
+		d2=(((u64)cpu->fregs[20])<<32)|(cpu->fregs[21]);
+		d3=(((u64)cpu->fregs[22])<<32)|(cpu->fregs[23]);
+		printf("XD0 =% e |XD2 =% e |XD4 =% e |XD6 =% e\n",
+			*(double *)(&d0), *(double *)(&d1),
+			*(double *)(&d2), *(double *)(&d3));
+		d0=(((u64)cpu->fregs[24])<<32)|(cpu->fregs[25]);
+		d1=(((u64)cpu->fregs[26])<<32)|(cpu->fregs[27]);
+		d2=(((u64)cpu->fregs[28])<<32)|(cpu->fregs[29]);
+		d3=(((u64)cpu->fregs[30])<<32)|(cpu->fregs[31]);
+		printf("XD8 =% e |XD10=% e |XD12=% e |XD14=% e\n",
+			*(double *)(&d0), *(double *)(&d1),
+			*(double *)(&d2), *(double *)(&d3));
+
+//		printf("\n");
 #endif
 	}
 
+	printf("Control/Status:\n");
 	printf("SR   =%08X | GBR =%08X | VBR  =%08X | fla  =%08X\n",
 		cpu->regs[16], cpu->regs[17], cpu->regs[18], cpu->regs[19]);
-	printf("MCH  =%08X | MCL =%08X | PR   =%08X | PC   =%08X\n",
+	printf("MACH =%08X | MACL=%08X | PR   =%08X | PC   =%08X\n",
 		cpu->regs[20], cpu->regs[21], cpu->regs[22], cpu->regs[23]);
 
 	if(cpu->arch==BTESH2_ARCH_SH4)
@@ -871,6 +921,21 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 		printf("SSR  =%08X | SPC =%08X | SGR  =%08X | DBR  =%08X\n",
 			cpu->regs[40], cpu->regs[41], cpu->regs[42], cpu->regs[43]);
 	}
+	
+	printf("Stack:\n");
+	for(i=0; i<8; i++)
+	{
+		printf("% 4d: ", i*8*4);
+		for(j=0; j<8; j++)
+		{
+			if(j)printf(" ");
+			k=i*8+j;
+			l=BTESH2_GetAddrDWord(cpu, cpu->regs[15]+k*4);
+			printf("%08X", l);
+		}
+		printf("\n");
+	}
+	
 #if 0
 	printf("Trap:\n");
 	printf("R0 =%08X R1 =%08X R2 =%08X R3 =%08X\n",

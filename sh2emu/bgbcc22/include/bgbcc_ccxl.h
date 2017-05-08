@@ -281,6 +281,7 @@ char *flagstr;			//flag string
 ccxl_type type;			//assigned type
 byte ucnt;				//use count
 byte type_zb;			//type Z base
+byte regcls;			//register class (backend)
 s16 cseq;				//current sequence
 int regtype;			//register type
 int regid;				//register ID

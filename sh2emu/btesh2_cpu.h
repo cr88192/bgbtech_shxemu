@@ -114,6 +114,8 @@
 #define BTESH2_CSFL_LE			0x01	//Little Endian
 #define BTESH2_CSFL_FPPR		0x02	//FPSCR.PR
 #define BTESH2_CSFL_FPSZ		0x04	//FPSCR.SZ
+#define BTESH2_CSFL_FPFR		0x08	//FPSCR.FR
+#define BTESH2_CSFL_FPVE		0x10	//FPSCR.VE
 
 #define BTESH2_NMID_UNK			0x00	//Unknown
 #define BTESH2_NMID_MOV			0x01	//MOV
@@ -239,6 +241,8 @@
 #define BTESH2_NMID_FSUB		0x94	//
 #define BTESH2_NMID_FTRC		0x95	//
 #define BTESH2_NMID_MOVCAL		0x96	//
+#define BTESH2_NMID_FIPR		0x97	//
+#define BTESH2_NMID_FTRV		0x98	//
 
 #define BTESH2_NMID_MOVI		0xC0	//
 #define BTESH2_NMID_MOVIV		0xC1	//
@@ -427,8 +431,8 @@ struct BTESH2_CpuState_s {
 u32 regs[64];
 u32 trapregs[64];	//trapped registers
 
-u32 fregs[16];
-u32 trapfregs[16];
+u32 fregs[32];
+u32 trapfregs[32];
 
 BTESH2_Trace *icache[BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL];
 #ifdef BTESH2_TR_JHASHSZ

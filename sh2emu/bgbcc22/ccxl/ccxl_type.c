@@ -146,6 +146,21 @@ bool BGBCC_CCXL_TypeSgLongP(
 	return(false);
 }
 
+bool BGBCC_CCXL_TypeSgInt128P(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	if(BGBCC_CCXL_TypeArrayP(ctx, ty))
+		return(false);
+	if(BGBCC_CCXL_TypePointerP(ctx, ty))
+		return(false);
+
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_I128)
+		return(true);
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_UI128)
+		return(true);
+	return(false);
+}
+
 bool BGBCC_CCXL_TypeFloatP(
 	BGBCC_TransState *ctx, ccxl_type ty)
 {
@@ -1049,6 +1064,48 @@ int BGBCC_CCXL_TypeArrayAdjustSize(
 		CCXL_TERR_STATUS(CCXL_STATUS_ERR_UNHANDLEDTYPE));
 	*rdty=sty;
 	return(CCXL_STATUS_NO);
+}
+
+int BGBCC_CCXL_TypeGetArrayDimSize(
+	BGBCC_TransState *ctx, ccxl_type sty)
+{
+	BGBCC_CCXL_TypeOverflow ovf;
+	int i, j, k;
+
+	if((sty.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_BASIC)
+	{
+		i=(sty.val&CCXL_TY_ARRMASK)>>CCXL_TY_ARRSHL;
+		return(i);
+	}
+
+	if((sty.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_BASIC2)
+	{
+		i=(sty.val&CCXL_TYB2_ARRMASK)>>CCXL_TYB2_ARRSHL;
+		return(i);
+	}
+
+	if((sty.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_OVF1)
+	{
+		ovf=*(ctx->tyovf[sty.val&CCXL_TYOVF_IDXMASK]);
+		if(ovf.an>1)
+		{
+//			i=1;
+//			for(j=0; j<ovf.an; j++)
+//				i=i*ovf.asz[j];
+			i=ovf.asz[0];
+		}else if(ovf.an)
+		{
+			i=ovf.asz[0];
+		}else
+		{
+			i=0;
+		}
+		return(i);
+	}
+
+	BGBCC_CCXL_TagError(ctx,
+		CCXL_TERR_STATUS(CCXL_STATUS_ERR_UNHANDLEDTYPE));
+	return(0);
 }
 
 int BGBCC_CCXL_TypeUnpackOverflow(

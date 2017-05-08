@@ -301,6 +301,11 @@
 #define BGBCC_SH_REGCLS_FR		3	//uses a FR
 #define BGBCC_SH_REGCLS_FR2		4	//uses a pair of FRs
 
+#define BGBCC_SH_REGCLS_VO_REF	5	//value object, pass by-ref
+#define BGBCC_SH_REGCLS_VO_GR	6	//value object pass in GPR
+#define BGBCC_SH_REGCLS_VO_GR2	7	//value object pass in GPR pair
+#define BGBCC_SH_REGCLS_AR_REF	8	//array object, pass by-ref
+
 
 #define BGBCC_SH_FPSCR_PR		0x00080000	//
 #define BGBCC_SH_FPSCR_SZ		0x00100000	//

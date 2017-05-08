@@ -721,6 +721,248 @@ X(__ashiftrt_r4_0):		rts
 
 #endif
 
+#if 1
+.global X(__memcpy32_4)
+.global X(__memcpy32_8)
+.global X(__memcpy32_12)
+.global X(__memcpy32_16)
+.global X(__memcpy32_20)
+.global X(__memcpy32_24)
+.global X(__memcpy32_28)
+.global X(__memcpy32_32)
+.global X(__memcpy32_36)
+.global X(__memcpy32_40)
+.global X(__memcpy32_44)
+.global X(__memcpy32_48)
+.global X(__memcpy32_52)
+.global X(__memcpy32_56)
+.global X(__memcpy32_60)
+.global X(__memcpy32_64)
+
+.global X(__memcpy32)
+
+X(__memcpy32_4):
+	mov.l @r5, r0
+	mov.l r0, @r4
+	rts
+	nop
+X(__memcpy32_8):
+	mov.l @(r5,0), r0
+	mov.l @(r5,4), r1
+	mov.l r0, @(r4, 0)
+	mov.l r1, @(r4, 4)
+	rts
+	nop
+
+X(__memcpy32_12):
+	mov.l @(r5,0), r0
+	mov.l @(r5,4), r1
+	mov.l @(r5,8), r2
+	mov.l r0, @(r4, 0)
+	mov.l r1, @(r4, 4)
+	mov.l r2, @(r4, 8)
+	rts
+	nop
+
+X(__memcpy32_16):
+	mov.l @(r5, 0), r0
+	mov.l @(r5, 4), r1
+	mov.l @(r5, 8), r2
+	mov.l @(r5,12), r3
+	mov.l r0, @(r4,  0)
+	mov.l r1, @(r4,  4)
+	mov.l r2, @(r4,  8)
+	mov.l r3, @(r4, 12)
+	rts
+	nop
+
+X(__memcpy32_20):
+	mov.l @(r5, 0), r0
+	mov.l @(r5, 4), r1
+	mov.l @(r5, 8), r2
+	mov.l @(r5,12), r3
+	mov.l r0, @(r4,  0)
+	mov.l r1, @(r4,  4)
+	mov.l r2, @(r4,  8)
+	mov.l r3, @(r4, 12)
+	mov.l @(r5, 16), r0
+	mov.l r0, @(r4, 16)
+	rts
+	nop
+X(__memcpy32_24):
+	mov.l @(r5, 0), r0
+	mov.l @(r5, 4), r1
+	mov.l @(r5, 8), r2
+	mov.l @(r5,12), r3
+	mov.l r0, @(r4,  0)
+	mov.l r1, @(r4,  4)
+	mov.l r2, @(r4,  8)
+	mov.l r3, @(r4, 12)
+	mov.l @(r5, 16), r0
+	mov.l @(r5, 20), r1
+	mov.l r0, @(r4, 16)
+	mov.l r1, @(r4, 20)
+	rts
+	nop
+
+X(__memcpy32_28):
+	mov.l @(r5, 0), r0
+	mov.l @(r5, 4), r1
+	mov.l @(r5, 8), r2
+	mov.l @(r5,12), r3
+	mov.l r0, @(r4,  0)
+	mov.l r1, @(r4,  4)
+	mov.l r2, @(r4,  8)
+	mov.l r3, @(r4, 12)
+	mov.l @(r5, 16), r0
+	mov.l @(r5, 20), r1
+	mov.l @(r5, 24), r2
+	mov.l r0, @(r4, 16)
+	mov.l r1, @(r4, 20)
+	mov.l r2, @(r4, 24)
+	rts
+	nop
+
+X(__memcpy32_32):
+	mov.l @(r5,  0), r0
+	mov.l @(r5,  4), r1
+	mov.l @(r5,  8), r2
+	mov.l @(r5, 12), r3
+	mov.l r0, @(r4,  0)
+	mov.l r1, @(r4,  4)
+	mov.l r2, @(r4,  8)
+	mov.l r3, @(r4, 12)
+	mov.l @(r5, 16), r0
+	mov.l @(r5, 20), r1
+	mov.l @(r5, 24), r2
+	mov.l @(r5, 28), r3
+	mov.l r0, @(r4, 16)
+	mov.l r1, @(r4, 20)
+	mov.l r2, @(r4, 24)
+	mov.l r3, @(r4, 28)
+	rts
+	nop
+
+X(__memcpy32_36):
+	sts.l pr, @-r15
+	bsr __memcpy32_16
+	mov 16, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32_20
+	lds.l @r15+, pr
+X(__memcpy32_40):
+	sts.l pr, @-r15
+	bsr __memcpy32_16
+	mov 16, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32_24
+	lds.l @r15+, pr
+X(__memcpy32_44):
+	sts.l pr, @-r15
+	bsr __memcpy32_16
+	mov 16, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32_28
+	lds.l @r15+, pr
+X(__memcpy32_48):
+	sts.l pr, @-r15
+	bsr __memcpy32_16
+	mov 16, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32_32
+	lds.l @r15+, pr
+X(__memcpy32_52):
+	sts.l pr, @-r15
+	bsr __memcpy32_20
+	mov 20, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32_32
+	lds.l @r15+, pr
+X(__memcpy32_56):
+	sts.l pr, @-r15
+	bsr __memcpy32_24
+	mov 24, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32_32
+	lds.l @r15+, pr
+X(__memcpy32_60):
+	sts.l pr, @-r15
+	bsr __memcpy32_28
+	mov 28, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32_32
+	lds.l @r15+, pr
+X(__memcpy32_64):
+	sts.l pr, @-r15
+	bsr __memcpy32_20
+	mov 32, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32_32
+	lds.l @r15+, pr
+
+/* Memory copy for 32-bit aligned data in 32-bit words. */
+X(__memcpy32):
+	sts.l pr, @-r15
+
+	add r4, r6
+
+	/* Copy 64-byte chunks */
+	mov r6, r7
+	mov 64, r0
+	sub r0, r7	
+	cmp/gt r4, r7
+	__memcpy32.l0_64:
+	bf __memcpy32.l1_64
+	bsr __memcpy32_64
+	mov 64, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32.l0_64
+	cmp/gt r4, r7
+	__memcpy32.l1_64:
+
+	/* Copy 16-byte chunks */
+	mov r6, r7
+	mov 16, r0
+	sub r0, r7	
+	cmp/gt r4, r7
+	__memcpy32.l0_16:
+	bf __memcpy32.l1_16
+	bsr __memcpy32_16
+	mov 16, r0
+	add r0, r4
+	add r0, r5
+	bra __memcpy32.l0_16
+	cmp/gt r4, r7
+	__memcpy32.l1_16:
+
+	/* Copy 4-byte chunks */
+	mov 16, r1
+	cmp/gt r4, r6
+	__memcpy32.l0_4:
+	bf __memcpy32.l1_4
+	mov.l @r5, r0
+	mov.l r0, @r5
+	add r1, r4
+	add r1, r5
+	bra __memcpy32.l0_4
+	cmp/gt r4, r6
+	__memcpy32.l1_4:
+
+	lds.l @r15+, pr
+	rts
+	nop
+
+#endif
+
 /* .section .vect */
 .align 4
 _vector_table:

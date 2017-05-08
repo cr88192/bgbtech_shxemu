@@ -1,10 +1,18 @@
-void BTSH_Op_FABS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FABS_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j;
 	i=cpu->fregs[op->rn];
 //	j=cpu->regs[op->rm];
 	i=i&0x7FFFFFFFU;
 	cpu->fregs[op->rn]=i;
+}
+
+void BTSH_Op_FABS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FABS_FR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+	BTSH_Op_FABS_FR(cpu, op);
 }
 
 void BTSH_Op_FADD_FRR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -30,16 +38,20 @@ void BTSH_Op_FADD_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FADD_DRR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGREG;
 		op->Run=BTSH_Op_FADD_DRR;
 		if((op->rm|op->rn)&1)
 			__debugbreak();
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FADD_DRR(cpu, op);
 	}else
 	{
-		BTSH_Op_FADD_FRR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FADD_FRR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FADD_FRR(cpu, op);
 	}
 }
 
@@ -71,16 +83,20 @@ void BTSH_Op_FCMPEQ_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FCMPEQ_DRR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGREG;
 		op->Run=BTSH_Op_FCMPEQ_DRR;
 		if((op->rm|op->rn)&1)
 			__debugbreak();
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FCMPEQ_DRR(cpu, op);
 	}else
 	{
-		BTSH_Op_FCMPEQ_FRR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FCMPEQ_FRR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FCMPEQ_FRR(cpu, op);
 	}
 }
 
@@ -111,16 +127,20 @@ void BTSH_Op_FCMPGT_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FCMPGT_DRR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGREG;
 		op->Run=BTSH_Op_FCMPGT_DRR;
 		if((op->rm|op->rn)&1)
 			__debugbreak();
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FCMPGT_DRR(cpu, op);
 	}else
 	{
-		BTSH_Op_FCMPGT_FRR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FCMPGT_FRR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FCMPGT_FRR(cpu, op);
 	}
 }
 
@@ -147,45 +167,131 @@ void BTSH_Op_FDIV_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FDIV_DRR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGREG;
 		op->Run=BTSH_Op_FDIV_DRR;
 		if((op->rm|op->rn)&1)
 			__debugbreak();
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FDIV_DRR(cpu, op);
 	}else
 	{
-		BTSH_Op_FDIV_FRR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FDIV_FRR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FDIV_FRR(cpu, op);
 	}
 }
 
-void BTSH_Op_FLDI0_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FLDI0_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j;
-//	i=cpu->fregs[op->rn];
-//	j=cpu->regs[op->rm];
 	i=0;
 	cpu->fregs[op->rn]=i;
 }
 
-void BTSH_Op_FLDI1_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FLDI1_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j;
-//	i=cpu->fregs[op->rn];
-//	j=cpu->regs[op->rm];
 	i=0x3F800000;
 	cpu->fregs[op->rn]=i;
 }
 
-void BTSH_Op_FMAC_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FLDI0_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FLDI0_FR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+	BTSH_Op_FLDI0_FR(cpu, op);
+}
+
+void BTSH_Op_FLDI1_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FLDI0_FR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+	BTSH_Op_FLDI1_FR(cpu, op);
+}
+
+void BTSH_Op_FMAC_FRR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j, k;
 	i=cpu->fregs[op->rn];
 	j=cpu->fregs[op->rm];
-	k=cpu->fregs[0];
+	k=cpu->fregs[op->ro];
 	*(float *)(&k)=(*(float *)(&j))*(*(float *)(&k))+(*(float *)(&i));
 	cpu->fregs[op->rn]=k;
+}
+
+void BTSH_Op_FMAC_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FMAC_FRR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rm^=16; op->rn^=16; op->ro^=16; }
+	BTSH_Op_FMAC_FRR(cpu, op);
+}
+
+void BTSH_Op_FIPR_FRR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j, k;
+	i=cpu->fregs[op->rn+0]; j=cpu->fregs[op->rm+0];
+	*(float *)(&k)=(*(float *)(&i))*(*(float *)(&j));
+	i=cpu->fregs[op->rn+1]; j=cpu->fregs[op->rm+1];
+	*(float *)(&k)+=(*(float *)(&i))*(*(float *)(&j));
+	i=cpu->fregs[op->rn+2]; j=cpu->fregs[op->rm+2];
+	*(float *)(&k)+=(*(float *)(&i))*(*(float *)(&j));
+	cpu->fregs[op->rn+3]=k;
+}
+
+void BTSH_Op_FIPR_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FIPR_FRR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rm^=16; op->rn^=16; op->ro^=16; }
+	BTSH_Op_FIPR_FRR(cpu, op);
+}
+
+void BTSH_Op_FTRV_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	float tv[4];
+	float f, g;
+	u32 vi, vj, vk;
+	int i, j, k;
+	
+//	u32 i, j, k;
+//	i=cpu->fregs[op->rn+0]; j=cpu->fregs[op->rm+0];
+//	*(float *)(&k)=(*(float *)(&i))*(*(float *)(&j));
+//	i=cpu->fregs[op->rn+1]; j=cpu->fregs[op->rm+1];
+//	*(float *)(&k)+=(*(float *)(&i))*(*(float *)(&j));
+//	i=cpu->fregs[op->rn+2]; j=cpu->fregs[op->rm+2];
+//	*(float *)(&k)+=(*(float *)(&i))*(*(float *)(&j));
+//	cpu->fregs[op->rn+3]=k;
+
+	for(i=0; i<4; i++)
+	{
+		f=0;
+		for(j=0; j<3; j++)
+		{
+			vi=cpu->fregs[op->rm+j*4+i]; vj=cpu->fregs[op->rn+j];
+			f+=(*(float *)(&vi))*(*(float *)(&vj));
+		}
+		tv[i]=f;
+	}
+	
+	for(i=0; i<4; i++)
+	{
+		(*(float *)(&vi))=tv[i];
+		cpu->fregs[op->rn+i]=vi;
+	}
+}
+
+void BTSH_Op_FTRV_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FTRV_FR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rm^=16; op->rn^=16; }
+	BTSH_Op_FTRV_FR(cpu, op);
 }
 
 void BTSH_Op_FMOV_FRR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -208,11 +314,15 @@ void BTSH_Op_FMOV_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_SZ)
 	{
-		BTSH_Op_FMOV_DRR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGREG;
 		op->Run=BTSH_Op_FMOV_DRR;
-		if((op->rm|op->rn)&1)
-			__debugbreak();
+//		if((op->rm|op->rn)&1)
+//			__debugbreak();
+		if(op->rm&1)	{ op->rm^=0x11; }
+		if(op->rn&1)	{ op->rn^=0x11; }
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FMOV_DRR(cpu, op);
 	}else
 	{
 		if((op->rm&op->rn)==15)
@@ -221,9 +331,11 @@ void BTSH_Op_FMOV_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 			return;
 		}
 
-		BTSH_Op_FMOV_FRR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FMOV_FRR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FMOV_FRR(cpu, op);
 	}
 }
 
@@ -250,25 +362,37 @@ void BTSH_Op_FMUL_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FMUL_DRR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGREG;
 		op->Run=BTSH_Op_FMUL_DRR;
 		if((op->rm|op->rn)&1)
 			__debugbreak();
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FMUL_DRR(cpu, op);
 	}else
 	{
-		BTSH_Op_FMUL_FRR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FMUL_FRR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FMUL_FRR(cpu, op);
 	}
 }
 
-void BTSH_Op_FNEG_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FNEG_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j;
 	i=cpu->fregs[op->rn];
 	j=i^0x80000000U;
 	cpu->fregs[op->rn]=j;
+}
+
+void BTSH_Op_FNEG_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FNEG_FR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+	BTSH_Op_FNEG_FR(cpu, op);
 }
 
 void BTSH_Op_FSQRT_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -292,29 +416,49 @@ void BTSH_Op_FSQRT_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FSQRT_DR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGRN;
 		op->Run=BTSH_Op_FSQRT_DR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FSQRT_DR(cpu, op);
 	}else
 	{
-		BTSH_Op_FSQRT_FR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGRN;
 		op->Run=BTSH_Op_FSQRT_FR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rn^=16; }
+		BTSH_Op_FSQRT_FR(cpu, op);
 	}
 }
 
-void BTSH_Op_FLDS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FLDS_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j;
 	i=cpu->fregs[op->rm];
 	cpu->regs[BTESH2_REG_FPUL]=i;
 }
 
-void BTSH_Op_FSTS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FLDS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FLDS_FR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rm^=16; }
+	BTSH_Op_FLDS_FR(cpu, op);
+}
+
+void BTSH_Op_FSTS_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j;
 	i=cpu->regs[BTESH2_REG_FPUL];
 	cpu->fregs[op->rn]=i;
+}
+
+void BTSH_Op_FSTS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FSTS_FR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+	BTSH_Op_FSTS_FR(cpu, op);
 }
 
 void BTSH_Op_FLOAT_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -338,16 +482,20 @@ void BTSH_Op_FLOAT_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FLOAT_DR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGRN;
 		op->Run=BTSH_Op_FLOAT_DR;
 		if(op->rn&1)
 			__debugbreak();
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FLOAT_DR(cpu, op);
 	}else
 	{
-		BTSH_Op_FLOAT_FR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGRN;
 		op->Run=BTSH_Op_FLOAT_FR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rn^=16; }
+		BTSH_Op_FLOAT_FR(cpu, op);
 	}
 }
 
@@ -376,16 +524,20 @@ void BTSH_Op_FTRC_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FTRC_DR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGRM;
 		op->Run=BTSH_Op_FTRC_DR;
 		if(op->rm&1)
 			__debugbreak();
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FTRC_DR(cpu, op);
 	}else
 	{
-		BTSH_Op_FTRC_FR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGRM;
 		op->Run=BTSH_Op_FTRC_FR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; }
+		BTSH_Op_FTRC_FR(cpu, op);
 	}
 }
 
@@ -412,21 +564,25 @@ void BTSH_Op_FSUB_RR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_PR)
 	{
-		BTSH_Op_FSUB_DRR(cpu, op);
 		op->fmid=BTESH2_FMID_DREGREG;
 		op->Run=BTSH_Op_FSUB_DRR;
 		if((op->rm|op->rn)&1)
 			__debugbreak();
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FSUB_DRR(cpu, op);
 	}else
 	{
-		BTSH_Op_FSUB_FRR(cpu, op);
 		op->fmid=BTESH2_FMID_FREGREG;
 		op->Run=BTSH_Op_FSUB_FRR;
+		if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+			{ op->rm^=16; op->rn^=16; }
+		BTSH_Op_FSUB_FRR(cpu, op);
 	}
 }
 
 
-void BTSH_Op_FCNVSD_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FCNVSD_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u64 k;
 	u32 i, j;
@@ -436,7 +592,15 @@ void BTSH_Op_FCNVSD_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->fregs[op->rn^1]=(u32)(k    );
 }
 
-void BTSH_Op_FCNVDS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+void BTSH_Op_FCNVSD_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FCNVSD_DR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+	BTSH_Op_FCNVSD_DR(cpu, op);
+}
+
+void BTSH_Op_FCNVDS_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u64 k;
 	u32 i, j;
@@ -448,6 +612,14 @@ void BTSH_Op_FCNVDS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[BTESH2_REG_FPUL]=j;
 }
 
+void BTSH_Op_FCNVDS_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	op->Run=BTSH_Op_FCNVDS_DR;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rm^=16; }
+	BTSH_Op_FCNVDS_DR(cpu, op);
+}
+
 void BTSH_Op_FSCHG_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j;
@@ -456,93 +628,209 @@ void BTSH_Op_FSCHG_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[BTESH2_REG_FPSCR]=j;
 }
 
+void BTSH_Op_FMOV_RegLd_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->fregs[op->rn]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]);
+}
+
+void BTSH_Op_FMOV_RegLd_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->fregs[op->rn^0]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]+0);
+	cpu->fregs[op->rn^1]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]+4);
+}
+
+void BTSH_Op_FMOV_RegSt_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn], cpu->fregs[op->rm]);
+}
+
+void BTSH_Op_FMOV_RegSt_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+0, cpu->fregs[op->rm^0]);
+	BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+4, cpu->fregs[op->rm^1]);
+}
+
 void BTSH_Op_FMOV_RegLd(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	cpu->ptcpc=op->pc;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_SZ)
 	{
-		cpu->fregs[op->rn^0]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]+0);
-		cpu->fregs[op->rn^1]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]+4);
-		op->fmid=BTESH2_FMID_DREGREG;
+		op->Run=BTSH_Op_FMOV_RegLd_DR;
+		if(op->rn&1)	{ op->rn^=0x11; }
+//		op->fmid=BTESH2_FMID_DREGREG;
+		op->Run(cpu, op);
 	}else
 	{
-		cpu->fregs[op->rn]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]);
-		op->fmid=BTESH2_FMID_FREGREG;
+		op->Run=BTSH_Op_FMOV_RegLd_FR;
+//		op->fmid=BTESH2_FMID_FREGREG;
+		op->Run(cpu, op);
 	}
 }
 
 void BTSH_Op_FMOV_RegSt(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	cpu->ptcpc=op->pc;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rm^=16; }
+
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_SZ)
 	{
-		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+0, cpu->fregs[op->rm^0]);
-		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+4, cpu->fregs[op->rm^1]);
-		op->fmid=BTESH2_FMID_DREGREG;
+		op->Run=BTSH_Op_FMOV_RegSt_DR;
+		if(op->rm&1)	{ op->rm^=0x11; }
+//		op->fmid=BTESH2_FMID_DREGREG;
+		op->Run(cpu, op);
 	}else
 	{
-		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn], cpu->fregs[op->rm]);
-		op->fmid=BTESH2_FMID_FREGREG;
+		op->Run=BTSH_Op_FMOV_RegSt_FR;
+//		op->fmid=BTESH2_FMID_FREGREG;
+		op->Run(cpu, op);
 	}
+}
+
+void BTSH_Op_FMOV_RegDecSt_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]-=4;
+	BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn], cpu->fregs[op->rm]);
+}
+
+void BTSH_Op_FMOV_RegDecSt_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]-=8;
+	BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+0, cpu->fregs[op->rm^0]);
+	BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+4, cpu->fregs[op->rm^1]);
 }
 
 void BTSH_Op_FMOV_RegDecSt(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	cpu->ptcpc=op->pc;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rm^=16; }
+
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_SZ)
 	{
-		cpu->regs[op->rn]-=8;
-		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+0, cpu->fregs[op->rm^0]);
-		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn]+4, cpu->fregs[op->rm^1]);
+		op->Run=BTSH_Op_FMOV_RegDecSt_DR;
+		if(op->rm&1)	{ op->rm^=0x11; }
+//		op->fmid=BTESH2_FMID_DREGREG;
+		op->Run(cpu, op);
 	}else
 	{
-		cpu->regs[op->rn]-=4;
-		BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn], cpu->fregs[op->rm]);
+		op->Run=BTSH_Op_FMOV_RegDecSt_FR;
+//		op->fmid=BTESH2_FMID_FREGREG;
+		op->Run(cpu, op);
 	}
+}
+
+void BTSH_Op_FMOV_RegIncLd_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rm]+=4;
+	cpu->fregs[op->rn]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4);
+}
+
+void BTSH_Op_FMOV_RegIncLd_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rm]+=8;
+	cpu->fregs[op->rn^0]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-8);
+	cpu->fregs[op->rn^1]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4);
 }
 
 void BTSH_Op_FMOV_RegIncLd(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	cpu->ptcpc=op->pc;
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_SZ)
 	{
-		cpu->regs[op->rm]+=8;
-		cpu->fregs[op->rn^0]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-8);
-		cpu->fregs[op->rn^1]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4);
+		op->Run=BTSH_Op_FMOV_RegIncLd_DR;
+		if(op->rn&1)	{ op->rn^=0x11; }
+//		op->fmid=BTESH2_FMID_DREGREG;
+		op->Run(cpu, op);
 	}else
 	{
-		cpu->regs[op->rm]+=4;
-		cpu->fregs[op->rn]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4);
+		op->Run=BTSH_Op_FMOV_RegIncLd_FR;
+//		op->fmid=BTESH2_FMID_FREGREG;
+		op->Run(cpu, op);
 	}
+}
+
+void BTSH_Op_FMOV_RegStR0n_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrDWord(cpu,
+		cpu->regs[op->rn]+cpu->regs[op->ro], cpu->fregs[op->rm]);
+}
+
+void BTSH_Op_FMOV_RegStR0n_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrDWord(cpu,
+		cpu->regs[op->rn]+cpu->regs[op->ro]+0, cpu->fregs[op->rm^0]);
+	BTESH2_SetAddrDWord(cpu,
+		cpu->regs[op->rn]+cpu->regs[op->ro]+4, cpu->fregs[op->rm^1]);
 }
 
 void BTSH_Op_FMOV_RegStR0n(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rm^=16; }
+
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_SZ)
 	{
-		BTESH2_SetAddrDWord(cpu,
-			cpu->regs[op->rn]+cpu->regs[op->ro]+0, cpu->fregs[op->rm^0]);
-		BTESH2_SetAddrDWord(cpu,
-			cpu->regs[op->rn]+cpu->regs[op->ro]+4, cpu->fregs[op->rm^1]);
+		op->Run=BTSH_Op_FMOV_RegStR0n_DR;
+		if(op->rm&1)	{ op->rm^=0x11; }
+//		op->fmid=BTESH2_FMID_DREGREG;
+		op->Run(cpu, op);
 	}else
 	{
-		BTESH2_SetAddrDWord(cpu,
-			cpu->regs[op->rn]+cpu->regs[op->ro], cpu->fregs[op->rm]);
+		op->Run=BTSH_Op_FMOV_RegStR0n_FR;
+//		op->fmid=BTESH2_FMID_FREGREG;
+		op->Run(cpu, op);
 	}
+}
+
+void BTSH_Op_FMOV_RegLdR0m_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->fregs[op->rn]=BTESH2_GetAddrDWord(cpu,
+		cpu->regs[op->rm]+cpu->regs[op->ro]);
+}
+
+void BTSH_Op_FMOV_RegLdR0m_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->fregs[op->rn^0]=BTESH2_GetAddrDWord(cpu,
+		cpu->regs[op->rm]+cpu->regs[op->ro]+0);
+	cpu->fregs[op->rn^1]=BTESH2_GetAddrDWord(cpu,
+		cpu->regs[op->rm]+cpu->regs[op->ro]+4);
 }
 
 void BTSH_Op_FMOV_RegLdR0m(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
+	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_FR)
+		{ op->rn^=16; }
+
 	if(cpu->regs[BTESH2_REG_FPSCR]&BTESH2_FPSCR_SZ)
 	{
-		cpu->fregs[op->rn^0]=BTESH2_GetAddrDWord(cpu,
-			cpu->regs[op->rm]+cpu->regs[op->ro]+0);
-		cpu->fregs[op->rn^1]=BTESH2_GetAddrDWord(cpu,
-			cpu->regs[op->rm]+cpu->regs[op->ro]+4);
+		op->Run=BTSH_Op_FMOV_RegLdR0m_DR;
+		if(op->rn&1)	{ op->rn^=0x11; }
+//		op->fmid=BTESH2_FMID_DREGREG;
+		op->Run(cpu, op);
 	}else
 	{
-		cpu->fregs[op->rn]=BTESH2_GetAddrDWord(cpu,
-			cpu->regs[op->rm]+cpu->regs[op->ro]);
+		op->Run=BTSH_Op_FMOV_RegLdR0m_FR;
+//		op->fmid=BTESH2_FMID_FREGREG;
+		op->Run(cpu, op);
 	}
 }
 
@@ -558,11 +846,16 @@ void BTSH_Op_SetFPSCR(BTESH2_CpuState *cpu, u32 v)
 		{ cpu->csfl|=BTESH2_CSFL_FPSZ; }
 	else
 		{ cpu->csfl&=~BTESH2_CSFL_FPSZ; }
+	if(v&BTESH2_FPSCR_FR)
+		{ cpu->csfl|=BTESH2_CSFL_FPFR; }
+	else
+		{ cpu->csfl&=~BTESH2_CSFL_FPFR; }
 }
 
 void BTSH_Op_MOV_FPSCR_RegIncLdD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 v;
+	cpu->ptcpc=op->pc;
 	cpu->regs[op->rm]+=4;
 	v=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4);
 //	cpu->regs[op->rn]=v;

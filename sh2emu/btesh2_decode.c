@@ -1698,6 +1698,14 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->fmid=BTESH2_FMID_REGRM;
 				op->Run=BTSH_Op_FCNVDS_R;
 				break;
+
+			case 0xE:
+				op->rn=((opw>>10)&3)<<2;
+				op->rm=((opw>> 8)&3)<<2;
+				op->nmid=BTESH2_NMID_FIPR;
+				op->fmid=BTESH2_FMID_FREGREG;
+				op->Run=BTSH_Op_FIPR_RR;
+				break;
 			case 0xF:
 				switch((opw>>8)&15)
 				{
@@ -1705,6 +1713,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 					op->nmid=BTESH2_NMID_FSCHG;
 					op->fmid=BTESH2_FMID_NONE;
 					op->Run=BTSH_Op_FSCHG_Z;
+					break;
+				
+				case 0x1:	case 0x5:
+				case 0x9:	case 0xD:
+					op->rm=16;
+					op->rn=((opw>>10)&3)<<2;
+					op->nmid=BTESH2_NMID_FTRV;
+					op->fmid=BTESH2_FMID_FREGRN;
+					op->Run=BTSH_Op_FTRV_R;
 					break;
 				}
 				break;
@@ -1714,6 +1731,7 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		case 0xE: /* F--E */
 			op->rn=(opw>>8)&15;
 			op->rm=(opw>>4)&15;
+			op->ro=0;
 			op->nmid=BTESH2_NMID_FMAC;
 			op->fmid=BTESH2_FMID_FREGREG;
 			op->Run=BTSH_Op_FMAC_RR;

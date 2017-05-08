@@ -4,12 +4,31 @@ int BGBCC_SHXC_EmitLdixVRegVRegImm(
 	ccxl_type type, ccxl_register dreg,
 	ccxl_register sreg, s32 imm)
 {
+	ccxl_type tty;
 	int csreg, ctreg, cdreg;
 	int nm1, nm2, ty, sz;
 	int i, j, k;
 
 	ty=type.val;
 	
+	if(BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+		BGBCC_CCXL_TypeDerefType(ctx, type, &tty);
+
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		
+		nm1=BGBCC_SH_NMID_MOVL;
+//		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, tty);
+		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, type);
+		BGBCC_SHXC_EmitLeaBRegOfsReg(ctx, sctx,
+			nm1, csreg, imm*sz, cdreg);
+
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		return(1);
+	}
+
 	sz=-1; nm1=-1;
 	switch(ty)
 	{
@@ -76,12 +95,33 @@ int BGBCC_SHXC_EmitLdixVRegVRegVReg(
 	ccxl_type type, ccxl_register dreg,
 	ccxl_register sreg, ccxl_register treg)
 {
+	ccxl_type tty;
 	int csreg, ctreg, cdreg;
-	int nm1, nm2, ty, sz;
+	int nm1, nm2, ty, sz, asz, bsz;
 	int i, j, k;
 
 	ty=type.val;
-	
+
+	if(BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+		BGBCC_CCXL_TypeDerefType(ctx, type, &tty);
+
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+		
+		nm1=BGBCC_SH_NMID_MOVL;
+//		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, tty);
+		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, type);
+		BGBCC_SHXC_EmitLeaBRegIRegScReg(ctx, sctx,
+			nm1, csreg, ctreg, sz, cdreg);
+
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, treg);
+		return(1);
+	}
+
 	sz=-1; nm1=-1;
 	switch(ty)
 	{
@@ -296,6 +336,12 @@ int BGBCC_SHXC_EmitLeaVRegVRegImm(
 	int i, j, k;
 
 	ty=type.val;
+
+	if(BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+		i=BGBCC_SHXC_EmitLeaVRegVRegImm(ctx, sctx, type, dreg, sreg, imm);
+		return(i);
+	}
 	
 	sz=-1; nm1=-1;
 	switch(ty)
@@ -371,7 +417,13 @@ int BGBCC_SHXC_EmitLeaVRegVRegVReg(
 	int i, j, k;
 
 	ty=type.val;
-	
+
+	if(BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+		i=BGBCC_SHXC_EmitLeaVRegVRegVReg(ctx, sctx, type, dreg, sreg, treg);
+		return(i);
+	}
+
 	sz=-1; nm1=-1;
 	switch(ty)
 	{

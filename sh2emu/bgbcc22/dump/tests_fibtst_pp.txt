@@ -18,49 +18,71 @@ return(i&0xFFF);
 int xi;
 int yi;
 /*80*/ };
-/*82*/ int test_struct1(test0_t t2)
+/*82*/ test0_t test0_init={3,4};
+/*84*/ int arrtst[16]={1,2,3,4,5};
+/*87*/ int arrtst2[16][16]={
+{1,2,3,4,5},
+{2,3,4,5,6},
+{3,4,5,6,7},
+{4,5,6,7,8}
+};
+/*95*/ void*ptrtst=hash_str;
+/*97*/ int test_struct1(test0_t t2)
 {
 test0_t t3;
 int z1,z2;
-/*87*/ t3=t2;
-/*89*/ z1=t2.xi+t2.yi;
+/*102*/ t3=t2;
+/*104*/ z1=t2.xi+t2.yi;
 z2=t3.xi+t3.yi;
 printf("test_struct1: A %d %d\n",z1,z2);
 }
-/*94*/ int test_struct0()
+/*109*/ int test_struct0()
 {
 test0_t t0,t1;
 test0_t*pt0,*pt1;
 int z,z0;
-/*100*/ pt0= &t0;
+/*115*/ pt0= &t0;
 pt0->xi=3;
 pt0->yi=4;
 z=pt0->xi+pt0->yi;
 printf("test_struct0: A %d\n",z);
-/*106*/ z0=pt0->xi+pt0->yi;
+/*121*/ z0=pt0->xi+pt0->yi;
 printf("test_struct0: B-0 %d\n",z0);
-/*109*/ t1=t0;
-/*111*/ z0=pt0->xi+pt0->yi;
+/*124*/ t1=t0;
+/*126*/ z0=pt0->xi+pt0->yi;
 printf("test_struct0: B-1 %d\n",z0);
-/*114*/ pt1= &t1;
-/*116*/ z=pt1->xi+pt1->yi;
+/*129*/ pt1= &t1;
+/*131*/ z=pt1->xi+pt1->yi;
 z0=pt0->xi+pt0->yi;
-/*120*/ printf("test_struct0: B-2 %d %d\n",z,z0);
-/*122*/ test_struct1(t1);
-/*124*/ return(0);
+/*135*/ printf("test_struct0: B-2 %d %d\n",z,z0);
+/*137*/ test_struct1(t1);
+/*139*/ return(0);
 }
-/*155*/ void print_hex_n(unsigned int v,int n);
+/*142*/ int test_ar2d_0()
+{
+int i,j,k;
+/*146*/ for(i=0;i<4;i++)
+{
+for(j=0;j<6;j++)
+{
+k=arrtst2[i][j];
+printf("%d ",k);
+}
+printf("\n");
+}
+}
+/*185*/ void print_hex_n(unsigned int v,int n);
 void print_decimal(int val);
-/*158*/ void print_float(double val);
+/*188*/ void print_float(double val);
 void print_float_ss(float val);
-/*162*/ int main()
+/*192*/ int main()
 {
 int i,j,k,t,dt;
-/*166*/ t=clock();
-/*170*/ puts("main: A\n");
-/*172*/ print_hex_n(0x12345678,8);
+/*196*/ t=clock();
+/*200*/ puts("main: A\n");
+/*202*/ print_hex_n(0x12345678,8);
 puts("\n");
-/*175*/ k=0x12345678;
+/*205*/ k=0x12345678;
 for(i=0;i<10;i++)
 {
 j=k/10;
@@ -71,19 +93,22 @@ puts(") ");
 k=j;
 }
 puts("\n");
-/*193*/ print_decimal(0x12345678);
+/*223*/ print_decimal(0x12345678);
 puts("\n");
-/*197*/ i=fib(36);
-/*200*/ puts("main: B\n");
-/*202*/ print_decimal(i);
+/*227*/ i=fib(36);
+/*230*/ puts("main: B\n");
+/*232*/ print_decimal(i);
 puts("\n");
-/*205*/ dt=clock()-t;
-/*207*/ printf("V=%d Dt=%dms\n",i,dt);
-/*210*/ puts("main: C\n");
-/*212*/ printf("hashtst %d\n",hash_str("foobarbaz"));
+/*235*/ dt=clock()-t;
+/*237*/ printf("V=%d Dt=%dms\n",i,dt);
+/*240*/ puts("main: C\n");
+/*242*/ printf("hashtst %d\n",hash_str("foobarbaz"));
 puts("main: D\n");
-/*215*/ print_float(3.14159);
-/*217*/ puts("\n");
-/*219*/ puts("main: E\n");
-/*221*/ test_struct0();
+/*245*/ print_float(3.14159);
+/*247*/ puts("\n");
+/*249*/ puts("main: E\n");
+/*251*/ test_struct0();
+/*253*/ puts("main: F\n");
+/*255*/ test_ar2d_0();
+/*257*/ puts("main: G\n");
 }

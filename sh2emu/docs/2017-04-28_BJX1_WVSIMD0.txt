@@ -4,8 +4,104 @@ Possible More-powerful SIMD for the BJX1 ISA.
 ** Possible, TBD.
 * Packed Byte, Word, Long, Float, Double
 * FPUL register is extended to a context-dependent size
+* SIMD Operations will optionally replace the FPU instructions.
+** The use of SIMD will be set via a VE bit in FPSCR.
+** If VE is clear, then FPU instructions are used.
+** Rounding mode may select between variants of operations in SIMD mode.
 
 
+Registers:
+* FR0..FR15: Float Registers (Bank A)
+** DR0/2/4/6/8/10/12/14: Double Registers (Bank A)
+* XF0..XF15: Float Registers
+** XD0/2/4/6/8/10/12/14: Double Registers
+* XR0..XR15: 128-bit SIMD Registers
+** YR0..YR7: 256-bit pairs.
+
+DRn operations will be able to access the XDn registers by setting the LSB of the register to 1.
+
+Subsets:
+* No SIMD: If no SIMD exists and VE is set, generate FPUDIS exception.
+* NV_SIMD: Only 64-bit SIMD operations are supported
+** XF/XD registers are optional.
+** XR registers are absent.
+** 32-bit I-forms are optional.
+* WVX_SIMD: Has 128-bit SIMD.
+** Has XR registers and 128-bit operations.
+** XF/XD registers are required.
+** YR operations will still trap and be emulated.
+* WVY_SIMD: Has 256-bit SIMD operations.
+
+FPSCR bits:
+* 0000_0003: RM		//Rounding Mode (or Vector Mode)
+* 0004_0000: DN		//Denormalization Mode
+* 0008_0000: PR		//Precision
+* 0010_0000: SZ		//Load/Store Size
+* 0020_0000: FR		//Swap Float Register Banks A and B
+* 0040_0000: SW0	//Swap 0 (Swap Low/High DWords of DRn)
+* 0080_0000: SW1	//Swap 1 (Swap Low/High YRn halves)
+* 0100_0000: VE		//Vector Enable
+
+Flags (VE=0)
+* FPSCR.SZ: Selects 32 or 64-bit memory loads/stores.
+** 0=32 bit
+** 1=64 bit
+* FPSCR.PR: Selects between Float and Double operations.
+** 0: Float (FRn)
+** 1: Double (DRn)
+* FPSCR.SW0
+** Swap Low/High DWords on 64-bit load/store.
+** 0: Loads DWORDs as (High,Low)
+** 1: Loads DWORDs as (Low,High)
+
+Flags (VE=1)
+* FPSCR.SZ: Selects 32 or 64-bit vector.
+** 0=32 bit
+** 1=64 bit
+* FPSCR.PR: Selects packed Byte or packed Word.
+** 0: 4x Packed Bytes (FRn)
+** 1: 4x Packed Word (DRn)
+* FPSCR.RM:
+** 00: Packed Byte or Word
+** 01: Packed Half or Float
+*** Packed half-float mode: 4x half-float in 64 bits.
+*** In packed float mode, operations would apply to a pair of floats.
+** 10: XRn/YRn: 4xPL/2xPQ | 8xPL/4xPQ
+** 11: XRn/YRn: 4xPF/2xPD | 8xPF/4xPD
+* FPSCR.SW0
+** Swap Low/High DWords on 64-bit load/store.
+
+Non-extended Instructions
+* Will function as in Mini-SIMD or FPU
+
+FPSCR SIMD Modes (SZ,PR,RM):
+* 0,0,00: 4x Packed Byte (FRn)
+* 0,0,01: 2x Packed Half (FRn)
+* 0,0,10: 4x Packed Long (XRn, DWORD)
+* 0,0,11: 4x Packed Float (XRn)
+* 0,1,00: 2x Packed Word (FRn)
+* 0,1,01: Float (FRn, Scalar)
+* 0,1,10: Double (DRn, Scalar)
+* 0,1,11: 2x Packed Double (XRn)
+* 1,0,00: 8x Packed Byte (DRn)
+* 1,0,01: 4x Packed Half (DRn)
+* 1,0,10: 8x Packed Long (YRn, DWORD)
+* 1,0,11: 8x Packed Float (YRn)
+* 1,1,00: 4x Packed Word (DRn)
+* 1,1,01: 2x Float (DRn)
+* 1,1,10: LongLong (DRn, QWORD)
+* 1,1,11: 4x Packed Double (YRn)
+
+
+V/VV (Arith):
+* 4 bit: zpmm
+* 8 bit: zpmmrrrr
+* z: SZ
+* p: PR
+* mm: RM
+* r: Reserved
+
+/* Drop:
 VV (Arith):
 * wwtttrrr
 ** ww=00: 32 (FRn)
@@ -16,11 +112,12 @@ VV (Arith):
 ** tt=001: Resv
 ** tt=010: Pack Word
 ** tt=011: Pack Half
+
 ** tt=100: Pack Long (DWord)
 ** tt=101: Pack Float
 ** tt=110: Resv
 ** tt=111: Pack Double
-** r=0 (reserved)
+** r=0 (reserved, type-specific opcode modifier)
 
 * 32-bit
 ** 00000rrr=4x Byte
@@ -45,10 +142,11 @@ VV (Arith):
 ** 10001rrr=Resv
 ** 10010rrr=8x Word
 ** 10011rrr=8x Half
-** 10100rrr=2x Long (FRn Pair)
-** 10101rrr=4x Float (FRn Pair)
+** 10100rrr=2x Long
+** 10101rrr=4x Float
 ** 10110rrr=Resv
-** 10111rrr=2x Double (Scalar DRn)
+** 10111rrr=2x Double
+End Drop */
 
 VV (PMOV):
 * wwww-rrrr
@@ -56,17 +154,17 @@ VV (PMOV):
 ** 0000: FRm, FRn	//Copy FRn
 ** 0001: DRm, FRn	//Copy FRn Pair
 ** 0010: XRm, FRn	//Copy 4x
-** 0011: Resv
+** 0011:  Rm, FRn	//Copy GPR to FRn
 ** 0100: FRm, DRn	//Copy FRn Pair (Resv)
 ** 0101: DRm, DRn	//Copy DRn
 ** 0110: XRm, DRn	//Copy DRn Pair
-** 0111: Resv
+** 0111:  Rm, DRn	//Copy GPR Pair to DRn (Pair if 32-bit)
 ** 1000: FRm, XRn	//Copy 4x FRn
 ** 1001: DRm, XRn	//Copy DRn Pair
 ** 1010: XRm, XRn	//Copy XRn
 ** 1011: YRm, XRn	//Copy XRn Pair
-** 1100: Resv
-** 1101: Resv
+** 1100: FRm,  Rn	//Copy FRm to GPR
+** 1101: DRm,  Rn	//Copy DRm to GPR Pair (Pair if 32-bit)
 ** 1110: XRm, YRn	//Copy XRn Pair (Resv)
 ** 1111: YRm, YRn	//Copy YRn
 
@@ -74,40 +172,180 @@ VV (PMOV):
 VV (PMOV.S):
 * wwrr
 
-VV (PSHUF):
+PSHUF VV 8-bit:
 * wwttmmmm
 ** tt=00: Byte
 ** tt=01: Word/Half
 ** tt=10: Long/Float
 ** tt=11: Double
-* mmmm=Shuffle Register
-** 2-elem: 2x 2b
+* mmmm=Shuffle Register (GPR)
+** 2-elem: 2x 1b
 ** 4-elem: 4x 2b (8-bit)
 ** 8-elem: 8x 3b (24-bit)
 ** 16-elem: 16x 4b (64-bit; register pair for 32-bit)
+* wwtt:
+** 0000: 4x Byte (Reg 4x2b)
+** 0001: 2x Word (Imm, Shuf2)
+** 0010: 4x Byte (Imm, Shuf4)
+** 0011: Reserved
+** 0100: 8x Byte (Reg 8x3b)
+** 0101: 4x Word (Reg, 4x2b)
+** 0110: 2x DWord (Imm, Shuf2)
+** 0111: 4x Word (Imm, Shuf4)
+** 1000: 4x DWord (Imm, Shuf4)
+** 1001: 8x Word (Reg, 8x3b)
+** 1010: 4x DWord (Reg, 4x2b)
+** 1011: 2x QWord (Imm, Shuf2)
+** 1100: Reserved
+** 1101: 4x QWord (Imm, Shuf4)
+** 1110: 8x DWord (Reg, 8x3b)
+** 1111: 4x QWord (Reg, 4x2b)
 
-Non-extended Instructions
-* Will function as in Mini-SIMD
-* rm=10: XRn/YRn: 4xPL/2xPQ | 8xPL/4xPQ
-* rm=11: XRn/YRn: 4xPF/2xPD | 8xPF/4xPD
+PSHUF (Shuf4: 4-bit, 4-elem)
+* 0: XYWZ
+* 1: XZYW
+* 2: YXZW
+* 3: YZXW
+* 4: ZXYW
+* 5: ZYXW
+* 6: XXXX
+* 7: YYYY
+* 8: WXYZ
+* 9: WXZY
+* 10: WYXZ
+* 11: WYZX
+* 12: WZXY
+* 13: WZYX
+* 14: ZZZZ
+* 15: WWWW
+
+PSHUF (Shuf2: 4-bit, 2-elem)
+* 0: XX
+* 1: YX
+* 2: XY
+* 3: YY
+
+Special:
+* "LDS Rm, FPUL; FSTS FPUL, FRn" is super-op "FMOV.S Rm, FRn"
+* "FLDS FRm, FPUL; STS FPUL, Rn" is super-op "FMOV.S FRm, Rn"
+** The contents of FPUL will be undefined if used when FPSCR.VE=1.
+
+Notes:
+* Packed integer arithmetic will be modular.
+* Packed byte to packed word conversion will load the byte into the high bits of the word.
+* Packed word to byte conversion will preserve the high bits.
+
+Notation:
+* S: Operation in Scalar Mode (VE=0)
+* V: Operation in Vector Mode (VE=1)
+* IV: Operation specific to integer vectors
+* FV: Operation specific to floating point vectors
+
+Instructions
+* F---
+**	Fnm0
+***		Fnm0 FADD FRm, FRn		//S: Float Add
+***		Fnm0 PADD FRm, FRn		//V: Packed Add (Modular)
+**	Fnm1
+***		Fnm1 FSUB FRm, FRn		//S: Float Sub
+***		Fnm1 PSUB FRm, FRn		//V: Packed Sub (Modular)
+**	Fnm2
+***		Fnm2 FMUL FRm, FRn		//S: Float Mul
+***		Fnm2 PMULL FRm, FRn		//IV: Packed Mul (Low Bits, Byte/Word)
+***		Fnm2 PFMUL FRm, FRn		//FV: Packed Mul (Half/Float)
+**	Fnm3
+***		Fnm3 FDIV FRm, FRn		//S: Float Divide
+***		Fnm3 PMULH FRm, FRn		//IV: Packed Mul (High Bits, Byte/Word)
+***		Fnm3 PFDIV FRm, FRn		//FV: Packed Div (Half/Float)
+**	Fnm4
+***		Fnm4 FCMPEQ FRm, FRn	//S: Compare
+***		Fnm4 PADDS FRm, FRn		//IV: Packed Add (Signed Saturate, Byte/Word)
+**	Fnm5
+***		Fnm5 FCMPGT FRm, FRn	//S: Compare
+***		Fnm5 PADDU FRm, FRn		//IV: Packed Add (Unsigned Saturate, Byte/Word)
+
+**	Fnm6 FMOV.S @(R0,Rm), FRn
+**	Fnm7 FMOV.S FRm, @(R0,Rn)
+**	Fnm8 FMOV.S @Rm, FRn
+**	Fnm9 FMOV.S @Rm+, FRn
+**	FnmA FMOV.S FRm, @Rn
+**	FnmB FMOV.S FRm, @-Rn
+**	FnmC FMOV FRm, FRn
+**	F--D
+***		Fn0D FSTS FPUL, FRn	//Move FPUL to FRn
+***		Fm1D FLDS FRm, FPUL	//Move FRm to FPUL
+***		Fn2D PFLOAT FPUL, FRn	//Packed Word to Half
+***		Fm3D PFTRC FRm, FPUL	//Packed Half to Word
+***		Fn4D PNEG FRn		//Negate packed values
+***		Fn5D PABS FRn		//Absolute of packed values
+***		Fn6D ? FRn
+***		Fn7D PSHUF R0, FRn	//Shuffle (R0=Mask)
+***		Fn8D PCNVBH FPUL, FRn	//convert 4x packed bytes to 4x packed half (32->64) 
+***		Fn9D PCNVHB FRm, FPUL	//convert 4x packed half to 4x packed bytes (64->32)
+***		FnAD PCNVBW FPUL, FRn	//convert 4x packed bytes to 4x packed words (32->64)
+****		  FnAD PCNVHF FPUL, FRn	//Convert 2x Half to 2x Float
+***		FnBD PCNVWB FRm, FPUL	//convert 4x packed words to 4x packed bytes (64->32)
+****		  FnBD PCNVFH FRm, FPUL	//Convert 2x Float to 2x Half
+***		FiCD PSHUF		//Shuffle Imm4
+***		FiDD PSETMD		//Packed Set Mode
+***		FnED PDDPR		//Packed Dot Product
+***		F-FD
+****			F0FD / FSCA			//Sin/Cos
+****			F1FD / FTRV2
+****			F2FD / FSCA			//
+****			F3FD FSCHG			//Flips FPSCR.SZ
+****			F4FD / FSCA			//
+****			F5FD / FTRV2
+****			F6FD / FSCA			//
+****			F7FD / FPCHG		//Flips FPSCR.PR
+****			F8FD / FSCA			//
+****			F9FD / FTRV2
+****			FAFD / FSCA			//
+****			FBFD / FRCHG		//Flips FPSCR.FR
+****			FCFD / FSCA			//
+****			FDFD / FTRV2
+****			FEFD / FSCA			//
+**	FnmE ? (Reserved Ops)
+**	FooF ? (Escape 32 for FPU/SIMD Ops)
+
 
 Instructions (Extended)
 * F---
-**	8Evv-Fnm0 PADD FRm, FRn			//Packed Add (I=Modular)
-**	8Evv-Fnm1 PSUB FRm, FRn			//Packed Sub (I=Modular)
-**	8Evv-Fnm2 PMULL FRm, FRn		//I: Packed Mul (Low Bits)
-***		8Evv-Fnm2 PFMUL FRm, FRn		//F: Packed Float Mul
-**	8Evv-Fnm3 PMULH FRm, FRn		//I: Packed Mul (High Bits)
-***		8Evv-Fnm3 PFDIV FRm, FRn		//F: Packed Float Div
-**	8Evv-Fnm4 PADDS FRm, FRn		//I: Packed Add (Signed Saturate)
-**	8Evv-Fnm5 PADDU FRm, FRn		//I: Packed Add (Unsigned Saturate)
+** 8Evv-Fnm0
+***		8Ev0-Fnm0 FADD FRm, FRn		//S: Float Add
+***		8Ev0-Fnm0 PADD FRm, FRn		//V: Packed Add (I=Modular)
+** 8Evv-Fnm1
+***		8Ev0-Fnm1 FSUB FRm, FRn		//S: Float Sub
+***		8Ev0-Fnm1 PSUB FRm, FRn		//V: Packed Sub (I=Modular)
+** 8Evv-Fnm2
+***		8Ev0-Fnm2 FMUL FRm, FRn		//FS: Float Mul
+***		8Ev0-Fnm2 PMULL FRm, FRn	//IV: Packed Mul (Keep Low Bits)
+***		8Ev0-Fnm2 PFMUL FRm, FRn	//FV: Packed Float Mul
+** 8Evv-Fnm3
+***		8Ev0-Fnm3 FDIV FRm, FRn		//FS: Packed Mul (Keep High Bits)
+***		8Ev0-Fnm3 PMULH FRm, FRn	//IV: Packed Mul (Keep High Bits)
+***		8Ev0-Fnm3 PFDIV FRm, FRn	//FV: Packed Float Div
+** 8Evv-Fnm4
+***		8Ev0-Fnm4 FCMPEQ FRm, FRn	//FS: Compare Equal
+***		8Ev0-Fnm4 PADDS FRm, FRn	//IV: Packed Add (Signed Saturate)
+***		8Ev0-Fnm4 Reserved			//FV: Reserved
+
+** 8Evv-Fnm5
+***		8Ev0-Fnm5 FCMPGT FRm, FRn	//FS: Compare Greater
+***		8Ev0-Fnm5 PADDU FRm, FRn	//IV: Packed Add (Unsigned Saturate)
+***		8Ev0-Fnm5 Reserved			//FV: Reserved
+
 **	8Evo-Fnm6 PMOV.S @(Rm,Ro), FRn
 **	8Evo-Fnm7 PMOV.S FRm, @(Rn,Ro)
 **	8Evd-Fnm8 PMOV.S @(Rm,disp4), FRn
 **	8Ev0-Fnm9 PMOV.S @Rm+, FRn
 **	8Evd-FnmA PMOV.S FRm, @(Rn,disp4)
 **	8Ev0-FnmB PMOV.S FRm, @-Rn
-**	8Evv-FnmC PMOV FRm, FRn
+
+** 8Evv-FnmC
+***		8Evv-FnmC FMOV FRm, FRn		//S: FPU MOV
+***		8Evv-FnmC PMOV FRm, FRn		//V: Packed MOV
+
 **	F--D
 ***		8Evv-Fn0D PSTS FPUL, FRn
 ***		8Evv-Fm1D PLDS FRm, FPUL
@@ -150,3 +388,24 @@ Instructions (Extended)
 * /	8EFn-8Em9-vddd-dddd PMOV.S @Rm+, FRn
 *	8EFn-8EmA-vddd-dddd PMOV.S FRm, @(Rn,disp28)
 * /	8EFn-8EmB-vddd-dddd PMOV.S FRm, @-Rn
+
+
+PSETMD 4-bit
+* imm4=tvps
+* T=0: Set VE, PR, and SZ
+** V: FPSCR.VE: 0=FPU, 1=Vector
+** P: FPSCR.PR
+** S: FPSCR.SZ
+* T=1: Set FR and RM(0,1)
+** FR is N/A if no alternate bank of FPU registers exists.
+
+PSETMD 12-bit
+* imm12=000v-wwfz-pdmm
+* v: VE
+* ww: Swap Mode
+* f: FR
+* z: SZ
+* p: PR
+* d: DN
+* mm: Rounding Mode
+* Other bits for FPSCR are cleared to 0.

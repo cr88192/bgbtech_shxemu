@@ -84,6 +84,11 @@ int BGBCC_SHX_EmitByte(BGBCC_SHX_Context *ctx, int val)
 
 int BGBCC_SHX_EmitWord(BGBCC_SHX_Context *ctx, int val)
 {
+//	if(!(val&0xFFFF) && (ctx->sec==BGBCC_SH_CSEG_TEXT))
+//	{
+//		BGBCC_DBGBREAK
+//	}
+
 	if(ctx->is_le)
 	{
 		BGBCC_SHX_EmitByte(ctx, val   );
@@ -293,6 +298,12 @@ int BGBCC_SHX_EmitGetOffsDWord(BGBCC_SHX_Context *ctx, int ofs)
 int BGBCC_SHX_EmitSetOffsWord(BGBCC_SHX_Context *ctx, int ofs, int val)
 {
 	byte *ptr;
+
+//	if(!(val&0xFFFF) && (ctx->sec==BGBCC_SH_CSEG_TEXT))
+//	{
+//		BGBCC_DBGBREAK
+//	}
+
 	ptr=BGBCC_SHX_EmitGetPosForOffs(ctx, ofs);
 	if(ctx->is_le)
 	{
@@ -1736,6 +1747,7 @@ int BGBCC_SHX_EmitLoadRegImm(
 		return(1);
 	}
 
+#if 0
 	if(!(imm&3) && (((sbyte)(imm>>2))==(imm>>2)) && ((reg&0xF0)==0x00))
 	{
 		opw=0xE000|((reg&15)<<8)|((imm>>2)&255);
@@ -1744,6 +1756,7 @@ int BGBCC_SHX_EmitLoadRegImm(
 		BGBCC_SHX_EmitWord(ctx, opw2);
 		return(1);
 	}
+#endif
 
 	if(!(imm&255) && (((sbyte)(imm>>8))==(imm>>8)) && ((reg&0xF0)==0x00))
 	{
@@ -1771,6 +1784,16 @@ int BGBCC_SHX_EmitLoadRegImm(
 		return(1);
 	}
 
+	if(!(imm&65535) && (((s16)(imm>>16))==(imm>>16)) && ((reg&0xF0)==0x00))
+	{
+		opw=0x9000|((reg&15)<<8);
+		opw2=0x4028|((reg&15)<<8);
+		BGBCC_SHX_EmitWord(ctx, opw);
+		BGBCC_SHX_EmitIndexAddImm16(ctx, imm);
+		BGBCC_SHX_EmitWord(ctx, opw2);
+		return(1);
+	}
+
 	if((((s32)imm)==imm) && ((reg&0xF0)==0x00))
 	{
 		opw=0xD000|((reg&15)<<8);
@@ -1778,6 +1801,8 @@ int BGBCC_SHX_EmitLoadRegImm(
 		BGBCC_SHX_EmitIndexAddImm32(ctx, imm);
 		return(1);
 	}
+	
+	BGBCC_DBGBREAK
 	
 	return(0);
 }
@@ -1866,7 +1891,14 @@ int BGBCC_SHX_EmitFlushIndexImm16(BGBCC_SHX_Context *ctx)
 		opc=ctx->ofs_s16tab[i];
 //		opd=((ob-(opc+4))/2)+(ctx->idx_s16tab[i]);
 		opd=((ob-(opc+2))/2)+(ctx->idx_s16tab[i]);
+//		opd=((ob-opc)/2)+(ctx->idx_s16tab[i]);
 		opw=BGBCC_SHX_EmitGetOffsWord(ctx, opc-2);
+
+		if((opw&0xF000)!=0x9000)
+			{ BGBCC_DBGBREAK }
+		if(opd>>8)
+			{ BGBCC_DBGBREAK }
+
 		opw+=opd;
 		BGBCC_SHX_EmitSetOffsWord(ctx, opc-2, opw);
 	}
@@ -1903,9 +1935,13 @@ int BGBCC_SHX_EmitFlushIndexImm32(BGBCC_SHX_Context *ctx)
 //		opd=((ob-(opc+2))/4)+j;
 		opd=((ob-opc)/4)+j;
 		opw=BGBCC_SHX_EmitGetOffsWord(ctx, opc-2);
+
 //		if((opw&0xF000)!=0xD000)
 		if(((opw&0xF000)!=0xD000) && ((opw&0xFF00)!=0xC700))
-			__debugbreak();
+			{ BGBCC_DBGBREAK }
+		if(opd>>8)
+			{ BGBCC_DBGBREAK }
+
 		opw+=opd;
 		BGBCC_SHX_EmitSetOffsWord(ctx, opc-2, opw);
 		

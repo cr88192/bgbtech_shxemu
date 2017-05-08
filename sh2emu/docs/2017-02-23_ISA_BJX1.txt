@@ -341,6 +341,10 @@ SHAD/SHLD Shift (64-bit Mode)
 ***		4n08 SHLL2 Rn
 ***		4n18 SHLL8 Rn
 ***		4n28 SHLL16 Rn
+***		4-38 -
+***		...
+***		4-E8 -
+***		4nF8-iiii	LDSH16 #imm16, Rn	//Rn=(Rn<<16)|Imm
 **	4--9
 ***		4n09 SHLR2 Rn
 ***		4n19 SHLR8 Rn
@@ -543,6 +547,18 @@ Shift Super-Ops
 ** Unlike combiner-form, this will store the immediate into Rm.
 
 
+For XPFX0 I-Forms
+* The prefix will give the low bits of multi-part immediates for 32-bit I-Forms.
+* The prefix opcode will comprise the high order bits of 64-bit I-Forms.
+** Instruction words will be labeled as (0, 1) or (0, 1, 2, 3)
+* 8E34 EC12: MOV 0x1234, R12
+* 8EEC 8E12  3456 789A: MOV 0x123456789A, R12
+* The endianess of each instruction WORD will depend on the target.
+* Words 2 and 3 will be swapped on little-endian targets.
+* 8E-EC 8E-12  34-56 78-9A: MOV 0x123456789A, R12 (Big-Endian)
+* EC-8E 12-8E  9A-78 56-34: MOV 0x123456789A, R12 (Little-Endian)
+
+
 XPFX0/Escape32 I-Forms
 *	0---
 **		8Edd-0nm4 MOV.B Rm, @(Rn,R0,disp)	//Move Byte Rm to R0+Rn
@@ -589,19 +605,24 @@ XPFX0/Escape32 I-Forms
 **		8Edd-3nmE -
 **		8Edd-3nmF -
 *	4---
-
-**		8Eii-4m84 MOV.B #imm, @Rn			//Store Imm to memory
-**		8Eii-4m94 MOV.W #imm, @Rn			//
-**		8Eii-4mA4 MOV.L #imm, @Rn			//
-**		8Eii-4mB4 MOV.Q #imm, @Rn			//
-**		8Eii-4mC4 MOV.B #imm, @-Rn			//Store Imm to memory (Dec)
-**		8Eii-4mD4 MOV.W #imm, @-Rn			//
-**		8Eii-4mE4 MOV.L #imm, @-Rn			//
-**		8Eii-4mF4 MOV.Q #imm, @-Rn			//
-
+**		8Exx-4xx0 -
+**		...
+**		8Exx-4xx4 -
+**		8Exx-4xx4
+***			8Eii-4m84 MOV.B #imm, @Rn			//Store Imm to memory
+***			8Eii-4m94 MOV.W #imm, @Rn			//
+***			8Eii-4mA4 MOV.L #imm, @Rn			//
+***			8Eii-4mB4 MOV.Q #imm, @Rn			//
+***			8Eii-4mC4 MOV.B #imm, @-Rn			//Store Imm to memory (Dec)
+***			8Eii-4mD4 MOV.W #imm, @-Rn			//
+***			8Eii-4mE4 MOV.L #imm, @-Rn			//
+***			8Eii-4mF4 MOV.Q #imm, @-Rn			//
+**		8Exx-4xx5 -
+**		...
+**		8Exx-4xxB -
 **		8Eii-4nmC SHAD Rm, #imm, Rn			//Rn=Rm SAL Imm8 | Rn=Rm SAR Imm8
 **		8Eii-4nmD SHLD Rm, #imm, Rn			//Rn=Rm SHL Imm8 | Rn=Rm SHR Imm8
-**		4--E
+**		8Exx-4xxE
 ***			8Est-4n0E CMOV  Rs, Rt, Rn		//Rn=SR.T?Rs:Rt
 ***			8Est-4n1E ADD   Rs, Rt, Rn		//Rn=Rs+Rt
 ***			8Est-4n2E SUB   Rs, Rt, Rn		//Rn=Rs-Rt
@@ -612,7 +633,7 @@ XPFX0/Escape32 I-Forms
 ***			8Est-4n7E OR    Rs, Rt, Rn		//Rn=Rs|Rt
 ***			8Est-4n8E MULSH Rs, Rt, Rn		//Rn=(Rs*Rt) SHR 32
 ***			8Est-4n9E MULUH Rs, Rt, Rn		//Rn=(Rs*Rt) SHR 32
-**		4--F
+**		8Exx-4xxF
 
 *	8Edd-5nmo MOV.L @(Rm,Ro,disp), Rn		//Rm+(Ro+disp)*4
 *	6---
@@ -652,29 +673,42 @@ XPFX0/Escape32 I-Forms
 *	8Edd-Addd BRA disp20
 *	8Edd-Bddd BSR disp20
 *	C---
-**		8Edd-C7n0 MOV.B @(PC,disp8), Rn			//Volatile Memory Load
-**		8Edd-C7n1 MOV.W @(PC,disp8), Rn			//
-**		8Edd-C7n2 MOV.L @(PC,disp8), Rn			//
-**		8Edd-C7n3 MOV.Q @(PC,disp8), Rn			//
-**		8Edd-C7m4 MOV.B Rm, @(PC,disp8)			//Volatile Memory Store
-**		8Edd-C7m5 MOV.W Rm, @(PC,disp8)			//
-**		8Edd-C7m6 MOV.L Rm, @(PC,disp8)			//
-**		8Edd-C7m7 MOV.Q Rm, @(PC,disp8)			//
-**		8Edd-C7n8 MOVA.B @(PC,disp8), Rn		//Load Address
-**		8Edd-C7n9 MOVA.W @(PC,disp8), Rn		//
-**		8Edd-C7nA MOVA.L @(PC,disp8), Rn		//
-**		8Edd-C7nB MOVA.Q @(PC,disp8), Rn		//
-
-**		8Edd-C7nF LEA.LL/LQ @(Rn,disp4,disp4), Rn		//
-
+**		8Exx-C0xx -
+**		8Exx-C1xx -
+**		8Exx-C2xx -
+**		8Exx-C3xx -
+**		8Exx-C4xx -
+**		8Exx-C5xx -
+**		8Exx-C6xx -
+**		8Exx-C7xx
+***			8Edd-C7n0 MOV.B @(PC,disp8), Rn			//Volatile Memory Load
+***			8Edd-C7n1 MOV.W @(PC,disp8), Rn			//
+***			8Edd-C7n2 MOV.L @(PC,disp8), Rn			//
+***			8Edd-C7n3 MOV.Q @(PC,disp8), Rn			//
+***			8Edd-C7m4 MOV.B Rm, @(PC,disp8)			//Volatile Memory Store
+***			8Edd-C7m5 MOV.W Rm, @(PC,disp8)			//
+***			8Edd-C7m6 MOV.L Rm, @(PC,disp8)			//
+***			8Edd-C7m7 MOV.Q Rm, @(PC,disp8)			//
+***			8Edd-C7n8 MOVA.B @(PC,disp8), Rn		//Load Address
+***			8Edd-C7n9 MOVA.W @(PC,disp8), Rn		//
+***			8Edd-C7nA MOVA.L @(PC,disp8), Rn		//
+***			8Edd-C7nB MOVA.Q @(PC,disp8), Rn		//
+***			8Edd-C7nC -
+***			8Edd-C7nD -
+***			8Edd-C7nE -
+***			8Edd-C7nF LEA.LL/LQ @(Rn,disp4,disp4), Rn		//
 **		8Ejj-C8nj TST #imm12, Rn
 **		8Ejj-C9nj AND #imm12, Rn
 **		8Ejj-CAnj XOR #imm12, Rn
 **		8Ejj-CBnj OR #imm12, Rn
+**		8Exx-CCxx -
+**		8Exx-CDxx -
+**		8Exx-CExx -
+**		8Exx-CFxx -
 
 *	8Edd-Dndd MOV.L/Q @(PC,disp16), Rn	//
 *	8Eii-Enii MOV #imm16, Rn
-*	8Eoo-Fooo (Resv Ext-FPU / SIMD)
+*	8Eoo-Fooo (Ext-FPU / WV-SIMD)
 
 Escape 64 (BJX32: Values truncated to 32-bits)
 

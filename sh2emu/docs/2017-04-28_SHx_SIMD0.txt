@@ -16,6 +16,7 @@ FPSCR bits:
 * 0020_0000: FR		//Float Register Bank
 * 0040_0000: SW0	//Swap 0
 * 0080_0000: SW1	//Swap 1
+* 0100_0000: VE		//Vector Enable
 
 Flags
 * FPSCR.SZ: Selects 32 or 64-bit vector.
