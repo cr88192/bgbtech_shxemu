@@ -42,8 +42,33 @@
     <var name="size_t">
       <type flags=131072 ind=0 name="int"/>
     </var>
+    <var name="u64_obj_t">
+      <type flags=0 ind=0 name="u64_obj_s"/>
+    </var>
+    <var name="u128_obj_t">
+      <type flags=0 ind=0 name="u128_obj_s"/>
+    </var>
   </types>
-  <structs/>
+  <structs>
+    <struct name="u64_obj_s" flags=0>
+      <body>
+        <vars fn="tests/cl_stub.c" ln=483>
+          <var name="lo">
+            <type flags=131072 ind=0 name="int"/>
+          </var>
+        </vars>
+      </body>
+    </struct>
+    <struct name="u128_obj_s" flags=0>
+      <body>
+        <vars fn="tests/cl_stub.c" ln=567>
+          <var name="la">
+            <type flags=131072 ind=0 name="int"/>
+          </var>
+        </vars>
+      </body>
+    </struct>
+  </structs>
   <body>
     <defun name="putc" tokens=36 fn="tests/cl_stub.c" ln=132>
       <body>
@@ -2406,6 +2431,1008 @@
       </body>
       <type flags=0 ind=0 name="void"/>
       <args/>
+    </defun>
+    <vars fn="tests/cl_stub.c" ln=483/>
+    <defun name="__shllli" tokens=115 fn="tests/cl_stub.c" ln=489>
+      <body>
+        <begin tokens=115>
+          <vars fn="tests/cl_stub.c" ln=489>
+            <var name="oval">
+              <type flags=0 ind=0 name="u64_obj_s"/>
+            </var>
+          </vars>
+          <if fn="tests/cl_stub.c" ln=493>
+            <cond>
+              <unary op="!">
+                <value>
+                  <binary op="&amp;">
+                    <left>
+                      <ref name="shl"/>
+                    </left>
+                    <right>
+                      <int value=31/>
+                    </right>
+                  </binary>
+                </value>
+              </unary>
+            </cond>
+            <then>
+              <begin tokens=59>
+                <if fn="tests/cl_stub.c" ln=493>
+                  <cond>
+                    <unary op="!">
+                      <value>
+                        <ref name="shl"/>
+                      </value>
+                    </unary>
+                  </cond>
+                  <then>
+                    <return fn="tests/cl_stub.c" ln=493>
+                      <value>
+                        <ref name="ival"/>
+                      </value>
+                    </return>
+                  </then>
+                </if>
+                <if fn="tests/cl_stub.c" ln=493>
+                  <cond>
+                    <binary op="==">
+                      <left>
+                        <ref name="shl"/>
+                      </left>
+                      <right>
+                        <int value=32/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=21>
+                      <assign fn="tests/cl_stub.c" ln=493>
+                        <left>
+                          <objref name="lo">
+                            <value>
+                              <ref name="oval"/>
+                            </value>
+                          </objref>
+                        </left>
+                        <right>
+                          <int value=0/>
+                        </right>
+                      </assign>
+                      <assign fn="tests/cl_stub.c" ln=493>
+                        <left>
+                          <objref name="hi">
+                            <value>
+                              <ref name="oval"/>
+                            </value>
+                          </objref>
+                        </left>
+                        <right>
+                          <objref name="lo">
+                            <value>
+                              <ref name="ival"/>
+                            </value>
+                          </objref>
+                        </right>
+                      </assign>
+                      <return fn="tests/cl_stub.c" ln=493>
+                        <value>
+                          <ref name="oval"/>
+                        </value>
+                      </return>
+                    </begin>
+                  </then>
+                </if>
+                <assign fn="tests/cl_stub.c" ln=504>
+                  <left>
+                    <objref name="lo">
+                      <value>
+                        <ref name="oval"/>
+                      </value>
+                    </objref>
+                  </left>
+                  <right>
+                    <int value=0/>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=504>
+                  <left>
+                    <objref name="hi">
+                      <value>
+                        <ref name="oval"/>
+                      </value>
+                    </objref>
+                  </left>
+                  <right>
+                    <int value=0/>
+                  </right>
+                </assign>
+                <return fn="tests/cl_stub.c" ln=504>
+                  <value>
+                    <ref name="oval"/>
+                  </value>
+                </return>
+              </begin>
+            </then>
+          </if>
+          <assign fn="tests/cl_stub.c" ln=509>
+            <left>
+              <objref name="lo">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <binary op="&lt;&lt;">
+                <left>
+                  <objref name="lo">
+                    <value>
+                      <ref name="ival"/>
+                    </value>
+                  </objref>
+                </left>
+                <right>
+                  <ref name="shl"/>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=509>
+            <left>
+              <objref name="hi">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <binary op="|">
+                <left>
+                  <binary op="&lt;&lt;">
+                    <left>
+                      <objref name="hi">
+                        <value>
+                          <ref name="ival"/>
+                        </value>
+                      </objref>
+                    </left>
+                    <right>
+                      <ref name="shl"/>
+                    </right>
+                  </binary>
+                </left>
+                <right>
+                  <binary op="&lt;&lt;">
+                    <left>
+                      <objref name="lo">
+                        <value>
+                          <ref name="ival"/>
+                        </value>
+                      </objref>
+                    </left>
+                    <right>
+                      <binary op="-">
+                        <left>
+                          <int value=32/>
+                        </left>
+                        <right>
+                          <ref name="shl"/>
+                        </right>
+                      </binary>
+                    </right>
+                  </binary>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <return fn="tests/cl_stub.c" ln=509>
+            <value>
+              <ref name="oval"/>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="u64_obj_s"/>
+      <args>
+        <var name="ival">
+          <type flags=0 ind=0 name="u64_obj_s"/>
+        </var>
+        <var name="shl">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="__shrlli" tokens=115 fn="tests/cl_stub.c" ln=514>
+      <body>
+        <begin tokens=115>
+          <vars fn="tests/cl_stub.c" ln=514>
+            <var name="oval">
+              <type flags=0 ind=0 name="u64_obj_s"/>
+            </var>
+          </vars>
+          <if fn="tests/cl_stub.c" ln=518>
+            <cond>
+              <unary op="!">
+                <value>
+                  <binary op="&amp;">
+                    <left>
+                      <ref name="shl"/>
+                    </left>
+                    <right>
+                      <int value=31/>
+                    </right>
+                  </binary>
+                </value>
+              </unary>
+            </cond>
+            <then>
+              <begin tokens=59>
+                <if fn="tests/cl_stub.c" ln=518>
+                  <cond>
+                    <unary op="!">
+                      <value>
+                        <ref name="shl"/>
+                      </value>
+                    </unary>
+                  </cond>
+                  <then>
+                    <return fn="tests/cl_stub.c" ln=518>
+                      <value>
+                        <ref name="ival"/>
+                      </value>
+                    </return>
+                  </then>
+                </if>
+                <if fn="tests/cl_stub.c" ln=518>
+                  <cond>
+                    <binary op="==">
+                      <left>
+                        <ref name="shl"/>
+                      </left>
+                      <right>
+                        <int value=32/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=21>
+                      <assign fn="tests/cl_stub.c" ln=518>
+                        <left>
+                          <objref name="lo">
+                            <value>
+                              <ref name="oval"/>
+                            </value>
+                          </objref>
+                        </left>
+                        <right>
+                          <objref name="hi">
+                            <value>
+                              <ref name="ival"/>
+                            </value>
+                          </objref>
+                        </right>
+                      </assign>
+                      <assign fn="tests/cl_stub.c" ln=518>
+                        <left>
+                          <objref name="hi">
+                            <value>
+                              <ref name="oval"/>
+                            </value>
+                          </objref>
+                        </left>
+                        <right>
+                          <int value=0/>
+                        </right>
+                      </assign>
+                      <return fn="tests/cl_stub.c" ln=518>
+                        <value>
+                          <ref name="oval"/>
+                        </value>
+                      </return>
+                    </begin>
+                  </then>
+                </if>
+                <assign fn="tests/cl_stub.c" ln=529>
+                  <left>
+                    <objref name="lo">
+                      <value>
+                        <ref name="oval"/>
+                      </value>
+                    </objref>
+                  </left>
+                  <right>
+                    <int value=0/>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=529>
+                  <left>
+                    <objref name="hi">
+                      <value>
+                        <ref name="oval"/>
+                      </value>
+                    </objref>
+                  </left>
+                  <right>
+                    <int value=0/>
+                  </right>
+                </assign>
+                <return fn="tests/cl_stub.c" ln=529>
+                  <value>
+                    <ref name="oval"/>
+                  </value>
+                </return>
+              </begin>
+            </then>
+          </if>
+          <assign fn="tests/cl_stub.c" ln=534>
+            <left>
+              <objref name="hi">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <binary op="&gt;&gt;">
+                <left>
+                  <objref name="hi">
+                    <value>
+                      <ref name="ival"/>
+                    </value>
+                  </objref>
+                </left>
+                <right>
+                  <ref name="shl"/>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=534>
+            <left>
+              <objref name="lo">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <binary op="|">
+                <left>
+                  <binary op="&gt;&gt;">
+                    <left>
+                      <objref name="lo">
+                        <value>
+                          <ref name="ival"/>
+                        </value>
+                      </objref>
+                    </left>
+                    <right>
+                      <ref name="shl"/>
+                    </right>
+                  </binary>
+                </left>
+                <right>
+                  <binary op="&lt;&lt;">
+                    <left>
+                      <objref name="hi">
+                        <value>
+                          <ref name="ival"/>
+                        </value>
+                      </objref>
+                    </left>
+                    <right>
+                      <binary op="-">
+                        <left>
+                          <int value=32/>
+                        </left>
+                        <right>
+                          <ref name="shl"/>
+                        </right>
+                      </binary>
+                    </right>
+                  </binary>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <return fn="tests/cl_stub.c" ln=534>
+            <value>
+              <ref name="oval"/>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="u64_obj_s"/>
+      <args>
+        <var name="ival">
+          <type flags=0 ind=0 name="u64_obj_s"/>
+        </var>
+        <var name="shl">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <defun name="__sarlli" tokens=176 fn="tests/cl_stub.c" ln=539>
+      <body>
+        <begin tokens=176>
+          <vars fn="tests/cl_stub.c" ln=539>
+            <var name="oval">
+              <type flags=0 ind=0 name="u64_obj_s"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=539>
+            <var name="m">
+              <type flags=131072 ind=0 name="int"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=544>
+            <left>
+              <ref name="m"/>
+            </left>
+            <right>
+              <int value=0/>
+            </right>
+          </assign>
+          <if fn="tests/cl_stub.c" ln=544>
+            <cond>
+              <binary op="&amp;">
+                <left>
+                  <objref name="hi">
+                    <value>
+                      <ref name="ival"/>
+                    </value>
+                  </objref>
+                </left>
+                <right>
+                  <int value=2147483648/>
+                </right>
+              </binary>
+            </cond>
+            <then>
+              <assign fn="tests/cl_stub.c" ln=544>
+                <left>
+                  <ref name="m"/>
+                </left>
+                <right>
+                  <cast>
+                    <value>
+                      <unary op="-">
+                        <value>
+                          <int value=1/>
+                        </value>
+                      </unary>
+                    </value>
+                    <type flags=131072 ind=0 name="int"/>
+                  </cast>
+                </right>
+              </assign>
+            </then>
+          </if>
+          <if fn="tests/cl_stub.c" ln=548>
+            <cond>
+              <unary op="!">
+                <value>
+                  <binary op="&amp;">
+                    <left>
+                      <ref name="shl"/>
+                    </left>
+                    <right>
+                      <int value=31/>
+                    </right>
+                  </binary>
+                </value>
+              </unary>
+            </cond>
+            <then>
+              <begin tokens=83>
+                <if fn="tests/cl_stub.c" ln=548>
+                  <cond>
+                    <unary op="!">
+                      <value>
+                        <ref name="shl"/>
+                      </value>
+                    </unary>
+                  </cond>
+                  <then>
+                    <return fn="tests/cl_stub.c" ln=548>
+                      <value>
+                        <ref name="ival"/>
+                      </value>
+                    </return>
+                  </then>
+                </if>
+                <if fn="tests/cl_stub.c" ln=548>
+                  <cond>
+                    <binary op="==">
+                      <left>
+                        <ref name="shl"/>
+                      </left>
+                      <right>
+                        <int value=32/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=20>
+                      <assign fn="tests/cl_stub.c" ln=548>
+                        <left>
+                          <objref name="lo">
+                            <value>
+                              <ref name="oval"/>
+                            </value>
+                          </objref>
+                        </left>
+                        <right>
+                          <objref name="hi">
+                            <value>
+                              <ref name="ival"/>
+                            </value>
+                          </objref>
+                        </right>
+                      </assign>
+                      <assign fn="tests/cl_stub.c" ln=548>
+                        <left>
+                          <objref name="hi">
+                            <value>
+                              <ref name="oval"/>
+                            </value>
+                          </objref>
+                        </left>
+                        <right>
+                          <ref name="m"/>
+                        </right>
+                      </assign>
+                      <return fn="tests/cl_stub.c" ln=548>
+                        <value>
+                          <ref name="oval"/>
+                        </value>
+                      </return>
+                    </begin>
+                  </then>
+                </if>
+                <if fn="tests/cl_stub.c" ln=548>
+                  <cond>
+                    <binary op="&gt;">
+                      <left>
+                        <ref name="m"/>
+                      </left>
+                      <right>
+                        <int value=0/>
+                      </right>
+                    </binary>
+                  </cond>
+                  <then>
+                    <begin tokens=18>
+                      <assign fn="tests/cl_stub.c" ln=548>
+                        <left>
+                          <objref name="lo">
+                            <value>
+                              <ref name="oval"/>
+                            </value>
+                          </objref>
+                        </left>
+                        <right>
+                          <ref name="m"/>
+                        </right>
+                      </assign>
+                      <assign fn="tests/cl_stub.c" ln=548>
+                        <left>
+                          <objref name="hi">
+                            <value>
+                              <ref name="oval"/>
+                            </value>
+                          </objref>
+                        </left>
+                        <right>
+                          <ref name="m"/>
+                        </right>
+                      </assign>
+                      <return fn="tests/cl_stub.c" ln=548>
+                        <value>
+                          <ref name="oval"/>
+                        </value>
+                      </return>
+                    </begin>
+                  </then>
+                </if>
+                <assign fn="tests/cl_stub.c" ln=548>
+                  <left>
+                    <objref name="lo">
+                      <value>
+                        <ref name="oval"/>
+                      </value>
+                    </objref>
+                  </left>
+                  <right>
+                    <int value=0/>
+                  </right>
+                </assign>
+                <assign fn="tests/cl_stub.c" ln=548>
+                  <left>
+                    <objref name="hi">
+                      <value>
+                        <ref name="oval"/>
+                      </value>
+                    </objref>
+                  </left>
+                  <right>
+                    <int value=0/>
+                  </right>
+                </assign>
+                <return fn="tests/cl_stub.c" ln=548>
+                  <value>
+                    <ref name="oval"/>
+                  </value>
+                </return>
+              </begin>
+            </then>
+          </if>
+          <assign fn="tests/cl_stub.c" ln=560>
+            <left>
+              <objref name="hi">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <binary op="|">
+                <left>
+                  <binary op="&gt;&gt;">
+                    <left>
+                      <objref name="hi">
+                        <value>
+                          <ref name="ival"/>
+                        </value>
+                      </objref>
+                    </left>
+                    <right>
+                      <ref name="shl"/>
+                    </right>
+                  </binary>
+                </left>
+                <right>
+                  <binary op="&lt;&lt;">
+                    <left>
+                      <ref name="m"/>
+                    </left>
+                    <right>
+                      <binary op="-">
+                        <left>
+                          <int value=32/>
+                        </left>
+                        <right>
+                          <ref name="shl"/>
+                        </right>
+                      </binary>
+                    </right>
+                  </binary>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=560>
+            <left>
+              <objref name="lo">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <binary op="|">
+                <left>
+                  <binary op="&gt;&gt;">
+                    <left>
+                      <objref name="lo">
+                        <value>
+                          <ref name="ival"/>
+                        </value>
+                      </objref>
+                    </left>
+                    <right>
+                      <ref name="shl"/>
+                    </right>
+                  </binary>
+                </left>
+                <right>
+                  <binary op="&lt;&lt;">
+                    <left>
+                      <objref name="hi">
+                        <value>
+                          <ref name="ival"/>
+                        </value>
+                      </objref>
+                    </left>
+                    <right>
+                      <binary op="-">
+                        <left>
+                          <int value=32/>
+                        </left>
+                        <right>
+                          <ref name="shl"/>
+                        </right>
+                      </binary>
+                    </right>
+                  </binary>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <return fn="tests/cl_stub.c" ln=560>
+            <value>
+              <ref name="oval"/>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="u64_obj_s"/>
+      <args>
+        <var name="ival">
+          <type flags=0 ind=0 name="u64_obj_s"/>
+        </var>
+        <var name="shl">
+          <type flags=0 ind=0 name="int"/>
+        </var>
+      </args>
+    </defun>
+    <vars fn="tests/cl_stub.c" ln=567/>
+    <defun name="__addxli" tokens=121 fn="tests/cl_stub.c" ln=575>
+      <body>
+        <begin tokens=121>
+          <vars fn="tests/cl_stub.c" ln=575>
+            <var name="oval">
+              <type flags=0 ind=0 name="u128_obj_s"/>
+            </var>
+          </vars>
+          <vars fn="tests/cl_stub.c" ln=575>
+            <var name="t">
+              <type flags=131072 ind=0 name="llong"/>
+            </var>
+          </vars>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <binary op="+">
+                <left>
+                  <cast>
+                    <value>
+                      <objref name="la">
+                        <value>
+                          <ref name="va"/>
+                        </value>
+                      </objref>
+                    </value>
+                    <type flags=131072 ind=0 name="llong"/>
+                  </cast>
+                </left>
+                <right>
+                  <objref name="la">
+                    <value>
+                      <ref name="vb"/>
+                    </value>
+                  </objref>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <objref name="la">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <ref name="t"/>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <binary op="&gt;&gt;">
+                <left>
+                  <ref name="t"/>
+                </left>
+                <right>
+                  <int value=32/>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <binary op="+">
+                <left>
+                  <binary op="+">
+                    <left>
+                      <ref name="t"/>
+                    </left>
+                    <right>
+                      <cast>
+                        <value>
+                          <objref name="lb">
+                            <value>
+                              <ref name="va"/>
+                            </value>
+                          </objref>
+                        </value>
+                        <type flags=131072 ind=0 name="llong"/>
+                      </cast>
+                    </right>
+                  </binary>
+                </left>
+                <right>
+                  <objref name="lb">
+                    <value>
+                      <ref name="vb"/>
+                    </value>
+                  </objref>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <objref name="lb">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <ref name="t"/>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <binary op="&gt;&gt;">
+                <left>
+                  <ref name="t"/>
+                </left>
+                <right>
+                  <int value=32/>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <binary op="+">
+                <left>
+                  <binary op="+">
+                    <left>
+                      <ref name="t"/>
+                    </left>
+                    <right>
+                      <cast>
+                        <value>
+                          <objref name="lc">
+                            <value>
+                              <ref name="va"/>
+                            </value>
+                          </objref>
+                        </value>
+                        <type flags=131072 ind=0 name="llong"/>
+                      </cast>
+                    </right>
+                  </binary>
+                </left>
+                <right>
+                  <objref name="lc">
+                    <value>
+                      <ref name="vb"/>
+                    </value>
+                  </objref>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <objref name="lc">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <ref name="t"/>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <binary op="&gt;&gt;">
+                <left>
+                  <ref name="t"/>
+                </left>
+                <right>
+                  <int value=32/>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <ref name="t"/>
+            </left>
+            <right>
+              <binary op="+">
+                <left>
+                  <binary op="+">
+                    <left>
+                      <ref name="t"/>
+                    </left>
+                    <right>
+                      <cast>
+                        <value>
+                          <objref name="ld">
+                            <value>
+                              <ref name="va"/>
+                            </value>
+                          </objref>
+                        </value>
+                        <type flags=131072 ind=0 name="llong"/>
+                      </cast>
+                    </right>
+                  </binary>
+                </left>
+                <right>
+                  <objref name="ld">
+                    <value>
+                      <ref name="vb"/>
+                    </value>
+                  </objref>
+                </right>
+              </binary>
+            </right>
+          </assign>
+          <assign fn="tests/cl_stub.c" ln=580>
+            <left>
+              <objref name="ld">
+                <value>
+                  <ref name="oval"/>
+                </value>
+              </objref>
+            </left>
+            <right>
+              <ref name="t"/>
+            </right>
+          </assign>
+          <return fn="tests/cl_stub.c" ln=580>
+            <value>
+              <ref name="oval"/>
+            </value>
+          </return>
+        </begin>
+      </body>
+      <type flags=0 ind=0 name="u128_obj_s"/>
+      <args>
+        <var name="va">
+          <type flags=0 ind=0 name="u128_obj_s"/>
+        </var>
+        <var name="vb">
+          <type flags=0 ind=0 name="u128_obj_s"/>
+        </var>
+      </args>
     </defun>
   </body>
 </module>

@@ -156,7 +156,7 @@ int BGBCC_SHXC_EmitBinaryVRegVRegLong(
 {
 	int csreg, ctreg, cdreg;
 	char *s0;
-	int nm1, nm2, nm3, nm4;
+	int nm1, nm2, nm3, nm4, shl;
 	int i, j, k;
 
 	nm1=-1;	nm2=-1;
@@ -247,18 +247,55 @@ int BGBCC_SHXC_EmitBinaryVRegVRegLong(
 		return(1);
 	}
 	
+	if(opr==CCXL_BINOP_MUL)
+	{
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_LR4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_LR6);
+		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, treg, BGBCC_SH_REG_LR6);
+		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_LR4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_LR2);
+		
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_DMULU,
+			BGBCC_SH_REG_R4, BGBCC_SH_REG_R6);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_STS,
+			BGBCC_SH_REG_MACL, BGBCC_SH_REG_R2);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_STS,
+			BGBCC_SH_REG_MACH, BGBCC_SH_REG_R3);
+
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_DMULU,
+			BGBCC_SH_REG_R4, BGBCC_SH_REG_R7);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_STS,
+			BGBCC_SH_REG_MACL, BGBCC_SH_REG_R0);
+
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_DMULU,
+			BGBCC_SH_REG_R5, BGBCC_SH_REG_R6);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_STS,
+			BGBCC_SH_REG_MACL, BGBCC_SH_REG_R1);
+
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
+			BGBCC_SH_REG_R0, BGBCC_SH_REG_R3);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
+			BGBCC_SH_REG_R1, BGBCC_SH_REG_R3);
+
+		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_LR2);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_LR4);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_LR6);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_LR2);
+		return(1);
+	}
+	
 	s0=NULL;
 	switch(opr)
 	{
 	case CCXL_BINOP_ADD:	s0="__addlli"; break;
 	case CCXL_BINOP_SUB:	s0="__sublli"; break;
-	case CCXL_BINOP_MUL:	s0="__smullli"; break;
+	case CCXL_BINOP_MUL:	s0="__mullli"; break;
 	case CCXL_BINOP_DIV:	s0="__sdivlli"; break;
 	case CCXL_BINOP_AND:	s0="__andlli"; break;
 	case CCXL_BINOP_OR:		s0="__orlli"; break;
 	case CCXL_BINOP_XOR:	s0="__xorlli"; break;
-	case CCXL_BINOP_SHL:	s0="__shllli"; break;
-	case CCXL_BINOP_SHR:	s0="__shrlli"; break;
+//	case CCXL_BINOP_SHL:	s0="__shllli"; break;
+//	case CCXL_BINOP_SHR:	s0="__shrlli"; break;
 	}
 
 	if(s0)
@@ -270,6 +307,96 @@ int BGBCC_SHXC_EmitBinaryVRegVRegLong(
 		BGBCC_SHXC_EmitCallName(ctx, sctx, s0);
 		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_LR4);
 		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_LR6);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_LR0);
+		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_LR0);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_LR0);
+		return(1);
+	}
+
+	shl=-1;
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, treg))
+	{
+		shl=BGBCC_CCXL_GetRegImmIntValue(ctx, treg);
+	}
+
+	s0=NULL;
+	switch(opr)
+	{
+	case CCXL_BINOP_SHL:
+		s0="__shllli";
+#if 0
+		switch(shl)
+		{
+		case 1: s0="__shllli_1"; break;
+		case 2: s0="__shllli_2"; break;
+		case 3: s0="__shllli_3"; break;
+		case 4: s0="__shllli_4"; break;
+		case 8: s0="__shllli_8"; break;
+		case 16: s0="__shllli_16"; break;
+		case 24: s0="__shllli_24"; break;
+		case 32: s0="__shllli_32"; break;
+		case 40: s0="__shllli_40"; break;
+		case 48: s0="__shllli_48"; break;
+		case 56: s0="__shllli_56"; break;
+		default: break;
+		}
+#endif
+		break;
+	case CCXL_BINOP_SHR:
+	case CCXL_BINOP_SHRR:
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			s0="__shrlli";
+#if 0
+			switch(shl)
+			{
+			case 1: s0="__shrlli_1"; break;
+			case 2: s0="__shrlli_2"; break;
+			case 3: s0="__shrlli_3"; break;
+			case 4: s0="__shrlli_4"; break;
+			case 8: s0="__shrlli_8"; break;
+			case 16: s0="__shrlli_16"; break;
+			case 24: s0="__shrlli_24"; break;
+			case 32: s0="__shrlli_32"; break;
+			case 40: s0="__shrlli_40"; break;
+			case 48: s0="__shrlli_48"; break;
+			case 56: s0="__shrlli_56"; break;
+			default: break;
+			}
+#endif
+		}else
+		{
+			s0="__sarlli";
+#if 0
+			switch(shl)
+			{
+			case 1: s0="__sarlli_1"; break;
+			case 2: s0="__sarlli_2"; break;
+			case 3: s0="__sarlli_3"; break;
+			case 4: s0="__sarlli_4"; break;
+			case 8: s0="__sarlli_8"; break;
+			case 16: s0="__sarlli_16"; break;
+			case 24: s0="__sarlli_24"; break;
+			case 32: s0="__sarlli_32"; break;
+			case 40: s0="__sarlli_40"; break;
+			case 48: s0="__sarlli_48"; break;
+			case 56: s0="__sarlli_56"; break;
+			default: break;
+			}
+#endif
+		}
+		break;
+	}
+
+	if(s0)
+	{
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_LR4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R6);
+		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, treg, BGBCC_SH_REG_R6);
+		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_LR4);
+		BGBCC_SHXC_EmitCallName(ctx, sctx, s0);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_LR4);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R6);
 		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_LR0);
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_LR0);
 		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_LR0);

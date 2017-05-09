@@ -45,25 +45,43 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 			return(1);
 		}
 		
+		nm1=-1;
+		nm2=-1;
+
 		if(opr==CCXL_BINOP_SHL)
 		{
 			switch(j)
 			{
 			case 1: nm1=BGBCC_SH_NMID_SHLL; break;
 			case 2: nm1=BGBCC_SH_NMID_SHLL2; break;
+			case 3: nm1=BGBCC_SH_NMID_SHLL2; nm2=BGBCC_SH_NMID_SHLL; break;
+			case 4: nm1=BGBCC_SH_NMID_SHLL2; nm2=BGBCC_SH_NMID_SHLL2; break;
 			case 8: nm1=BGBCC_SH_NMID_SHLL8; break;
+			case 9: nm1=BGBCC_SH_NMID_SHLL8; nm2=BGBCC_SH_NMID_SHLL; break;
+			case 10: nm1=BGBCC_SH_NMID_SHLL8; nm2=BGBCC_SH_NMID_SHLL2; break;
 			case 16: nm1=BGBCC_SH_NMID_SHLL16; break;
+			case 17: nm1=BGBCC_SH_NMID_SHLL16; nm2=BGBCC_SH_NMID_SHLL; break;
+			case 18: nm1=BGBCC_SH_NMID_SHLL16; nm2=BGBCC_SH_NMID_SHLL2; break;
+			case 24: nm1=BGBCC_SH_NMID_SHLL16; nm2=BGBCC_SH_NMID_SHLL8; break;
 			}
 		}
 
-		if(opr==CCXL_BINOP_SHRR)
+		if((opr==CCXL_BINOP_SHRR) ||
+			BGBCC_CCXL_TypeUnsignedP(ctx, type))
 		{
 			switch(j)
 			{
 			case 1: nm1=BGBCC_SH_NMID_SHLR; break;
 			case 2: nm1=BGBCC_SH_NMID_SHLR2; break;
+			case 3: nm1=BGBCC_SH_NMID_SHLR2; nm2=BGBCC_SH_NMID_SHLR; break;
+			case 4: nm1=BGBCC_SH_NMID_SHLR2; nm2=BGBCC_SH_NMID_SHLR2; break;
 			case 8: nm1=BGBCC_SH_NMID_SHLR8; break;
+			case 9: nm1=BGBCC_SH_NMID_SHLR8; nm2=BGBCC_SH_NMID_SHLR; break;
+			case 10: nm1=BGBCC_SH_NMID_SHLR8; nm2=BGBCC_SH_NMID_SHLR2; break;
 			case 16: nm1=BGBCC_SH_NMID_SHLR16; break;
+			case 17: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR; break;
+			case 18: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR2; break;
+			case 24: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR8; break;
 			}
 		}
 
@@ -74,14 +92,24 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 		{
 			cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
 			BGBCC_SHX_EmitOpReg(sctx, nm1, cdreg);
+			if(nm2>=0)
+				BGBCC_SHX_EmitOpReg(sctx, nm2, cdreg);
 			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 			return(1);
 		}
 
 		if(opr==CCXL_BINOP_SHL)
-			{ nm1=BGBCC_SH_NMID_SHAD; k=j; }
+		{
+			nm1=BGBCC_SH_NMID_SHAD; k=j;
+			if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+				nm1=BGBCC_SH_NMID_SHLD;
+		}
 		if(opr==CCXL_BINOP_SHR)
-			{ nm1=BGBCC_SH_NMID_SHAD; k=-j; }
+		{
+			nm1=BGBCC_SH_NMID_SHAD; k=-j;
+			if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+				nm1=BGBCC_SH_NMID_SHLD;
+		}
 
 		if(nm1>=0)
 		{
@@ -176,15 +204,23 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 	case CCXL_BINOP_OR:		nm1=BGBCC_SH_NMID_OR;	nm2=-1; break;
 	case CCXL_BINOP_XOR:	nm1=BGBCC_SH_NMID_XOR;	nm2=-1; break;
 
-	case CCXL_BINOP_SHL:	nm1=BGBCC_SH_NMID_SHAD;	nm2=-1; break;
+	case CCXL_BINOP_SHL:
+		nm1=BGBCC_SH_NMID_SHAD;	nm2=-1;
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+			nm1=BGBCC_SH_NMID_SHLD;
+		break;
 
 	case CCXL_BINOP_SHR:
 		nm1=BGBCC_SH_NMID_SHAD;
 		nm2=BGBCC_SH_NMID_NEG;
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+			nm1=BGBCC_SH_NMID_SHLD;
 		break;
 	case CCXL_BINOP_SHRR:
 		nm1=BGBCC_SH_NMID_SHLD;
 		nm2=BGBCC_SH_NMID_NEG;
+//		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+//			nm1=BGBCC_SH_NMID_SHLD;
 		break;
 
 	default:		nm1=-1; nm2=-1; break;

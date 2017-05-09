@@ -241,7 +241,7 @@ int BGBCC_SHXA_ParseOperand(char **rcs, BGBCC_SHX_OpcodeArg *opv)
 		return(0);
 	}
 
-	if(*cs==';')
+	if((*cs==';') || (*cs=='|'))
 	{
 		cs++;
 		cs=BGBCC_SHXA_EatWhite(cs);

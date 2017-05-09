@@ -561,25 +561,28 @@ For XPFX0 I-Forms
 
 XPFX0/Escape32 I-Forms
 *	0---
-**		8Edd-0nm4 MOV.B Rm, @(Rn,R0,disp)	//Move Byte Rm to R0+Rn
-**		8Edd-0nm5 MOV.W Rm, @(Rn,R0,disp)	//Move Word Rm to R0+Rn
+**		8Edd-0nm4 MOV.B Rm, @(Rn,R0,disp)	//Move Byte Rm to R0+Rn+disp
+**		8Edd-0nm5 MOV.W Rm, @(Rn,R0,disp)	//Move Word Rm to R0+Rn+disp*2
 **		8Edd-0nm6 MOV.L Rm, @(Rn,R0,disp)	//Rn+R0+disp*4
 **		8Edd-0nm7 MOV.Q Rm, @(Rn,R0,disp)	//Rn+R0+disp*8
 **      8Eoo-0oo8 (Resv Ext No-Arg Ops)
 **      8Eno-0oo9 (Resv Ext Unary Ops)
 **      8Enm-0ooA Resv
 **      8Enm-0ooB (Resv Ext Binary Ops)
-**		8Edd-0nmC MOV.B @(Rm,R0,disp), Rn	//Load Byte From R0+Rm into Rn
-**		8Edd-0nmD MOV.W @(Rm,R0,disp), Rn	//Load Word From R0+Rm into Rn
-**		8Edd-0nmE MOV.L @(Rm,R0,disp), Rn	//Load DWord
-**		8Edd-0nmF MOV.Q @(Rm,R0,disp), Rn	//Load QWord
+**		8Edd-0nmC MOV.B @(Rm,R0,disp), Rn	//Load Byte At R0+Rm+disp into Rn
+**		8Edd-0nmD MOV.W @(Rm,R0,disp), Rn	//Load Word At R0+Rm+disp*2 into Rn
+**		8Edd-0nmE MOV.L @(Rm,R0,disp), Rn	//Load DWord At R0+Rm+disp*4 into Rn
+**		8Edd-0nmF MOV.Q @(Rm,R0,disp), Rn	//Load QWord At R0+Rm+disp*8 into Rn
 * 	8Edd-1nmo MOV.L Rm, @(Rn,Ro,disp)		//Rn+4*(Ro+Disp)
 *	2---
 **		8Edd-2nm0 MOV.B Rm, @(Rn,disp)		//Store Byte Rm to @Rn
 **		8Edd-2nm1 MOV.W Rm, @(Rn,disp)		//Store Word Rm to @Rn
 **		8Edd-2nm2 MOV.L Rm, @(Rn,disp)		//Store DWord
 **		8Edd-2nm3 MOV.Q Rm, @(Rn,disp)		//Store QWord
-**		8Edd-2nm4 -
+
+**		8Edd-2nm4 FMOV.S FRm, @(Rn,disp)	//Store Float
+**		8Edd-2nm5 FMOV.D DRm, @(Rn,disp)	//Store Double
+**		8Edd-2nm6 -
 **      ...
 **		8Edd-2nm8 -
 **		8Eii-2nm9 AND Rm, #imm8, Rn			//Rn=Rm&Imm8
@@ -642,6 +645,9 @@ XPFX0/Escape32 I-Forms
 **		8Edd-6nm2 MOV.L @(Rm,disp), Rn
 **		8Edd-6nm3 MOV.Q @(Rm,disp), Rn
 
+**		8Edd-6nm4 FMOV.S @(Rm,disp), FRn	//Load Float
+**		8Edd-6nm5 FMOV.D @(Rm,disp), DRn	//Load Double
+
 **		8Edd-6nm8 LEA.B @(Rm,disp), Rn		//Rn=Rm+disp*1
 **		8Edd-6nm9 LEA.W @(Rm,disp), Rn		//Rn=Rm+disp*2
 **		8Edd-6nmA LEA.L @(Rm,disp), Rn		//Rn=Rm+disp*4
@@ -693,8 +699,8 @@ XPFX0/Escape32 I-Forms
 ***			8Edd-C7n9 MOVA.W @(PC,disp8), Rn		//
 ***			8Edd-C7nA MOVA.L @(PC,disp8), Rn		//
 ***			8Edd-C7nB MOVA.Q @(PC,disp8), Rn		//
-***			8Edd-C7nC -
-***			8Edd-C7nD -
+***			8Edd-C7nC FMOV.S @(PC,disp8), FRn		//? Load PC-rel Float
+***			8Edd-C7nD FMOV.D @(PC,disp8), DRn		//? Load PC-rel Double
 ***			8Edd-C7nE -
 ***			8Edd-C7nF LEA.LL/LQ @(Rn,disp4,disp4), Rn		//
 **		8Ejj-C8nj TST #imm12, Rn
@@ -758,7 +764,10 @@ Escape 64 (BJX32: Values truncated to 32-bits)
 * 8EC7-8En9-dddd-dddd MOVA.W @(PC,disp32), Rn		//
 * 8EC7-8EnA-dddd-dddd MOVA.L @(PC,disp32), Rn		//
 * 8EC7-8EnB-dddd-dddd MOVA.Q @(PC,disp32), Rn		//
-* 8EC7-8EnC-dddd-dddd LEA.LL/LQ @(Rn,disp16,disp16), Rn		//
+* 8EC7-8EnC-dddd-dddd FMOV.S @(PC,disp32), FRn		//
+* 8EC7-8EnD-dddd-dddd FMOV.D @(PC,disp32), DRn		//
+
+* 8EC7-8EnF-dddd-dddd LEA.LL/LQ @(Rn,disp16,disp16), Rn		//
 
 * 8EC8-8En0-jjjj-jjjj TST #imm32, Rn				//
 * 8EC9-8En0-jjjj-jjjj AND #imm32, Rn				//

@@ -1910,7 +1910,7 @@ int BGBCC_SHXC_EmitMovRegReg(
 	BGBCC_SHX_Context *sctx,
 	int sreg, int dreg)
 {
-	int sreg2, dreg2;
+	int sreg2, dreg2, sw;
 
 	if(sreg==dreg)
 		return(1);
@@ -1966,6 +1966,57 @@ int BGBCC_SHXC_EmitMovRegReg(
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_FMOV, sreg2+0, dreg2+0);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_FMOV, sreg2+1, dreg2+1);
 		}
+		return(1);
+	}
+
+	if(BGBCC_SHXC_EmitRegIsLpReg(ctx, sctx, sreg) &&
+		BGBCC_SHXC_EmitRegIsLpReg(ctx, sctx, dreg))
+	{
+		sreg2=BGBCC_SH_REG_R0+(sreg&15);
+		dreg2=BGBCC_SH_REG_R0+(dreg&15);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg2+0, dreg2+0);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg2+1, dreg2+1);
+		return(1);
+	}
+
+	if(BGBCC_SHXC_EmitRegIsLpReg(ctx, sctx, sreg) &&
+		BGBCC_SHXC_EmitRegIsDpReg(ctx, sctx, dreg))
+	{
+		sreg2=BGBCC_SH_REG_R0+(sreg&15);
+		dreg2=BGBCC_SH_REG_FR0+((dreg&7)*2);
+		sw=(sctx->is_le!=0);
+
+		BGBCC_SHXC_ClearStatusFpscrSz(ctx, sctx);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_LDS, sreg2+0, BGBCC_SH_REG_FPUL);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_FSTS, BGBCC_SH_REG_FPUL, dreg2+(0^sw));
+
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_LDS, sreg2+1, BGBCC_SH_REG_FPUL);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_FSTS, BGBCC_SH_REG_FPUL, dreg2+(1^sw));
+		return(1);
+	}
+
+	if(BGBCC_SHXC_EmitRegIsDpReg(ctx, sctx, sreg) &&
+		BGBCC_SHXC_EmitRegIsLpReg(ctx, sctx, dreg))
+	{
+		dreg2=BGBCC_SH_REG_R0+(dreg&15);
+		sreg2=BGBCC_SH_REG_FR0+((sreg&7)*2);
+		sw=(sctx->is_le!=0);
+
+		BGBCC_SHXC_ClearStatusFpscrSz(ctx, sctx);
+		
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_FLDS, sreg2+0, BGBCC_SH_REG_FPUL);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_STS, BGBCC_SH_REG_FPUL, dreg2+(0^sw));
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_FLDS, sreg2+1, BGBCC_SH_REG_FPUL);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_STS, BGBCC_SH_REG_FPUL, dreg2+(1^sw));
+
 		return(1);
 	}
 
@@ -2296,6 +2347,12 @@ int BGBCC_SHXC_EmitJCmpVRegVReg(
 		BGBCC_CCXL_TypeDoubleP(ctx, type))
 	{
 		return(BGBCC_SHXC_EmitJCmpVRegVRegFloat(ctx, sctx,
+			type, sreg, treg, cmp, lbl));
+	}
+
+	if(BGBCC_CCXL_TypeSgLongP(ctx, type))
+	{
+		return(BGBCC_SHXC_EmitJCmpVRegVRegLong(ctx, sctx,
 			type, sreg, treg, cmp, lbl));
 	}
 

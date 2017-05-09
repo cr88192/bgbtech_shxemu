@@ -477,3 +477,115 @@ void __start()
 	t_argv[0]="tk_dummy";
 	main(1, t_argv);
 }
+
+
+#if 1
+typedef struct u64_obj_s u64_obj_t;
+struct u64_obj_s {
+u32 lo;
+u32 hi;
+};
+
+u64_obj_t __shllli(u64_obj_t ival, int shl)
+{
+	u64_obj_t oval;
+	
+	if(!(shl&31))
+	{
+		if(!shl)
+			return(ival);
+		if(shl==32)
+		{
+			oval.lo=0;
+			oval.hi=ival.lo;
+			return(oval);
+		}
+
+		oval.lo=0;
+		oval.hi=0;
+		return(oval);
+	}
+	
+	oval.lo=ival.lo<<shl;
+	oval.hi=(ival.hi<<shl)|(ival.lo<<(32-shl));
+	return(oval);
+}
+
+u64_obj_t __shrlli(u64_obj_t ival, int shl)
+{
+	u64_obj_t oval;
+	
+	if(!(shl&31))
+	{
+		if(!shl)
+			return(ival);
+		if(shl==32)
+		{
+			oval.lo=ival.hi;
+			oval.hi=0;
+			return(oval);
+		}
+
+		oval.lo=0;
+		oval.hi=0;
+		return(oval);
+	}
+
+	oval.hi=ival.hi>>shl;
+	oval.lo=(ival.lo>>shl)|(ival.hi<<(32-shl));
+	return(oval);
+}
+
+u64_obj_t __sarlli(u64_obj_t ival, int shl)
+{
+	u64_obj_t oval;
+	u32 m;
+
+	m=0;
+	if(ival.hi&0x80000000)
+		m=(u32)(-1);
+
+	if(!(shl&31))
+	{
+		if(!shl)
+			return(ival);
+		if(shl==32)
+			{	oval.lo=ival.hi;	oval.hi=m;	return(oval);	}
+		if(m>0)
+			{	oval.lo=m;	oval.hi=m;	return(oval);	}
+		oval.lo=0;	oval.hi=0;
+		return(oval);
+	}
+
+	oval.hi=(ival.hi>>shl)|(m<<(32-shl));
+	oval.lo=(ival.lo>>shl)|(ival.hi<<(32-shl));
+	return(oval);
+}
+#endif
+
+#if 1
+typedef struct u128_obj_s u128_obj_t;
+struct u128_obj_s {
+u32 la;
+u32 lb;
+u32 lc;
+u32 ld;
+};
+
+u128_obj_t __addxli(u128_obj_t va, u128_obj_t vb)
+{
+	u128_obj_t oval;
+	u64 t;
+	
+	t=((u64)va.la)+vb.la;
+	oval.la=t; t=t>>32;
+	t=t+((u64)va.lb)+vb.lb;
+	oval.lb=t; t=t>>32;
+	t=t+((u64)va.lc)+vb.lc;
+	oval.lc=t; t=t>>32;
+	t=t+((u64)va.ld)+vb.ld;
+	oval.ld=t;
+	return(oval);
+}
+
+#endif
