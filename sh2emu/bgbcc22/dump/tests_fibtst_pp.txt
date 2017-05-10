@@ -71,18 +71,28 @@ printf("%d ",k);
 printf("\n");
 }
 }
-/*185*/ void print_hex_n(unsigned int v,int n);
+/*160*/ int test_ll_0()
+{
+long long li,lj,lk;
+int i,j,k;
+/*166*/ li=0x123456789ABCDE LL;
+lj=li+li;
+/*173*/ i=(int)li;
+j=(int)(li>>32);
+/*178*/ printf("LL0: %X %X\n",i,j);
+}
+/*208*/ void print_hex_n(unsigned int v,int n);
 void print_decimal(int val);
-/*188*/ void print_float(double val);
+/*211*/ void print_float(double val);
 void print_float_ss(float val);
-/*192*/ int main()
+/*215*/ int main()
 {
 int i,j,k,t,dt;
-/*196*/ t=clock();
-/*200*/ puts("main: A\n");
-/*202*/ print_hex_n(0x12345678,8);
+/*219*/ t=clock();
+/*223*/ puts("main: A\n");
+/*225*/ print_hex_n(0x12345678,8);
 puts("\n");
-/*205*/ k=0x12345678;
+/*228*/ k=0x12345678;
 for(i=0;i<10;i++)
 {
 j=k/10;
@@ -93,22 +103,24 @@ puts(") ");
 k=j;
 }
 puts("\n");
-/*223*/ print_decimal(0x12345678);
+/*246*/ print_decimal(0x12345678);
 puts("\n");
-/*227*/ i=fib(36);
-/*230*/ puts("main: B\n");
-/*232*/ print_decimal(i);
+/*251*/ i=fib(24);
+/*255*/ puts("main: B\n");
+/*257*/ print_decimal(i);
 puts("\n");
-/*235*/ dt=clock()-t;
-/*237*/ printf("V=%d Dt=%dms\n",i,dt);
-/*240*/ puts("main: C\n");
-/*242*/ printf("hashtst %d\n",hash_str("foobarbaz"));
+/*260*/ dt=clock()-t;
+/*262*/ printf("V=%d Dt=%dms\n",i,dt);
+/*265*/ puts("main: C\n");
+/*267*/ printf("hashtst %d\n",hash_str("foobarbaz"));
 puts("main: D\n");
-/*245*/ print_float(3.14159);
-/*247*/ puts("\n");
-/*249*/ puts("main: E\n");
-/*251*/ test_struct0();
-/*253*/ puts("main: F\n");
-/*255*/ test_ar2d_0();
-/*257*/ puts("main: G\n");
+/*270*/ print_float(3.14159);
+/*272*/ puts("\n");
+/*274*/ puts("main: E\n");
+/*276*/ test_struct0();
+/*278*/ puts("main: F\n");
+/*280*/ test_ar2d_0();
+/*282*/ puts("main: G\n");
+/*284*/ test_ll_0();
+/*286*/ puts("main: H\n");
 }

@@ -767,6 +767,7 @@ bool BGBCC_CCXL_TypeSgLongP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeSgInt128P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeFloatP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeDoubleP(BGBCC_TransState *ctx, ccxl_type ty);
+bool BGBCC_CCXL_TypeSmallDoubleP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeBaseILFD_P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeBaseSmallILFD_P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeBaseSmallILFDP_P(BGBCC_TransState *ctx, ccxl_type ty);
@@ -991,14 +992,19 @@ int BGBCC_SHXC_EmitLdaVRegVReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, c
 int BGBCC_SHXC_EmitDiffPtrVRegVRegVReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, ccxl_register treg);
 int BGBCC_SHXC_EmitLeaShlRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int dreg, int shl);
 int BGBCC_SHXC_EmitLeaBRegIRegScReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int breg, int ireg, int sc, int dreg);
-//AHSRC:shcc/shx_lpreg.c
-int BGBCC_SHXC_EmitTryGetLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
-int BGBCC_SHXC_EmitGetLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
-int BGBCC_SHXC_EmitReleaseLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
+//AHSRC:shcc/shx_lparith.c
+int BGBCC_SHXC_EmitBinaryLong_ShlImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int cdreg, int shl);
+int BGBCC_SHXC_EmitBinaryLong_ShrImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int cdreg, int shl);
+int BGBCC_SHXC_EmitBinaryLong_SarImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int cdreg, int shl);
 int BGBCC_SHXC_EmitBinaryVRegVRegLong(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register treg);
 int BGBCC_SHXC_EmitBinaryVRegVRegVRegLong(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register sreg, ccxl_register treg);
 int BGBCC_SHXC_EmitUnaryVRegVRegLong(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register sreg);
 int BGBCC_SHXC_EmitJCmpVRegVRegLong(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register sreg, ccxl_register treg, int cmp, int lbl);
+//AHSRC:shcc/shx_lpreg.c
+int BGBCC_SHXC_EmitTryGetLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
+int BGBCC_SHXC_EmitGetLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
+int BGBCC_SHXC_EmitReleaseLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
+//AHSRC:shcc/shx_lxarith.c
 int BGBCC_SHXC_EmitBinaryVRegVRegInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register treg);
 int BGBCC_SHXC_EmitBinaryVRegVRegVRegInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register sreg, ccxl_register treg);
 int BGBCC_SHXC_EmitUnaryVRegVRegInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register sreg);

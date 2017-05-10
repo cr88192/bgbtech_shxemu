@@ -187,6 +187,24 @@ bool BGBCC_CCXL_TypeDoubleP(
 	return(false);
 }
 
+bool BGBCC_CCXL_TypeSmallDoubleP(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	if(BGBCC_CCXL_TypeArrayP(ctx, ty))
+		return(false);
+	if(BGBCC_CCXL_TypePointerP(ctx, ty))
+		return(false);
+
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_F)
+		return(true);
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_D)
+		return(true);
+	if(BGBCC_CCXL_TypeSmallLongP(ctx, ty))
+		return(true);
+
+	return(false);
+}
+
 bool BGBCC_CCXL_TypeBaseILFD_P(
 	BGBCC_TransState *ctx, ccxl_type ty)
 {

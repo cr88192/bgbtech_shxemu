@@ -1740,6 +1740,9 @@ int BGBCC_SHX_EmitLoadRegImm(
 		return(1);
 	}
 
+	if(BGBCC_SHXC_EmitRegIsLpReg(NULL, ctx, reg))
+		{ return(BGBCC_SHX_EmitLoadRegImm64P(ctx, reg, imm)); }
+
 	if((((sbyte)imm)==imm) && ((reg&0xF0)==0x00))
 	{
 		opw=0xE000|((reg&15)<<8)|(imm&255);
@@ -1827,6 +1830,8 @@ int BGBCC_SHX_EmitLoadRegImmPair32(
 	reg2=reg;
 	if(BGBCC_SHXC_EmitRegIsDpReg(NULL, ctx, reg))
 		{ reg2=BGBCC_SH_REG_FR0+((reg&7)*2); }
+	if(BGBCC_SHXC_EmitRegIsLpReg(NULL, ctx, reg))
+		{ reg2=BGBCC_SH_REG_R0+(reg&15); }
 
 	if(BGBCC_SHXC_EmitRegIsFpReg(NULL, ctx, reg2))
 	{

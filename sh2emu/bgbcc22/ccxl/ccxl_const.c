@@ -1,6 +1,6 @@
 #include <bgbccc.h>
 
-#if 0
+#if 1
 int BGBCC_CCXL_CheckExpandLvt4(BGBCC_TransState *ctx)
 {
 	int i;

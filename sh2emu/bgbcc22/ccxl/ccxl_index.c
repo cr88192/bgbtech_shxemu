@@ -187,7 +187,8 @@ void BGBCC_CCXL_ConvImm(BGBCC_TransState *ctx,
 		return;
 	}
 
-	if(BGBCC_CCXL_TypeSmallLongP(ctx, dty))
+//	if(BGBCC_CCXL_TypeSmallLongP(ctx, dty))
+	if(BGBCC_CCXL_TypeSgLongP(ctx, dty))
 	{
 		li=BGBCC_CCXL_GetRegImmLongValue(ctx, sreg);
 		BGBCC_CCXL_GetRegForLongValue(ctx, rdreg, li);
@@ -244,8 +245,11 @@ void BGBCC_CCXL_CompileJmpCond(BGBCC_TransState *ctx,
 	if(	!BGBCC_CCXL_TypeEqualP(ctx, dty, sty) ||
 		!BGBCC_CCXL_TypeEqualP(ctx, dty, tty))
 	{
-		if(BGBCC_CCXL_IsRegImmP(ctx, regb) &&
-			BGBCC_CCXL_TypeDoubleP(ctx, dty))
+//		if(BGBCC_CCXL_IsRegImmP(ctx, regb) &&
+//			(BGBCC_CCXL_TypeDoubleP(ctx, dty) ||
+//			 BGBCC_CCXL_TypeSgLongP(ctx, dty)))
+		if(BGBCC_CCXL_IsRegImmILFDP(ctx, regb) &&
+			BGBCC_CCXL_TypeSmallDoubleP(ctx, dty))
 		{
 			dty=sty; tty=sty;
 			BGBCC_CCXL_ConvImm(ctx, dty, tty, regb, &regb);

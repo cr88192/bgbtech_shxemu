@@ -156,6 +156,29 @@ int test_ar2d_0()
 
 #endif
 
+#if 1
+int test_ll_0()
+{
+	long long li, lj, lk;
+	int i, j, k;
+	
+//	li=0x12_3456_789A_BCDELL;
+	li=0x123456789ABCDELL;
+	lj=li+li;
+
+//	*(int *)-1=-1;
+
+//	i=0x314159;
+
+	i=(int)li;
+	j=(int)(li>>32);
+	
+//	*(int *)-1=-1;
+
+	printf("LL0: %X %X\n", i, j);
+}
+#endif
+
 #if 0
 int bscc_main()
 {
@@ -224,7 +247,9 @@ int main()
 	puts("\n");
 
 
-	i=fib(36);
+//	i=fib(36);
+	i=fib(24);
+
 //	i=ltst(100000000);
 
 	puts("main: B\n");
@@ -255,5 +280,9 @@ int main()
 	test_ar2d_0();
 
 	puts("main: G\n");
+	
+	test_ll_0();
+
+	puts("main: H\n");
 }
 #endif

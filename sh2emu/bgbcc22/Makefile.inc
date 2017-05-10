@@ -38,7 +38,9 @@ SRCS=\
 	shcc/shx_emit.c \
 	shcc/shx_fpreg.c \
 	shcc/shx_ldix.c \
+	shcc/shx_lparith.c \
 	shcc/shx_lpreg.c \
+	shcc/shx_lxarith.c \
 	shcc/shx_register.c \
 	shcc/shx_struct.c \
 
