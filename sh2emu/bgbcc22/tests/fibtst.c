@@ -160,22 +160,41 @@ int test_ar2d_0()
 int test_ll_0()
 {
 	long long li, lj, lk;
+	__int128 lxi, lxj, lxk;
 	int i, j, k;
 	
 //	li=0x12_3456_789A_BCDELL;
-	li=0x123456789ABCDELL;
+	li=0x123456789ABCDEFLL;
 	lj=li+li;
 
 //	*(int *)-1=-1;
 
 //	i=0x314159;
 
-	i=(int)li;
 	j=(int)(li>>32);
+	i=(int)li;
+	
+	lk=li*128;
+
+//	j=0x6969;
 	
 //	*(int *)-1=-1;
 
-	printf("LL0: %X %X\n", i, j);
+//	printf("LL0: %8X %8X\n", i, j);
+
+//	printf("LL1: %8X %8X\n", (int)lj, (int)(lj>>32));
+
+	printf("LL0: %8X_%8X\n", (int)(li>>32), (int)li);
+	printf("LL1: %8X_%8X\n", (int)(lj>>32), (int)lj);
+	printf("LL2: %8X_%8X\n", (int)(lk>>32), (int)lk);
+	
+	lxi=0x01234567_89ABCDEF_FEDCBA98_76543210XL;
+	
+//	lxj=lxi+lxi;
+
+	printf("LX0: %8X_%8X_%8X_%8X\n",
+		(int)(lxi>>96), (int)(lxi>>64),
+		(int)(lxi>>32), (int)lxi);
 }
 #endif
 

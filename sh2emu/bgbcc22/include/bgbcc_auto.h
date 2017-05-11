@@ -328,6 +328,8 @@ int bgbcc_strcmp(char *s1, char *s2);
 int bgbcc_stricmp(char *s1, char *s2);
 s64 bgbcc_strtol(char *str, int rdx);
 s64 bgbcc_atoi(char *str);
+int bgbcc_strtoxl(char *str, int rdx, u64 *rxlo, u64 *rxhi);
+s64 bgbcc_atoxl(char *str, u64 *rxlo, u64 *rxhi);
 f64 bgbcc_atof(char *str);
 //AHSRC:ccxl/ccxl_cgif.c
 ccxl_status BGBCC_CCXL_RegisterBackend(BGBCC_CCXL_BackendFuncs_vt *ivt);
@@ -558,6 +560,8 @@ bool BGBCC_CCXL_IsRegImmIntP(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegImmLongP(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegImmFloatP(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegImmDoubleP(BGBCC_TransState *ctx, ccxl_register reg);
+bool BGBCC_CCXL_IsRegImmInt128P(BGBCC_TransState *ctx, ccxl_register reg);
+bool BGBCC_CCXL_IsRegImmFloat128P(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegImmStringP(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegImmWStringP(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegImmLiteralP(BGBCC_TransState *ctx, ccxl_register reg);
@@ -580,6 +584,9 @@ int BGBCC_CCXL_GetRegImmLit24(BGBCC_TransState *ctx, ccxl_register reg, ccxl_typ
 int BGBCC_CCXL_GetRegImmLitIndex(BGBCC_TransState *ctx, ccxl_register reg, ccxl_type type);
 int BGBCC_CCXL_GetRegImmIntValue(BGBCC_TransState *ctx, ccxl_register reg);
 s64 BGBCC_CCXL_GetRegImmLongValue(BGBCC_TransState *ctx, ccxl_register reg);
+int BGBCC_CCXL_GetRegImmX128Value(BGBCC_TransState *ctx, ccxl_register reg, s64 *rval_lo, s64 *rval_hi);
+int BGBCC_CCXL_GetRegImmInt128Value(BGBCC_TransState *ctx, ccxl_register reg, s64 *rval_lo, s64 *rval_hi);
+int BGBCC_CCXL_GetRegImmFloat128Value(BGBCC_TransState *ctx, ccxl_register reg, s64 *rval_lo, s64 *rval_hi);
 double BGBCC_CCXL_GetRegImmFloatValue(BGBCC_TransState *ctx, ccxl_register reg);
 double BGBCC_CCXL_GetRegImmDoubleValue(BGBCC_TransState *ctx, ccxl_register reg);
 char *BGBCC_CCXL_GetRegImmStringValue(BGBCC_TransState *ctx, ccxl_register reg);
@@ -589,6 +596,7 @@ ccxl_status BGBCC_CCXL_GetRegForIntValue(BGBCC_TransState *ctx, ccxl_register *r
 ccxl_status BGBCC_CCXL_GetRegForLongValue(BGBCC_TransState *ctx, ccxl_register *rreg, s64 val);
 ccxl_status BGBCC_CCXL_GetRegForFloatValue(BGBCC_TransState *ctx, ccxl_register *rreg, f32 val);
 ccxl_status BGBCC_CCXL_GetRegForDoubleValue(BGBCC_TransState *ctx, ccxl_register *rreg, f64 val);
+ccxl_status BGBCC_CCXL_GetRegForInt128Value(BGBCC_TransState *ctx, ccxl_register *rreg, s64 val_lo, s64 val_hi);
 ccxl_status BGBCC_CCXL_GetRegForStringValue(BGBCC_TransState *ctx, ccxl_register *rreg, char *str);
 ccxl_status BGBCC_CCXL_GetRegForWStringValue(BGBCC_TransState *ctx, ccxl_register *rreg, char *str);
 ccxl_status BGBCC_CCXL_GetRegForLiteralValue(BGBCC_TransState *ctx, ccxl_register *rreg, s32 val);
@@ -707,6 +715,7 @@ ccxl_status BGBCC_CCXL_StackBinaryOpStore(BGBCC_TransState *ctx,char *op, char *
 ccxl_status BGBCC_CCXL_StackUnaryOpName(BGBCC_TransState *ctx,char *op, char *name);
 ccxl_status BGBCC_CCXL_StackPushConstInt(BGBCC_TransState *ctx, s32 val);
 ccxl_status BGBCC_CCXL_StackPushConstLong(BGBCC_TransState *ctx, s64 val);
+ccxl_status BGBCC_CCXL_StackPushConstInt128(BGBCC_TransState *ctx, s64 val_lo, s64 val_hi);
 ccxl_status BGBCC_CCXL_StackPushConstFloat(BGBCC_TransState *ctx, double val);
 ccxl_status BGBCC_CCXL_StackPushConstDouble(BGBCC_TransState *ctx, double val);
 ccxl_status BGBCC_CCXL_StackPushConstString(BGBCC_TransState *ctx, char *val);
@@ -758,6 +767,7 @@ int BGBCC_CCXL_EmitMarkEndTrace(BGBCC_TransState *ctx);
 //AHSRC:ccxl/ccxl_type.c
 bool BGBCC_CCXL_TypeSmallIntP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeSmallLongP(BGBCC_TransState *ctx, ccxl_type ty);
+bool BGBCC_CCXL_TypeSmallInt128P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeUnsignedP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeIntP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeLongP(BGBCC_TransState *ctx, ccxl_type ty);
@@ -767,7 +777,9 @@ bool BGBCC_CCXL_TypeSgLongP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeSgInt128P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeFloatP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeDoubleP(BGBCC_TransState *ctx, ccxl_type ty);
+bool BGBCC_CCXL_TypeFloat128P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeSmallDoubleP(BGBCC_TransState *ctx, ccxl_type ty);
+bool BGBCC_CCXL_TypeSmallFloat128P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeBaseILFD_P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeBaseSmallILFD_P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeBaseSmallILFDP_P(BGBCC_TransState *ctx, ccxl_type ty);
@@ -1005,6 +1017,7 @@ int BGBCC_SHXC_EmitTryGetLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sc
 int BGBCC_SHXC_EmitGetLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
 int BGBCC_SHXC_EmitReleaseLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
 //AHSRC:shcc/shx_lxarith.c
+int BGBCC_SHXC_IndexLitInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, s64 val_lo, s64 val_hi);
 int BGBCC_SHXC_EmitBinaryVRegVRegInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register treg);
 int BGBCC_SHXC_EmitBinaryVRegVRegVRegInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register sreg, ccxl_register treg);
 int BGBCC_SHXC_EmitUnaryVRegVRegInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register sreg);

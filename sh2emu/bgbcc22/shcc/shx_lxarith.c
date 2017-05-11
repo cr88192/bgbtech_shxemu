@@ -1,3 +1,32 @@
+int BGBCC_SHXC_IndexLitInt128(
+	BGBCC_TransState *ctx,
+	BGBCC_SHX_Context *sctx,
+	s64 val_lo, s64 val_hi)
+{
+	int i, j, k;
+
+	if(!sctx->lvt16_lbl)
+	{
+		sctx->lvt16_lbl=sctx->t_lvt16_lbl;
+		sctx->lvt16_val=sctx->t_lvt16_val;
+		sctx->lvt16_n_idx=0;
+		sctx->lvt16_m_idx=1024;
+	}
+	
+	for(i=0; i<sctx->lvt16_n_idx; i++)
+	{
+		if((sctx->lvt16_val[i*2+0]==val_lo) &&
+			(sctx->lvt16_val[i*2+1]==val_hi))
+				{ return(sctx->lvt16_lbl[i]); }
+	}
+	
+	i=sctx->lvt16_n_idx++;
+	k=BGBCC_SHX_GenLabel(sctx);
+	sctx->lvt16_lbl[i]=k;
+	sctx->lvt16_val[i*2+0]=val_lo;
+	sctx->lvt16_val[i*2+1]=val_hi;
+	return(k);
+}
 
 int BGBCC_SHXC_EmitBinaryVRegVRegInt128(
 	BGBCC_TransState *ctx,

@@ -406,6 +406,14 @@ Opcodes (Executable Code)
 ** STRING str;
 ** Load wide string literal onto stack.
 
+* 0x39, LDCONSTXL ( -- Val )
+** SVLI value_lo;
+** SVLI value_hi;
+** Load constant int128 onto stack.
+* 0x3A, LDCONSTXF ( -- Val )
+** FVLI value;
+** Load constant float128 onto stack.
+
 * 0x40, POP ( Val -- )
 ** Pop (and discard) top value off of stack.
 * 0x41, LDA ( -- Addr )

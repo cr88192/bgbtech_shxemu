@@ -588,4 +588,38 @@ u128_obj_t __addxli(u128_obj_t va, u128_obj_t vb)
 	return(oval);
 }
 
+u128_obj_t __shrxli(u128_obj_t va, int shl)
+{
+	u128_obj_t oval;
+	
+	if(!shl)
+		{ return(va); }
+	if(shl==32)
+	{
+		oval.la=va.lb;	oval.lb=va.lc;
+		oval.lc=va.ld;	oval.ld=0;
+		return(oval);
+	}
+
+	if(shl==64)
+	{
+		oval.la=va.lc;	oval.lb=va.ld;
+		oval.lc=0;		oval.ld=0;
+		return(oval);
+	}
+
+	if(shl==96)
+	{
+		oval.la=va.ld;	oval.lb=0;
+		oval.lc=0;		oval.ld=0;
+		return(oval);
+	}
+
+	oval.la=0x55AA55AA;	oval.lb=0x55AA55AA;
+	oval.lc=0x55AA55AA;	oval.ld=0x55AA55AA;
+	return(oval);
+
+//	return(va);
+}
+
 #endif

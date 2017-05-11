@@ -414,6 +414,13 @@ int *got_gblidx;
 int got_n_gblidx;
 int got_m_gblidx;
 int t_got_gblidx[4096];
+
+int *lvt16_lbl;
+s64 *lvt16_val;
+int lvt16_n_idx;
+int lvt16_m_idx;
+int t_lvt16_lbl[1024];
+s64 t_lvt16_val[1024*2];
 };
 
 /*

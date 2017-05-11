@@ -711,8 +711,11 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 			*t++=*s++;
 			while(((*s>='0') && (*s<='9')) ||
 				((*s>='A') && (*s<='F')) ||
-				((*s>='a') && (*s<='f')))
+				((*s>='a') && (*s<='f')) ||
+				(*s=='_') || (*s=='`'))
 			{
+				if((*s=='_') || (*s=='`'))
+					{ s++; continue; }
 				*t++=*s++;
 			}
 			*t++=0;
@@ -737,11 +740,19 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		*t++=0;
 #endif
 
-		while((*s>='0') && (*s<='9'))
+		while(((*s>='0') && (*s<='9')) || (*s=='_') || (*s=='`'))
+		{
+			if((*s=='_') || (*s=='`'))
+				{ s++; continue; }
 			*t++=*s++;
+		}
 		if(*s=='.')*t++=*s++;
-		while((*s>='0') && (*s<='9'))
+		while(((*s>='0') && (*s<='9')) || (*s=='_') || (*s=='`'))
+		{
+			if((*s=='_') || (*s=='`'))
+				{ s++; continue; }
 			*t++=*s++;
+		}
 		if(*s=='e')
 		{
 			*t++=*s++;

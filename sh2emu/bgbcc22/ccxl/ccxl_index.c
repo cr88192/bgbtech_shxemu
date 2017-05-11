@@ -177,7 +177,7 @@ void BGBCC_CCXL_ConvImm(BGBCC_TransState *ctx,
 	ccxl_type dty, ccxl_type sty, ccxl_register sreg, ccxl_register *rdreg)
 {
 	double f;
-	s64 li;
+	s64 li, lj;
 	int i;
 
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, dty))
@@ -192,6 +192,13 @@ void BGBCC_CCXL_ConvImm(BGBCC_TransState *ctx,
 	{
 		li=BGBCC_CCXL_GetRegImmLongValue(ctx, sreg);
 		BGBCC_CCXL_GetRegForLongValue(ctx, rdreg, li);
+		return;
+	}
+
+	if(BGBCC_CCXL_TypeSgInt128P(ctx, dty))
+	{
+		BGBCC_CCXL_GetRegImmInt128Value(ctx, sreg, &li, &lj);
+		BGBCC_CCXL_GetRegForInt128Value(ctx, rdreg, li, lj);
 		return;
 	}
 
@@ -249,7 +256,8 @@ void BGBCC_CCXL_CompileJmpCond(BGBCC_TransState *ctx,
 //			(BGBCC_CCXL_TypeDoubleP(ctx, dty) ||
 //			 BGBCC_CCXL_TypeSgLongP(ctx, dty)))
 		if(BGBCC_CCXL_IsRegImmILFDP(ctx, regb) &&
-			BGBCC_CCXL_TypeSmallDoubleP(ctx, dty))
+//			BGBCC_CCXL_TypeSmallDoubleP(ctx, dty))
+			BGBCC_CCXL_TypeSmallFloat128P(ctx, dty))
 		{
 			dty=sty; tty=sty;
 			BGBCC_CCXL_ConvImm(ctx, dty, tty, regb, &regb);

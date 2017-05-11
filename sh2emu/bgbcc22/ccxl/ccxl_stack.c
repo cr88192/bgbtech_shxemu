@@ -829,10 +829,15 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 //				 BGBCC_CCXL_TypeSmallLongP(ctx, dty)))
 
 			if(BGBCC_CCXL_IsRegImmILFDP(ctx, treg) &&
-				BGBCC_CCXL_TypeSmallDoubleP(ctx, dty))
+//				BGBCC_CCXL_TypeSmallDoubleP(ctx, dty))
+				BGBCC_CCXL_TypeSmallFloat128P(ctx, dty))
 			{
 				dty=sty; tty=sty;
-				BGBCC_CCXL_ConvImm(ctx, dty, tty, treg, &treg);
+
+				if((opr!=CCXL_BINOP_SHL) && (opr!=CCXL_BINOP_SHR))
+				{
+					BGBCC_CCXL_ConvImm(ctx, dty, tty, treg, &treg);
+				}
 			}
 		}
 
@@ -930,7 +935,10 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 		BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &sreg2);
 		BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &treg2);
 		BGBCC_CCXL_EmitConv(ctx, dty, sty, sreg2, sreg);
-		BGBCC_CCXL_EmitConv(ctx, dty, tty, treg2, treg);
+		if((opr!=CCXL_BINOP_SHL) && (opr!=CCXL_BINOP_SHR))
+			{ BGBCC_CCXL_EmitConv(ctx, dty, tty, treg2, treg); }
+		else
+			{ BGBCC_CCXL_EmitMov(ctx, tty, treg2, treg); }
 		BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
 		BGBCC_CCXL_RegisterCheckRelease(ctx, treg);
 
@@ -1343,6 +1351,23 @@ ccxl_status BGBCC_CCXL_StackPushConstLong(BGBCC_TransState *ctx, s64 val)
 	BGBCC_CCXLR3_EmitArgInt(ctx, val);
 
 	BGBCC_CCXL_GetRegForLongValue(ctx, &sreg, val);
+	BGBCC_CCXL_PushRegister(ctx, sreg);
+	return(CCXL_STATUS_YES);
+//	BGBCC_CCXL_StubError(ctx);
+}
+
+ccxl_status BGBCC_CCXL_StackPushConstInt128(
+	BGBCC_TransState *ctx, s64 val_lo, s64 val_hi)
+{
+	ccxl_register sreg;
+
+	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PushConstI128", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDCONSTXL);
+	BGBCC_CCXLR3_EmitArgInt(ctx, val_lo);
+	BGBCC_CCXLR3_EmitArgInt(ctx, val_hi);
+
+	BGBCC_CCXL_GetRegForInt128Value(ctx, &sreg, val_lo, val_hi);
 	BGBCC_CCXL_PushRegister(ctx, sreg);
 	return(CCXL_STATUS_YES);
 //	BGBCC_CCXL_StubError(ctx);

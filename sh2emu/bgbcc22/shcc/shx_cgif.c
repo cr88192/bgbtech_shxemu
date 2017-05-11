@@ -68,6 +68,12 @@ bool BGBCC_SHXC_TypeInt2RegP(BGBCC_TransState *ctx, ccxl_type ty)
 {
 	if(BGBCC_CCXL_TypeSmallLongP(ctx, ty))
 		return(true);
+
+	if(BGBCC_CCXL_TypeVoidP(ctx, ty))
+		return(true);
+//	if(BGBCC_CCXL_TypeVariantP(ctx, ty))
+//		return(true);
+
 //	if(BGBCC_CCXL_TypePointerP(ctx, ty))
 //		return(true);
 	return(false);
@@ -157,7 +163,16 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			j=(j+3)&(~3);
 			kf+=j;
 			break;
-		default:		break;
+
+		case BGBCC_SH_REGCLS_GR:
+		case BGBCC_SH_REGCLS_GR2:
+		case BGBCC_SH_REGCLS_VO_GR:
+		case BGBCC_SH_REGCLS_VO_GR2:
+			break;
+
+		default:
+			BGBCC_DBGBREAK
+			break;
 		}
 
 #if 0
@@ -190,7 +205,16 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			j=(j+3)&(~3);
 			kf+=j;
 			break;
-		default:		break;
+
+		case BGBCC_SH_REGCLS_GR:
+		case BGBCC_SH_REGCLS_GR2:
+		case BGBCC_SH_REGCLS_VO_GR:
+		case BGBCC_SH_REGCLS_VO_GR2:
+			break;
+
+		default:
+			BGBCC_DBGBREAK
+			break;
 		}
 
 #if 0
@@ -227,7 +251,17 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 		case BGBCC_SH_REGCLS_FR:
 		case BGBCC_SH_REGCLS_FR2:
 			sctx->use_fpr=1;	break;
-		default:		break;
+		case BGBCC_SH_REGCLS_GR:
+		case BGBCC_SH_REGCLS_GR2:
+		case BGBCC_SH_REGCLS_VO_GR:
+		case BGBCC_SH_REGCLS_VO_GR2:
+			break;
+		case BGBCC_SH_REGCLS_VO_REF:
+		case BGBCC_SH_REGCLS_AR_REF:
+			break;
+		default:
+			BGBCC_DBGBREAK
+			break;
 		}
 
 //		if(BGBCC_CCXL_TypeValueObjectP(ctx, obj->args[i]->type) &&
@@ -288,6 +322,7 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			sctx->use_dbr=1;
 			break;
 		default:
+			BGBCC_DBGBREAK
 			break;
 		}
 
@@ -329,7 +364,9 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			k-=8; obj->locals[i]->fxoffs=k;
 			break;
 
-		default:	break;
+		default:
+			BGBCC_DBGBREAK
+			break;
 		}
 
 #if 0
@@ -373,7 +410,9 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 			sctx->use_dbr=1;
 			k-=8; obj->regs[i]->fxoffs=k;
 			break;
-		default:	break;
+		default:
+			BGBCC_DBGBREAK
+			break;
 		}
 
 #if 0
@@ -1942,6 +1981,25 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 		{
 			BGBCC_SHXC_BuildAsmBlob(ctx, obj);
 			continue;
+		}
+	}
+
+	if(sctx->lvt16_n_idx>0)
+	{
+		BGBCC_SHX_SetSectionName(sctx, ".data");
+		BGBCC_SHX_EmitBAlign(sctx, 16);
+		for(i=0; i<sctx->lvt16_n_idx; i++)
+		{
+			BGBCC_SHX_EmitLabel(sctx, sctx->lvt16_lbl[i]);
+			if(sctx->is_le)
+			{
+				BGBCC_SHX_EmitQWord(sctx, sctx->lvt16_val[i*2+0]);
+				BGBCC_SHX_EmitQWord(sctx, sctx->lvt16_val[i*2+1]);
+			}else
+			{
+				BGBCC_SHX_EmitQWord(sctx, sctx->lvt16_val[i*2+1]);
+				BGBCC_SHX_EmitQWord(sctx, sctx->lvt16_val[i*2+0]);
+			}
 		}
 	}
 

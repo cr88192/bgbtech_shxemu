@@ -680,7 +680,7 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 
 void BGBCC_CCXL_CompileExprT(BGBCC_TransState *ctx, BCCX_Node *l)
 {
-	long long li;
+	long long li, lj;
 	float f;
 	BCCX_Node *t, *c, *ct, *cv;
 	char *s0, *s1, *s2;
@@ -697,7 +697,17 @@ void BGBCC_CCXL_CompileExprT(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "int"))
 	{
-		BGBCC_CCXL_StackPushConstInt(ctx, BCCX_GetInt(l, "value"));
+		s0=BCCX_Get(l, "tysuf");
+		li=BCCX_GetInt(l, "value");
+		
+		if(s0 && (!stricmp(s0, "L") || !stricmp(s0, "LL") ||
+			(((s32)li)!=li)))
+		{
+			BGBCC_CCXL_StackPushConstLong(ctx, li);
+			return;
+		}
+
+		BGBCC_CCXL_StackPushConstInt(ctx, li);
 		return;
 	}
 	if(BCCX_TagIsP(l, "real"))
@@ -710,6 +720,14 @@ void BGBCC_CCXL_CompileExprT(BGBCC_TransState *ctx, BCCX_Node *l)
 		}
 
 		BGBCC_CCXL_StackPushConstDouble(ctx, BCCX_GetFloat(l, "value"));
+		return;
+	}
+
+	if(BCCX_TagIsP(l, "int128"))
+	{
+		li=BCCX_GetInt(l, "value_lo");
+		lj=BCCX_GetInt(l, "value_hi");
+		BGBCC_CCXL_StackPushConstInt128(ctx, li, lj);
 		return;
 	}
 

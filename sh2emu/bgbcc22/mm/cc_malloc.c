@@ -816,6 +816,8 @@ double BGBCC_ParseNumber(char *str)
 		l=0; t+=2;
 		while(*t)
 		{
+			if(*t=='_')
+				{ t++; continue; }
 			l*=16;
 			if((*t>='0') && (*t<='9'))l+=*t-'0';
 			if((*t>='A') && (*t<='F'))l+=*t-'A'+10;
@@ -839,6 +841,8 @@ double BGBCC_ParseNumber(char *str)
 		l=0; t++;
 		while(*t)
 		{
+			if(*t=='_')
+				{ t++; continue; }
 			l*=8;
 			if((*t>='0') && (*t<='7'))l+=*t-'0';
 				else break;
@@ -852,6 +856,8 @@ double BGBCC_ParseNumber(char *str)
 	if(*t=='-') { sg=1; t++; }
 	while(*t)
 	{
+		if(*t=='_')
+			{ t++; continue; }
 		l*=10;
 		if((*t>='0') && (*t<='9'))l+=*t-'0';
 			else break;
@@ -953,6 +959,80 @@ s64 bgbcc_atoi(char *str)
 	li=bgbcc_strtol(s, 10);
 	if(sg)li=-li;
 	return(li);
+}
+
+int bgbcc_strtoxl(char *str, int rdx, u64 *rxlo, u64 *rxhi)
+{
+	char *s;
+	u64 tl, tm, th;
+	int i, j;
+	
+	s=str; tl=0; tm=0; th=0;
+	while(*s)
+	{
+		if(*s=='_')
+			{ s++; continue; }
+
+		i=*s++; j=-1;
+		if((i>='0') && (i<='9'))
+			j=0+(i-'0');
+		if((i>='A') && (i<='Z'))
+			j=10+(i-'A');
+		if((i>='a') && (i<='z'))
+			j=10+(i-'a');
+		if((j<0) || (j>=rdx))
+			break;
+		tl=(tl*rdx)+j;
+		tm=(tm*rdx)+(tl>>32);
+		th=(th*rdx)+(tm>>32);
+		tl=(u32)tl;
+		tm=(u32)tm;
+	}
+	
+	*rxlo=tl|(tm<<32);
+	*rxhi=th;
+	
+	return(1);
+}
+
+s64 bgbcc_atoxl(char *str, u64 *rxlo, u64 *rxhi)
+{
+	u64 t0, t1, t2;
+	s64 li;
+	char *s;
+	int sg;
+	int i;
+	
+	if(*str=='0')
+	{
+		if(str[1]=='x')
+			return(bgbcc_strtoxl(str+2, 16, rxlo, rxhi));
+		if(str[1]=='d')
+			return(bgbcc_strtoxl(str+2, 10, rxlo, rxhi));
+		if(str[1]=='b')
+			return(bgbcc_strtoxl(str+2, 2, rxlo, rxhi));
+		return(bgbcc_strtoxl(str+1, 8, rxlo, rxhi));
+	}
+	
+	s=str; sg=0;
+	if(*s=='-')
+		{ s++; sg=1; }
+	i=bgbcc_strtoxl(s, 10, rxlo, rxhi);
+	if(sg)
+	{
+//		li=-li;
+		t0=~(*rxlo);
+		t1=~(*rxhi);
+		
+		t2=t0;
+		t0++;
+		if(((t2>>63)&1) && !((t0>>63)&1))
+			t1++;
+
+		*rxlo=t0;
+		*rxhi=t1;
+	}
+	return(i);
 }
 
 f64 bgbcc_atof(char *str)

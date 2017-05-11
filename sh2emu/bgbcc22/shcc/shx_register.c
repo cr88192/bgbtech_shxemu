@@ -1211,7 +1211,7 @@ int BGBCC_SHXC_EmitLoadFrameVRegReg(
 	ccxl_type tty;
 	char *s0;
 	double f, g;
-	s64 li;
+	s64 li, lj;
 	int dreg2;
 	int p0, p1;
 	int i, j, k;
@@ -1486,6 +1486,26 @@ int BGBCC_SHXC_EmitLoadFrameVRegReg(
 
 		BGBCC_CCXL_StubError(ctx);
 		return(0);
+	}
+	
+	if(BGBCC_CCXL_IsRegImmInt128P(ctx, sreg) ||
+		BGBCC_CCXL_IsRegImmFloat128P(ctx, sreg))
+	{
+		BGBCC_CCXL_GetRegImmX128Value(ctx, sreg, &li, &lj);
+		k=BGBCC_SHXC_IndexLitInt128(ctx, sctx, li, lj);
+	
+		if(sctx->is_pic)
+		{
+			p0=BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
+				BGBCC_SH_REG_R0, k*4);
+			p1=BGBCC_SHX_EmitOpLdReg2Reg(sctx, BGBCC_SH_NMID_MOVL,
+				BGBCC_SH_REG_R12, BGBCC_SH_REG_R0, dreg);
+		}else
+		{
+			BGBCC_SHX_EmitLoadRegLabelAbs(sctx, dreg, k);
+		}
+
+		return(1);
 	}
 	
 	BGBCC_CCXL_StubError(ctx);
@@ -2379,20 +2399,48 @@ int BGBCC_SHXC_EmitJCmpVRegVRegInt(
 		nm2=BGBCC_SH_NMID_BF;
 		break;
 	case CCXL_CMP_LT:
-		nm1=BGBCC_SH_NMID_CMPGE;
-		nm2=BGBCC_SH_NMID_BF;
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			nm1=BGBCC_SH_NMID_CMPHS;
+			nm2=BGBCC_SH_NMID_BF;
+		}else
+		{
+			nm1=BGBCC_SH_NMID_CMPGE;
+			nm2=BGBCC_SH_NMID_BF;
+		}
 		break;
 	case CCXL_CMP_GT:
-		nm1=BGBCC_SH_NMID_CMPGT;
-		nm2=BGBCC_SH_NMID_BT;
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			nm1=BGBCC_SH_NMID_CMPHI;
+			nm2=BGBCC_SH_NMID_BT;
+		}else
+		{
+			nm1=BGBCC_SH_NMID_CMPGT;
+			nm2=BGBCC_SH_NMID_BT;
+		}
 		break;
 	case CCXL_CMP_LE:
-		nm1=BGBCC_SH_NMID_CMPGT;
-		nm2=BGBCC_SH_NMID_BF;
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			nm1=BGBCC_SH_NMID_CMPHI;
+			nm2=BGBCC_SH_NMID_BF;
+		}else
+		{
+			nm1=BGBCC_SH_NMID_CMPGT;
+			nm2=BGBCC_SH_NMID_BF;
+		}
 		break;
 	case CCXL_CMP_GE:
-		nm1=BGBCC_SH_NMID_CMPGE;
-		nm2=BGBCC_SH_NMID_BT;
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			nm1=BGBCC_SH_NMID_CMPHS;
+			nm2=BGBCC_SH_NMID_BT;
+		}else
+		{
+			nm1=BGBCC_SH_NMID_CMPGE;
+			nm2=BGBCC_SH_NMID_BT;
+		}
 		break;
 	default:
 		nm1=-1;

@@ -1145,6 +1145,16 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		BGBCC_CCXL_StackPushConstWString(ctx, s0);
 		break;
 
+	case BGBCC_RIL3OP_LDCONSTXL:
+		li0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		li1=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		BGBCC_CCXL_StackPushConstInt128(ctx, li0, li1);
+		break;
+	case BGBCC_RIL3OP_LDCONSTXF:
+		f0=BGBCC_CCXLR3_ReadFVLI(ctx, &cs);
+		BGBCC_CCXL_StackPushConstDouble(ctx, f0);
+		break;
+
 	case BGBCC_RIL3OP_POP:
 		BGBCC_CCXL_StackPop(ctx);
 		break;

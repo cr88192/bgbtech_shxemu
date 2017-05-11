@@ -726,12 +726,38 @@ int BGBCC_SHXC_EmitReturnVReg(
 	BGBCC_SHX_Context *sctx,
 	ccxl_type type, ccxl_register sreg)
 {
+	int rcls;
 	int i, j, k;
 
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, type) ||
 		BGBCC_CCXL_TypePointerP(ctx, type))
 	{
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_R0);
+	}
+
+	rcls=BGBCC_SHXC_TypeGetRegClassP(ctx, type);
+
+	if((rcls==BGBCC_SH_REGCLS_GR) ||
+		(rcls==BGBCC_SH_REGCLS_VO_GR) ||
+		(rcls==BGBCC_SH_REGCLS_VO_REF) ||
+		(rcls==BGBCC_SH_REGCLS_AR_REF))
+	{
+		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_R0);
+	}
+
+	if((rcls==BGBCC_SH_REGCLS_GR2))
+	{
+		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_LR0);
+	}
+
+	if((rcls==BGBCC_SH_REGCLS_FR))
+	{
+		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_FR0);
+	}
+
+	if((rcls==BGBCC_SH_REGCLS_FR2))
+	{
+		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_DR0);
 	}
 
 	i=BGBCC_SHX_EmitOpAutoLabel(sctx,

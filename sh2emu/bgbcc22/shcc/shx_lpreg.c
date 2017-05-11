@@ -28,7 +28,7 @@ int BGBCC_SHXC_EmitTryGetLpRegister(
 			if(sctx->regalc_ltcnt[i]>0)
 				sctx->regalc_ltcnt[i]--;
 			sctx->regalc_utcnt[i]++;
-			return(bgbcc_shx_lcachereg[i]);
+			return(bgbcc_shx_lcachereg[i+1]);
 		}
 	}
 
@@ -47,7 +47,7 @@ int BGBCC_SHXC_EmitGetLpRegister(
 	int creg;
 	int i;
 
-	creg=BGBCC_SHXC_EmitTryGetFpRegister(ctx, sctx, reg, fl);
+	creg=BGBCC_SHXC_EmitTryGetLpRegister(ctx, sctx, reg, fl);
 	if((creg>=0) && (creg!=BGBCC_SH_REG_ZZR))
 		return(creg);
 

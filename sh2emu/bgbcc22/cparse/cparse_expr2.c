@@ -50,16 +50,30 @@ BCCX_Node *BGBCP_Number(BGBCP_ParseState *ctx, char *str)
 {
 	BCCX_Node *n;
 	char *s;
+	s64 li, lj;
 	int i;
 
 	s=str;
-	while(*s && (*s!='.') && (*s!='e') && (*s!='E')) s++;
+//	while(*s && (*s!='.') && (*s!='e') && (*s!='E')) s++;
+	while(*s && (*s!='.')) s++;
 
 	if(!*s)
 	{
+//		li=bgbcc_atoi(str);
+
+		bgbcc_atoxl(str, (u64 *)(&li), (u64 *)(&lj));
+		
+		if((lj!=0) && (lj!=(-1)))
+		{
+			n=BCCX_New("int128");
+			BCCX_SetInt(n, "value_lo", li);
+			BCCX_SetInt(n, "value_hi", lj);
+			return(n);
+		}
+
 		n=BCCX_New("int");
 //		BCCX_Set(n, "value", str);
-		BCCX_SetInt(n, "value", BGBCC_ParseNumber(str));
+		BCCX_SetInt(n, "value", li);
 		return(n);
 	}
 
@@ -221,6 +235,9 @@ BCCX_Node *BGBCP_ExpressionLit(BGBCP_ParseState *ctx, char **str)
 		if(!strcmp(b2, "U") || !strcmp(b2, "u"))suf="U";
 		if(!strcmp(b2, "UL") || !strcmp(b2, "ul"))suf="UL";
 		if(!strcmp(b2, "ULL") || !strcmp(b2, "ull"))suf="ULL";
+
+		if(!strcmp(b2, "XL") || !strcmp(b2, "xl"))suf="XL";
+		if(!strcmp(b2, "UXL") || !strcmp(b2, "uXl"))suf="UXL";
 
 		if(suf && (ty2==BTK_NAME))
 		{
