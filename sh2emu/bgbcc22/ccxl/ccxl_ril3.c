@@ -695,6 +695,63 @@ f64 BGBCC_CCXLR3_ReadFVLI(BGBCC_TransState *ctx, byte **rcs)
 	return(v);
 }
 
+int BGBCC_CCXLR3_ReadXFVLI(BGBCC_TransState *ctx, byte **rcs,
+	s64 *rlo, s64 *rhi)
+{
+	int fe, fe1, sg;
+	s64 ml, mh;
+	u64 fml, fmh;
+	f64 v;
+
+//	*rlo=BGBCC_CCXLR3_ReadSVLI(ctx, rcs);
+//	*rhi=BGBCC_CCXLR3_ReadSVLI(ctx, rcs);
+//	return(1);
+
+#if 1
+	fe=BGBCC_CCXLR3_ReadSVLI(ctx, rcs);
+	ml=BGBCC_CCXLR3_ReadSVLI(ctx, rcs);
+	mh=BGBCC_CCXLR3_ReadSVLI(ctx, rcs);
+	
+	if(!fe && mh)
+	{
+		*rlo=ml;
+		*rhi=mh;
+		return(1);
+	}
+	
+
+	sg=0;
+	if(mh<0)
+	{
+		mh=~mh;
+		ml=-ml;
+		sg=1;
+	}
+
+	fml=(u64)(ml);
+	fmh=(u64)(mh);
+	
+	fe1=fe+112;
+	while(!(fmh>>48))
+	{
+		fmh=(fmh<<1)|(fml>>63);
+		fml=fml<<1;
+		fe1--;
+	}
+	
+	fmh|=fe1+16383;
+	if(sg)fmh|=(1ULL<<63);
+	
+	*rhi=fmh;
+	*rlo=fml;
+	return(1);
+	
+//	v=fm*pow(2.0, fe);
+//	return(v);
+#endif
+
+}
+
 int BGBCC_CCXLR3_ReadTag(BGBCC_TransState *ctx, byte **rcs)
 {
 	int i;
@@ -1151,8 +1208,9 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		BGBCC_CCXL_StackPushConstInt128(ctx, li0, li1);
 		break;
 	case BGBCC_RIL3OP_LDCONSTXF:
-		f0=BGBCC_CCXLR3_ReadFVLI(ctx, &cs);
-		BGBCC_CCXL_StackPushConstDouble(ctx, f0);
+		BGBCC_CCXLR3_ReadXFVLI(ctx, &cs, &li0, &li1);
+//		BGBCC_CCXL_StackPushConstDouble(ctx, f0);
+		BGBCC_CCXL_StackPushConstFloat128(ctx, li0, li1);
 		break;
 
 	case BGBCC_RIL3OP_POP:

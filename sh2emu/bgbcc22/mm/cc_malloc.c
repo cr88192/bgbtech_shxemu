@@ -103,9 +103,12 @@ void *bgbcc_tmalloc(char *ty, int sz)
 	void *p;
 	int i, n, tyi, tty, tsz;
 
-	if(sz>=65536)
+//	if(sz>=65536)
+	if(sz>=(32768-256))
 	{
 		sz+=2*sizeof(void *);
+		sz=(sz+255)&(~255);
+
 		p=malloc(sz);
 		if(!p)
 		{
@@ -118,7 +121,8 @@ void *bgbcc_tmalloc(char *ty, int sz)
 		bgbcc_alloc_list=p;
 
 		tyi=bgbcc_strdup_i(ty, 0);
-		tsz=(sz<524288)?(sz>>8):(0x800|(sz>>16));
+//		tsz=(sz<524288)?(sz>>8):(0x800|(sz>>16));
+		tsz=(sz<262144)?(0x800|(sz>>8)):(0xC00|(sz>>16));
 		tty=tsz|(tyi<<12);
 		((void **)p)[1]=(void *)(nlint)tty;
 
@@ -272,10 +276,23 @@ void bgbcc_free(void *p)
 
 void *bgbcc_realloc(void *ptr, int sz)
 {
+	int sz0, sz1;
 	void *ptr2;
 	
+	if(!ptr)
+	{
+		return(bgbcc_malloc(sz));
+	}
+	
+	sz0=bgbcc_malloc_getsize(ptr);
+	sz1=sz0;
+	if(sz<sz1)
+		sz1=sz;
+	
 	ptr2=bgbcc_malloc(sz);
-	memcpy(ptr2, ptr, sz);
+//	memcpy(ptr2, ptr, sz);
+	if(sz1>0)
+		memcpy(ptr2, ptr, sz1);
 	bgbcc_free(ptr);
 	return(ptr2);
 }
@@ -329,7 +346,8 @@ void *bgbcc_malloc_getbase(void *obj)
 			if(obj>p)
 			{
 				tty=(nlint)(((void **)p)[1]);
-				sz=(tty&4095)<<4;
+//				sz=(tty&4095)<<4;
+				sz=(tty&2047)<<4;
 				pe=((char *)p)+sz;
 				if(obj<pe)
 					return(p);
@@ -346,7 +364,8 @@ void *bgbcc_malloc_getbase(void *obj)
 			tty=(nlint)(((void **)p)[1]);
 //			sz=(tty&4095)<<8;
 			sz=tty&4095;
-			sz=(sz<2048)?(sz<<8):((sz&0x7FF)<<16);
+//			sz=(sz<2048)?(sz<<8):((sz&0x7FF)<<16);
+			sz=(!(sz&0x400))?((sz&0x3FF)<<8):((sz&0x3FF)<<16);
 			pe=((char *)p)+sz;
 			if(obj<pe)
 				return(p);
@@ -370,6 +389,32 @@ char *bgbcc_malloc_gettype(void *obj)
 	
 	tyi=(tty>>12)&65535;
 	return(bgbcc_str_varr[tyi]);
+}
+
+int bgbcc_malloc_getsize(void *obj)
+{
+	int tty, sz, sz0, tyi;
+	void *p;
+	
+	p=bgbcc_malloc_getbase(obj);
+	if(!p)
+	{
+		BGBCC_DBGBREAK
+		return(-1);
+	}
+
+	tty=(nlint)(((void **)p)[1]);
+	sz0=(tty&4095);
+
+	if(sz0&0x800)
+	{
+		sz=(!(sz0&0x400))?((sz0&0x3FF)<<8):((sz0&0x3FF)<<16);
+	}else
+	{
+		sz=(sz0&2047)<<4;
+	}
+
+	return(sz);
 }
 
 #if 0

@@ -14,7 +14,15 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	fi=obj->fields[fid];
 
 	ty=type.val;
-	
+
+	if(BGBCC_CCXL_TypeValueObjectP(ctx, type) ||
+		BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+		i=BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(ctx, sctx,
+			type, dreg, sreg, gblid, fid);
+		return(i);
+	}
+
 	sz=-1; nm1=-1;
 	switch(ty)
 	{
@@ -44,6 +52,11 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	{
 		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+	
+		if((csreg&15)==15)
+			{ BGBCC_DBGBREAK }
+		if((cdreg&15)==15)
+			{ BGBCC_DBGBREAK }
 		
 		BGBCC_SHXC_EmitLoadBRegOfsReg(ctx, sctx,
 			nm1, csreg, fi->fxoffs, cdreg);
@@ -67,12 +80,35 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 {
 	BGBCC_CCXL_RegisterInfo *obj, *fi;
 	int csreg, ctreg, cdreg;
-	int nm1, nm2, ty, sz;
+	int nm1, nm2, ty, sz, al;
 	int i, j, k;
 
 //	obj=ctx->reg_globals[gblid];
 	obj=ctx->literals[gblid]->decl;
 	fi=obj->fields[fid];
+
+	if(BGBCC_CCXL_TypeValueObjectP(ctx, type))
+	{
+		cdreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		ctreg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, type);
+		al=4;
+		if(fi->fxoffs&3)al=2;
+		if(fi->fxoffs&1)al=1;
+
+//		i=BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(ctx, sctx,
+//			type, ctreg, sreg, gblid, fid);
+		BGBCC_SHXC_EmitLeaBRegOfsReg(ctx, sctx,
+			BGBCC_SH_NMID_MOVL, cdreg, fi->fxoffs, ctreg);
+
+		BGBCC_SHXC_EmitValueCopyRegRegSz(ctx, sctx, ctreg, csreg, sz, al);
+
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, ctreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		return(1);
+	}
 
 	ty=type.val;
 	
@@ -105,7 +141,12 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 	{
 		cdreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, dreg);
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
-		
+
+		if((csreg&15)==15)
+			{ BGBCC_DBGBREAK }
+		if((cdreg&15)==15)
+			{ BGBCC_DBGBREAK }
+
 		BGBCC_SHXC_EmitStoreBRegOfsReg(ctx, sctx,
 			nm1, cdreg, fi->fxoffs, csreg);
 
@@ -126,12 +167,36 @@ int BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(
 {
 	BGBCC_CCXL_RegisterInfo *obj, *fi;
 	int csreg, ctreg, cdreg;
-	int nm1, nm2, ty, sz;
+	int nm1, nm2, ty, sz, al;
 	int i, j, k;
 
 //	obj=ctx->reg_globals[gblid];
 	obj=ctx->literals[gblid]->decl;
 	fi=obj->fields[fid];
+
+	if(BGBCC_CCXL_TypeValueObjectP(ctx, type) ||
+		BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+//		cdreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, dreg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+//		ctreg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, type);
+
+		al=4;
+		if(fi->fxoffs&3)al=2;
+		if(fi->fxoffs&1)al=1;
+		
+		if(BGBCC_CCXL_TypeValueObjectP(ctx, type) && (al!=4))
+			{ BGBCC_DBGBREAK }
+
+		BGBCC_SHXC_EmitLeaBRegOfsReg(ctx, sctx,
+			BGBCC_SH_NMID_MOVL, csreg, fi->fxoffs, cdreg);
+
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		return(1);
+	}
 
 	ty=type.val;
 	
@@ -167,8 +232,8 @@ int BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(
 		
 		BGBCC_SHXC_EmitLeaBRegOfsReg(ctx, sctx,
 			nm1, csreg, fi->fxoffs, cdreg);
-		if(nm2>=0)
-			{ BGBCC_SHX_EmitOpRegReg(sctx, nm2, cdreg, cdreg); }
+//		if(nm2>=0)
+//			{ BGBCC_SHX_EmitOpRegReg(sctx, nm2, cdreg, cdreg); }
 
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);

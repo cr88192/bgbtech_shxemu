@@ -52,6 +52,28 @@ void BGBCP_Error(char *se, char *str, ...)
 	BGBCC_DieError();
 }
 
+void BGBCP_WarnCtx(BGBCP_ParseState *ctx, char *se, char *str, ...)
+{
+	va_list lst;
+	char *fn;
+	int ln;
+
+	va_start(lst, str);
+
+	bgbcp_warn++;
+	fn=BGBCP_GetLastFileName();
+	ln=BGBCP_GetLastLineNumber();
+
+	printf("%s:%d: warning: ", fn, ln);
+	vprintf(str, lst);
+
+	va_end(lst);
+	fflush(stdout);
+
+//	*(int *)-1=-1;
+//	BGBCC_DieError();
+}
+
 void BGBCP_ErrorCtx(BGBCP_ParseState *ctx, char *se, char *str, ...)
 {
 	va_list lst;
@@ -741,7 +763,7 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 	return(n);
 }
 
-BCCX_Node *BGBCP_BlockStatement(BGBCP_ParseState *ctx, char **str)
+BCCX_Node *BGBCP_BlockStatementI(BGBCP_ParseState *ctx, char **str, int flag)
 {
 	char b[256];
 	int ty, ln;
@@ -773,6 +795,12 @@ BCCX_Node *BGBCP_BlockStatement(BGBCP_ParseState *ctx, char **str)
 
 #if 1
 	n=BGBCP_Definition(ctx, &s);
+
+	if(!n && (flag&1))
+	{
+		n=BGBCP_DefinitionOldStyle(ctx, &s);
+	}
+
 	if(n!=NULL)
 	{
 		BCCX_Set(n, "fn", fn);
@@ -802,7 +830,14 @@ BCCX_Node *BGBCP_BlockStatement(BGBCP_ParseState *ctx, char **str)
 	return(n);
 }
 
-BCCX_Node *BGBCP_Block(BGBCP_ParseState *ctx, char **str)
+BCCX_Node *BGBCP_BlockStatement(BGBCP_ParseState *ctx, char **str)
+{
+	BCCX_Node *n;
+	n=BGBCP_BlockStatementI(ctx, str, 0);
+	return(n);
+}
+
+BCCX_Node *BGBCP_BlockI(BGBCP_ParseState *ctx, char **str, int flag)
 {
 	char b[256];
 	char *s, *s1;
@@ -830,7 +865,7 @@ BCCX_Node *BGBCP_Block(BGBCP_ParseState *ctx, char **str)
 		__try {
 #endif
 
-		n=BGBCP_BlockStatement(ctx, &s);
+		n=BGBCP_BlockStatementI(ctx, &s, flag);
 		if(n==NULL)
 		{
 			if(!s || s==s1)
@@ -875,6 +910,22 @@ BCCX_Node *BGBCP_Block(BGBCP_ParseState *ctx, char **str)
 
 	*str=s;
 	return(lst);
+}
+
+BCCX_Node *BGBCP_Block(BGBCP_ParseState *ctx, char **str)
+{
+	BCCX_Node *n;
+	
+	n=BGBCP_BlockI(ctx, str, 0);
+	return(n);
+}
+
+BCCX_Node *BGBCP_Toplevel(BGBCP_ParseState *ctx, char **str)
+{
+	BCCX_Node *n;
+	
+	n=BGBCP_BlockI(ctx, str, 1);
+	return(n);
 }
 
 BCCX_Node *BGBCP_BlockStatement2(BGBCP_ParseState *ctx, char **str)

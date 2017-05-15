@@ -572,7 +572,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 //				ctx->n_lbl=0;
 
 				obj->decl=decl;
-				obj->littype=CCXL_LITID_FUNCTION;
+				obj->littype=CCXL_LITID_PROTOTYPE;
 				obj->decl->regtype=CCXL_LITID_FUNCTION;
 				return;
 			}
@@ -753,7 +753,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		break;
 
 	case CCXL_CMD_PROTOTYPE:
-		obj->littype=CCXL_LITID_FUNCTION;
+		obj->littype=CCXL_LITID_PROTOTYPE;
 		obj->decl=bgbcc_malloc(sizeof(BGBCC_CCXL_RegisterInfo));
 		obj->decl->regtype=CCXL_LITID_FUNCTION;
 		BGBCC_CCXL_AddGlobalDecl(ctx, obj->decl);
@@ -806,6 +806,7 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		ctx->n_vop=0;
 		ctx->n_vtr=0;
 		ctx->s_vop=0;
+//		ctx->b_vop=0;
 		break;
 
 	case CCXL_CMD_MANIFOBJ:
@@ -888,7 +889,8 @@ void BGBCC_CCXL_EndFunction(BGBCC_TransState *ctx,
 //		ctx->back_vt->EndFunction(ctx, obj);
 //	}else
 
-	if(1)
+//	if(1)
+	if(obj->littype==CCXL_LITID_FUNCTION)
 	{
 #if 1
 		if(ctx->n_vop>0)
@@ -930,6 +932,164 @@ void BGBCC_CCXL_EndFunction(BGBCC_TransState *ctx,
 #endif
 }
 
+void BGBCC_CCXL_FixupObjSize(BGBCC_TransState *ctx,
+	BGBCC_CCXL_LiteralInfo *obj, int flag)
+{
+	int sza[2], ala[2];
+	BGBCC_CCXL_LiteralInfo *obj2;
+	ccxl_register reg;
+	ccxl_type tty;
+	int msz, nsz, msz2, nsz2;
+	int mal, nal, mal2, nal2;
+	int i, j, k;
+
+	if(!obj)
+		return;
+
+	switch(obj->littype)
+	{
+	case CCXL_LITID_STRUCT:
+	case CCXL_LITID_CLASS:
+		if(!obj->decl)
+			return;
+
+		msz=obj->decl->fxmsize;
+		nsz=obj->decl->fxnsize;
+		if((msz>0) && (nsz>0))
+			return;
+
+		msz=0; nsz=0; mal=1; nal=1;
+		for(i=0; i<obj->decl->n_fields; i++)
+		{
+			msz2=obj->decl->fields[i]->fxmsize;
+			nsz2=obj->decl->fields[i]->fxnsize;
+			mal2=obj->decl->fields[i]->fxmalgn;
+			nal2=obj->decl->fields[i]->fxnalgn;
+			
+			if((msz2<=0) || (nsz2<=0))
+			{
+				tty=obj->decl->fields[i]->type;
+				if(BGBCC_CCXL_TypeValueObjectP(ctx, tty))
+				{
+					obj2=BGBCC_CCXL_LookupStructureForType(ctx, tty);
+					if(!obj2->decl)
+						break;
+
+					BGBCC_CCXL_FixupObjSize(ctx, obj2, flag);
+
+					msz2=obj2->decl->fxmsize;	nsz2=obj2->decl->fxnsize;
+					mal2=obj2->decl->fxmalgn;	nal2=obj2->decl->fxnalgn;
+					
+					if((msz2<=0) || (nsz2<=0))
+						break;
+					
+					obj->decl->fields[i]->fxmsize=msz2;
+					obj->decl->fields[i]->fxnsize=nsz2;
+					obj->decl->fields[i]->fxmalgn=mal2;
+					obj->decl->fields[i]->fxnalgn=nal2;
+				}else
+				{
+					BGBCC_DBGBREAK
+				}
+			}
+			
+			msz=(msz+(mal2-1))&(~(mal2-1));
+			nsz=(nsz+(nal2-1))&(~(nal2-1));
+
+			obj->decl->fields[i]->fxmoffs=msz;
+			obj->decl->fields[i]->fxnoffs=nsz;
+			if(msz==nsz)
+				obj->decl->fields[i]->fxoffs=msz;
+
+			msz+=msz2;	nsz+=nsz2;
+			if(mal2>mal)mal=mal2;
+			if(nal2>nal)nal=nal2;
+		}
+		
+		if(i<obj->decl->n_fields)
+		{
+			if(flag&1)
+				{ BGBCC_DBGBREAK }
+			break;
+		}
+		
+		msz=(msz+(mal-1))&(~(mal-1));
+		nsz=(nsz+(nal-1))&(~(nal-1));
+		obj->decl->fxmsize=msz;	obj->decl->fxnsize=nsz;
+		obj->decl->fxmalgn=mal;	obj->decl->fxnalgn=nal;
+		break;
+
+	case CCXL_LITID_UNION:
+		if(!obj->decl)
+			return;
+
+		msz=obj->decl->fxmsize;
+		nsz=obj->decl->fxnsize;
+		if((msz>0) && (nsz>0))
+			return;
+
+		msz=0; nsz=0; mal=1; nal=1;
+		for(i=0; i<obj->decl->n_fields; i++)
+		{
+			msz2=obj->decl->fields[i]->fxmsize;
+			nsz2=obj->decl->fields[i]->fxnsize;
+			mal2=obj->decl->fields[i]->fxmalgn;
+			nal2=obj->decl->fields[i]->fxnalgn;
+
+			if((msz2<=0) || (nsz2<=0))
+			{
+				tty=obj->decl->fields[i]->type;
+				if(BGBCC_CCXL_TypeValueObjectP(ctx, tty))
+				{
+					obj2=BGBCC_CCXL_LookupStructureForType(ctx, tty);
+					if(!obj2->decl)
+						break;
+
+					BGBCC_CCXL_FixupObjSize(ctx, obj2, flag);
+
+					msz2=obj2->decl->fxmsize;	nsz2=obj2->decl->fxnsize;
+					mal2=obj2->decl->fxmalgn;	nal2=obj2->decl->fxnalgn;
+
+					if((msz2<=0) || (nsz2<=0))
+						break;
+
+					obj->decl->fields[i]->fxmsize=msz2;
+					obj->decl->fields[i]->fxnsize=nsz2;
+					obj->decl->fields[i]->fxmalgn=mal2;
+					obj->decl->fields[i]->fxnalgn=nal2;
+				}else
+				{
+					BGBCC_DBGBREAK
+				}
+			}
+
+			if(msz2>msz)msz=msz2;
+			if(nsz2>nsz)nsz=nsz2;
+			if(mal2>mal)mal=mal2;
+			if(nal2>nal)nal=nal2;
+			obj->decl->fields[i]->fxmoffs=0;
+			obj->decl->fields[i]->fxnoffs=0;
+			obj->decl->fields[i]->fxoffs=0;
+		}
+
+		if(i<obj->decl->n_fields)
+		{
+			if(flag&1)
+				{ BGBCC_DBGBREAK }
+			break;
+		}
+
+		msz=(msz+(mal-1))&(~(mal-1));
+		nsz=(nsz+(nal-1))&(~(nal-1));
+		obj->decl->fxmsize=msz;	obj->decl->fxnsize=nsz;
+		obj->decl->fxmalgn=mal;	obj->decl->fxnalgn=nal;
+		break;
+
+	default:
+		break;
+	}
+}
+
 void BGBCC_CCXL_End(BGBCC_TransState *ctx)
 {
 	int sza[2], ala[2];
@@ -946,6 +1106,10 @@ void BGBCC_CCXL_End(BGBCC_TransState *ctx)
 	{
 	case CCXL_LITID_FUNCTION:
 		BGBCC_CCXL_EmitCallRetDefault(ctx);
+		BGBCC_CCXL_EndFunction(ctx, obj);
+		break;
+	case CCXL_LITID_PROTOTYPE:
+//		BGBCC_CCXL_EmitCallRetDefault(ctx);
 		BGBCC_CCXL_EndFunction(ctx, obj);
 		break;
 	case CCXL_LITID_VALUE:
@@ -1095,51 +1259,8 @@ void BGBCC_CCXL_End(BGBCC_TransState *ctx)
 
 	case CCXL_LITID_STRUCT:
 	case CCXL_LITID_CLASS:
-		msz=0; nsz=0; mal=1; nal=1;
-		for(i=0; i<obj->decl->n_fields; i++)
-		{
-			msz2=obj->decl->fields[i]->fxmsize;
-			nsz2=obj->decl->fields[i]->fxnsize;
-			mal2=obj->decl->fields[i]->fxmalgn;
-			nal2=obj->decl->fields[i]->fxnalgn;
-			msz=(msz+(mal2-1))&(~(mal2-1));
-			nsz=(nsz+(nal2-1))&(~(nal2-1));
-
-			obj->decl->fields[i]->fxmoffs=msz;
-			obj->decl->fields[i]->fxnoffs=nsz;
-			if(msz==nsz)
-				obj->decl->fields[i]->fxoffs=msz;
-
-			msz+=msz2;	nsz+=nsz2;
-			if(mal2>mal)mal=mal2;
-			if(nal2>nal)nal=nal2;
-		}
-		msz=(msz+(mal-1))&(~(mal-1));
-		nsz=(nsz+(nal-1))&(~(nal-1));
-		obj->decl->fxmsize=msz;	obj->decl->fxnsize=nsz;
-		obj->decl->fxmalgn=mal;	obj->decl->fxnalgn=nal;
-		break;
-
 	case CCXL_LITID_UNION:
-		msz=0; nsz=0; mal=1; nal=1;
-		for(i=0; i<obj->decl->n_fields; i++)
-		{
-			msz2=obj->decl->fields[i]->fxmsize;
-			nsz2=obj->decl->fields[i]->fxnsize;
-			mal2=obj->decl->fields[i]->fxmalgn;
-			nal2=obj->decl->fields[i]->fxnalgn;
-			if(msz2>msz)msz=msz2;
-			if(nsz2>nsz)nsz=nsz2;
-			if(mal2>mal)mal=mal2;
-			if(nal2>nal)nal=nal2;
-			obj->decl->fields[i]->fxmoffs=0;
-			obj->decl->fields[i]->fxnoffs=0;
-			obj->decl->fields[i]->fxoffs=0;
-		}
-		msz=(msz+(mal-1))&(~(mal-1));
-		nsz=(nsz+(nal-1))&(~(nal-1));
-		obj->decl->fxmsize=msz;	obj->decl->fxnsize=nsz;
-		obj->decl->fxmalgn=mal;	obj->decl->fxnalgn=nal;
+		BGBCC_CCXL_FixupObjSize(ctx, obj, 0);
 		break;
 
 	case CCXL_LITID_LIST:
@@ -1197,6 +1318,7 @@ void BGBCC_CCXL_AttribStr(BGBCC_TransState *ctx, int attr, char *str)
 	{
 	case CCXL_LITID_VAR:
 	case CCXL_LITID_FUNCTION:
+	case CCXL_LITID_PROTOTYPE:
 	case CCXL_LITID_GLOBALVAR:
 	case CCXL_LITID_STRUCT:
 	case CCXL_LITID_UNION:
@@ -1262,6 +1384,7 @@ void BGBCC_CCXL_AttribInt(BGBCC_TransState *ctx, int attr, int val)
 	{
 	case CCXL_LITID_VAR:
 	case CCXL_LITID_FUNCTION:
+	case CCXL_LITID_PROTOTYPE:
 	case CCXL_LITID_GLOBALVAR:
 	case CCXL_LITID_STRUCT:
 	case CCXL_LITID_UNION:
@@ -1299,6 +1422,7 @@ void BGBCC_CCXL_AttribLong(BGBCC_TransState *ctx, int attr, s64 val)
 	{
 	case CCXL_LITID_VAR:
 	case CCXL_LITID_FUNCTION:
+	case CCXL_LITID_PROTOTYPE:
 	case CCXL_LITID_GLOBALVAR:
 	case CCXL_LITID_STRUCT:
 	case CCXL_LITID_UNION:
@@ -1615,4 +1739,24 @@ void BGBCC_CCXL_LiteralData(BGBCC_TransState *ctx, int attr,
 		BGBCC_CCXL_StubError(ctx);
 		break;
 	}
+}
+
+int BGBCC_CCXL_HandleMissingProto(BGBCC_TransState *ctx, char *name)
+{
+	int i;
+
+	BGBCC_CCXL_BeginName(ctx, CCXL_CMD_PROTOTYPE, name);
+
+	BGBCC_CCXL_AttribStr(ctx, CCXL_ATTR_NAME, name);
+	BGBCC_CCXL_AttribStr(ctx, CCXL_ATTR_SIG, "(z)i");
+//	BGBCC_CCXL_AttribStr(ctx, CCXL_ATTR_FLAGS, s2);
+
+	BGBCC_CCXL_Begin(ctx, CCXL_CMD_ARGS);
+	BGBCC_CCXL_Marker(ctx, CCXL_CMD_VARARGS);
+	BGBCC_CCXL_End(ctx);
+
+	BGBCC_CCXL_End(ctx);
+	
+	i=BGBCC_CCXL_LookupGlobalIndex(ctx, name);
+	return(i);
 }

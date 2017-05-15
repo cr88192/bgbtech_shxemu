@@ -321,6 +321,7 @@ char *sec_name[16];
 byte *sec_buf[16];
 byte *sec_end[16];
 byte *sec_pos[16];
+byte *sec_vpos[16];
 u32 sec_rva[16];		//relative virtual address (image offset)
 u32 sec_lva[16];		//logical virtual address
 u32 sec_lsz[16];		//logical size
@@ -335,6 +336,7 @@ byte is_pic;		//is PIC.
 byte use_fpr;		//uses floating point registers
 byte use_dbr;		//uses fp double registers
 byte is_vararg;		//function is varargs
+byte is_simpass;	//is simulation pass
 
 u32 *lbl_ofs;		//label offsets
 u32 *rlc_ofs;		//reloc offsets
@@ -345,11 +347,13 @@ byte *rlc_sec;		//reloc section
 byte *rlc_ty;		//reloc type
 int nlbl, mlbl;
 int nrlc, mrlc;
+int nvlbl;
 u16 lblrov;			//labels (local/temp)
 
 char **lbln_name;	//named label names
 u32 *lbln_id;		//named label IDs
 int nlbln, mlbln;
+int nvlbln;
 
 // byte reg_idx[BGBCC_SH_MAX_CACHEVAR];
 // byte reg_reg[BGBCC_SH_MAX_CACHEVAR];
@@ -358,6 +362,8 @@ int nlbln, mlbln;
 int reg_save;
 // int reg_dirty;
 int freg_save;
+int reg_vsave;
+int freg_vsave;
 
 u32 dfl_fpscr;		//default FPSCR state
 u32 cur_fpscr;		//current FPSCR state
@@ -406,6 +412,7 @@ int lbl_got;			//label ID for got
 int frm_offs_retstr;	//offset of return struct
 
 BGBCC_SHX_Context *next;
+FILE *cgen_log;
 
 char *csrept;
 int cnrept;

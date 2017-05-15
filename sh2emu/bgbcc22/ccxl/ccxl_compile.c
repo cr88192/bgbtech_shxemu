@@ -1500,7 +1500,7 @@ int BGBCC_CCXL_CompileVarStatementCompound(
 void BGBCC_CCXL_CompileVarStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 {
 	BCCX_Node *c, *n, *v, *t;
-	char *s, *s1;
+	char *s, *s0, *s1;
 	int i;
 
 	s=BCCX_Get(l, "fn");
@@ -1518,8 +1518,8 @@ void BGBCC_CCXL_CompileVarStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 
 			s=BCCX_Get(c, "name");
 			t=BCCX_FindTag(c, "type");
-			//v=BCCX_Fetch(c, "value");
-			v=NULL;
+			v=BCCX_Fetch(c, "value");
+//			v=NULL;
 
 			BGBCC_CCXL_EmitVar2(ctx, s, t, v);
 
@@ -1530,6 +1530,11 @@ void BGBCC_CCXL_CompileVarStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "defun"))
 	{
+//		s0=BCCX_Get(l, "fn");
+//		if(s0)ctx->lfn=s0;
+//		i=BCCX_GetInt(l, "ln");
+//		if(i>0)ctx->lln=i;
+
 		s=BCCX_Get(l, "name");
 		t=BCCX_FindTag(l, "type");
 		n=BCCX_Fetch(l, "args");
@@ -1567,8 +1572,8 @@ void BGBCC_CCXL_CompileVarStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 
 void BGBCC_CCXL_CompileVarStatement2(BGBCC_TransState *ctx, BCCX_Node *l)
 {
-	BCCX_Node *c, *n, *v, *t;
-	char *s;
+	BCCX_Node *c, *n, *v, *t, *ntl;
+	char *s, *s0;
 	int i;
 
 	s=BCCX_Get(l, "fn");
@@ -1597,12 +1602,18 @@ void BGBCC_CCXL_CompileVarStatement2(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "defun"))
 	{
+//		s0=BCCX_Get(l, "fn");
+//		if(s0)ctx->lfn=s0;
+//		i=BCCX_GetInt(l, "ln");
+//		if(i>0)ctx->lln=i;
+
 		s=BCCX_Get(l, "name");
 		t=BCCX_FindTag(l, "type");
 		n=BCCX_Fetch(l, "args");
 		v=BCCX_Fetch(l, "body");
+		ntl=BCCX_Fetch(l, "argdecls");
 
-		BGBCC_CCXL_CompileBlock(ctx, t, s, n, v);
+		BGBCC_CCXL_CompileBlock2(ctx, t, s, n, v, ntl);
 		return;
 	}
 
@@ -1629,13 +1640,64 @@ void BGBCC_CCXL_CompileVarStatement2(BGBCC_TransState *ctx, BCCX_Node *l)
 	BGBCC_CCXL_Error(ctx, "Unhandled var statement %s\n", BCCX_Tag(l));
 }
 
+BCCX_Node *BGBCC_CCXL_ArgDeclsTypeForName(BGBCC_TransState *ctx,
+	BCCX_Node *adecl, char *name)
+{
+	BCCX_Node *c, *t, *n, *u, *v, *c2;
+	char *s0, *s1;
+	
+	if(!adecl || !name)
+		return(NULL);
+	
+	c=adecl;
+	while(c)
+	{
+		if(!BCCX_TagIsP(c, "vars"))
+		{
+			c=BCCX_Next(c);
+			continue;
+		}
+		
+		c2=BCCX_Child(c);
+		while(c2)
+		{
+			if(!BCCX_TagIsP(c2, "var"))
+				{ c2=BCCX_Next(c2); continue; }
+
+			s0=BCCX_Get(c2, "name");
+			t=BCCX_FindTag(c2, "type");
+//			v=BCCX_Fetch(c2, "value");
+
+			if(!strcmp(s0, name))
+				return(t);
+
+//			BGBCC_CCXL_CompileInitVar(ctx, s0, t, v);
+			c2=BCCX_Next(c2);
+		}
+
+		c=BCCX_Next(c);
+	}
+	
+	return(NULL);
+}
+
 BCCX_Node *BGBCC_CCXL_CompileBlock(BGBCC_TransState *ctx,
 	BCCX_Node *type, char *name, BCCX_Node *args, BCCX_Node *body)
+{
+	return(BGBCC_CCXL_CompileBlock2(ctx, type, name, args, body, NULL));
+}
+
+BCCX_Node *BGBCC_CCXL_CompileBlock2(BGBCC_TransState *ctx,
+	BCCX_Node *type, char *name, BCCX_Node *args, BCCX_Node *body,
+	BCCX_Node *adecl)
 {
 	ccxl_label cname[16], bname[16];
 
 	BCCX_Node *blkn;
-	BCCX_Node *c, *t, *n, *u;
+	BCCX_Node *c, *t, *n, *u, *t2;
+	BCCX_Node *ocf_ty;
+	char *ocf_n;
+	char *s0, *s1;
 	int tk;
 	int i, j, k;
 
@@ -1643,18 +1705,20 @@ BCCX_Node *BGBCC_CCXL_CompileBlock(BGBCC_TransState *ctx,
 
 	BGBCC_CCXL_EmitSigProto(ctx, type, name, args);
 
-	ctx->contstack=cname;
-	ctx->breakstack=bname;
-
-	ctx->cf_n=name;
-	ctx->cf_ty=type;
-
 	i=0;
 
 	//hack: disable extern inline bastards...
 	if(type)i=BCCX_GetInt(type, "flags");
 	if(i&BGBCC_TYFL_EXTERN)
 		return(NULL);
+
+	ctx->contstack=cname;
+	ctx->breakstack=bname;
+
+	ocf_n=ctx->cf_n;
+	ocf_ty=ctx->cf_ty;
+	ctx->cf_n=name;
+	ctx->cf_ty=type;
 
 	tk=0;
 	if(BCCX_TagIsP(body, "begin"))
@@ -1688,7 +1752,15 @@ BCCX_Node *BGBCC_CCXL_CompileBlock(BGBCC_TransState *ctx,
 		}
 
 		t=BCCX_FindTag(c, "type");
-		BGBCC_CCXL_EmitVar(ctx, BCCX_Get(c, "name"), t, NULL);
+		s0=BCCX_Get(c, "name");
+		
+		if(adecl)
+		{
+			t2=BGBCC_CCXL_ArgDeclsTypeForName(ctx, adecl, s0);
+			if(t2)t=t2;
+		}
+		
+		BGBCC_CCXL_EmitVar(ctx, s0, t, NULL);
 		c=BCCX_Next(c);
 	}
 	BGBCC_CCXL_End(ctx);
@@ -1705,6 +1777,9 @@ BCCX_Node *BGBCC_CCXL_CompileBlock(BGBCC_TransState *ctx,
 	BGBCC_CCXL_Begin(ctx, CCXL_CMD_BODY);
 	ctx->reqlfn=1;
 
+//	BGBCC_CCXL_StackFn(ctx, ctx->lfn);
+//	BGBCC_CCXL_StackLn(ctx, ctx->lln);
+
 	c=body;
 	while(c)
 	{
@@ -1713,6 +1788,9 @@ BCCX_Node *BGBCC_CCXL_CompileBlock(BGBCC_TransState *ctx,
 	}
 	BGBCC_CCXL_End(ctx);
 	BGBCC_CCXL_End(ctx);
+
+	ctx->cf_n=ocf_n;
+	ctx->cf_ty=ocf_ty;
 
 	return(NULL);
 }
@@ -2298,6 +2376,8 @@ void BGBCC_CCXL_CompileTypedef(BGBCC_TransState *ctx, BCCX_Node *l)
 void BGBCC_CCXL_CompileStructs(BGBCC_TransState *ctx)
 {
 	BCCX_Node *c, *t, *n, *l;
+	BGBCC_CCXL_LiteralInfo *litobj;
+	int i;
 
 	c=ctx->types;
 	while(c)
@@ -2318,6 +2398,14 @@ void BGBCC_CCXL_CompileStructs(BGBCC_TransState *ctx)
 
 		c=BCCX_Next(c);
 	}
+
+#if 1
+	for(i=0; i<ctx->n_literals; i++)
+	{
+		litobj=ctx->literals[i];
+		BGBCC_CCXL_FixupObjSize(ctx, litobj, 0);
+	}
+#endif
 }
 
 void BGBCC_CCXL_EmitVarValue(BGBCC_TransState *ctx, BCCX_Node *v)
@@ -2424,10 +2512,16 @@ void BGBCC_CCXL_EmitVarValue(BGBCC_TransState *ctx, BCCX_Node *v)
 				return;
 			}
 
+			if(ctx->cf_n)
+				return;
+
 			BGBCC_CCXL_Error(ctx, "BGBCC_CCXL_EmitVarValue: "
 				"Bad Reg Literal Type %08X\n", rval.val);
 			return;
 		}
+
+		if(ctx->cf_n)
+			return;
 
 		BGBCC_CCXL_Error(ctx, "BGBCC_CCXL_EmitVarValue: "
 			"Undeclared Var %s\n", s);
@@ -2458,8 +2552,11 @@ void BGBCC_CCXL_EmitVarValue(BGBCC_TransState *ctx, BCCX_Node *v)
 		return;
 	}
 
-	BGBCC_CCXL_Error(ctx, "BGBCC_CCXL_EmitVarValue: Bad Value %s\n", 
-		BCCX_Tag(v));
+	if(ctx->cf_n)
+		return;
+
+	s=BCCX_Tag(v);
+	BGBCC_CCXL_Error(ctx, "BGBCC_CCXL_EmitVarValue: Bad Value %s\n", s);
 	return;
 }
 
@@ -2571,7 +2668,7 @@ void BGBCC_CCXL_EmitTopVar(BGBCC_TransState *ctx,
 void BGBCC_CCXL_CompileTopStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 {
 	char tb[256];
-	BCCX_Node *c, *n, *v, *t;
+	BCCX_Node *c, *n, *v, *t, *ntl;
 	char *s, *s1;
 	int i;
 
@@ -2610,13 +2707,19 @@ void BGBCC_CCXL_CompileTopStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "defun"))
 	{
+//		s0=BCCX_Get(l, "fn");
+//		if(s0)ctx->lfn=s0;
+//		i=BCCX_GetInt(l, "ln");
+//		if(i>0)ctx->lln=i;
+
 		s=BCCX_Get(l, "name");
 		t=BCCX_FindTag(l, "type");
 		n=BCCX_Fetch(l, "args");
 		v=BCCX_Fetch(l, "body");
 //		tk=BCCX_GetInt(l, "tokens");
+		ntl=BCCX_Fetch(l, "argdecls");
 
-		BGBCC_CCXL_CompileBlock(ctx, t, s, n, v);
+		BGBCC_CCXL_CompileBlock2(ctx, t, s, n, v, ntl);
 		return;
 	}
 

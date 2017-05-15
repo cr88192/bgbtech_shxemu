@@ -812,6 +812,7 @@ int BGBCC_SHXC_EmitReleaseFpRegister(
 	BGBCC_SHX_Context *sctx,
 	ccxl_register reg)
 {
+	static int rchk=0;
 	int creg, isdbl;
 	int i;
 
@@ -845,7 +846,13 @@ int BGBCC_SHXC_EmitReleaseFpRegister(
 						creg=bgbcc_shx_dcachereg[i];
 					}
 
-					BGBCC_SHXC_EmitStoreFrameVRegReg(ctx, sctx, reg, creg);
+					if(!rchk)
+					{
+						rchk++;
+						BGBCC_SHXC_EmitStoreFrameVRegReg(
+							ctx, sctx, reg, creg);
+						rchk--;
+					}
 					sctx->fregalc_dirty&=~(1<<i);
 				}
 

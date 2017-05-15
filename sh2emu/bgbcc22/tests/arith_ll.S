@@ -192,3 +192,19 @@ X(__sarlli_8):
 	mov r1, r3 | rotcl r3 | movt r3 | neg r3
 	shll16 r3 | shll8 r3 | or r3, r1
 	rts | nop
+
+
+X(__shllli):
+	mov r4, r0 | mov r5, r1
+	mov #-32, r7 | add r6, r7
+	shld r6, r0 | shld r6, r1
+	mov r4, r2 | shld r7, r2 | or r2, r1
+	rts | nop
+
+X(__shrlli):
+	mov r4, r0 | mov r5, r1
+	mov #-32, r7 | add r6, r7
+	shld r7, r0 | shld r7, r1
+	mov r4, r2 | shld r7, r2 | or r2, r1
+	rts | nop
+

@@ -252,6 +252,18 @@ int BGBCC_SHXA_ParseOperand(char **rcs, BGBCC_SHX_OpcodeArg *opv)
 	if(*cs=='#')
 	{
 		cs++;
+		
+		if((*cs=='-') || ((cs[0]==' ') && (cs[1]=='-')))
+		{
+			cs++;
+			cs1=BGBCC_SHXA_ParseTokenAlt(cs, &tk0);
+
+			opv->ty=BGBCC_SH_OPVTY_IMM;
+			opv->disp=-bgbcc_atoi(tk0+1);
+			*rcs=cs1;
+			return(1);
+		}
+		
 		cs1=BGBCC_SHXA_ParseTokenAlt(cs, &tk0);
 
 		opv->ty=BGBCC_SH_OPVTY_IMM;

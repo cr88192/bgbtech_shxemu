@@ -187,10 +187,10 @@ void gets(char *buf)
 
 void print_hex(u32 v)
 {
-//	static char *chrs="0123456789ABCDEF";
+	static char *chrs="0123456789ABCDEF";
 
-	char *chrs;
-	chrs="0123456789ABCDEF";
+//	char *chrs;
+//	chrs="0123456789ABCDEF";
 
 	putc(chrs[(v>>28)&15]);
 	putc(chrs[(v>>24)&15]);
@@ -204,10 +204,10 @@ void print_hex(u32 v)
 
 void print_hex_n(u32 v, int n)
 {
-//	static char *chrs="0123456789ABCDEF";
+	static char *chrs="0123456789ABCDEF";
 
-	char *chrs;
-	chrs="0123456789ABCDEF";
+//	char *chrs;
+//	chrs="0123456789ABCDEF";
 
 	if(n>7)putc(chrs[(v>>28)&15]);
 	if(n>6)putc(chrs[(v>>24)&15]);
@@ -338,7 +338,7 @@ void printf(char *str, ...)
 	va_list lst;
 	char pcfill;
 	char *s, *s1;
-	int v, w;
+	int v, w, wf;
 
 	va_start(lst, str);
 	
@@ -372,6 +372,17 @@ void printf(char *str, ...)
 			while((*s>='0') && (*s<='9'))
 				w=(w*10)+((*s++)-'0');
 		}
+		
+		wf=0;
+		if(*s=='.')
+		{
+			s++;
+			if((*s>='0') && (*s<='9'))
+			{
+				while((*s>='0') && (*s<='9'))
+					wf=(wf*10)+((*s++)-'0');
+			}
+		}
 
 //		putc(*s++); continue;
 #endif
@@ -379,6 +390,11 @@ void printf(char *str, ...)
 #if 1
 		switch(*s++)
 		{
+		case 'c':
+			v=va_arg(lst, int);
+			putc(v);
+			break;
+
 		case 'd':
 //			v=999;
 			v=va_arg(lst, int);
@@ -425,6 +441,7 @@ void printf(char *str, ...)
 
 // byte tk_malloc_buf[1<<18];
 byte *tk_malloc_rov=NULL;
+// byte *tk_malloc_rov=TKMM_PAGEBASE;
 
 void *malloc(int sz)
 {
@@ -449,6 +466,66 @@ int free(void *ptr)
 //	return(TKMM_Free(ptr));
 }
 
+#if 1
+int strcpy(char *dst, char *src)
+{
+	char *ct, *cs;
+	
+	ct=dst; cs=src;
+//	while(*cs)
+//		{ *ct++=*cs++; }
+//	*ct++=0;
+
+	while(*ct++=*cs++);
+
+	return(0);
+}
+#endif
+
+#if 1
+int strcmp(char *dst, char *src)
+{
+//	u32 *cti, *csi;
+	char *ct, *cs;
+
+#if 0
+	int it, is;
+	
+	ct=dst; cs=src;	
+	it=*ct++; is=*cs++;
+	while(it && (it==is))
+		{ it=*ct++; is=*cs++; }
+	return(it-is);
+#endif	
+
+#if 1
+	ct=dst; cs=src;	
+	while(*cs && (*cs!=*ct))
+		{ cs++; ct++; }
+	return(*ct-*cs);
+#endif
+
+#if 0
+	ct=dst; cs=src;	
+//	while(*cs && *ct)
+	while(*cs)
+	{
+		if(*cs!=*ct)
+			break;
+		cs++; ct++;
+	}
+	
+	return(*ct-*cs);
+#endif
+	
+//	if(*cs)
+//		return(-1);
+//	if(*ct)
+//		return( 1);
+//	return(0);
+}
+#endif
+
 u32 TK_GetTimeMs(void)
 {
 	u32 *sreg;
@@ -464,6 +541,11 @@ int clock(void)
 {
 	return(TK_GetTimeMs());
 //	return(0);
+}
+
+int time(void)
+{
+	return(clock()>>10);
 }
 
 int main(int argc, char *argv[]);
@@ -572,6 +654,22 @@ u32 lc;
 u32 ld;
 };
 
+u128_obj_t __negxli(u128_obj_t va)
+{
+	u128_obj_t oval;
+	u64 t;
+	
+	t=((u64)(~va.la))+1;
+	oval.la=t; t=t>>32;
+	t=t+((u64)(~va.lb))+0;
+	oval.lb=t; t=t>>32;
+	t=t+((u64)(~va.lc))+0;
+	oval.lc=t; t=t>>32;
+	t=t+((u64)(~va.ld))+0;
+	oval.ld=t;
+	return(oval);
+}
+
 u128_obj_t __addxli(u128_obj_t va, u128_obj_t vb)
 {
 	u128_obj_t oval;
@@ -588,12 +686,192 @@ u128_obj_t __addxli(u128_obj_t va, u128_obj_t vb)
 	return(oval);
 }
 
+#if 1
+u128_obj_t __subxli(u128_obj_t va, u128_obj_t vb)
+{
+	u128_obj_t oval, vc;
+	u64 t;
+	
+	vc=__negxli(vb);
+	oval=__addxli(va, vc);
+	return(oval);
+}
+
+u128_obj_t __andxli(u128_obj_t va, u128_obj_t vb)
+{
+	u128_obj_t oval;
+	oval.la=va.la&va.la;
+	oval.lb=va.lb&va.lb;
+	oval.lc=va.lc&va.lc;
+	oval.ld=va.ld&va.ld;
+	return(oval);
+}
+
+u128_obj_t __orxli(u128_obj_t va, u128_obj_t vb)
+{
+	u128_obj_t oval;
+	oval.la=va.la|va.la;
+	oval.lb=va.lb|va.lb;
+	oval.lc=va.lc|va.lc;
+	oval.ld=va.ld|va.ld;
+	return(oval);
+}
+
+u128_obj_t __xorxli(u128_obj_t va, u128_obj_t vb)
+{
+	u128_obj_t oval;
+	oval.la=va.la^va.la;
+	oval.lb=va.lb^va.lb;
+	oval.lc=va.lc^va.lc;
+	oval.ld=va.ld^va.ld;
+	return(oval);
+}
+#endif
+
+#if 0
+u128_obj_t __mulxli(u128_obj_t va, u128_obj_t vb)
+{
+	u128_obj_t oval;
+	u64 p00, p01, p02, p03;
+	u64 p10, p11, p12;
+	u64 p20, p21;
+	u64 p30;
+	u32 s0, s1, s2, s3;
+	u32     t1, t2, t3;
+	u32         u2, u3;
+	u32             v3;
+	s64 t;
+	
+	p00=((u64)va.la)*vb.la;	p01=((u64)va.la)*vb.lb;
+		p02=((u64)va.la)*vb.lc;	p03=((u64)va.la)*vb.ld;
+	p10=((u64)va.lb)*vb.la;	p11=((u64)va.lb)*vb.lb;
+		p12=((u64)va.lb)*vb.lc;
+	p20=((u64)va.lc)*vb.la;	p21=((u64)va.lc)*vb.lb;
+	p30=((u64)va.ld)*vb.la;
+
+	t=p00;			s0=t;
+	t=(t>>32)+p01;	s1=t;
+	t=(t>>32)+p02;	s2=t;
+	t=(t>>32)+p03;	s3=t;
+
+	t=p10;			t1=t;
+	t=(t>>32)+p20;	t2=t;
+	t=(t>>32)+p30;	t3=t;
+
+	t=p11;			u2=t;
+	t=(t>>32)+p12;	u3=t;
+
+	v3=p21;
+
+	t=((u64)s1)+t1;			s1=t;
+	t=(t>>32)+((u64)s2)+t2;	s2=t;
+	t=(t>>32)+((u64)s3)+t3;	s3=t;
+	
+	t=((u64)s2)+u2;			s2=t;
+	t=(t>>32)+((u64)s3)+u3;	s3=t;
+	
+	t=((u64)s3)+v3;			s3=t;
+
+	oval.la=s0;	oval.lb=s1;
+	oval.lc=s2;	oval.lc=s3;
+	return(oval);
+}
+#endif
+
+#if 1
+u128_obj_t __shlxli(u128_obj_t va, int shl)
+{
+	u128_obj_t oval;
+
+	oval.la=va.la;	oval.lb=va.lb;
+	oval.lc=va.lc;	oval.ld=va.ld;
+	
+	if(!shl)
+	{
+		oval.la=va.la;	oval.lb=va.lb;
+		oval.lc=va.lc;	oval.ld=va.ld;
+		return(oval);
+	}
+
+	if(shl==32)
+	{
+		oval.la=0;		oval.lb=va.la;
+		oval.lc=va.lb;	oval.ld=va.lc;
+		return(oval);
+	}
+
+	if(shl==64)
+	{
+		oval.la=0;		oval.lb=0;
+		oval.lc=va.la;	oval.ld=va.lb;
+		return(oval);
+	}
+
+	if(shl==96)
+	{
+		oval.la=0;		oval.lb=0;
+		oval.lc=0;		oval.ld=va.la;
+		return(oval);
+	}
+
+#if 1
+	if(shl>96)
+	{
+		oval.la=0;		oval.lb=0;
+		oval.lc=0;		oval.ld=va.la<<(shl-96);
+		return(oval);
+	}
+
+	if(shl>64)
+	{
+		oval.la=0;		oval.lb=0;
+		oval.lc=va.la<<(shl-64);
+		oval.ld=(va.lb<<(shl-64))|(va.la>>(96-shl));
+		return(oval);
+	}
+
+	if(shl>32)
+	{
+		oval.la=0;
+		oval.lb=(va.la<<(shl-32));
+		oval.lc=(va.lb<<(shl-32))|(va.la>>(64-shl));
+		oval.ld=(va.lc<<(shl-32))|(va.lb>>(64-shl));
+		return(oval);
+	}
+
+//	if(!shl)
+	if(1)
+	{
+		oval.la=(va.la<<shl);
+		oval.lb=(va.lb<<shl)|(va.la>>(32-shl));
+		oval.lc=(va.lc<<shl)|(va.lb>>(32-shl));
+		oval.ld=(va.ld<<shl)|(va.lc>>(32-shl));
+		return(oval);
+	}
+#endif
+}
+#endif
+
 u128_obj_t __shrxli(u128_obj_t va, int shl)
 {
 	u128_obj_t oval;
 	
+//	printf("__shrxli: %8X_%8X_%8X_%8X>>%d\n",
+//		va.la, va.lb, va.lc, va.ld, shl);
+
+//	oval.la=va.la;	oval.lb=va.lb;
+//	oval.lc=va.lc;	oval.ld=va.ld;
+	
+//	*(int *)-1=-1;
+	
 	if(!shl)
-		{ return(va); }
+	{
+		oval.la=va.la;	oval.lb=va.lb;
+		oval.lc=va.lc;	oval.ld=va.ld;
+		return(oval);
+//		return(va);
+	}
+
 	if(shl==32)
 	{
 		oval.la=va.lb;	oval.lb=va.lc;
@@ -612,6 +890,8 @@ u128_obj_t __shrxli(u128_obj_t va, int shl)
 	{
 		oval.la=va.ld;	oval.lb=0;
 		oval.lc=0;		oval.ld=0;
+
+//		*(int *)-1=-1;
 		return(oval);
 	}
 

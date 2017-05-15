@@ -731,6 +731,14 @@ void BGBCC_CCXL_CompileExprT(BGBCC_TransState *ctx, BCCX_Node *l)
 		return;
 	}
 
+	if(BCCX_TagIsP(l, "float128"))
+	{
+		li=BCCX_GetInt(l, "value_lo");
+		lj=BCCX_GetInt(l, "value_hi");
+		BGBCC_CCXL_StackPushConstFloat128(ctx, li, lj);
+		return;
+	}
+
 	if(BCCX_TagIsP(l, "string"))
 	{
 		BGBCC_CCXL_StackPushConstString(ctx, BCCX_Get(l, "value"));

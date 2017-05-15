@@ -1,0 +1,4994 @@
+BGBCC_SHXC_BuildFunction: Begin printf
+BGBCC_SHXC_BuildFunction: BegSim printf
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000150
+	DBGLN ty=00 imm=00000157
+	VA_START ty=00 dst=L0.0 srca=A0.0
+	DBGLN ty=00 imm=00000159
+	MOV ty=1008 dst=L2.1 srca=A0.0
+   Tr: idx=1 base=6 num=3
+	LABEL ty=00 imm=00800055
+	LDIXIMM ty=08 dst=T0.1 srca=L2.1
+	JCMP_Z ty=00 srca=T0.1 imm=00800056
+   Tr: idx=2 base=9 num=2
+	LDIXIMM ty=08 dst=T0.2 srca=L2.1
+	JCMP ty=00 srca=T0.2 srcb=I32(37) imm=00800057
+   Tr: idx=3 base=11 num=6
+	MOV ty=1008 dst=T1.1 srca=L2.1
+	MOV ty=1008 dst=T2.1 srca=L2.1
+	LEAIMM ty=08 dst=T3.1 srca=T2.1 imm=00000001
+	MOV ty=1008 dst=L2.2 srca=T3.1
+	LDIXIMM ty=08 dst=T0.3 srca=T1.1
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=4 base=17 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=5 base=18 num=1
+	JMP ty=00 imm=00800055
+   Tr: idx=6 base=19 num=3
+	LABEL ty=00 imm=00800057
+	LDIX ty=08 dst=T0.4 srca=L2.2 srcb=I32(1)
+	JCMP ty=00 opr=01 srca=T0.4 srcb=I32(37) imm=00800058
+   Tr: idx=7 base=22 num=3
+	DBGLN ty=00 imm=00000161
+	LEAIMM ty=08 dst=L2.2 srca=L2.2 imm=00000002
+	CALL ty=05 dst=T4.2 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=25 num=1
+	CSRV ty=05 dst=T4.2 srca=030000011B000027
+   Tr: idx=9 base=26 num=1
+	JMP ty=00 imm=00800055
+   Tr: idx=10 base=27 num=4
+	LABEL ty=00 imm=00800058
+	LEAIMM ty=08 dst=L2.2 srca=L2.2 imm=00000001
+	LDIXIMM ty=08 dst=T0.5 srca=L2.2
+	JCMP ty=00 opr=01 srca=T0.5 srcb=I32(48) imm=00800059
+   Tr: idx=11 base=31 num=4
+	DBGLN ty=00 imm=00000168
+	MOV ty=08 dst=L1.1 srca=I32(48)
+	LEAIMM ty=08 dst=L2.2 srca=L2.2 imm=00000001
+	JMP ty=00 imm=0080005A
+   Tr: idx=12 base=35 num=2
+	LABEL ty=00 imm=00800059
+	MOV ty=08 dst=L1.2 srca=I32(32)
+   Tr: idx=13 base=37 num=5
+	LABEL ty=00 imm=0080005A
+	DBGLN ty=00 imm=00000171
+	MOV ty=00 dst=L5.1 srca=I32(0)
+	LDIXIMM ty=08 dst=T0.6 srca=L2.2
+	JCMP ty=00 opr=02 srca=T0.6 srcb=I32(48) imm=0080005B
+   Tr: idx=14 base=42 num=2
+	LDIXIMM ty=08 dst=T0.7 srca=L2.2
+	JCMP ty=00 opr=03 srca=T0.7 srcb=I32(57) imm=0080005B
+   Tr: idx=15 base=44 num=1
+	JMP ty=00 imm=0080005C
+   Tr: idx=16 base=45 num=1
+	LABEL ty=00 imm=0080005C
+   Tr: idx=17 base=46 num=3
+	LABEL ty=00 imm=0080005E
+	LDIXIMM ty=08 dst=T0.8 srca=L2.2
+	JCMP ty=00 opr=02 srca=T0.8 srcb=I32(48) imm=0080005F
+   Tr: idx=18 base=49 num=2
+	LDIXIMM ty=08 dst=T0.9 srca=L2.2
+	JCMP ty=00 opr=03 srca=T0.9 srcb=I32(57) imm=0080005F
+   Tr: idx=19 base=51 num=1
+	JMP ty=00 imm=00800060
+   Tr: idx=20 base=52 num=10
+	LABEL ty=00 imm=00800060
+	BINARY ty=00 opr=02 dst=T0.10 srca=L5.1 srcb=I32(10)
+	MOV ty=1008 dst=T1.2 srca=L2.2
+	MOV ty=1008 dst=T2.2 srca=L2.2
+	LEAIMM ty=08 dst=T3.2 srca=T2.2 imm=00000001
+	MOV ty=1008 dst=L2.3 srca=T3.2
+	LDIXIMM ty=08 dst=T5.1 srca=T1.2
+	BINARY ty=00 opr=01 dst=T6.1 srca=T5.1 srcb=I32(48)
+	BINARY ty=00 dst=L5.1 srca=T0.10 srcb=T6.1
+	JMP ty=00 imm=0080005E
+   Tr: idx=21 base=62 num=1
+	LABEL ty=00 imm=0080005F
+   Tr: idx=22 base=63 num=5
+	LABEL ty=00 imm=0080005B
+	DBGLN ty=00 imm=00000178
+	MOV ty=00 dst=L6.1 srca=I32(0)
+	LDIXIMM ty=08 dst=T0.11 srca=L2.3
+	JCMP ty=00 opr=01 srca=T0.11 srcb=I32(46) imm=00800062
+   Tr: idx=23 base=68 num=3
+	LEAIMM ty=08 dst=L2.3 srca=L2.3 imm=00000001
+	LDIXIMM ty=08 dst=T0.12 srca=L2.3
+	JCMP ty=00 opr=02 srca=T0.12 srcb=I32(48) imm=00800063
+   Tr: idx=24 base=71 num=2
+	LDIXIMM ty=08 dst=T0.13 srca=L2.3
+	JCMP ty=00 opr=03 srca=T0.13 srcb=I32(57) imm=00800063
+   Tr: idx=25 base=73 num=1
+	JMP ty=00 imm=00800064
+   Tr: idx=26 base=74 num=1
+	LABEL ty=00 imm=00800064
+   Tr: idx=27 base=75 num=3
+	LABEL ty=00 imm=00800066
+	LDIXIMM ty=08 dst=T0.14 srca=L2.3
+	JCMP ty=00 opr=02 srca=T0.14 srcb=I32(48) imm=00800067
+   Tr: idx=28 base=78 num=2
+	LDIXIMM ty=08 dst=T0.15 srca=L2.3
+	JCMP ty=00 opr=03 srca=T0.15 srcb=I32(57) imm=00800067
+   Tr: idx=29 base=80 num=1
+	JMP ty=00 imm=00800068
+   Tr: idx=30 base=81 num=10
+	LABEL ty=00 imm=00800068
+	BINARY ty=00 opr=02 dst=T0.16 srca=L6.1 srcb=I32(10)
+	MOV ty=1008 dst=T1.3 srca=L2.3
+	MOV ty=1008 dst=T2.3 srca=L2.3
+	LEAIMM ty=08 dst=T3.3 srca=T2.3 imm=00000001
+	MOV ty=1008 dst=L2.4 srca=T3.3
+	LDIXIMM ty=08 dst=T5.2 srca=T1.3
+	BINARY ty=00 opr=01 dst=T6.2 srca=T5.2 srcb=I32(48)
+	BINARY ty=00 dst=L6.1 srca=T0.16 srcb=T6.2
+	JMP ty=00 imm=00800066
+   Tr: idx=31 base=91 num=1
+	LABEL ty=00 imm=00800067
+   Tr: idx=32 base=92 num=1
+	LABEL ty=00 imm=00800063
+   Tr: idx=33 base=93 num=10
+	LABEL ty=00 imm=00800062
+	DBGLN ty=00 imm=00000187
+	MOV ty=1008 dst=T1.4 srca=L2.4
+	MOV ty=1008 dst=T2.4 srca=L2.4
+	LEAIMM ty=08 dst=T3.4 srca=T2.4 imm=00000001
+	MOV ty=1008 dst=L2.5 srca=T3.4
+	LDIXIMM ty=08 dst=T0.17 srca=T1.4
+	MOV ty=00 dst=T5.3 srca=T0.17
+	MOV ty=00 dst=T6.3 srca=T0.17
+	JCMP ty=00 srca=T6.3 srcb=I32(99) imm=0080006A
+   Tr: idx=34 base=103 num=3
+	MOV ty=00 dst=T0.18 srca=T5.3
+	MOV ty=00 dst=T6.4 srca=T5.3
+	JCMP ty=00 srca=T6.4 srcb=I32(100) imm=0080006B
+   Tr: idx=35 base=106 num=3
+	MOV ty=00 dst=T5.4 srca=T0.18
+	MOV ty=00 dst=T6.5 srca=T0.18
+	JCMP ty=00 srca=T6.5 srcb=I32(88) imm=0080006C
+   Tr: idx=36 base=109 num=3
+	MOV ty=00 dst=T0.19 srca=T5.4
+	MOV ty=00 dst=T6.6 srca=T5.4
+	JCMP ty=00 srca=T6.6 srcb=I32(115) imm=0080006D
+   Tr: idx=37 base=112 num=3
+	MOV ty=00 dst=T5.5 srca=T0.19
+	MOV ty=00 dst=T6.7 srca=T0.19
+	JCMP ty=00 srca=T6.7 srcb=I32(112) imm=0080006E
+   Tr: idx=38 base=115 num=3
+	MOV ty=00 dst=T0.20 srca=T5.5
+	MOV ty=00 dst=T6.8 srca=T5.5
+	JCMP ty=00 srca=T6.8 srcb=I32(102) imm=0080006F
+   Tr: idx=39 base=118 num=1
+	JMP ty=00 imm=00800070
+   Tr: idx=40 base=119 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=41 base=120 num=4
+	LABEL ty=00 imm=0080006A
+	VA_ARG ty=00 dst=T6.9 srca=L0.0
+	MOV ty=00 dst=L4.1 srca=T6.9
+	CALL ty=05 dst=T4.3 srca=030000011B000027 imm=00000101
+   Tr: idx=42 base=124 num=1
+	CSRV ty=05 dst=T4.3 srca=030000011B000027
+   Tr: idx=43 base=125 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=44 base=126 num=6
+	LABEL ty=00 imm=0080006B
+	DBGLN ty=00 imm=00000190
+	VA_ARG ty=00 dst=T6.10 srca=L0.0
+	MOV ty=00 dst=L4.2 srca=T6.10
+	DBGLN ty=00 imm=00000194
+	JCMP_Z ty=00 srca=L5.1 imm=00800072
+   Tr: idx=45 base=132 num=1
+	CALL ty=05 dst=T4.4 srca=0300000125000033 imm=00000202
+   Tr: idx=46 base=133 num=1
+	CSRV ty=05 dst=T4.4 srca=0300000125000033
+   Tr: idx=47 base=134 num=1
+	JMP ty=00 imm=00800073
+   Tr: idx=48 base=135 num=2
+	LABEL ty=00 imm=00800072
+	CALL ty=05 dst=T4.5 srca=0300000124000032 imm=00000101
+   Tr: idx=49 base=137 num=1
+	CSRV ty=05 dst=T4.5 srca=0300000124000032
+   Tr: idx=50 base=138 num=2
+	LABEL ty=00 imm=00800073
+	JMP ty=00 imm=00800071
+   Tr: idx=51 base=140 num=5
+	LABEL ty=00 imm=0080006C
+	VA_ARG ty=00 dst=T6.11 srca=L0.0
+	MOV ty=00 dst=L4.3 srca=T6.11
+	DBGLN ty=00 imm=0000019F
+	JCMP_Z ty=00 opr=01 srca=L5.1 imm=00800074
+   Tr: idx=52 base=145 num=1
+	CALL ty=00 dst=T5.9 srca=0300000123000031 imm=00000101
+   Tr: idx=53 base=146 num=1
+	CSRV ty=00 dst=T5.9 srca=0300000123000031
+   Tr: idx=54 base=147 num=1
+	MOV ty=00 dst=L5.2 srca=T5.9
+   Tr: idx=55 base=148 num=2
+	LABEL ty=00 imm=00800074
+	CALL ty=05 dst=T4.6 srca=030000012200002F imm=00000202
+   Tr: idx=56 base=150 num=1
+	CSRV ty=05 dst=T4.6 srca=030000012200002F
+   Tr: idx=57 base=151 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=58 base=152 num=4
+	LABEL ty=00 imm=0080006D
+	VA_ARG ty=1008 dst=T2.5 srca=L0.0
+	MOV ty=1008 dst=L3.1 srca=T2.5
+	CALL ty=05 dst=T4.7 srca=030000011F00002B imm=00000101
+   Tr: idx=59 base=156 num=1
+	CSRV ty=05 dst=T4.7 srca=030000011F00002B
+   Tr: idx=60 base=157 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=61 base=158 num=6
+	LABEL ty=00 imm=0080006E
+	DBGLN ty=00 imm=000001A7
+	VA_ARG ty=1008 dst=T2.6 srca=L0.0
+	MOV ty=1008 dst=L3.2 srca=T2.6
+	CONV ty=0C dst=T5.10 srca=L3.2
+	CALL ty=05 dst=T4.8 srca=030000012100002D imm=00000101
+   Tr: idx=62 base=164 num=1
+	CSRV ty=05 dst=T4.8 srca=030000012100002D
+   Tr: idx=63 base=165 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=64 base=166 num=4
+	LABEL ty=00 imm=0080006F
+	DBGLN ty=00 imm=000001AD
+	VA_ARG ty=03 dst=T8.1 srca=L0.0
+	CALL ty=05 dst=T4.9 srca=030000011100001F imm=00000101
+   Tr: idx=65 base=170 num=1
+	CSRV ty=05 dst=T4.9 srca=030000011100001F
+   Tr: idx=66 base=171 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=67 base=172 num=3
+	LABEL ty=00 imm=00800070
+	DBGLN ty=00 imm=000001B2
+	JMP ty=00 imm=00800071
+   Tr: idx=68 base=175 num=2
+	LABEL ty=00 imm=00800071
+	JMP ty=00 imm=00800055
+   Tr: idx=69 base=177 num=4
+	LABEL ty=00 imm=00800056
+	DBGLN ty=00 imm=000001B6
+	VA_END ty=00 srca=L0.0
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim printf
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000150
+	DBGLN ty=00 imm=00000157
+	VA_START ty=00 dst=L0.0 srca=A0.0
+	DBGLN ty=00 imm=00000159
+	MOV ty=1008 dst=L2.1 srca=A0.0
+   Tr: idx=1 base=6 num=3
+	LABEL ty=00 imm=00800055
+	LDIXIMM ty=08 dst=T0.1 srca=L2.1
+	JCMP_Z ty=00 srca=T0.1 imm=00800056
+   Tr: idx=2 base=9 num=2
+	LDIXIMM ty=08 dst=T0.2 srca=L2.1
+	JCMP ty=00 srca=T0.2 srcb=I32(37) imm=00800057
+   Tr: idx=3 base=11 num=6
+	MOV ty=1008 dst=T1.1 srca=L2.1
+	MOV ty=1008 dst=T2.1 srca=L2.1
+	LEAIMM ty=08 dst=T3.1 srca=T2.1 imm=00000001
+	MOV ty=1008 dst=L2.2 srca=T3.1
+	LDIXIMM ty=08 dst=T0.3 srca=T1.1
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=4 base=17 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=5 base=18 num=1
+	JMP ty=00 imm=00800055
+   Tr: idx=6 base=19 num=3
+	LABEL ty=00 imm=00800057
+	LDIX ty=08 dst=T0.4 srca=L2.2 srcb=I32(1)
+	JCMP ty=00 opr=01 srca=T0.4 srcb=I32(37) imm=00800058
+   Tr: idx=7 base=22 num=3
+	DBGLN ty=00 imm=00000161
+	LEAIMM ty=08 dst=L2.2 srca=L2.2 imm=00000002
+	CALL ty=05 dst=T4.2 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=25 num=1
+	CSRV ty=05 dst=T4.2 srca=030000011B000027
+   Tr: idx=9 base=26 num=1
+	JMP ty=00 imm=00800055
+   Tr: idx=10 base=27 num=4
+	LABEL ty=00 imm=00800058
+	LEAIMM ty=08 dst=L2.2 srca=L2.2 imm=00000001
+	LDIXIMM ty=08 dst=T0.5 srca=L2.2
+	JCMP ty=00 opr=01 srca=T0.5 srcb=I32(48) imm=00800059
+   Tr: idx=11 base=31 num=4
+	DBGLN ty=00 imm=00000168
+	MOV ty=08 dst=L1.1 srca=I32(48)
+	LEAIMM ty=08 dst=L2.2 srca=L2.2 imm=00000001
+	JMP ty=00 imm=0080005A
+   Tr: idx=12 base=35 num=2
+	LABEL ty=00 imm=00800059
+	MOV ty=08 dst=L1.2 srca=I32(32)
+   Tr: idx=13 base=37 num=5
+	LABEL ty=00 imm=0080005A
+	DBGLN ty=00 imm=00000171
+	MOV ty=00 dst=L5.1 srca=I32(0)
+	LDIXIMM ty=08 dst=T0.6 srca=L2.2
+	JCMP ty=00 opr=02 srca=T0.6 srcb=I32(48) imm=0080005B
+   Tr: idx=14 base=42 num=2
+	LDIXIMM ty=08 dst=T0.7 srca=L2.2
+	JCMP ty=00 opr=03 srca=T0.7 srcb=I32(57) imm=0080005B
+   Tr: idx=15 base=44 num=1
+	JMP ty=00 imm=0080005C
+   Tr: idx=16 base=45 num=1
+	LABEL ty=00 imm=0080005C
+   Tr: idx=17 base=46 num=3
+	LABEL ty=00 imm=0080005E
+	LDIXIMM ty=08 dst=T0.8 srca=L2.2
+	JCMP ty=00 opr=02 srca=T0.8 srcb=I32(48) imm=0080005F
+   Tr: idx=18 base=49 num=2
+	LDIXIMM ty=08 dst=T0.9 srca=L2.2
+	JCMP ty=00 opr=03 srca=T0.9 srcb=I32(57) imm=0080005F
+   Tr: idx=19 base=51 num=1
+	JMP ty=00 imm=00800060
+   Tr: idx=20 base=52 num=10
+	LABEL ty=00 imm=00800060
+	BINARY ty=00 opr=02 dst=T0.10 srca=L5.1 srcb=I32(10)
+	MOV ty=1008 dst=T1.2 srca=L2.2
+	MOV ty=1008 dst=T2.2 srca=L2.2
+	LEAIMM ty=08 dst=T3.2 srca=T2.2 imm=00000001
+	MOV ty=1008 dst=L2.3 srca=T3.2
+	LDIXIMM ty=08 dst=T5.1 srca=T1.2
+	BINARY ty=00 opr=01 dst=T6.1 srca=T5.1 srcb=I32(48)
+	BINARY ty=00 dst=L5.1 srca=T0.10 srcb=T6.1
+	JMP ty=00 imm=0080005E
+   Tr: idx=21 base=62 num=1
+	LABEL ty=00 imm=0080005F
+   Tr: idx=22 base=63 num=5
+	LABEL ty=00 imm=0080005B
+	DBGLN ty=00 imm=00000178
+	MOV ty=00 dst=L6.1 srca=I32(0)
+	LDIXIMM ty=08 dst=T0.11 srca=L2.3
+	JCMP ty=00 opr=01 srca=T0.11 srcb=I32(46) imm=00800062
+   Tr: idx=23 base=68 num=3
+	LEAIMM ty=08 dst=L2.3 srca=L2.3 imm=00000001
+	LDIXIMM ty=08 dst=T0.12 srca=L2.3
+	JCMP ty=00 opr=02 srca=T0.12 srcb=I32(48) imm=00800063
+   Tr: idx=24 base=71 num=2
+	LDIXIMM ty=08 dst=T0.13 srca=L2.3
+	JCMP ty=00 opr=03 srca=T0.13 srcb=I32(57) imm=00800063
+   Tr: idx=25 base=73 num=1
+	JMP ty=00 imm=00800064
+   Tr: idx=26 base=74 num=1
+	LABEL ty=00 imm=00800064
+   Tr: idx=27 base=75 num=3
+	LABEL ty=00 imm=00800066
+	LDIXIMM ty=08 dst=T0.14 srca=L2.3
+	JCMP ty=00 opr=02 srca=T0.14 srcb=I32(48) imm=00800067
+   Tr: idx=28 base=78 num=2
+	LDIXIMM ty=08 dst=T0.15 srca=L2.3
+	JCMP ty=00 opr=03 srca=T0.15 srcb=I32(57) imm=00800067
+   Tr: idx=29 base=80 num=1
+	JMP ty=00 imm=00800068
+   Tr: idx=30 base=81 num=10
+	LABEL ty=00 imm=00800068
+	BINARY ty=00 opr=02 dst=T0.16 srca=L6.1 srcb=I32(10)
+	MOV ty=1008 dst=T1.3 srca=L2.3
+	MOV ty=1008 dst=T2.3 srca=L2.3
+	LEAIMM ty=08 dst=T3.3 srca=T2.3 imm=00000001
+	MOV ty=1008 dst=L2.4 srca=T3.3
+	LDIXIMM ty=08 dst=T5.2 srca=T1.3
+	BINARY ty=00 opr=01 dst=T6.2 srca=T5.2 srcb=I32(48)
+	BINARY ty=00 dst=L6.1 srca=T0.16 srcb=T6.2
+	JMP ty=00 imm=00800066
+   Tr: idx=31 base=91 num=1
+	LABEL ty=00 imm=00800067
+   Tr: idx=32 base=92 num=1
+	LABEL ty=00 imm=00800063
+   Tr: idx=33 base=93 num=10
+	LABEL ty=00 imm=00800062
+	DBGLN ty=00 imm=00000187
+	MOV ty=1008 dst=T1.4 srca=L2.4
+	MOV ty=1008 dst=T2.4 srca=L2.4
+	LEAIMM ty=08 dst=T3.4 srca=T2.4 imm=00000001
+	MOV ty=1008 dst=L2.5 srca=T3.4
+	LDIXIMM ty=08 dst=T0.17 srca=T1.4
+	MOV ty=00 dst=T5.3 srca=T0.17
+	MOV ty=00 dst=T6.3 srca=T0.17
+	JCMP ty=00 srca=T6.3 srcb=I32(99) imm=0080006A
+   Tr: idx=34 base=103 num=3
+	MOV ty=00 dst=T0.18 srca=T5.3
+	MOV ty=00 dst=T6.4 srca=T5.3
+	JCMP ty=00 srca=T6.4 srcb=I32(100) imm=0080006B
+   Tr: idx=35 base=106 num=3
+	MOV ty=00 dst=T5.4 srca=T0.18
+	MOV ty=00 dst=T6.5 srca=T0.18
+	JCMP ty=00 srca=T6.5 srcb=I32(88) imm=0080006C
+   Tr: idx=36 base=109 num=3
+	MOV ty=00 dst=T0.19 srca=T5.4
+	MOV ty=00 dst=T6.6 srca=T5.4
+	JCMP ty=00 srca=T6.6 srcb=I32(115) imm=0080006D
+   Tr: idx=37 base=112 num=3
+	MOV ty=00 dst=T5.5 srca=T0.19
+	MOV ty=00 dst=T6.7 srca=T0.19
+	JCMP ty=00 srca=T6.7 srcb=I32(112) imm=0080006E
+   Tr: idx=38 base=115 num=3
+	MOV ty=00 dst=T0.20 srca=T5.5
+	MOV ty=00 dst=T6.8 srca=T5.5
+	JCMP ty=00 srca=T6.8 srcb=I32(102) imm=0080006F
+   Tr: idx=39 base=118 num=1
+	JMP ty=00 imm=00800070
+   Tr: idx=40 base=119 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=41 base=120 num=4
+	LABEL ty=00 imm=0080006A
+	VA_ARG ty=00 dst=T6.9 srca=L0.0
+	MOV ty=00 dst=L4.1 srca=T6.9
+	CALL ty=05 dst=T4.3 srca=030000011B000027 imm=00000101
+   Tr: idx=42 base=124 num=1
+	CSRV ty=05 dst=T4.3 srca=030000011B000027
+   Tr: idx=43 base=125 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=44 base=126 num=6
+	LABEL ty=00 imm=0080006B
+	DBGLN ty=00 imm=00000190
+	VA_ARG ty=00 dst=T6.10 srca=L0.0
+	MOV ty=00 dst=L4.2 srca=T6.10
+	DBGLN ty=00 imm=00000194
+	JCMP_Z ty=00 srca=L5.1 imm=00800072
+   Tr: idx=45 base=132 num=1
+	CALL ty=05 dst=T4.4 srca=0300000125000033 imm=00000202
+   Tr: idx=46 base=133 num=1
+	CSRV ty=05 dst=T4.4 srca=0300000125000033
+   Tr: idx=47 base=134 num=1
+	JMP ty=00 imm=00800073
+   Tr: idx=48 base=135 num=2
+	LABEL ty=00 imm=00800072
+	CALL ty=05 dst=T4.5 srca=0300000124000032 imm=00000101
+   Tr: idx=49 base=137 num=1
+	CSRV ty=05 dst=T4.5 srca=0300000124000032
+   Tr: idx=50 base=138 num=2
+	LABEL ty=00 imm=00800073
+	JMP ty=00 imm=00800071
+   Tr: idx=51 base=140 num=5
+	LABEL ty=00 imm=0080006C
+	VA_ARG ty=00 dst=T6.11 srca=L0.0
+	MOV ty=00 dst=L4.3 srca=T6.11
+	DBGLN ty=00 imm=0000019F
+	JCMP_Z ty=00 opr=01 srca=L5.1 imm=00800074
+   Tr: idx=52 base=145 num=1
+	CALL ty=00 dst=T5.9 srca=0300000123000031 imm=00000101
+   Tr: idx=53 base=146 num=1
+	CSRV ty=00 dst=T5.9 srca=0300000123000031
+   Tr: idx=54 base=147 num=1
+	MOV ty=00 dst=L5.2 srca=T5.9
+   Tr: idx=55 base=148 num=2
+	LABEL ty=00 imm=00800074
+	CALL ty=05 dst=T4.6 srca=030000012200002F imm=00000202
+   Tr: idx=56 base=150 num=1
+	CSRV ty=05 dst=T4.6 srca=030000012200002F
+   Tr: idx=57 base=151 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=58 base=152 num=4
+	LABEL ty=00 imm=0080006D
+	VA_ARG ty=1008 dst=T2.5 srca=L0.0
+	MOV ty=1008 dst=L3.1 srca=T2.5
+	CALL ty=05 dst=T4.7 srca=030000011F00002B imm=00000101
+   Tr: idx=59 base=156 num=1
+	CSRV ty=05 dst=T4.7 srca=030000011F00002B
+   Tr: idx=60 base=157 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=61 base=158 num=6
+	LABEL ty=00 imm=0080006E
+	DBGLN ty=00 imm=000001A7
+	VA_ARG ty=1008 dst=T2.6 srca=L0.0
+	MOV ty=1008 dst=L3.2 srca=T2.6
+	CONV ty=0C dst=T5.10 srca=L3.2
+	CALL ty=05 dst=T4.8 srca=030000012100002D imm=00000101
+   Tr: idx=62 base=164 num=1
+	CSRV ty=05 dst=T4.8 srca=030000012100002D
+   Tr: idx=63 base=165 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=64 base=166 num=4
+	LABEL ty=00 imm=0080006F
+	DBGLN ty=00 imm=000001AD
+	VA_ARG ty=03 dst=T8.1 srca=L0.0
+	CALL ty=05 dst=T4.9 srca=030000011100001F imm=00000101
+   Tr: idx=65 base=170 num=1
+	CSRV ty=05 dst=T4.9 srca=030000011100001F
+   Tr: idx=66 base=171 num=1
+	JMP ty=00 imm=00800071
+   Tr: idx=67 base=172 num=3
+	LABEL ty=00 imm=00800070
+	DBGLN ty=00 imm=000001B2
+	JMP ty=00 imm=00800071
+   Tr: idx=68 base=175 num=2
+	LABEL ty=00 imm=00800071
+	JMP ty=00 imm=00800055
+   Tr: idx=69 base=177 num=4
+	LABEL ty=00 imm=00800056
+	DBGLN ty=00 imm=000001B6
+	VA_END ty=00 srca=L0.0
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End printf
+BGBCC_SHXC_BuildFunction: Begin strcpy
+BGBCC_SHXC_BuildFunction: BegSim strcpy
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000001D6
+	DBGLN ty=00 imm=000001DA
+	MOV ty=1008 dst=L0.1 srca=A0.0
+	MOV ty=1008 dst=L1.1 srca=A1.0
+	DBGLN ty=00 imm=000001DF
+   Tr: idx=1 base=6 num=14
+	LABEL ty=00 imm=00800076
+	MOV ty=1008 dst=T0.1 srca=L1.1
+	MOV ty=1008 dst=T1.1 srca=L1.1
+	LEAIMM ty=08 dst=T2.1 srca=T1.1 imm=00000001
+	MOV ty=1008 dst=L1.2 srca=T2.1
+	LDIXIMM ty=08 dst=T3.1 srca=T0.1
+	MOV ty=00 dst=T4.1 srca=T3.1
+	MOV ty=00 dst=T5.1 srca=T3.1
+	MOV ty=1008 dst=T0.2 srca=L0.1
+	MOV ty=1008 dst=T1.2 srca=L0.1
+	LEAIMM ty=08 dst=T2.2 srca=T1.2 imm=00000001
+	MOV ty=1008 dst=L0.2 srca=T2.2
+	STIXIMM ty=08 dst=T0.2 srca=T5.1
+	JCMP_Z ty=00 srca=T4.1 imm=00800077
+   Tr: idx=2 base=20 num=1
+	JMP ty=00 imm=00800076
+   Tr: idx=3 base=21 num=3
+	LABEL ty=00 imm=00800077
+	DBGLN ty=00 imm=000001E1
+	RET ty=00 srca=I32(0)
+   Tr: idx=4 base=24 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim strcpy
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000001D6
+	DBGLN ty=00 imm=000001DA
+	MOV ty=1008 dst=L0.1 srca=A0.0
+	MOV ty=1008 dst=L1.1 srca=A1.0
+	DBGLN ty=00 imm=000001DF
+   Tr: idx=1 base=6 num=14
+	LABEL ty=00 imm=00800076
+	MOV ty=1008 dst=T0.1 srca=L1.1
+	MOV ty=1008 dst=T1.1 srca=L1.1
+	LEAIMM ty=08 dst=T2.1 srca=T1.1 imm=00000001
+	MOV ty=1008 dst=L1.2 srca=T2.1
+	LDIXIMM ty=08 dst=T3.1 srca=T0.1
+	MOV ty=00 dst=T4.1 srca=T3.1
+	MOV ty=00 dst=T5.1 srca=T3.1
+	MOV ty=1008 dst=T0.2 srca=L0.1
+	MOV ty=1008 dst=T1.2 srca=L0.1
+	LEAIMM ty=08 dst=T2.2 srca=T1.2 imm=00000001
+	MOV ty=1008 dst=L0.2 srca=T2.2
+	STIXIMM ty=08 dst=T0.2 srca=T5.1
+	JCMP_Z ty=00 srca=T4.1 imm=00800077
+   Tr: idx=2 base=20 num=1
+	JMP ty=00 imm=00800076
+   Tr: idx=3 base=21 num=3
+	LABEL ty=00 imm=00800077
+	DBGLN ty=00 imm=000001E1
+	RET ty=00 srca=I32(0)
+   Tr: idx=4 base=24 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End strcpy
+BGBCC_SHXC_BuildFunction: Begin strcmp
+BGBCC_SHXC_BuildFunction: BegSim strcmp
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000001E9
+	DBGLN ty=00 imm=000001F6
+	MOV ty=1008 dst=L0.1 srca=A0.0
+	MOV ty=1008 dst=L1.1 srca=A1.0
+   Tr: idx=1 base=5 num=3
+	LABEL ty=00 imm=00800078
+	LDIXIMM ty=08 dst=T0.1 srca=L1.1
+	JCMP_Z ty=00 srca=T0.1 imm=00800079
+   Tr: idx=2 base=8 num=3
+	LDIXIMM ty=08 dst=T0.2 srca=L1.1
+	LDIXIMM ty=08 dst=T1.1 srca=L0.1
+	JCMP ty=00 srca=T0.2 srcb=T1.1 imm=00800079
+   Tr: idx=3 base=11 num=1
+	JMP ty=00 imm=0080007A
+   Tr: idx=4 base=12 num=4
+	LABEL ty=00 imm=0080007A
+	LEAIMM ty=08 dst=L1.1 srca=L1.1 imm=00000001
+	LEAIMM ty=08 dst=L0.1 srca=L0.1 imm=00000001
+	JMP ty=00 imm=00800078
+   Tr: idx=5 base=16 num=5
+	LABEL ty=00 imm=00800079
+	LDIXIMM ty=08 dst=T0.3 srca=L0.1
+	LDIXIMM ty=08 dst=T1.2 srca=L1.1
+	BINARY ty=00 opr=01 dst=T2.1 srca=T0.3 srcb=T1.2
+	RET ty=00 srca=T2.1
+   Tr: idx=6 base=21 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim strcmp
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000001E9
+	DBGLN ty=00 imm=000001F6
+	MOV ty=1008 dst=L0.1 srca=A0.0
+	MOV ty=1008 dst=L1.1 srca=A1.0
+   Tr: idx=1 base=5 num=3
+	LABEL ty=00 imm=00800078
+	LDIXIMM ty=08 dst=T0.1 srca=L1.1
+	JCMP_Z ty=00 srca=T0.1 imm=00800079
+   Tr: idx=2 base=8 num=3
+	LDIXIMM ty=08 dst=T0.2 srca=L1.1
+	LDIXIMM ty=08 dst=T1.1 srca=L0.1
+	JCMP ty=00 srca=T0.2 srcb=T1.1 imm=00800079
+   Tr: idx=3 base=11 num=1
+	JMP ty=00 imm=0080007A
+   Tr: idx=4 base=12 num=4
+	LABEL ty=00 imm=0080007A
+	LEAIMM ty=08 dst=L1.1 srca=L1.1 imm=00000001
+	LEAIMM ty=08 dst=L0.1 srca=L0.1 imm=00000001
+	JMP ty=00 imm=00800078
+   Tr: idx=5 base=16 num=5
+	LABEL ty=00 imm=00800079
+	LDIXIMM ty=08 dst=T0.3 srca=L0.1
+	LDIXIMM ty=08 dst=T1.2 srca=L1.1
+	BINARY ty=00 opr=01 dst=T2.1 srca=T0.3 srcb=T1.2
+	RET ty=00 srca=T2.1
+   Tr: idx=6 base=21 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End strcmp
+BGBCC_SHXC_BuildFunction: Begin Proc_6
+BGBCC_SHXC_BuildFunction: BegSim Proc_6
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=00000023
+	STIXIMM ty=00 dst=A1.0 srca=A0.0
+	CALL ty=00 dst=T0.1 srca=030000010A00000C imm=00000101
+   Tr: idx=1 base=4 num=1
+	CSRV ty=00 dst=T0.1 srca=030000010A00000C
+   Tr: idx=2 base=5 num=1
+	JCMP_Z ty=00 opr=01 srca=T0.1 imm=00800000
+   Tr: idx=3 base=6 num=2
+	DBGLN ty=00 imm=00000029
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000004
+   Tr: idx=4 base=8 num=4
+	LABEL ty=00 imm=00800000
+	MOV ty=00 dst=T0.2 srca=A0.0
+	MOV ty=00 dst=T1.1 srca=A0.0
+	JCMP ty=00 srca=T1.1 srcb=0300000000000001 imm=00800001
+   Tr: idx=5 base=12 num=3
+	MOV ty=00 dst=T1.2 srca=T0.2
+	MOV ty=00 dst=T2.1 srca=T0.2
+	JCMP ty=00 srca=T2.1 srcb=0300000000000002 imm=00800002
+   Tr: idx=6 base=15 num=3
+	MOV ty=00 dst=T0.3 srca=T1.2
+	MOV ty=00 dst=T2.2 srca=T1.2
+	JCMP ty=00 srca=T2.2 srcb=0300000000000003 imm=00800003
+   Tr: idx=7 base=18 num=3
+	MOV ty=00 dst=T1.3 srca=T0.3
+	MOV ty=00 dst=T2.3 srca=T0.3
+	JCMP ty=00 srca=T2.3 srcb=0300000000000004 imm=00800004
+   Tr: idx=8 base=21 num=3
+	MOV ty=00 dst=T0.4 srca=T1.3
+	MOV ty=00 dst=T2.4 srca=T1.3
+	JCMP ty=00 srca=T2.4 srcb=0300000000000005 imm=00800005
+   Tr: idx=9 base=24 num=1
+	JMP ty=00 imm=00800006
+   Tr: idx=10 base=25 num=3
+	LABEL ty=00 imm=00800001
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000001
+	JMP ty=00 imm=00800006
+   Tr: idx=11 base=28 num=2
+	LABEL ty=00 imm=00800002
+	JCMP ty=00 opr=04 srca=0300000000000009 srcb=I32(100) imm=00800007
+   Tr: idx=12 base=30 num=3
+	DBGLN ty=00 imm=00000032
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000001
+	JMP ty=00 imm=00800008
+   Tr: idx=13 base=33 num=2
+	LABEL ty=00 imm=00800007
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000004
+   Tr: idx=14 base=35 num=2
+	LABEL ty=00 imm=00800008
+	JMP ty=00 imm=00800006
+   Tr: idx=15 base=37 num=3
+	LABEL ty=00 imm=00800003
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000002
+	JMP ty=00 imm=00800006
+   Tr: idx=16 base=40 num=2
+	LABEL ty=00 imm=00800004
+	JMP ty=00 imm=00800006
+   Tr: idx=17 base=42 num=3
+	LABEL ty=00 imm=00800005
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000003
+	JMP ty=00 imm=00800006
+   Tr: idx=18 base=45 num=2
+	LABEL ty=00 imm=00800006
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Proc_6
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=00000023
+	STIXIMM ty=00 dst=A1.0 srca=A0.0
+	CALL ty=00 dst=T0.1 srca=030000010A00000C imm=00000101
+   Tr: idx=1 base=4 num=1
+	CSRV ty=00 dst=T0.1 srca=030000010A00000C
+   Tr: idx=2 base=5 num=1
+	JCMP_Z ty=00 opr=01 srca=T0.1 imm=00800000
+   Tr: idx=3 base=6 num=2
+	DBGLN ty=00 imm=00000029
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000004
+   Tr: idx=4 base=8 num=4
+	LABEL ty=00 imm=00800000
+	MOV ty=00 dst=T0.2 srca=A0.0
+	MOV ty=00 dst=T1.1 srca=A0.0
+	JCMP ty=00 srca=T1.1 srcb=0300000000000001 imm=00800001
+   Tr: idx=5 base=12 num=3
+	MOV ty=00 dst=T1.2 srca=T0.2
+	MOV ty=00 dst=T2.1 srca=T0.2
+	JCMP ty=00 srca=T2.1 srcb=0300000000000002 imm=00800002
+   Tr: idx=6 base=15 num=3
+	MOV ty=00 dst=T0.3 srca=T1.2
+	MOV ty=00 dst=T2.2 srca=T1.2
+	JCMP ty=00 srca=T2.2 srcb=0300000000000003 imm=00800003
+   Tr: idx=7 base=18 num=3
+	MOV ty=00 dst=T1.3 srca=T0.3
+	MOV ty=00 dst=T2.3 srca=T0.3
+	JCMP ty=00 srca=T2.3 srcb=0300000000000004 imm=00800004
+   Tr: idx=8 base=21 num=3
+	MOV ty=00 dst=T0.4 srca=T1.3
+	MOV ty=00 dst=T2.4 srca=T1.3
+	JCMP ty=00 srca=T2.4 srcb=0300000000000005 imm=00800005
+   Tr: idx=9 base=24 num=1
+	JMP ty=00 imm=00800006
+   Tr: idx=10 base=25 num=3
+	LABEL ty=00 imm=00800001
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000001
+	JMP ty=00 imm=00800006
+   Tr: idx=11 base=28 num=2
+	LABEL ty=00 imm=00800002
+	JCMP ty=00 opr=04 srca=0300000000000009 srcb=I32(100) imm=00800007
+   Tr: idx=12 base=30 num=3
+	DBGLN ty=00 imm=00000032
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000001
+	JMP ty=00 imm=00800008
+   Tr: idx=13 base=33 num=2
+	LABEL ty=00 imm=00800007
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000004
+   Tr: idx=14 base=35 num=2
+	LABEL ty=00 imm=00800008
+	JMP ty=00 imm=00800006
+   Tr: idx=15 base=37 num=3
+	LABEL ty=00 imm=00800003
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000002
+	JMP ty=00 imm=00800006
+   Tr: idx=16 base=40 num=2
+	LABEL ty=00 imm=00800004
+	JMP ty=00 imm=00800006
+   Tr: idx=17 base=42 num=3
+	LABEL ty=00 imm=00800005
+	STIXIMM ty=00 dst=A1.0 srca=0300000000000003
+	JMP ty=00 imm=00800006
+   Tr: idx=18 base=45 num=2
+	LABEL ty=00 imm=00800006
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Proc_6
+BGBCC_SHXC_BuildFunction: Begin Func_3
+BGBCC_SHXC_BuildFunction: BegSim Func_3
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=000000B5
+	DBGLN ty=00 imm=000000B9
+	MOV ty=00 dst=L0.1 srca=A0.0
+	JCMP ty=00 opr=01 srca=L0.1 srcb=0300000000000003 imm=00800018
+   Tr: idx=1 base=5 num=2
+	DBGLN ty=00 imm=000000BC
+	RET ty=00 srca=I32(1)
+   Tr: idx=2 base=7 num=1
+	JMP ty=00 imm=00800019
+   Tr: idx=3 base=8 num=2
+	LABEL ty=00 imm=00800018
+	RET ty=00 srca=I32(0)
+   Tr: idx=4 base=10 num=2
+	LABEL ty=00 imm=00800019
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Func_3
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=000000B5
+	DBGLN ty=00 imm=000000B9
+	MOV ty=00 dst=L0.1 srca=A0.0
+	JCMP ty=00 opr=01 srca=L0.1 srcb=0300000000000003 imm=00800018
+   Tr: idx=1 base=5 num=2
+	DBGLN ty=00 imm=000000BC
+	RET ty=00 srca=I32(1)
+   Tr: idx=2 base=7 num=1
+	JMP ty=00 imm=00800019
+   Tr: idx=3 base=8 num=2
+	LABEL ty=00 imm=00800018
+	RET ty=00 srca=I32(0)
+   Tr: idx=4 base=10 num=2
+	LABEL ty=00 imm=00800019
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Func_3
+BGBCC_SHXC_BuildFunction: Begin Proc_7
+BGBCC_SHXC_BuildFunction: BegSim Proc_7
+   Tr: idx=0 base=0 num=7
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=00000049
+	DBGLN ty=00 imm=0000004F
+	BINARY ty=00 dst=L0.0 srca=A0.0 srcb=I32(2)
+	BINARY ty=00 dst=T0.1 srca=A1.0 srcb=L0.0
+	STIXIMM ty=00 dst=A2.0 srca=T0.1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Proc_7
+   Tr: idx=0 base=0 num=7
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=00000049
+	DBGLN ty=00 imm=0000004F
+	BINARY ty=00 dst=L0.0 srca=A0.0 srcb=I32(2)
+	BINARY ty=00 dst=T0.1 srca=A1.0 srcb=L0.0
+	STIXIMM ty=00 dst=A2.0 srca=T0.1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Proc_7
+BGBCC_SHXC_BuildFunction: Begin Proc_8
+BGBCC_SHXC_BuildFunction: BegSim Proc_8
+   Tr: idx=0 base=0 num=11
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=00000059
+	DBGLN ty=00 imm=00000061
+	BINARY ty=00 dst=L1.0 srca=A2.0 srcb=I32(5)
+	STIX ty=00 dst=A0.0 srca=L1.0 srcb=A3.0
+	LDIX ty=00 dst=T0.1 srca=A0.0 srcb=L1.0
+	BINARY ty=00 dst=T1.1 srca=L1.0 srcb=I32(1)
+	STIX ty=00 dst=A0.0 srca=T1.1 srcb=T0.1
+	BINARY ty=00 dst=T0.2 srca=L1.0 srcb=I32(30)
+	STIX ty=00 dst=A0.0 srca=T0.2 srcb=L1.0
+	MOV ty=00 dst=L0.1 srca=L1.0
+   Tr: idx=1 base=11 num=3
+	LABEL ty=00 imm=00800009
+	BINARY ty=00 dst=T0.3 srca=L1.0 srcb=I32(1)
+	JCMP ty=00 opr=03 srca=L0.1 srcb=T0.3 imm=0080000B
+   Tr: idx=2 base=14 num=2
+	LDIX ty=00320000 dst=T2.1 srca=A1.0 srcb=L1.0
+	STIX ty=00 dst=T2.1 srca=L0.1 srcb=L1.0
+   Tr: idx=3 base=16 num=3
+	LABEL ty=00 imm=0080000A
+	UNARY ty=00 opr=04 dst=L0.1 srca=L0.1
+	JMP ty=00 imm=00800009
+   Tr: idx=4 base=19 num=14
+	LABEL ty=00 imm=0080000B
+	LDIX ty=00320000 dst=T2.2 srca=A1.0 srcb=L1.0
+	BINARY ty=00 opr=01 dst=T0.4 srca=L1.0 srcb=I32(1)
+	LDIX ty=00 dst=T1.2 srca=T2.2 srcb=T0.4
+	BINARY ty=00 dst=T0.5 srca=T1.2 srcb=I32(1)
+	LDIX ty=00320000 dst=T2.3 srca=A1.0 srcb=L1.0
+	BINARY ty=00 opr=01 dst=T1.3 srca=L1.0 srcb=I32(1)
+	STIX ty=00 dst=T2.3 srca=T1.3 srcb=T0.5
+	LDIX ty=00 dst=T0.6 srca=A0.0 srcb=L1.0
+	BINARY ty=00 dst=T1.4 srca=L1.0 srcb=I32(20)
+	LDIX ty=00320000 dst=T2.4 srca=A1.0 srcb=T1.4
+	STIX ty=00 dst=T2.4 srca=L1.0 srcb=T0.6
+	MOV ty=00 dst=0300000000000009 srca=I32(5)
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Proc_8
+   Tr: idx=0 base=0 num=11
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=00000059
+	DBGLN ty=00 imm=00000061
+	BINARY ty=00 dst=L1.0 srca=A2.0 srcb=I32(5)
+	STIX ty=00 dst=A0.0 srca=L1.0 srcb=A3.0
+	LDIX ty=00 dst=T0.1 srca=A0.0 srcb=L1.0
+	BINARY ty=00 dst=T1.1 srca=L1.0 srcb=I32(1)
+	STIX ty=00 dst=A0.0 srca=T1.1 srcb=T0.1
+	BINARY ty=00 dst=T0.2 srca=L1.0 srcb=I32(30)
+	STIX ty=00 dst=A0.0 srca=T0.2 srcb=L1.0
+	MOV ty=00 dst=L0.1 srca=L1.0
+   Tr: idx=1 base=11 num=3
+	LABEL ty=00 imm=00800009
+	BINARY ty=00 dst=T0.3 srca=L1.0 srcb=I32(1)
+	JCMP ty=00 opr=03 srca=L0.1 srcb=T0.3 imm=0080000B
+   Tr: idx=2 base=14 num=2
+	LDIX ty=00320000 dst=T2.1 srca=A1.0 srcb=L1.0
+	STIX ty=00 dst=T2.1 srca=L0.1 srcb=L1.0
+   Tr: idx=3 base=16 num=3
+	LABEL ty=00 imm=0080000A
+	UNARY ty=00 opr=04 dst=L0.1 srca=L0.1
+	JMP ty=00 imm=00800009
+   Tr: idx=4 base=19 num=14
+	LABEL ty=00 imm=0080000B
+	LDIX ty=00320000 dst=T2.2 srca=A1.0 srcb=L1.0
+	BINARY ty=00 opr=01 dst=T0.4 srca=L1.0 srcb=I32(1)
+	LDIX ty=00 dst=T1.2 srca=T2.2 srcb=T0.4
+	BINARY ty=00 dst=T0.5 srca=T1.2 srcb=I32(1)
+	LDIX ty=00320000 dst=T2.3 srca=A1.0 srcb=L1.0
+	BINARY ty=00 opr=01 dst=T1.3 srca=L1.0 srcb=I32(1)
+	STIX ty=00 dst=T2.3 srca=T1.3 srcb=T0.5
+	LDIX ty=00 dst=T0.6 srca=A0.0 srcb=L1.0
+	BINARY ty=00 dst=T1.4 srca=L1.0 srcb=I32(20)
+	LDIX ty=00320000 dst=T2.4 srca=A1.0 srcb=T1.4
+	STIX ty=00 dst=T2.4 srca=L1.0 srcb=T0.6
+	MOV ty=00 dst=0300000000000009 srca=I32(5)
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Proc_8
+BGBCC_SHXC_BuildFunction: Begin Func_1
+BGBCC_SHXC_BuildFunction: BegSim Func_1
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=00000074
+	DBGLN ty=00 imm=0000007A
+	MOV ty=08 dst=L0.1 srca=A0.0
+	MOV ty=08 dst=L1.1 srca=L0.1
+	JCMP ty=08 srca=L1.1 srcb=A1.0 imm=0080000C
+   Tr: idx=1 base=6 num=2
+	DBGLN ty=00 imm=0000007E
+	RET ty=00 srca=0300000000000001
+   Tr: idx=2 base=8 num=1
+	JMP ty=00 imm=0080000D
+   Tr: idx=3 base=9 num=3
+	LABEL ty=00 imm=0080000C
+	MOV ty=08 dst=030000000800000A srca=L0.1
+	RET ty=00 srca=0300000000000002
+   Tr: idx=4 base=12 num=2
+	LABEL ty=00 imm=0080000D
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Func_1
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=00000074
+	DBGLN ty=00 imm=0000007A
+	MOV ty=08 dst=L0.1 srca=A0.0
+	MOV ty=08 dst=L1.1 srca=L0.1
+	JCMP ty=08 srca=L1.1 srcb=A1.0 imm=0080000C
+   Tr: idx=1 base=6 num=2
+	DBGLN ty=00 imm=0000007E
+	RET ty=00 srca=0300000000000001
+   Tr: idx=2 base=8 num=1
+	JMP ty=00 imm=0080000D
+   Tr: idx=3 base=9 num=3
+	LABEL ty=00 imm=0080000C
+	MOV ty=08 dst=030000000800000A srca=L0.1
+	RET ty=00 srca=0300000000000002
+   Tr: idx=4 base=12 num=2
+	LABEL ty=00 imm=0080000D
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Func_1
+BGBCC_SHXC_BuildFunction: Begin Func_2
+BGBCC_SHXC_BuildFunction: BegSim Func_2
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=0000008D
+	DBGLN ty=00 imm=00000093
+	MOV ty=00 dst=L0.1 srca=I32(2)
+   Tr: idx=1 base=4 num=2
+	LABEL ty=00 imm=0080000E
+	JCMP ty=00 opr=03 srca=L0.1 srcb=I32(2) imm=0080000F
+   Tr: idx=2 base=6 num=4
+	BINARY ty=00 dst=T0.1 srca=L0.1 srcb=I32(1)
+	LDIX ty=08 dst=T1.1 srca=A1.0 srcb=T0.1
+	LDIX ty=08 dst=T0.2 srca=A0.0 srcb=L0.1
+	CALL ty=00 dst=T2.1 srca=030000010D00000F imm=00000202
+   Tr: idx=3 base=10 num=1
+	CSRV ty=00 dst=T2.1 srca=030000010D00000F
+   Tr: idx=4 base=11 num=1
+	JCMP ty=00 opr=01 srca=T2.1 srcb=0300000000000001 imm=00800010
+   Tr: idx=5 base=12 num=3
+	DBGLN ty=00 imm=00000098
+	MOV ty=08 dst=L1.1 srca=I32(65)
+	BINARY ty=00 dst=L0.1 srca=L0.1 srcb=I32(1)
+   Tr: idx=6 base=15 num=2
+	LABEL ty=00 imm=00800010
+	JMP ty=00 imm=0080000E
+   Tr: idx=7 base=17 num=2
+	LABEL ty=00 imm=0080000F
+	JCMP ty=08 opr=02 srca=L1.1 srcb=I32(87) imm=00800011
+   Tr: idx=8 base=19 num=1
+	JCMP ty=08 opr=05 srca=L1.1 srcb=I32(90) imm=00800011
+   Tr: idx=9 base=20 num=1
+	JMP ty=00 imm=00800012
+   Tr: idx=10 base=21 num=3
+	LABEL ty=00 imm=00800012
+	DBGLN ty=00 imm=0000009E
+	MOV ty=00 dst=L0.2 srca=I32(7)
+   Tr: idx=11 base=24 num=2
+	LABEL ty=00 imm=00800011
+	JCMP ty=08 opr=01 srca=L1.1 srcb=I32(82) imm=00800014
+   Tr: idx=12 base=26 num=2
+	DBGLN ty=00 imm=000000A1
+	RET ty=00 srca=I32(1)
+   Tr: idx=13 base=28 num=1
+	JMP ty=00 imm=00800015
+   Tr: idx=14 base=29 num=2
+	LABEL ty=00 imm=00800014
+	CALL ty=00 dst=T0.3 srca=0300000108000008 imm=00000202
+   Tr: idx=15 base=31 num=1
+	CSRV ty=00 dst=T0.3 srca=0300000108000008
+   Tr: idx=16 base=32 num=1
+	JCMP ty=00 opr=04 srca=T0.3 srcb=I32(0) imm=00800016
+   Tr: idx=17 base=33 num=4
+	DBGLN ty=00 imm=000000A6
+	BINARY ty=00 dst=L0.2 srca=L0.2 srcb=I32(7)
+	MOV ty=00 dst=0300000000000009 srca=L0.2
+	RET ty=00 srca=I32(1)
+   Tr: idx=18 base=37 num=1
+	JMP ty=00 imm=00800017
+   Tr: idx=19 base=38 num=2
+	LABEL ty=00 imm=00800016
+	RET ty=00 srca=I32(0)
+   Tr: idx=20 base=40 num=1
+	LABEL ty=00 imm=00800017
+   Tr: idx=21 base=41 num=2
+	LABEL ty=00 imm=00800015
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Func_2
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B5017A
+	DBGLN ty=00 imm=0000008D
+	DBGLN ty=00 imm=00000093
+	MOV ty=00 dst=L0.1 srca=I32(2)
+   Tr: idx=1 base=4 num=2
+	LABEL ty=00 imm=0080000E
+	JCMP ty=00 opr=03 srca=L0.1 srcb=I32(2) imm=0080000F
+   Tr: idx=2 base=6 num=4
+	BINARY ty=00 dst=T0.1 srca=L0.1 srcb=I32(1)
+	LDIX ty=08 dst=T1.1 srca=A1.0 srcb=T0.1
+	LDIX ty=08 dst=T0.2 srca=A0.0 srcb=L0.1
+	CALL ty=00 dst=T2.1 srca=030000010D00000F imm=00000202
+   Tr: idx=3 base=10 num=1
+	CSRV ty=00 dst=T2.1 srca=030000010D00000F
+   Tr: idx=4 base=11 num=1
+	JCMP ty=00 opr=01 srca=T2.1 srcb=0300000000000001 imm=00800010
+   Tr: idx=5 base=12 num=3
+	DBGLN ty=00 imm=00000098
+	MOV ty=08 dst=L1.1 srca=I32(65)
+	BINARY ty=00 dst=L0.1 srca=L0.1 srcb=I32(1)
+   Tr: idx=6 base=15 num=2
+	LABEL ty=00 imm=00800010
+	JMP ty=00 imm=0080000E
+   Tr: idx=7 base=17 num=2
+	LABEL ty=00 imm=0080000F
+	JCMP ty=08 opr=02 srca=L1.1 srcb=I32(87) imm=00800011
+   Tr: idx=8 base=19 num=1
+	JCMP ty=08 opr=05 srca=L1.1 srcb=I32(90) imm=00800011
+   Tr: idx=9 base=20 num=1
+	JMP ty=00 imm=00800012
+   Tr: idx=10 base=21 num=3
+	LABEL ty=00 imm=00800012
+	DBGLN ty=00 imm=0000009E
+	MOV ty=00 dst=L0.2 srca=I32(7)
+   Tr: idx=11 base=24 num=2
+	LABEL ty=00 imm=00800011
+	JCMP ty=08 opr=01 srca=L1.1 srcb=I32(82) imm=00800014
+   Tr: idx=12 base=26 num=2
+	DBGLN ty=00 imm=000000A1
+	RET ty=00 srca=I32(1)
+   Tr: idx=13 base=28 num=1
+	JMP ty=00 imm=00800015
+   Tr: idx=14 base=29 num=2
+	LABEL ty=00 imm=00800014
+	CALL ty=00 dst=T0.3 srca=0300000108000008 imm=00000202
+   Tr: idx=15 base=31 num=1
+	CSRV ty=00 dst=T0.3 srca=0300000108000008
+   Tr: idx=16 base=32 num=1
+	JCMP ty=00 opr=04 srca=T0.3 srcb=I32(0) imm=00800016
+   Tr: idx=17 base=33 num=4
+	DBGLN ty=00 imm=000000A6
+	BINARY ty=00 dst=L0.2 srca=L0.2 srcb=I32(7)
+	MOV ty=00 dst=0300000000000009 srca=L0.2
+	RET ty=00 srca=I32(1)
+   Tr: idx=18 base=37 num=1
+	JMP ty=00 imm=00800017
+   Tr: idx=19 base=38 num=2
+	LABEL ty=00 imm=00800016
+	RET ty=00 srca=I32(0)
+   Tr: idx=20 base=40 num=1
+	LABEL ty=00 imm=00800017
+   Tr: idx=21 base=41 num=2
+	LABEL ty=00 imm=00800015
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Func_2
+BGBCC_SHXC_BuildFunction: Begin malloc
+BGBCC_SHXC_BuildFunction: BegSim malloc
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000001BE
+	DBGLN ty=00 imm=000001C2
+	JCMP_Z ty=1009 opr=01 srca=0300001009000034 imm=00800075
+   Tr: idx=1 base=4 num=3
+	DBGLN ty=00 imm=000001C5
+	CONV ty=1009 dst=T0.1 srca=I32(-1879048192)
+	MOV ty=1009 dst=0300001009000034 srca=T0.1
+   Tr: idx=2 base=7 num=7
+	LABEL ty=00 imm=00800075
+	DBGLN ty=00 imm=000001C8
+	BINARY ty=00 dst=T1.1 srca=A0.0 srcb=I32(3)
+	BINARY ty=00 opr=05 dst=A0.0 srca=T1.1 srcb=I32(-4)
+	MOV ty=1009 dst=L0.1 srca=0300001009000034
+	LEA ty=09 dst=0300001009000034 srca=L0.1 srcb=A0.0
+	RET ty=1009 srca=L0.1
+   Tr: idx=3 base=14 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim malloc
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000001BE
+	DBGLN ty=00 imm=000001C2
+	JCMP_Z ty=1009 opr=01 srca=0300001009000034 imm=00800075
+   Tr: idx=1 base=4 num=3
+	DBGLN ty=00 imm=000001C5
+	CONV ty=1009 dst=T0.1 srca=I32(-1879048192)
+	MOV ty=1009 dst=0300001009000034 srca=T0.1
+   Tr: idx=2 base=7 num=7
+	LABEL ty=00 imm=00800075
+	DBGLN ty=00 imm=000001C8
+	BINARY ty=00 dst=T1.1 srca=A0.0 srcb=I32(3)
+	BINARY ty=00 opr=05 dst=A0.0 srca=T1.1 srcb=I32(-4)
+	MOV ty=1009 dst=L0.1 srca=0300001009000034
+	LEA ty=09 dst=0300001009000034 srca=L0.1 srcb=A0.0
+	RET ty=1009 srca=L0.1
+   Tr: idx=3 base=14 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End malloc
+BGBCC_SHXC_BuildFunction: Begin time
+BGBCC_SHXC_BuildFunction: BegSim time
+   Tr: idx=0 base=0 num=3
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000222
+	CALL ty=00 dst=T0.1 srca=0300000128000037
+   Tr: idx=1 base=3 num=1
+	CSRV ty=00 dst=T0.1 srca=0300000128000037
+   Tr: idx=2 base=4 num=2
+	BINARY ty=00 opr=09 dst=T1.1 srca=T0.1 srcb=I32(10)
+	RET ty=00 srca=T1.1
+   Tr: idx=3 base=6 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim time
+   Tr: idx=0 base=0 num=3
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000222
+	CALL ty=00 dst=T0.1 srca=0300000128000037
+   Tr: idx=1 base=3 num=1
+	CSRV ty=00 dst=T0.1 srca=0300000128000037
+   Tr: idx=2 base=4 num=2
+	BINARY ty=00 opr=09 dst=T1.1 srca=T0.1 srcb=I32(10)
+	RET ty=00 srca=T1.1
+   Tr: idx=3 base=6 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End time
+BGBCC_SHXC_BuildFunction: Begin print_float
+BGBCC_SHXC_BuildFunction: BegSim print_float
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000129
+	DBGLN ty=00 imm=0000012D
+	MOV ty=00 dst=L2.1 srca=I32(0)
+	JCMP ty=03 opr=05 srca=A0.0 srcb=0700000000000000 imm=00800051
+   Tr: idx=1 base=5 num=3
+	UNARY ty=03 opr=01 dst=T0.1 srca=A0.0
+	MOV ty=03 dst=A0.1 srca=T0.1
+	MOV ty=00 dst=L2.2 srca=I32(1)
+   Tr: idx=2 base=8 num=12
+	LABEL ty=00 imm=00800051
+	DBGLN ty=00 imm=00000131
+	CONV ty=00 dst=T1.1 srca=A0.1
+	MOV ty=00 dst=L0.1 srca=T1.1
+	CONV ty=03 dst=T2.1 srca=A0.1
+	CONV ty=03 dst=T3.1 srca=L0.1
+	BINARY ty=03 opr=01 dst=T0.2 srca=T2.1 srcb=T3.1
+	BINARY ty=03 opr=02 dst=T2.2 srca=T0.2 srcb=07412E8480000000
+	CONV ty=00 dst=T1.2 srca=T2.2
+	MOV ty=00 dst=L1.1 srca=T1.2
+	DBGLN ty=00 imm=00000136
+	JCMP_Z ty=00 srca=L2.2 imm=00800052
+   Tr: idx=3 base=20 num=1
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=4 base=21 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=5 base=22 num=2
+	LABEL ty=00 imm=00800052
+	CALL ty=05 dst=T4.2 srca=0300000124000032 imm=00000101
+   Tr: idx=6 base=24 num=1
+	CSRV ty=05 dst=T4.2 srca=0300000124000032
+   Tr: idx=7 base=25 num=1
+	CALL ty=05 dst=T4.3 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=26 num=1
+	CSRV ty=05 dst=T4.3 srca=030000011B000027
+   Tr: idx=9 base=27 num=1
+	CALL ty=05 dst=T4.4 srca=0300000125000033 imm=00000202
+   Tr: idx=10 base=28 num=1
+	CSRV ty=05 dst=T4.4 srca=0300000125000033
+   Tr: idx=11 base=29 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim print_float
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000129
+	DBGLN ty=00 imm=0000012D
+	MOV ty=00 dst=L2.1 srca=I32(0)
+	JCMP ty=03 opr=05 srca=A0.0 srcb=0700000000000000 imm=00800051
+   Tr: idx=1 base=5 num=3
+	UNARY ty=03 opr=01 dst=T0.1 srca=A0.0
+	MOV ty=03 dst=A0.1 srca=T0.1
+	MOV ty=00 dst=L2.2 srca=I32(1)
+   Tr: idx=2 base=8 num=12
+	LABEL ty=00 imm=00800051
+	DBGLN ty=00 imm=00000131
+	CONV ty=00 dst=T1.1 srca=A0.1
+	MOV ty=00 dst=L0.1 srca=T1.1
+	CONV ty=03 dst=T2.1 srca=A0.1
+	CONV ty=03 dst=T3.1 srca=L0.1
+	BINARY ty=03 opr=01 dst=T0.2 srca=T2.1 srcb=T3.1
+	BINARY ty=03 opr=02 dst=T2.2 srca=T0.2 srcb=07412E8480000000
+	CONV ty=00 dst=T1.2 srca=T2.2
+	MOV ty=00 dst=L1.1 srca=T1.2
+	DBGLN ty=00 imm=00000136
+	JCMP_Z ty=00 srca=L2.2 imm=00800052
+   Tr: idx=3 base=20 num=1
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=4 base=21 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=5 base=22 num=2
+	LABEL ty=00 imm=00800052
+	CALL ty=05 dst=T4.2 srca=0300000124000032 imm=00000101
+   Tr: idx=6 base=24 num=1
+	CSRV ty=05 dst=T4.2 srca=0300000124000032
+   Tr: idx=7 base=25 num=1
+	CALL ty=05 dst=T4.3 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=26 num=1
+	CSRV ty=05 dst=T4.3 srca=030000011B000027
+   Tr: idx=9 base=27 num=1
+	CALL ty=05 dst=T4.4 srca=0300000125000033 imm=00000202
+   Tr: idx=10 base=28 num=1
+	CSRV ty=05 dst=T4.4 srca=0300000125000033
+   Tr: idx=11 base=29 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End print_float
+BGBCC_SHXC_BuildFunction: Begin print_float_ss
+BGBCC_SHXC_BuildFunction: BegSim print_float_ss
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000013C
+	DBGLN ty=00 imm=00000140
+	MOV ty=00 dst=L2.1 srca=I32(0)
+	JCMP ty=02 opr=05 srca=A0.0 srcb=0600000000000000 imm=00800053
+   Tr: idx=1 base=5 num=3
+	UNARY ty=02 opr=01 dst=T0.1 srca=A0.0
+	MOV ty=02 dst=A0.1 srca=T0.1
+	MOV ty=00 dst=L2.2 srca=I32(1)
+   Tr: idx=2 base=8 num=12
+	LABEL ty=00 imm=00800053
+	DBGLN ty=00 imm=00000144
+	CONV ty=00 dst=T1.1 srca=A0.1
+	MOV ty=00 dst=L0.1 srca=T1.1
+	CONV ty=02 dst=T2.1 srca=A0.1
+	CONV ty=02 dst=T3.1 srca=L0.1
+	BINARY ty=02 opr=01 dst=T0.2 srca=T2.1 srcb=T3.1
+	BINARY ty=02 opr=02 dst=T2.2 srca=T0.2 srcb=0600000049742400
+	CONV ty=00 dst=T1.2 srca=T2.2
+	MOV ty=00 dst=L1.1 srca=T1.2
+	DBGLN ty=00 imm=00000149
+	JCMP_Z ty=00 srca=L2.2 imm=00800054
+   Tr: idx=3 base=20 num=1
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=4 base=21 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=5 base=22 num=2
+	LABEL ty=00 imm=00800054
+	CALL ty=05 dst=T4.2 srca=0300000124000032 imm=00000101
+   Tr: idx=6 base=24 num=1
+	CSRV ty=05 dst=T4.2 srca=0300000124000032
+   Tr: idx=7 base=25 num=1
+	CALL ty=05 dst=T4.3 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=26 num=1
+	CSRV ty=05 dst=T4.3 srca=030000011B000027
+   Tr: idx=9 base=27 num=1
+	CALL ty=05 dst=T4.4 srca=0300000125000033 imm=00000202
+   Tr: idx=10 base=28 num=1
+	CSRV ty=05 dst=T4.4 srca=0300000125000033
+   Tr: idx=11 base=29 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim print_float_ss
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000013C
+	DBGLN ty=00 imm=00000140
+	MOV ty=00 dst=L2.1 srca=I32(0)
+	JCMP ty=02 opr=05 srca=A0.0 srcb=0600000000000000 imm=00800053
+   Tr: idx=1 base=5 num=3
+	UNARY ty=02 opr=01 dst=T0.1 srca=A0.0
+	MOV ty=02 dst=A0.1 srca=T0.1
+	MOV ty=00 dst=L2.2 srca=I32(1)
+   Tr: idx=2 base=8 num=12
+	LABEL ty=00 imm=00800053
+	DBGLN ty=00 imm=00000144
+	CONV ty=00 dst=T1.1 srca=A0.1
+	MOV ty=00 dst=L0.1 srca=T1.1
+	CONV ty=02 dst=T2.1 srca=A0.1
+	CONV ty=02 dst=T3.1 srca=L0.1
+	BINARY ty=02 opr=01 dst=T0.2 srca=T2.1 srcb=T3.1
+	BINARY ty=02 opr=02 dst=T2.2 srca=T0.2 srcb=0600000049742400
+	CONV ty=00 dst=T1.2 srca=T2.2
+	MOV ty=00 dst=L1.1 srca=T1.2
+	DBGLN ty=00 imm=00000149
+	JCMP_Z ty=00 srca=L2.2 imm=00800054
+   Tr: idx=3 base=20 num=1
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=4 base=21 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=5 base=22 num=2
+	LABEL ty=00 imm=00800054
+	CALL ty=05 dst=T4.2 srca=0300000124000032 imm=00000101
+   Tr: idx=6 base=24 num=1
+	CSRV ty=05 dst=T4.2 srca=0300000124000032
+   Tr: idx=7 base=25 num=1
+	CALL ty=05 dst=T4.3 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=26 num=1
+	CSRV ty=05 dst=T4.3 srca=030000011B000027
+   Tr: idx=9 base=27 num=1
+	CALL ty=05 dst=T4.4 srca=0300000125000033 imm=00000202
+   Tr: idx=10 base=28 num=1
+	CSRV ty=05 dst=T4.4 srca=0300000125000033
+   Tr: idx=11 base=29 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End print_float_ss
+BGBCC_SHXC_BuildFunction: Begin main
+BGBCC_SHXC_BuildFunction: BegSim main
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=0000004D
+	INITARR ty=08 dst=L5.0 imm=0000001F
+	INITARR ty=08 dst=L6.0 imm=0000001F
+	DBGLN ty=00 imm=0000005C
+	CALL ty=1008 dst=T0.1 srca=030000010F000017 imm=00000101
+   Tr: idx=1 base=6 num=1
+	CSRV ty=1008 dst=T0.1 srca=030000010F000017
+   Tr: idx=2 base=7 num=4
+	CONV ty=1101 dst=T1.1 srca=T0.1
+	MOV ty=1101 dst=0300001101000012 srca=T1.1
+	DBGLN ty=00 imm=00000060
+	CALL ty=1008 dst=T0.2 srca=030000010F000017 imm=00000101
+   Tr: idx=3 base=11 num=1
+	CSRV ty=1008 dst=T0.2 srca=030000010F000017
+   Tr: idx=4 base=12 num=4
+	CONV ty=1101 dst=T1.2 srca=T0.2
+	MOV ty=1101 dst=0300001101000011 srca=T1.2
+	DBGLN ty=00 imm=00000062
+	CALL ty=00 dst=T2.1 srca=0300000106000006 imm=00000202
+   Tr: idx=5 base=16 num=1
+	CSRV ty=00 dst=T2.1 srca=0300000106000006
+   Tr: idx=6 base=17 num=1
+	CALL ty=00 dst=T2.2 srca=0300000106000006 imm=00000202
+   Tr: idx=7 base=18 num=1
+	CSRV ty=00 dst=T2.2 srca=0300000106000006
+   Tr: idx=8 base=19 num=5
+	DBGLN ty=00 imm=00000065
+	STORESLOT ty=1101 dst=0300001101000011 srca=0300001101000012 obj=001.00
+	DBGLN ty=00 imm=00000067
+	LOADSLOT ty=1101 dst=T0.3 srca=0300001101000011 obj=001.00
+	CALL ty=00 dst=T2.3 srca=0300000106000006 imm=00000202
+   Tr: idx=9 base=24 num=1
+	CSRV ty=00 dst=T2.3 srca=0300000106000006
+   Tr: idx=10 base=25 num=24
+	DBGLN ty=00 imm=0000006A
+	STORESLOT ty=00 dst=0300001101000011 srca=0300000000000001 obj=001.01
+	INITOBJ ty=0102 dst=T0.4 imm=00000002
+	LOADSLOT ty=0102 dst=T0.4 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.3 imm=00000003
+	LOADSLOT ty=0103 dst=T1.3 srca=T0.4 obj=002.00
+	DROPOBJ ty=0102 dst=T0.4 imm=00000002
+	STORESLOT ty=00 dst=T1.3 srca=0300000000000003 obj=003.00
+	DROPOBJ ty=0103 dst=T1.3 imm=00000003
+	INITOBJ ty=0102 dst=T0.5 imm=00000002
+	LOADSLOT ty=0102 dst=T0.5 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.4 imm=00000003
+	LOADSLOT ty=0103 dst=T1.4 srca=T0.5 obj=002.00
+	DROPOBJ ty=0102 dst=T0.5 imm=00000002
+	STORESLOT ty=00 dst=T1.4 srca=I32(40) obj=003.01
+	DROPOBJ ty=0103 dst=T1.4 imm=00000003
+	INITOBJ ty=0102 dst=T0.6 imm=00000002
+	LOADSLOT ty=0102 dst=T0.6 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.5 imm=00000003
+	LOADSLOT ty=0103 dst=T1.5 srca=T0.6 obj=002.00
+	DROPOBJ ty=0102 dst=T0.6 imm=00000002
+	LOADSLOT ty=001F0008 dst=T0.7 srca=T1.5 obj=003.02
+	DROPOBJ ty=0103 dst=T1.5 imm=00000003
+	CALL ty=00 dst=T2.4 srca=0300000107000007 imm=00000202
+   Tr: idx=11 base=49 num=1
+	CSRV ty=00 dst=T2.4 srca=0300000107000007
+   Tr: idx=12 base=50 num=2
+	DBGLN ty=00 imm=0000006F
+	CALL ty=00 dst=T2.5 srca=0300000107000007 imm=00000202
+   Tr: idx=13 base=52 num=1
+	CSRV ty=00 dst=T2.5 srca=0300000107000007
+   Tr: idx=14 base=53 num=3
+	DBGLN ty=00 imm=00000071
+	LOADSLOT ty=1101 dst=T0.8 srca=0300001101000011 obj=001.00
+	CALL ty=00 dst=T2.6 srca=0300000106000006 imm=00000202
+   Tr: idx=15 base=56 num=1
+	CSRV ty=00 dst=T2.6 srca=0300000106000006
+   Tr: idx=16 base=57 num=5
+	DBGLN ty=00 imm=00000073
+	LDIX ty=00320000 dst=T0.9 srca=0320000000000016 srcb=I32(8)
+	STIX ty=00 dst=T0.9 srca=I32(7) srcb=I32(10)
+	DBGLN ty=00 imm=00000079
+	CALL ty=00 dst=T2.7 srca=0300000106000006 imm=00000101
+   Tr: idx=17 base=62 num=1
+	CSRV ty=00 dst=T2.7 srca=0300000106000006
+   Tr: idx=18 base=63 num=1
+	CALL ty=00 dst=T2.8 srca=0300000106000006 imm=00000101
+   Tr: idx=19 base=64 num=1
+	CSRV ty=00 dst=T2.8 srca=0300000106000006
+   Tr: idx=20 base=65 num=1
+	CALL ty=00 dst=T2.9 srca=0300000106000006 imm=00000101
+   Tr: idx=21 base=66 num=1
+	CSRV ty=00 dst=T2.9 srca=0300000106000006
+   Tr: idx=22 base=67 num=1
+	JCMP_Z ty=00 srca=0300000000000018 imm=0080001A
+   Tr: idx=23 base=68 num=1
+	CALL ty=00 dst=T2.10 srca=0300000106000006 imm=00000101
+   Tr: idx=24 base=69 num=1
+	CSRV ty=00 dst=T2.10 srca=0300000106000006
+   Tr: idx=25 base=70 num=1
+	CALL ty=00 dst=T2.11 srca=0300000106000006 imm=00000101
+   Tr: idx=26 base=71 num=1
+	CSRV ty=00 dst=T2.11 srca=0300000106000006
+   Tr: idx=27 base=72 num=1
+	JMP ty=00 imm=0080001B
+   Tr: idx=28 base=73 num=2
+	LABEL ty=00 imm=0080001A
+	CALL ty=00 dst=T2.12 srca=0300000106000006 imm=00000101
+   Tr: idx=29 base=75 num=1
+	CSRV ty=00 dst=T2.12 srca=0300000106000006
+   Tr: idx=30 base=76 num=1
+	CALL ty=00 dst=T2.13 srca=0300000106000006 imm=00000101
+   Tr: idx=31 base=77 num=1
+	CSRV ty=00 dst=T2.13 srca=0300000106000006
+   Tr: idx=32 base=78 num=2
+	LABEL ty=00 imm=0080001B
+	CALL ty=00 dst=T2.14 srca=0300000106000006 imm=00000101
+   Tr: idx=33 base=80 num=1
+	CSRV ty=00 dst=T2.14 srca=0300000106000006
+   Tr: idx=34 base=81 num=5
+	DBGLN ty=00 imm=0000008B
+	MOV ty=00 dst=L9.1 srca=I32(4000000)
+	DBGLN ty=00 imm=00000090
+	MOV ty=00 dst=L8.1 srca=L9.1
+	CALL ty=00 dst=T2.15 srca=0300000106000006 imm=00000101
+   Tr: idx=35 base=86 num=1
+	CSRV ty=00 dst=T2.15 srca=0300000106000006
+   Tr: idx=36 base=87 num=2
+	DBGLN ty=00 imm=00000094
+	CALL ty=00 dst=T2.16 srca=0300000106000006 imm=00000202
+   Tr: idx=37 base=89 num=1
+	CSRV ty=00 dst=T2.16 srca=0300000106000006
+   Tr: idx=38 base=90 num=3
+	DBGLN ty=00 imm=0000009F
+	CONV ty=1007 dst=T0.10 srca=I32(0)
+	CALL ty=07 dst=T2.17 srca=0300000110000019 imm=00000101
+   Tr: idx=39 base=93 num=1
+	CSRV ty=07 dst=T2.17 srca=0300000110000019
+   Tr: idx=40 base=94 num=3
+	MOV ty=07 dst=030000000700001A srca=T2.17
+	DBGLN ty=00 imm=000000A2
+	MOV ty=00 dst=L7.1 srca=I32(1)
+   Tr: idx=41 base=97 num=2
+	LABEL ty=00 imm=0080001C
+	JCMP ty=00 opr=03 srca=L7.1 srcb=L8.1 imm=0080001E
+   Tr: idx=42 base=99 num=2
+	DBGLN ty=00 imm=000000A5
+	CALL ty=00 dst=T2.18 srca=0300000114000022
+   Tr: idx=43 base=101 num=1
+	CSRV ty=00 dst=T2.18 srca=0300000114000022
+   Tr: idx=44 base=102 num=1
+	CALL ty=00 dst=T2.19 srca=0300000115000023
+   Tr: idx=45 base=103 num=1
+	CSRV ty=00 dst=T2.19 srca=0300000115000023
+   Tr: idx=46 base=104 num=4
+	DBGLN ty=00 imm=000000A8
+	MOV ty=00 dst=L0.1 srca=I32(2)
+	MOV ty=00 dst=L1.1 srca=I32(3)
+	CALL ty=00 dst=T2.20 srca=0300000107000007 imm=00000202
+   Tr: idx=47 base=108 num=1
+	CSRV ty=00 dst=T2.20 srca=0300000107000007
+   Tr: idx=48 base=109 num=2
+	MOV ty=00 dst=L4.1 srca=0300000000000002
+	CALL ty=00 dst=T2.21 srca=030000010E000010 imm=00000202
+   Tr: idx=49 base=111 num=1
+	CSRV ty=00 dst=T2.21 srca=030000010E000010
+   Tr: idx=50 base=112 num=3
+	UNARY ty=00 opr=03 dst=T3.1 srca=T2.21
+	MOV ty=00 dst=0300000000000013 srca=T3.1
+	DBGLN ty=00 imm=000000AE
+   Tr: idx=51 base=115 num=2
+	LABEL ty=00 imm=0080001F
+	JCMP ty=00 opr=05 srca=L0.1 srcb=L1.1 imm=00800020
+   Tr: idx=52 base=117 num=5
+	BINARY ty=00 opr=02 dst=T2.22 srca=I32(5) srcb=L0.1
+	BINARY ty=00 opr=01 dst=L2.0 srca=T2.22 srcb=L1.1
+	DBGLN ty=00 imm=000000B2
+	LDAVAR ty=1000 dst=T0.11 srca=L2.0
+	CALL ty=00 dst=T2.23 srca=030000010B00000D imm=00000303
+   Tr: idx=53 base=122 num=1
+	CSRV ty=00 dst=T2.23 srca=030000010B00000D
+   Tr: idx=54 base=123 num=3
+	DBGLN ty=00 imm=000000B4
+	BINARY ty=00 dst=L0.1 srca=L0.1 srcb=I32(1)
+	JMP ty=00 imm=0080001F
+   Tr: idx=55 base=126 num=3
+	LABEL ty=00 imm=00800020
+	DBGLN ty=00 imm=000000B7
+	CALL ty=00 dst=T2.24 srca=030000010C00000E imm=00000404
+   Tr: idx=56 base=129 num=1
+	CSRV ty=00 dst=T2.24 srca=030000010C00000E
+   Tr: idx=57 base=130 num=2
+	DBGLN ty=00 imm=000000B9
+	CALL ty=00 dst=T2.25 srca=0300000116000024 imm=00000101
+   Tr: idx=58 base=132 num=1
+	CSRV ty=00 dst=T2.25 srca=0300000116000024
+   Tr: idx=59 base=133 num=1
+	MOV ty=08 dst=L3.1 srca=I32(65)
+   Tr: idx=60 base=134 num=2
+	LABEL ty=00 imm=00800021
+	JCMP ty=08 opr=03 srca=L3.1 srcb=0300000008000014 imm=00800023
+   Tr: idx=61 base=136 num=1
+	CALL ty=00 dst=T2.26 srca=030000010D00000F imm=00000202
+   Tr: idx=62 base=137 num=1
+	CSRV ty=00 dst=T2.26 srca=030000010D00000F
+   Tr: idx=63 base=138 num=1
+	JCMP ty=00 opr=01 srca=L4.1 srcb=T2.26 imm=00800024
+   Tr: idx=64 base=139 num=3
+	DBGLN ty=00 imm=000000BF
+	LDAVAR ty=1000 dst=T0.12 srca=L4.1
+	CALL ty=00 dst=T2.27 srca=030000010900000B imm=00000202
+   Tr: idx=65 base=142 num=1
+	CSRV ty=00 dst=T2.27 srca=030000010900000B
+   Tr: idx=66 base=143 num=1
+	CALL ty=00 dst=T2.28 srca=0300000107000007 imm=00000202
+   Tr: idx=67 base=144 num=1
+	CSRV ty=00 dst=T2.28 srca=0300000107000007
+   Tr: idx=68 base=145 num=2
+	MOV ty=00 dst=L1.2 srca=L7.1
+	MOV ty=00 dst=0300000000000009 srca=L7.1
+   Tr: idx=69 base=147 num=1
+	LABEL ty=00 imm=00800024
+   Tr: idx=70 base=148 num=3
+	LABEL ty=00 imm=00800022
+	UNARY ty=08 opr=04 dst=L3.1 srca=L3.1
+	JMP ty=00 imm=00800021
+   Tr: idx=71 base=151 num=10
+	LABEL ty=00 imm=00800023
+	DBGLN ty=00 imm=000000C7
+	BINARY ty=00 opr=02 dst=L1.2 srca=L1.2 srcb=L0.1
+	BINARY ty=00 opr=03 dst=L0.1 srca=L1.2 srcb=L2.0
+	BINARY ty=00 opr=01 dst=T2.29 srca=L1.2 srcb=L2.0
+	BINARY ty=00 opr=02 dst=T3.2 srca=I32(7) srcb=T2.29
+	BINARY ty=00 opr=01 dst=L1.2 srca=T3.2 srcb=L0.1
+	DBGLN ty=00 imm=000000CB
+	LDAVAR ty=1000 dst=T0.13 srca=L0.1
+	CALL ty=00 dst=T2.30 srca=0300000117000025 imm=00000101
+   Tr: idx=72 base=161 num=1
+	CSRV ty=00 dst=T2.30 srca=0300000117000025
+   Tr: idx=73 base=162 num=3
+	LABEL ty=00 imm=0080001D
+	UNARY ty=00 opr=04 dst=L7.1 srca=L7.1
+	JMP ty=00 imm=0080001C
+   Tr: idx=74 base=165 num=4
+	LABEL ty=00 imm=0080001E
+	DBGLN ty=00 imm=000000D9
+	CONV ty=1007 dst=T0.14 srca=I32(0)
+	CALL ty=07 dst=T2.31 srca=0300000110000019 imm=00000101
+   Tr: idx=75 base=169 num=1
+	CSRV ty=07 dst=T2.31 srca=0300000110000019
+   Tr: idx=76 base=170 num=3
+	MOV ty=07 dst=030000000700001B srca=T2.31
+	DBGLN ty=00 imm=000000DC
+	CALL ty=00 dst=T2.32 srca=0300000106000006 imm=00000101
+   Tr: idx=77 base=173 num=1
+	CSRV ty=00 dst=T2.32 srca=0300000106000006
+   Tr: idx=78 base=174 num=1
+	CALL ty=00 dst=T2.33 srca=0300000106000006 imm=00000101
+   Tr: idx=79 base=175 num=1
+	CSRV ty=00 dst=T2.33 srca=0300000106000006
+   Tr: idx=80 base=176 num=1
+	CALL ty=00 dst=T2.34 srca=0300000106000006 imm=00000101
+   Tr: idx=81 base=177 num=1
+	CSRV ty=00 dst=T2.34 srca=0300000106000006
+   Tr: idx=82 base=178 num=1
+	CALL ty=00 dst=T2.35 srca=0300000106000006 imm=00000101
+   Tr: idx=83 base=179 num=1
+	CSRV ty=00 dst=T2.35 srca=0300000106000006
+   Tr: idx=84 base=180 num=1
+	CALL ty=00 dst=T2.36 srca=0300000106000006 imm=00000202
+   Tr: idx=85 base=181 num=1
+	CSRV ty=00 dst=T2.36 srca=0300000106000006
+   Tr: idx=86 base=182 num=1
+	CALL ty=00 dst=T2.37 srca=0300000106000006 imm=00000202
+   Tr: idx=87 base=183 num=1
+	CSRV ty=00 dst=T2.37 srca=0300000106000006
+   Tr: idx=88 base=184 num=1
+	CALL ty=00 dst=T2.38 srca=0300000106000006 imm=00000202
+   Tr: idx=89 base=185 num=1
+	CSRV ty=00 dst=T2.38 srca=0300000106000006
+   Tr: idx=90 base=186 num=1
+	CALL ty=00 dst=T2.39 srca=0300000106000006 imm=00000202
+   Tr: idx=91 base=187 num=1
+	CSRV ty=00 dst=T2.39 srca=0300000106000006
+   Tr: idx=92 base=188 num=1
+	CALL ty=00 dst=T2.40 srca=0300000106000006 imm=00000202
+   Tr: idx=93 base=189 num=1
+	CSRV ty=00 dst=T2.40 srca=0300000106000006
+   Tr: idx=94 base=190 num=1
+	CALL ty=00 dst=T2.41 srca=0300000106000006 imm=00000202
+   Tr: idx=95 base=191 num=1
+	CSRV ty=00 dst=T2.41 srca=0300000106000006
+   Tr: idx=96 base=192 num=1
+	CALL ty=00 dst=T2.42 srca=0300000106000006 imm=00000202
+   Tr: idx=97 base=193 num=1
+	CSRV ty=00 dst=T2.42 srca=0300000106000006
+   Tr: idx=98 base=194 num=1
+	CALL ty=00 dst=T2.43 srca=0300000106000006 imm=00000202
+   Tr: idx=99 base=195 num=1
+	CSRV ty=00 dst=T2.43 srca=0300000106000006
+   Tr: idx=100 base=196 num=2
+	LDIX ty=00 dst=T2.44 srca=0300320000000015 srcb=I32(8)
+	CALL ty=00 dst=T3.3 srca=0300000106000006 imm=00000202
+   Tr: idx=101 base=198 num=1
+	CSRV ty=00 dst=T3.3 srca=0300000106000006
+   Tr: idx=102 base=199 num=1
+	CALL ty=00 dst=T2.45 srca=0300000106000006 imm=00000202
+   Tr: idx=103 base=200 num=1
+	CSRV ty=00 dst=T2.45 srca=0300000106000006
+   Tr: idx=104 base=201 num=3
+	LDIX ty=00320000 dst=T0.15 srca=0320000000000016 srcb=I32(8)
+	LDIX ty=00 dst=T2.46 srca=T0.15 srcb=I32(7)
+	CALL ty=00 dst=T3.4 srca=0300000106000006 imm=00000202
+   Tr: idx=105 base=204 num=1
+	CSRV ty=00 dst=T3.4 srca=0300000106000006
+   Tr: idx=106 base=205 num=1
+	CALL ty=00 dst=T2.47 srca=0300000106000006 imm=00000101
+   Tr: idx=107 base=206 num=1
+	CSRV ty=00 dst=T2.47 srca=0300000106000006
+   Tr: idx=108 base=207 num=1
+	CALL ty=00 dst=T2.48 srca=0300000106000006 imm=00000101
+   Tr: idx=109 base=208 num=1
+	CSRV ty=00 dst=T2.48 srca=0300000106000006
+   Tr: idx=110 base=209 num=3
+	LOADSLOT ty=1101 dst=T0.16 srca=0300001101000011 obj=001.00
+	CONV ty=00 dst=T2.49 srca=T0.16
+	CALL ty=00 dst=T3.5 srca=0300000106000006 imm=00000202
+   Tr: idx=111 base=212 num=1
+	CSRV ty=00 dst=T3.5 srca=0300000106000006
+   Tr: idx=112 base=213 num=1
+	CALL ty=00 dst=T2.50 srca=0300000106000006 imm=00000101
+   Tr: idx=113 base=214 num=1
+	CSRV ty=00 dst=T2.50 srca=0300000106000006
+   Tr: idx=114 base=215 num=2
+	LOADSLOT ty=00 dst=T2.51 srca=0300001101000011 obj=001.01
+	CALL ty=00 dst=T3.6 srca=0300000106000006 imm=00000202
+   Tr: idx=115 base=217 num=1
+	CSRV ty=00 dst=T3.6 srca=0300000106000006
+   Tr: idx=116 base=218 num=1
+	CALL ty=00 dst=T2.52 srca=0300000106000006 imm=00000202
+   Tr: idx=117 base=219 num=1
+	CSRV ty=00 dst=T2.52 srca=0300000106000006
+   Tr: idx=118 base=220 num=8
+	INITOBJ ty=0102 dst=T0.17 imm=00000002
+	LOADSLOT ty=0102 dst=T0.17 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.6 imm=00000003
+	LOADSLOT ty=0103 dst=T1.6 srca=T0.17 obj=002.00
+	DROPOBJ ty=0102 dst=T0.17 imm=00000002
+	LOADSLOT ty=00 dst=T2.53 srca=T1.6 obj=003.00
+	DROPOBJ ty=0103 dst=T1.6 imm=00000003
+	CALL ty=00 dst=T3.7 srca=0300000106000006 imm=00000202
+   Tr: idx=119 base=228 num=1
+	CSRV ty=00 dst=T3.7 srca=0300000106000006
+   Tr: idx=120 base=229 num=1
+	CALL ty=00 dst=T2.54 srca=0300000106000006 imm=00000202
+   Tr: idx=121 base=230 num=1
+	CSRV ty=00 dst=T2.54 srca=0300000106000006
+   Tr: idx=122 base=231 num=8
+	INITOBJ ty=0102 dst=T0.18 imm=00000002
+	LOADSLOT ty=0102 dst=T0.18 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.7 imm=00000003
+	LOADSLOT ty=0103 dst=T1.7 srca=T0.18 obj=002.00
+	DROPOBJ ty=0102 dst=T0.18 imm=00000002
+	LOADSLOT ty=00 dst=T2.55 srca=T1.7 obj=003.01
+	DROPOBJ ty=0103 dst=T1.7 imm=00000003
+	CALL ty=00 dst=T3.8 srca=0300000106000006 imm=00000202
+   Tr: idx=123 base=239 num=1
+	CSRV ty=00 dst=T3.8 srca=0300000106000006
+   Tr: idx=124 base=240 num=1
+	CALL ty=00 dst=T2.56 srca=0300000106000006 imm=00000202
+   Tr: idx=125 base=241 num=1
+	CSRV ty=00 dst=T2.56 srca=0300000106000006
+   Tr: idx=126 base=242 num=8
+	INITOBJ ty=0102 dst=T0.19 imm=00000002
+	LOADSLOT ty=0102 dst=T0.19 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.8 imm=00000003
+	LOADSLOT ty=0103 dst=T1.8 srca=T0.19 obj=002.00
+	DROPOBJ ty=0102 dst=T0.19 imm=00000002
+	LOADSLOT ty=001F0008 dst=T0.20 srca=T1.8 obj=003.02
+	DROPOBJ ty=0103 dst=T1.8 imm=00000003
+	CALL ty=00 dst=T2.57 srca=0300000106000006 imm=00000202
+   Tr: idx=127 base=250 num=1
+	CSRV ty=00 dst=T2.57 srca=0300000106000006
+   Tr: idx=128 base=251 num=1
+	CALL ty=00 dst=T2.58 srca=0300000106000006 imm=00000101
+   Tr: idx=129 base=252 num=1
+	CSRV ty=00 dst=T2.58 srca=0300000106000006
+   Tr: idx=130 base=253 num=1
+	CALL ty=00 dst=T2.59 srca=0300000106000006 imm=00000101
+   Tr: idx=131 base=254 num=1
+	CSRV ty=00 dst=T2.59 srca=0300000106000006
+   Tr: idx=132 base=255 num=3
+	LOADSLOT ty=1101 dst=T0.21 srca=0300001101000012 obj=001.00
+	CONV ty=00 dst=T2.60 srca=T0.21
+	CALL ty=00 dst=T3.9 srca=0300000106000006 imm=00000202
+   Tr: idx=133 base=258 num=1
+	CSRV ty=00 dst=T3.9 srca=0300000106000006
+   Tr: idx=134 base=259 num=1
+	CALL ty=00 dst=T2.61 srca=0300000106000006 imm=00000101
+   Tr: idx=135 base=260 num=1
+	CSRV ty=00 dst=T2.61 srca=0300000106000006
+   Tr: idx=136 base=261 num=2
+	LOADSLOT ty=00 dst=T2.62 srca=0300001101000012 obj=001.01
+	CALL ty=00 dst=T3.10 srca=0300000106000006 imm=00000202
+   Tr: idx=137 base=263 num=1
+	CSRV ty=00 dst=T3.10 srca=0300000106000006
+   Tr: idx=138 base=264 num=1
+	CALL ty=00 dst=T2.63 srca=0300000106000006 imm=00000202
+   Tr: idx=139 base=265 num=1
+	CSRV ty=00 dst=T2.63 srca=0300000106000006
+   Tr: idx=140 base=266 num=8
+	INITOBJ ty=0102 dst=T0.22 imm=00000002
+	LOADSLOT ty=0102 dst=T0.22 srca=0300001101000012 obj=001.02
+	INITOBJ ty=0103 dst=T1.9 imm=00000003
+	LOADSLOT ty=0103 dst=T1.9 srca=T0.22 obj=002.00
+	DROPOBJ ty=0102 dst=T0.22 imm=00000002
+	LOADSLOT ty=00 dst=T2.64 srca=T1.9 obj=003.00
+	DROPOBJ ty=0103 dst=T1.9 imm=00000003
+	CALL ty=00 dst=T3.11 srca=0300000106000006 imm=00000202
+   Tr: idx=141 base=274 num=1
+	CSRV ty=00 dst=T3.11 srca=0300000106000006
+   Tr: idx=142 base=275 num=1
+	CALL ty=00 dst=T2.65 srca=0300000106000006 imm=00000202
+   Tr: idx=143 base=276 num=1
+	CSRV ty=00 dst=T2.65 srca=0300000106000006
+   Tr: idx=144 base=277 num=8
+	INITOBJ ty=0102 dst=T0.23 imm=00000002
+	LOADSLOT ty=0102 dst=T0.23 srca=0300001101000012 obj=001.02
+	INITOBJ ty=0103 dst=T1.10 imm=00000003
+	LOADSLOT ty=0103 dst=T1.10 srca=T0.23 obj=002.00
+	DROPOBJ ty=0102 dst=T0.23 imm=00000002
+	LOADSLOT ty=00 dst=T2.66 srca=T1.10 obj=003.01
+	DROPOBJ ty=0103 dst=T1.10 imm=00000003
+	CALL ty=00 dst=T3.12 srca=0300000106000006 imm=00000202
+   Tr: idx=145 base=285 num=1
+	CSRV ty=00 dst=T3.12 srca=0300000106000006
+   Tr: idx=146 base=286 num=1
+	CALL ty=00 dst=T2.67 srca=0300000106000006 imm=00000202
+   Tr: idx=147 base=287 num=1
+	CSRV ty=00 dst=T2.67 srca=0300000106000006
+   Tr: idx=148 base=288 num=8
+	INITOBJ ty=0102 dst=T0.24 imm=00000002
+	LOADSLOT ty=0102 dst=T0.24 srca=0300001101000012 obj=001.02
+	INITOBJ ty=0103 dst=T1.11 imm=00000003
+	LOADSLOT ty=0103 dst=T1.11 srca=T0.24 obj=002.00
+	DROPOBJ ty=0102 dst=T0.24 imm=00000002
+	LOADSLOT ty=001F0008 dst=T0.25 srca=T1.11 obj=003.02
+	DROPOBJ ty=0103 dst=T1.11 imm=00000003
+	CALL ty=00 dst=T2.68 srca=0300000106000006 imm=00000202
+   Tr: idx=149 base=296 num=1
+	CSRV ty=00 dst=T2.68 srca=0300000106000006
+   Tr: idx=150 base=297 num=2
+	DBGLN ty=00 imm=00000102
+	CALL ty=00 dst=T2.69 srca=0300000106000006 imm=00000101
+   Tr: idx=151 base=299 num=1
+	CSRV ty=00 dst=T2.69 srca=0300000106000006
+   Tr: idx=152 base=300 num=1
+	CALL ty=00 dst=T2.70 srca=0300000106000006 imm=00000202
+   Tr: idx=153 base=301 num=1
+	CSRV ty=00 dst=T2.70 srca=0300000106000006
+   Tr: idx=154 base=302 num=1
+	CALL ty=00 dst=T2.71 srca=0300000106000006 imm=00000202
+   Tr: idx=155 base=303 num=1
+	CSRV ty=00 dst=T2.71 srca=0300000106000006
+   Tr: idx=156 base=304 num=1
+	CALL ty=00 dst=T2.72 srca=0300000106000006 imm=00000202
+   Tr: idx=157 base=305 num=1
+	CSRV ty=00 dst=T2.72 srca=0300000106000006
+   Tr: idx=158 base=306 num=1
+	CALL ty=00 dst=T2.73 srca=0300000106000006 imm=00000202
+   Tr: idx=159 base=307 num=1
+	CSRV ty=00 dst=T2.73 srca=0300000106000006
+   Tr: idx=160 base=308 num=1
+	CALL ty=00 dst=T2.74 srca=0300000106000006 imm=00000202
+   Tr: idx=161 base=309 num=1
+	CSRV ty=00 dst=T2.74 srca=0300000106000006
+   Tr: idx=162 base=310 num=1
+	CALL ty=00 dst=T2.75 srca=0300000106000006 imm=00000202
+   Tr: idx=163 base=311 num=1
+	CSRV ty=00 dst=T2.75 srca=0300000106000006
+   Tr: idx=164 base=312 num=1
+	CALL ty=00 dst=T2.76 srca=0300000106000006 imm=00000202
+   Tr: idx=165 base=313 num=1
+	CSRV ty=00 dst=T2.76 srca=0300000106000006
+   Tr: idx=166 base=314 num=1
+	CALL ty=00 dst=T2.77 srca=0300000106000006 imm=00000202
+   Tr: idx=167 base=315 num=1
+	CSRV ty=00 dst=T2.77 srca=0300000106000006
+   Tr: idx=168 base=316 num=1
+	CALL ty=00 dst=T2.78 srca=0300000106000006 imm=00000202
+   Tr: idx=169 base=317 num=1
+	CSRV ty=00 dst=T2.78 srca=0300000106000006
+   Tr: idx=170 base=318 num=1
+	CALL ty=00 dst=T2.79 srca=0300000106000006 imm=00000101
+   Tr: idx=171 base=319 num=1
+	CSRV ty=00 dst=T2.79 srca=0300000106000006
+   Tr: idx=172 base=320 num=1
+	CALL ty=00 dst=T2.80 srca=0300000106000006 imm=00000202
+   Tr: idx=173 base=321 num=1
+	CSRV ty=00 dst=T2.80 srca=0300000106000006
+   Tr: idx=174 base=322 num=1
+	CALL ty=00 dst=T2.81 srca=0300000106000006 imm=00000101
+   Tr: idx=175 base=323 num=1
+	CSRV ty=00 dst=T2.81 srca=0300000106000006
+   Tr: idx=176 base=324 num=1
+	CALL ty=00 dst=T2.82 srca=0300000106000006 imm=00000101
+   Tr: idx=177 base=325 num=1
+	CSRV ty=00 dst=T2.82 srca=0300000106000006
+   Tr: idx=178 base=326 num=3
+	DBGLN ty=00 imm=00000111
+	BINARY ty=07 opr=01 dst=030000000700001C srca=030000000700001B srcb=030000000700001A
+	CALL ty=00 dst=T2.83 srca=0300000106000006 imm=00000202
+   Tr: idx=179 base=329 num=1
+	CSRV ty=00 dst=T2.83 srca=0300000106000006
+   Tr: idx=180 base=330 num=2
+	DBGLN ty=00 imm=00000114
+	JCMP ty=07 opr=05 srca=030000000700001C srcb=I32(2) imm=00800025
+   Tr: idx=181 base=332 num=1
+	CALL ty=00 dst=T2.84 srca=0300000106000006 imm=00000101
+   Tr: idx=182 base=333 num=1
+	CSRV ty=00 dst=T2.84 srca=0300000106000006
+   Tr: idx=183 base=334 num=1
+	CALL ty=00 dst=T2.85 srca=0300000106000006 imm=00000101
+   Tr: idx=184 base=335 num=1
+	CSRV ty=00 dst=T2.85 srca=0300000106000006
+   Tr: idx=185 base=336 num=1
+	CALL ty=00 dst=T2.86 srca=0300000106000006 imm=00000101
+   Tr: idx=186 base=337 num=1
+	CSRV ty=00 dst=T2.86 srca=0300000106000006
+   Tr: idx=187 base=338 num=1
+	JMP ty=00 imm=00800026
+   Tr: idx=188 base=339 num=11
+	LABEL ty=00 imm=00800025
+	DBGLN ty=00 imm=0000011D
+	CONV ty=02 dst=T4.1 srca=030000000700001C
+	BINARY ty=02 opr=02 dst=T5.1 srca=T4.1 srcb=0600000049742400
+	CONV ty=02 dst=T4.2 srca=L8.1
+	BINARY ty=02 opr=03 dst=030000000200001D srca=T5.1 srcb=T4.2
+	CONV ty=02 dst=T4.3 srca=L8.1
+	CONV ty=02 dst=T5.2 srca=030000000700001C
+	BINARY ty=02 opr=03 dst=030000000200001E srca=T4.3 srcb=T5.2
+	DBGLN ty=00 imm=00000126
+	CALL ty=00 dst=T2.87 srca=0300000106000006 imm=00000101
+   Tr: idx=189 base=350 num=1
+	CSRV ty=00 dst=T2.87 srca=0300000106000006
+   Tr: idx=190 base=351 num=2
+	DBGLN ty=00 imm=00000129
+	CALL ty=05 dst=T6.1 srca=0300000112000020 imm=00000101
+   Tr: idx=191 base=353 num=1
+	CSRV ty=05 dst=T6.1 srca=0300000112000020
+   Tr: idx=192 base=354 num=1
+	CALL ty=00 dst=T2.88 srca=0300000106000006 imm=00000101
+   Tr: idx=193 base=355 num=1
+	CSRV ty=00 dst=T2.88 srca=0300000106000006
+   Tr: idx=194 base=356 num=2
+	DBGLN ty=00 imm=0000012C
+	CALL ty=00 dst=T2.89 srca=0300000106000006 imm=00000101
+   Tr: idx=195 base=358 num=1
+	CSRV ty=00 dst=T2.89 srca=0300000106000006
+   Tr: idx=196 base=359 num=2
+	DBGLN ty=00 imm=0000012F
+	CALL ty=05 dst=T6.2 srca=0300000112000020 imm=00000101
+   Tr: idx=197 base=361 num=1
+	CSRV ty=05 dst=T6.2 srca=0300000112000020
+   Tr: idx=198 base=362 num=1
+	CALL ty=00 dst=T2.90 srca=0300000106000006 imm=00000101
+   Tr: idx=199 base=363 num=1
+	CSRV ty=00 dst=T2.90 srca=0300000106000006
+   Tr: idx=200 base=364 num=2
+	DBGLN ty=00 imm=00000132
+	CALL ty=00 dst=T2.91 srca=0300000106000006 imm=00000101
+   Tr: idx=201 base=366 num=1
+	CSRV ty=00 dst=T2.91 srca=0300000106000006
+   Tr: idx=202 base=367 num=2
+	LABEL ty=00 imm=00800026
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim main
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=0000004D
+	INITARR ty=08 dst=L5.0 imm=0000001F
+	INITARR ty=08 dst=L6.0 imm=0000001F
+	DBGLN ty=00 imm=0000005C
+	CALL ty=1008 dst=T0.1 srca=030000010F000017 imm=00000101
+   Tr: idx=1 base=6 num=1
+	CSRV ty=1008 dst=T0.1 srca=030000010F000017
+   Tr: idx=2 base=7 num=4
+	CONV ty=1101 dst=T1.1 srca=T0.1
+	MOV ty=1101 dst=0300001101000012 srca=T1.1
+	DBGLN ty=00 imm=00000060
+	CALL ty=1008 dst=T0.2 srca=030000010F000017 imm=00000101
+   Tr: idx=3 base=11 num=1
+	CSRV ty=1008 dst=T0.2 srca=030000010F000017
+   Tr: idx=4 base=12 num=4
+	CONV ty=1101 dst=T1.2 srca=T0.2
+	MOV ty=1101 dst=0300001101000011 srca=T1.2
+	DBGLN ty=00 imm=00000062
+	CALL ty=00 dst=T2.1 srca=0300000106000006 imm=00000202
+   Tr: idx=5 base=16 num=1
+	CSRV ty=00 dst=T2.1 srca=0300000106000006
+   Tr: idx=6 base=17 num=1
+	CALL ty=00 dst=T2.2 srca=0300000106000006 imm=00000202
+   Tr: idx=7 base=18 num=1
+	CSRV ty=00 dst=T2.2 srca=0300000106000006
+   Tr: idx=8 base=19 num=5
+	DBGLN ty=00 imm=00000065
+	STORESLOT ty=1101 dst=0300001101000011 srca=0300001101000012 obj=001.00
+	DBGLN ty=00 imm=00000067
+	LOADSLOT ty=1101 dst=T0.3 srca=0300001101000011 obj=001.00
+	CALL ty=00 dst=T2.3 srca=0300000106000006 imm=00000202
+   Tr: idx=9 base=24 num=1
+	CSRV ty=00 dst=T2.3 srca=0300000106000006
+   Tr: idx=10 base=25 num=24
+	DBGLN ty=00 imm=0000006A
+	STORESLOT ty=00 dst=0300001101000011 srca=0300000000000001 obj=001.01
+	INITOBJ ty=0102 dst=T0.4 imm=00000002
+	LOADSLOT ty=0102 dst=T0.4 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.3 imm=00000003
+	LOADSLOT ty=0103 dst=T1.3 srca=T0.4 obj=002.00
+	DROPOBJ ty=0102 dst=T0.4 imm=00000002
+	STORESLOT ty=00 dst=T1.3 srca=0300000000000003 obj=003.00
+	DROPOBJ ty=0103 dst=T1.3 imm=00000003
+	INITOBJ ty=0102 dst=T0.5 imm=00000002
+	LOADSLOT ty=0102 dst=T0.5 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.4 imm=00000003
+	LOADSLOT ty=0103 dst=T1.4 srca=T0.5 obj=002.00
+	DROPOBJ ty=0102 dst=T0.5 imm=00000002
+	STORESLOT ty=00 dst=T1.4 srca=I32(40) obj=003.01
+	DROPOBJ ty=0103 dst=T1.4 imm=00000003
+	INITOBJ ty=0102 dst=T0.6 imm=00000002
+	LOADSLOT ty=0102 dst=T0.6 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.5 imm=00000003
+	LOADSLOT ty=0103 dst=T1.5 srca=T0.6 obj=002.00
+	DROPOBJ ty=0102 dst=T0.6 imm=00000002
+	LOADSLOT ty=001F0008 dst=T0.7 srca=T1.5 obj=003.02
+	DROPOBJ ty=0103 dst=T1.5 imm=00000003
+	CALL ty=00 dst=T2.4 srca=0300000107000007 imm=00000202
+   Tr: idx=11 base=49 num=1
+	CSRV ty=00 dst=T2.4 srca=0300000107000007
+   Tr: idx=12 base=50 num=2
+	DBGLN ty=00 imm=0000006F
+	CALL ty=00 dst=T2.5 srca=0300000107000007 imm=00000202
+   Tr: idx=13 base=52 num=1
+	CSRV ty=00 dst=T2.5 srca=0300000107000007
+   Tr: idx=14 base=53 num=3
+	DBGLN ty=00 imm=00000071
+	LOADSLOT ty=1101 dst=T0.8 srca=0300001101000011 obj=001.00
+	CALL ty=00 dst=T2.6 srca=0300000106000006 imm=00000202
+   Tr: idx=15 base=56 num=1
+	CSRV ty=00 dst=T2.6 srca=0300000106000006
+   Tr: idx=16 base=57 num=5
+	DBGLN ty=00 imm=00000073
+	LDIX ty=00320000 dst=T0.9 srca=0320000000000016 srcb=I32(8)
+	STIX ty=00 dst=T0.9 srca=I32(7) srcb=I32(10)
+	DBGLN ty=00 imm=00000079
+	CALL ty=00 dst=T2.7 srca=0300000106000006 imm=00000101
+   Tr: idx=17 base=62 num=1
+	CSRV ty=00 dst=T2.7 srca=0300000106000006
+   Tr: idx=18 base=63 num=1
+	CALL ty=00 dst=T2.8 srca=0300000106000006 imm=00000101
+   Tr: idx=19 base=64 num=1
+	CSRV ty=00 dst=T2.8 srca=0300000106000006
+   Tr: idx=20 base=65 num=1
+	CALL ty=00 dst=T2.9 srca=0300000106000006 imm=00000101
+   Tr: idx=21 base=66 num=1
+	CSRV ty=00 dst=T2.9 srca=0300000106000006
+   Tr: idx=22 base=67 num=1
+	JCMP_Z ty=00 srca=0300000000000018 imm=0080001A
+   Tr: idx=23 base=68 num=1
+	CALL ty=00 dst=T2.10 srca=0300000106000006 imm=00000101
+   Tr: idx=24 base=69 num=1
+	CSRV ty=00 dst=T2.10 srca=0300000106000006
+   Tr: idx=25 base=70 num=1
+	CALL ty=00 dst=T2.11 srca=0300000106000006 imm=00000101
+   Tr: idx=26 base=71 num=1
+	CSRV ty=00 dst=T2.11 srca=0300000106000006
+   Tr: idx=27 base=72 num=1
+	JMP ty=00 imm=0080001B
+   Tr: idx=28 base=73 num=2
+	LABEL ty=00 imm=0080001A
+	CALL ty=00 dst=T2.12 srca=0300000106000006 imm=00000101
+   Tr: idx=29 base=75 num=1
+	CSRV ty=00 dst=T2.12 srca=0300000106000006
+   Tr: idx=30 base=76 num=1
+	CALL ty=00 dst=T2.13 srca=0300000106000006 imm=00000101
+   Tr: idx=31 base=77 num=1
+	CSRV ty=00 dst=T2.13 srca=0300000106000006
+   Tr: idx=32 base=78 num=2
+	LABEL ty=00 imm=0080001B
+	CALL ty=00 dst=T2.14 srca=0300000106000006 imm=00000101
+   Tr: idx=33 base=80 num=1
+	CSRV ty=00 dst=T2.14 srca=0300000106000006
+   Tr: idx=34 base=81 num=5
+	DBGLN ty=00 imm=0000008B
+	MOV ty=00 dst=L9.1 srca=I32(4000000)
+	DBGLN ty=00 imm=00000090
+	MOV ty=00 dst=L8.1 srca=L9.1
+	CALL ty=00 dst=T2.15 srca=0300000106000006 imm=00000101
+   Tr: idx=35 base=86 num=1
+	CSRV ty=00 dst=T2.15 srca=0300000106000006
+   Tr: idx=36 base=87 num=2
+	DBGLN ty=00 imm=00000094
+	CALL ty=00 dst=T2.16 srca=0300000106000006 imm=00000202
+   Tr: idx=37 base=89 num=1
+	CSRV ty=00 dst=T2.16 srca=0300000106000006
+   Tr: idx=38 base=90 num=3
+	DBGLN ty=00 imm=0000009F
+	CONV ty=1007 dst=T0.10 srca=I32(0)
+	CALL ty=07 dst=T2.17 srca=0300000110000019 imm=00000101
+   Tr: idx=39 base=93 num=1
+	CSRV ty=07 dst=T2.17 srca=0300000110000019
+   Tr: idx=40 base=94 num=3
+	MOV ty=07 dst=030000000700001A srca=T2.17
+	DBGLN ty=00 imm=000000A2
+	MOV ty=00 dst=L7.1 srca=I32(1)
+   Tr: idx=41 base=97 num=2
+	LABEL ty=00 imm=0080001C
+	JCMP ty=00 opr=03 srca=L7.1 srcb=L8.1 imm=0080001E
+   Tr: idx=42 base=99 num=2
+	DBGLN ty=00 imm=000000A5
+	CALL ty=00 dst=T2.18 srca=0300000114000022
+   Tr: idx=43 base=101 num=1
+	CSRV ty=00 dst=T2.18 srca=0300000114000022
+   Tr: idx=44 base=102 num=1
+	CALL ty=00 dst=T2.19 srca=0300000115000023
+   Tr: idx=45 base=103 num=1
+	CSRV ty=00 dst=T2.19 srca=0300000115000023
+   Tr: idx=46 base=104 num=4
+	DBGLN ty=00 imm=000000A8
+	MOV ty=00 dst=L0.1 srca=I32(2)
+	MOV ty=00 dst=L1.1 srca=I32(3)
+	CALL ty=00 dst=T2.20 srca=0300000107000007 imm=00000202
+   Tr: idx=47 base=108 num=1
+	CSRV ty=00 dst=T2.20 srca=0300000107000007
+   Tr: idx=48 base=109 num=2
+	MOV ty=00 dst=L4.1 srca=0300000000000002
+	CALL ty=00 dst=T2.21 srca=030000010E000010 imm=00000202
+   Tr: idx=49 base=111 num=1
+	CSRV ty=00 dst=T2.21 srca=030000010E000010
+   Tr: idx=50 base=112 num=3
+	UNARY ty=00 opr=03 dst=T3.1 srca=T2.21
+	MOV ty=00 dst=0300000000000013 srca=T3.1
+	DBGLN ty=00 imm=000000AE
+   Tr: idx=51 base=115 num=2
+	LABEL ty=00 imm=0080001F
+	JCMP ty=00 opr=05 srca=L0.1 srcb=L1.1 imm=00800020
+   Tr: idx=52 base=117 num=5
+	BINARY ty=00 opr=02 dst=T2.22 srca=I32(5) srcb=L0.1
+	BINARY ty=00 opr=01 dst=L2.0 srca=T2.22 srcb=L1.1
+	DBGLN ty=00 imm=000000B2
+	LDAVAR ty=1000 dst=T0.11 srca=L2.0
+	CALL ty=00 dst=T2.23 srca=030000010B00000D imm=00000303
+   Tr: idx=53 base=122 num=1
+	CSRV ty=00 dst=T2.23 srca=030000010B00000D
+   Tr: idx=54 base=123 num=3
+	DBGLN ty=00 imm=000000B4
+	BINARY ty=00 dst=L0.1 srca=L0.1 srcb=I32(1)
+	JMP ty=00 imm=0080001F
+   Tr: idx=55 base=126 num=3
+	LABEL ty=00 imm=00800020
+	DBGLN ty=00 imm=000000B7
+	CALL ty=00 dst=T2.24 srca=030000010C00000E imm=00000404
+   Tr: idx=56 base=129 num=1
+	CSRV ty=00 dst=T2.24 srca=030000010C00000E
+   Tr: idx=57 base=130 num=2
+	DBGLN ty=00 imm=000000B9
+	CALL ty=00 dst=T2.25 srca=0300000116000024 imm=00000101
+   Tr: idx=58 base=132 num=1
+	CSRV ty=00 dst=T2.25 srca=0300000116000024
+   Tr: idx=59 base=133 num=1
+	MOV ty=08 dst=L3.1 srca=I32(65)
+   Tr: idx=60 base=134 num=2
+	LABEL ty=00 imm=00800021
+	JCMP ty=08 opr=03 srca=L3.1 srcb=0300000008000014 imm=00800023
+   Tr: idx=61 base=136 num=1
+	CALL ty=00 dst=T2.26 srca=030000010D00000F imm=00000202
+   Tr: idx=62 base=137 num=1
+	CSRV ty=00 dst=T2.26 srca=030000010D00000F
+   Tr: idx=63 base=138 num=1
+	JCMP ty=00 opr=01 srca=L4.1 srcb=T2.26 imm=00800024
+   Tr: idx=64 base=139 num=3
+	DBGLN ty=00 imm=000000BF
+	LDAVAR ty=1000 dst=T0.12 srca=L4.1
+	CALL ty=00 dst=T2.27 srca=030000010900000B imm=00000202
+   Tr: idx=65 base=142 num=1
+	CSRV ty=00 dst=T2.27 srca=030000010900000B
+   Tr: idx=66 base=143 num=1
+	CALL ty=00 dst=T2.28 srca=0300000107000007 imm=00000202
+   Tr: idx=67 base=144 num=1
+	CSRV ty=00 dst=T2.28 srca=0300000107000007
+   Tr: idx=68 base=145 num=2
+	MOV ty=00 dst=L1.2 srca=L7.1
+	MOV ty=00 dst=0300000000000009 srca=L7.1
+   Tr: idx=69 base=147 num=1
+	LABEL ty=00 imm=00800024
+   Tr: idx=70 base=148 num=3
+	LABEL ty=00 imm=00800022
+	UNARY ty=08 opr=04 dst=L3.1 srca=L3.1
+	JMP ty=00 imm=00800021
+   Tr: idx=71 base=151 num=10
+	LABEL ty=00 imm=00800023
+	DBGLN ty=00 imm=000000C7
+	BINARY ty=00 opr=02 dst=L1.2 srca=L1.2 srcb=L0.1
+	BINARY ty=00 opr=03 dst=L0.1 srca=L1.2 srcb=L2.0
+	BINARY ty=00 opr=01 dst=T2.29 srca=L1.2 srcb=L2.0
+	BINARY ty=00 opr=02 dst=T3.2 srca=I32(7) srcb=T2.29
+	BINARY ty=00 opr=01 dst=L1.2 srca=T3.2 srcb=L0.1
+	DBGLN ty=00 imm=000000CB
+	LDAVAR ty=1000 dst=T0.13 srca=L0.1
+	CALL ty=00 dst=T2.30 srca=0300000117000025 imm=00000101
+   Tr: idx=72 base=161 num=1
+	CSRV ty=00 dst=T2.30 srca=0300000117000025
+   Tr: idx=73 base=162 num=3
+	LABEL ty=00 imm=0080001D
+	UNARY ty=00 opr=04 dst=L7.1 srca=L7.1
+	JMP ty=00 imm=0080001C
+   Tr: idx=74 base=165 num=4
+	LABEL ty=00 imm=0080001E
+	DBGLN ty=00 imm=000000D9
+	CONV ty=1007 dst=T0.14 srca=I32(0)
+	CALL ty=07 dst=T2.31 srca=0300000110000019 imm=00000101
+   Tr: idx=75 base=169 num=1
+	CSRV ty=07 dst=T2.31 srca=0300000110000019
+   Tr: idx=76 base=170 num=3
+	MOV ty=07 dst=030000000700001B srca=T2.31
+	DBGLN ty=00 imm=000000DC
+	CALL ty=00 dst=T2.32 srca=0300000106000006 imm=00000101
+   Tr: idx=77 base=173 num=1
+	CSRV ty=00 dst=T2.32 srca=0300000106000006
+   Tr: idx=78 base=174 num=1
+	CALL ty=00 dst=T2.33 srca=0300000106000006 imm=00000101
+   Tr: idx=79 base=175 num=1
+	CSRV ty=00 dst=T2.33 srca=0300000106000006
+   Tr: idx=80 base=176 num=1
+	CALL ty=00 dst=T2.34 srca=0300000106000006 imm=00000101
+   Tr: idx=81 base=177 num=1
+	CSRV ty=00 dst=T2.34 srca=0300000106000006
+   Tr: idx=82 base=178 num=1
+	CALL ty=00 dst=T2.35 srca=0300000106000006 imm=00000101
+   Tr: idx=83 base=179 num=1
+	CSRV ty=00 dst=T2.35 srca=0300000106000006
+   Tr: idx=84 base=180 num=1
+	CALL ty=00 dst=T2.36 srca=0300000106000006 imm=00000202
+   Tr: idx=85 base=181 num=1
+	CSRV ty=00 dst=T2.36 srca=0300000106000006
+   Tr: idx=86 base=182 num=1
+	CALL ty=00 dst=T2.37 srca=0300000106000006 imm=00000202
+   Tr: idx=87 base=183 num=1
+	CSRV ty=00 dst=T2.37 srca=0300000106000006
+   Tr: idx=88 base=184 num=1
+	CALL ty=00 dst=T2.38 srca=0300000106000006 imm=00000202
+   Tr: idx=89 base=185 num=1
+	CSRV ty=00 dst=T2.38 srca=0300000106000006
+   Tr: idx=90 base=186 num=1
+	CALL ty=00 dst=T2.39 srca=0300000106000006 imm=00000202
+   Tr: idx=91 base=187 num=1
+	CSRV ty=00 dst=T2.39 srca=0300000106000006
+   Tr: idx=92 base=188 num=1
+	CALL ty=00 dst=T2.40 srca=0300000106000006 imm=00000202
+   Tr: idx=93 base=189 num=1
+	CSRV ty=00 dst=T2.40 srca=0300000106000006
+   Tr: idx=94 base=190 num=1
+	CALL ty=00 dst=T2.41 srca=0300000106000006 imm=00000202
+   Tr: idx=95 base=191 num=1
+	CSRV ty=00 dst=T2.41 srca=0300000106000006
+   Tr: idx=96 base=192 num=1
+	CALL ty=00 dst=T2.42 srca=0300000106000006 imm=00000202
+   Tr: idx=97 base=193 num=1
+	CSRV ty=00 dst=T2.42 srca=0300000106000006
+   Tr: idx=98 base=194 num=1
+	CALL ty=00 dst=T2.43 srca=0300000106000006 imm=00000202
+   Tr: idx=99 base=195 num=1
+	CSRV ty=00 dst=T2.43 srca=0300000106000006
+   Tr: idx=100 base=196 num=2
+	LDIX ty=00 dst=T2.44 srca=0300320000000015 srcb=I32(8)
+	CALL ty=00 dst=T3.3 srca=0300000106000006 imm=00000202
+   Tr: idx=101 base=198 num=1
+	CSRV ty=00 dst=T3.3 srca=0300000106000006
+   Tr: idx=102 base=199 num=1
+	CALL ty=00 dst=T2.45 srca=0300000106000006 imm=00000202
+   Tr: idx=103 base=200 num=1
+	CSRV ty=00 dst=T2.45 srca=0300000106000006
+   Tr: idx=104 base=201 num=3
+	LDIX ty=00320000 dst=T0.15 srca=0320000000000016 srcb=I32(8)
+	LDIX ty=00 dst=T2.46 srca=T0.15 srcb=I32(7)
+	CALL ty=00 dst=T3.4 srca=0300000106000006 imm=00000202
+   Tr: idx=105 base=204 num=1
+	CSRV ty=00 dst=T3.4 srca=0300000106000006
+   Tr: idx=106 base=205 num=1
+	CALL ty=00 dst=T2.47 srca=0300000106000006 imm=00000101
+   Tr: idx=107 base=206 num=1
+	CSRV ty=00 dst=T2.47 srca=0300000106000006
+   Tr: idx=108 base=207 num=1
+	CALL ty=00 dst=T2.48 srca=0300000106000006 imm=00000101
+   Tr: idx=109 base=208 num=1
+	CSRV ty=00 dst=T2.48 srca=0300000106000006
+   Tr: idx=110 base=209 num=3
+	LOADSLOT ty=1101 dst=T0.16 srca=0300001101000011 obj=001.00
+	CONV ty=00 dst=T2.49 srca=T0.16
+	CALL ty=00 dst=T3.5 srca=0300000106000006 imm=00000202
+   Tr: idx=111 base=212 num=1
+	CSRV ty=00 dst=T3.5 srca=0300000106000006
+   Tr: idx=112 base=213 num=1
+	CALL ty=00 dst=T2.50 srca=0300000106000006 imm=00000101
+   Tr: idx=113 base=214 num=1
+	CSRV ty=00 dst=T2.50 srca=0300000106000006
+   Tr: idx=114 base=215 num=2
+	LOADSLOT ty=00 dst=T2.51 srca=0300001101000011 obj=001.01
+	CALL ty=00 dst=T3.6 srca=0300000106000006 imm=00000202
+   Tr: idx=115 base=217 num=1
+	CSRV ty=00 dst=T3.6 srca=0300000106000006
+   Tr: idx=116 base=218 num=1
+	CALL ty=00 dst=T2.52 srca=0300000106000006 imm=00000202
+   Tr: idx=117 base=219 num=1
+	CSRV ty=00 dst=T2.52 srca=0300000106000006
+   Tr: idx=118 base=220 num=8
+	INITOBJ ty=0102 dst=T0.17 imm=00000002
+	LOADSLOT ty=0102 dst=T0.17 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.6 imm=00000003
+	LOADSLOT ty=0103 dst=T1.6 srca=T0.17 obj=002.00
+	DROPOBJ ty=0102 dst=T0.17 imm=00000002
+	LOADSLOT ty=00 dst=T2.53 srca=T1.6 obj=003.00
+	DROPOBJ ty=0103 dst=T1.6 imm=00000003
+	CALL ty=00 dst=T3.7 srca=0300000106000006 imm=00000202
+   Tr: idx=119 base=228 num=1
+	CSRV ty=00 dst=T3.7 srca=0300000106000006
+   Tr: idx=120 base=229 num=1
+	CALL ty=00 dst=T2.54 srca=0300000106000006 imm=00000202
+   Tr: idx=121 base=230 num=1
+	CSRV ty=00 dst=T2.54 srca=0300000106000006
+   Tr: idx=122 base=231 num=8
+	INITOBJ ty=0102 dst=T0.18 imm=00000002
+	LOADSLOT ty=0102 dst=T0.18 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.7 imm=00000003
+	LOADSLOT ty=0103 dst=T1.7 srca=T0.18 obj=002.00
+	DROPOBJ ty=0102 dst=T0.18 imm=00000002
+	LOADSLOT ty=00 dst=T2.55 srca=T1.7 obj=003.01
+	DROPOBJ ty=0103 dst=T1.7 imm=00000003
+	CALL ty=00 dst=T3.8 srca=0300000106000006 imm=00000202
+   Tr: idx=123 base=239 num=1
+	CSRV ty=00 dst=T3.8 srca=0300000106000006
+   Tr: idx=124 base=240 num=1
+	CALL ty=00 dst=T2.56 srca=0300000106000006 imm=00000202
+   Tr: idx=125 base=241 num=1
+	CSRV ty=00 dst=T2.56 srca=0300000106000006
+   Tr: idx=126 base=242 num=8
+	INITOBJ ty=0102 dst=T0.19 imm=00000002
+	LOADSLOT ty=0102 dst=T0.19 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.8 imm=00000003
+	LOADSLOT ty=0103 dst=T1.8 srca=T0.19 obj=002.00
+	DROPOBJ ty=0102 dst=T0.19 imm=00000002
+	LOADSLOT ty=001F0008 dst=T0.20 srca=T1.8 obj=003.02
+	DROPOBJ ty=0103 dst=T1.8 imm=00000003
+	CALL ty=00 dst=T2.57 srca=0300000106000006 imm=00000202
+   Tr: idx=127 base=250 num=1
+	CSRV ty=00 dst=T2.57 srca=0300000106000006
+   Tr: idx=128 base=251 num=1
+	CALL ty=00 dst=T2.58 srca=0300000106000006 imm=00000101
+   Tr: idx=129 base=252 num=1
+	CSRV ty=00 dst=T2.58 srca=0300000106000006
+   Tr: idx=130 base=253 num=1
+	CALL ty=00 dst=T2.59 srca=0300000106000006 imm=00000101
+   Tr: idx=131 base=254 num=1
+	CSRV ty=00 dst=T2.59 srca=0300000106000006
+   Tr: idx=132 base=255 num=3
+	LOADSLOT ty=1101 dst=T0.21 srca=0300001101000012 obj=001.00
+	CONV ty=00 dst=T2.60 srca=T0.21
+	CALL ty=00 dst=T3.9 srca=0300000106000006 imm=00000202
+   Tr: idx=133 base=258 num=1
+	CSRV ty=00 dst=T3.9 srca=0300000106000006
+   Tr: idx=134 base=259 num=1
+	CALL ty=00 dst=T2.61 srca=0300000106000006 imm=00000101
+   Tr: idx=135 base=260 num=1
+	CSRV ty=00 dst=T2.61 srca=0300000106000006
+   Tr: idx=136 base=261 num=2
+	LOADSLOT ty=00 dst=T2.62 srca=0300001101000012 obj=001.01
+	CALL ty=00 dst=T3.10 srca=0300000106000006 imm=00000202
+   Tr: idx=137 base=263 num=1
+	CSRV ty=00 dst=T3.10 srca=0300000106000006
+   Tr: idx=138 base=264 num=1
+	CALL ty=00 dst=T2.63 srca=0300000106000006 imm=00000202
+   Tr: idx=139 base=265 num=1
+	CSRV ty=00 dst=T2.63 srca=0300000106000006
+   Tr: idx=140 base=266 num=8
+	INITOBJ ty=0102 dst=T0.22 imm=00000002
+	LOADSLOT ty=0102 dst=T0.22 srca=0300001101000012 obj=001.02
+	INITOBJ ty=0103 dst=T1.9 imm=00000003
+	LOADSLOT ty=0103 dst=T1.9 srca=T0.22 obj=002.00
+	DROPOBJ ty=0102 dst=T0.22 imm=00000002
+	LOADSLOT ty=00 dst=T2.64 srca=T1.9 obj=003.00
+	DROPOBJ ty=0103 dst=T1.9 imm=00000003
+	CALL ty=00 dst=T3.11 srca=0300000106000006 imm=00000202
+   Tr: idx=141 base=274 num=1
+	CSRV ty=00 dst=T3.11 srca=0300000106000006
+   Tr: idx=142 base=275 num=1
+	CALL ty=00 dst=T2.65 srca=0300000106000006 imm=00000202
+   Tr: idx=143 base=276 num=1
+	CSRV ty=00 dst=T2.65 srca=0300000106000006
+   Tr: idx=144 base=277 num=8
+	INITOBJ ty=0102 dst=T0.23 imm=00000002
+	LOADSLOT ty=0102 dst=T0.23 srca=0300001101000012 obj=001.02
+	INITOBJ ty=0103 dst=T1.10 imm=00000003
+	LOADSLOT ty=0103 dst=T1.10 srca=T0.23 obj=002.00
+	DROPOBJ ty=0102 dst=T0.23 imm=00000002
+	LOADSLOT ty=00 dst=T2.66 srca=T1.10 obj=003.01
+	DROPOBJ ty=0103 dst=T1.10 imm=00000003
+	CALL ty=00 dst=T3.12 srca=0300000106000006 imm=00000202
+   Tr: idx=145 base=285 num=1
+	CSRV ty=00 dst=T3.12 srca=0300000106000006
+   Tr: idx=146 base=286 num=1
+	CALL ty=00 dst=T2.67 srca=0300000106000006 imm=00000202
+   Tr: idx=147 base=287 num=1
+	CSRV ty=00 dst=T2.67 srca=0300000106000006
+   Tr: idx=148 base=288 num=8
+	INITOBJ ty=0102 dst=T0.24 imm=00000002
+	LOADSLOT ty=0102 dst=T0.24 srca=0300001101000012 obj=001.02
+	INITOBJ ty=0103 dst=T1.11 imm=00000003
+	LOADSLOT ty=0103 dst=T1.11 srca=T0.24 obj=002.00
+	DROPOBJ ty=0102 dst=T0.24 imm=00000002
+	LOADSLOT ty=001F0008 dst=T0.25 srca=T1.11 obj=003.02
+	DROPOBJ ty=0103 dst=T1.11 imm=00000003
+	CALL ty=00 dst=T2.68 srca=0300000106000006 imm=00000202
+   Tr: idx=149 base=296 num=1
+	CSRV ty=00 dst=T2.68 srca=0300000106000006
+   Tr: idx=150 base=297 num=2
+	DBGLN ty=00 imm=00000102
+	CALL ty=00 dst=T2.69 srca=0300000106000006 imm=00000101
+   Tr: idx=151 base=299 num=1
+	CSRV ty=00 dst=T2.69 srca=0300000106000006
+   Tr: idx=152 base=300 num=1
+	CALL ty=00 dst=T2.70 srca=0300000106000006 imm=00000202
+   Tr: idx=153 base=301 num=1
+	CSRV ty=00 dst=T2.70 srca=0300000106000006
+   Tr: idx=154 base=302 num=1
+	CALL ty=00 dst=T2.71 srca=0300000106000006 imm=00000202
+   Tr: idx=155 base=303 num=1
+	CSRV ty=00 dst=T2.71 srca=0300000106000006
+   Tr: idx=156 base=304 num=1
+	CALL ty=00 dst=T2.72 srca=0300000106000006 imm=00000202
+   Tr: idx=157 base=305 num=1
+	CSRV ty=00 dst=T2.72 srca=0300000106000006
+   Tr: idx=158 base=306 num=1
+	CALL ty=00 dst=T2.73 srca=0300000106000006 imm=00000202
+   Tr: idx=159 base=307 num=1
+	CSRV ty=00 dst=T2.73 srca=0300000106000006
+   Tr: idx=160 base=308 num=1
+	CALL ty=00 dst=T2.74 srca=0300000106000006 imm=00000202
+   Tr: idx=161 base=309 num=1
+	CSRV ty=00 dst=T2.74 srca=0300000106000006
+   Tr: idx=162 base=310 num=1
+	CALL ty=00 dst=T2.75 srca=0300000106000006 imm=00000202
+   Tr: idx=163 base=311 num=1
+	CSRV ty=00 dst=T2.75 srca=0300000106000006
+   Tr: idx=164 base=312 num=1
+	CALL ty=00 dst=T2.76 srca=0300000106000006 imm=00000202
+   Tr: idx=165 base=313 num=1
+	CSRV ty=00 dst=T2.76 srca=0300000106000006
+   Tr: idx=166 base=314 num=1
+	CALL ty=00 dst=T2.77 srca=0300000106000006 imm=00000202
+   Tr: idx=167 base=315 num=1
+	CSRV ty=00 dst=T2.77 srca=0300000106000006
+   Tr: idx=168 base=316 num=1
+	CALL ty=00 dst=T2.78 srca=0300000106000006 imm=00000202
+   Tr: idx=169 base=317 num=1
+	CSRV ty=00 dst=T2.78 srca=0300000106000006
+   Tr: idx=170 base=318 num=1
+	CALL ty=00 dst=T2.79 srca=0300000106000006 imm=00000101
+   Tr: idx=171 base=319 num=1
+	CSRV ty=00 dst=T2.79 srca=0300000106000006
+   Tr: idx=172 base=320 num=1
+	CALL ty=00 dst=T2.80 srca=0300000106000006 imm=00000202
+   Tr: idx=173 base=321 num=1
+	CSRV ty=00 dst=T2.80 srca=0300000106000006
+   Tr: idx=174 base=322 num=1
+	CALL ty=00 dst=T2.81 srca=0300000106000006 imm=00000101
+   Tr: idx=175 base=323 num=1
+	CSRV ty=00 dst=T2.81 srca=0300000106000006
+   Tr: idx=176 base=324 num=1
+	CALL ty=00 dst=T2.82 srca=0300000106000006 imm=00000101
+   Tr: idx=177 base=325 num=1
+	CSRV ty=00 dst=T2.82 srca=0300000106000006
+   Tr: idx=178 base=326 num=3
+	DBGLN ty=00 imm=00000111
+	BINARY ty=07 opr=01 dst=030000000700001C srca=030000000700001B srcb=030000000700001A
+	CALL ty=00 dst=T2.83 srca=0300000106000006 imm=00000202
+   Tr: idx=179 base=329 num=1
+	CSRV ty=00 dst=T2.83 srca=0300000106000006
+   Tr: idx=180 base=330 num=2
+	DBGLN ty=00 imm=00000114
+	JCMP ty=07 opr=05 srca=030000000700001C srcb=I32(2) imm=00800025
+   Tr: idx=181 base=332 num=1
+	CALL ty=00 dst=T2.84 srca=0300000106000006 imm=00000101
+   Tr: idx=182 base=333 num=1
+	CSRV ty=00 dst=T2.84 srca=0300000106000006
+   Tr: idx=183 base=334 num=1
+	CALL ty=00 dst=T2.85 srca=0300000106000006 imm=00000101
+   Tr: idx=184 base=335 num=1
+	CSRV ty=00 dst=T2.85 srca=0300000106000006
+   Tr: idx=185 base=336 num=1
+	CALL ty=00 dst=T2.86 srca=0300000106000006 imm=00000101
+   Tr: idx=186 base=337 num=1
+	CSRV ty=00 dst=T2.86 srca=0300000106000006
+   Tr: idx=187 base=338 num=1
+	JMP ty=00 imm=00800026
+   Tr: idx=188 base=339 num=11
+	LABEL ty=00 imm=00800025
+	DBGLN ty=00 imm=0000011D
+	CONV ty=02 dst=T4.1 srca=030000000700001C
+	BINARY ty=02 opr=02 dst=T5.1 srca=T4.1 srcb=0600000049742400
+	CONV ty=02 dst=T4.2 srca=L8.1
+	BINARY ty=02 opr=03 dst=030000000200001D srca=T5.1 srcb=T4.2
+	CONV ty=02 dst=T4.3 srca=L8.1
+	CONV ty=02 dst=T5.2 srca=030000000700001C
+	BINARY ty=02 opr=03 dst=030000000200001E srca=T4.3 srcb=T5.2
+	DBGLN ty=00 imm=00000126
+	CALL ty=00 dst=T2.87 srca=0300000106000006 imm=00000101
+   Tr: idx=189 base=350 num=1
+	CSRV ty=00 dst=T2.87 srca=0300000106000006
+   Tr: idx=190 base=351 num=2
+	DBGLN ty=00 imm=00000129
+	CALL ty=05 dst=T6.1 srca=0300000112000020 imm=00000101
+   Tr: idx=191 base=353 num=1
+	CSRV ty=05 dst=T6.1 srca=0300000112000020
+   Tr: idx=192 base=354 num=1
+	CALL ty=00 dst=T2.88 srca=0300000106000006 imm=00000101
+   Tr: idx=193 base=355 num=1
+	CSRV ty=00 dst=T2.88 srca=0300000106000006
+   Tr: idx=194 base=356 num=2
+	DBGLN ty=00 imm=0000012C
+	CALL ty=00 dst=T2.89 srca=0300000106000006 imm=00000101
+   Tr: idx=195 base=358 num=1
+	CSRV ty=00 dst=T2.89 srca=0300000106000006
+   Tr: idx=196 base=359 num=2
+	DBGLN ty=00 imm=0000012F
+	CALL ty=05 dst=T6.2 srca=0300000112000020 imm=00000101
+   Tr: idx=197 base=361 num=1
+	CSRV ty=05 dst=T6.2 srca=0300000112000020
+   Tr: idx=198 base=362 num=1
+	CALL ty=00 dst=T2.90 srca=0300000106000006 imm=00000101
+   Tr: idx=199 base=363 num=1
+	CSRV ty=00 dst=T2.90 srca=0300000106000006
+   Tr: idx=200 base=364 num=2
+	DBGLN ty=00 imm=00000132
+	CALL ty=00 dst=T2.91 srca=0300000106000006 imm=00000101
+   Tr: idx=201 base=366 num=1
+	CSRV ty=00 dst=T2.91 srca=0300000106000006
+   Tr: idx=202 base=367 num=2
+	LABEL ty=00 imm=00800026
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End main
+BGBCC_SHXC_BuildFunction: Begin Proc_5
+BGBCC_SHXC_BuildFunction: BegSim Proc_5
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=0000018F
+	MOV ty=08 dst=030000000800000A srca=I32(65)
+	MOV ty=00 dst=0300000000000013 srca=I32(0)
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Proc_5
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=0000018F
+	MOV ty=08 dst=030000000800000A srca=I32(65)
+	MOV ty=00 dst=0300000000000013 srca=I32(0)
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Proc_5
+BGBCC_SHXC_BuildFunction: Begin Proc_4
+BGBCC_SHXC_BuildFunction: BegSim Proc_4
+   Tr: idx=0 base=0 num=9
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=00000183
+	DBGLN ty=00 imm=00000186
+	CONV ty=00 dst=T0.1 srca=030000000800000A
+	CONV ty=00 dst=T1.1 srca=I32(65)
+	COMPARE ty=00 dst=L0.0 srca=T0.1 srcb=T1.1
+	BINARY ty=00 opr=06 dst=0300000000000013 srca=L0.0 srcb=0300000000000013
+	MOV ty=08 dst=0300000008000014 srca=I32(66)
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Proc_4
+   Tr: idx=0 base=0 num=9
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=00000183
+	DBGLN ty=00 imm=00000186
+	CONV ty=00 dst=T0.1 srca=030000000800000A
+	CONV ty=00 dst=T1.1 srca=I32(65)
+	COMPARE ty=00 dst=L0.0 srca=T0.1 srcb=T1.1
+	BINARY ty=00 opr=06 dst=0300000000000013 srca=L0.0 srcb=0300000000000013
+	MOV ty=08 dst=0300000008000014 srca=I32(66)
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Proc_4
+BGBCC_SHXC_BuildFunction: Begin Proc_1
+BGBCC_SHXC_BuildFunction: BegSim Proc_1
+   Tr: idx=0 base=0 num=36
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=0000013D
+	LOADSLOT ty=1101 dst=T0.1 srca=A0.0 obj=001.00
+	CONV ty=1101 dst=T1.1 srca=T0.1
+	MOV ty=1101 dst=L0.0 srca=T1.1
+	DBGLN ty=00 imm=00000143
+	INITOBJ ty=0101 dst=T0.2 imm=00000001
+	LDIXIMM ty=0101 dst=T0.2 srca=0300001101000011
+	LOADSLOT ty=1101 dst=T1.2 srca=A0.0 obj=001.00
+	STIXIMM ty=0101 dst=T1.2 srca=T0.2
+	DROPOBJ ty=0101 dst=T0.2 imm=00000001
+	INITOBJ ty=0102 dst=T0.3 imm=00000002
+	LOADSLOT ty=0102 dst=T0.3 srca=A0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.3 imm=00000003
+	LOADSLOT ty=0103 dst=T1.3 srca=T0.3 obj=002.00
+	DROPOBJ ty=0102 dst=T0.3 imm=00000002
+	STORESLOT ty=00 dst=T1.3 srca=I32(5) obj=003.01
+	DROPOBJ ty=0103 dst=T1.3 imm=00000003
+	INITOBJ ty=0102 dst=T0.4 imm=00000002
+	LOADSLOT ty=0102 dst=T0.4 srca=A0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.4 imm=00000003
+	LOADSLOT ty=0103 dst=T1.4 srca=T0.4 obj=002.00
+	DROPOBJ ty=0102 dst=T0.4 imm=00000002
+	LOADSLOT ty=00 dst=T2.1 srca=T1.4 obj=003.01
+	DROPOBJ ty=0103 dst=T1.4 imm=00000003
+	INITOBJ ty=0102 dst=T0.5 imm=00000002
+	LOADSLOT ty=0102 dst=T0.5 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.5 imm=00000003
+	LOADSLOT ty=0103 dst=T1.5 srca=T0.5 obj=002.00
+	DROPOBJ ty=0102 dst=T0.5 imm=00000002
+	STORESLOT ty=00 dst=T1.5 srca=T2.1 obj=003.01
+	DROPOBJ ty=0103 dst=T1.5 imm=00000003
+	LOADSLOT ty=1101 dst=T0.6 srca=A0.0 obj=001.00
+	STORESLOT ty=1101 dst=L0.0 srca=T0.6 obj=001.00
+	LOADSLOTA ty=1101 dst=T0.7 srca=L0.0 obj=001.00
+	CALL ty=00 dst=T2.2 srca=0300000118000026 imm=00000101
+   Tr: idx=1 base=36 num=1
+	CSRV ty=00 dst=T2.2 srca=0300000118000026
+   Tr: idx=2 base=37 num=3
+	DBGLN ty=00 imm=0000014B
+	LOADSLOT ty=00 dst=T2.3 srca=L0.0 obj=001.01
+	JCMP ty=00 opr=01 srca=T2.3 srcb=0300000000000001 imm=00800027
+   Tr: idx=3 base=40 num=23
+	DBGLN ty=00 imm=0000014D
+	INITOBJ ty=0102 dst=T0.8 imm=00000002
+	LOADSLOT ty=0102 dst=T0.8 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.6 imm=00000003
+	LOADSLOT ty=0103 dst=T1.6 srca=T0.8 obj=002.00
+	DROPOBJ ty=0102 dst=T0.8 imm=00000002
+	STORESLOT ty=00 dst=T1.6 srca=I32(6) obj=003.01
+	DROPOBJ ty=0103 dst=T1.6 imm=00000003
+	INITOBJ ty=0102 dst=T0.9 imm=00000002
+	LOADSLOT ty=0102 dst=T0.9 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.7 imm=00000003
+	LOADSLOT ty=0103 dst=T1.7 srca=T0.9 obj=002.00
+	DROPOBJ ty=0102 dst=T0.9 imm=00000002
+	LOADSLOTA ty=00 dst=T0.10 srca=T1.7 obj=003.00
+	DROPOBJ ty=0103 dst=T1.7 imm=00000003
+	INITOBJ ty=0102 dst=T1.8 imm=00000002
+	LOADSLOT ty=0102 dst=T1.8 srca=A0.0 obj=001.02
+	INITOBJ ty=0103 dst=T3.1 imm=00000003
+	LOADSLOT ty=0103 dst=T3.1 srca=T1.8 obj=002.00
+	DROPOBJ ty=0102 dst=T1.8 imm=00000002
+	LOADSLOT ty=00 dst=T2.4 srca=T3.1 obj=003.00
+	DROPOBJ ty=0103 dst=T3.1 imm=00000003
+	CALL ty=00 dst=T4.1 srca=030000010900000B imm=00000202
+   Tr: idx=4 base=63 num=1
+	CSRV ty=00 dst=T4.1 srca=030000010900000B
+   Tr: idx=5 base=64 num=18
+	DBGLN ty=00 imm=00000151
+	LOADSLOT ty=1101 dst=T0.11 srca=0300001101000011 obj=001.00
+	STORESLOT ty=1101 dst=L0.0 srca=T0.11 obj=001.00
+	INITOBJ ty=0102 dst=T0.12 imm=00000002
+	LOADSLOT ty=0102 dst=T0.12 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.9 imm=00000003
+	LOADSLOT ty=0103 dst=T1.9 srca=T0.12 obj=002.00
+	DROPOBJ ty=0102 dst=T0.12 imm=00000002
+	LOADSLOTA ty=00 dst=T0.13 srca=T1.9 obj=003.01
+	DROPOBJ ty=0103 dst=T1.9 imm=00000003
+	INITOBJ ty=0102 dst=T1.10 imm=00000002
+	LOADSLOT ty=0102 dst=T1.10 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T3.2 imm=00000003
+	LOADSLOT ty=0103 dst=T3.2 srca=T1.10 obj=002.00
+	DROPOBJ ty=0102 dst=T1.10 imm=00000002
+	LOADSLOT ty=00 dst=T2.5 srca=T3.2 obj=003.01
+	DROPOBJ ty=0103 dst=T3.2 imm=00000003
+	CALL ty=00 dst=T4.2 srca=030000010B00000D imm=00000303
+   Tr: idx=6 base=82 num=1
+	CSRV ty=00 dst=T4.2 srca=030000010B00000D
+   Tr: idx=7 base=83 num=1
+	JMP ty=00 imm=00800028
+   Tr: idx=8 base=84 num=7
+	LABEL ty=00 imm=00800027
+	DBGLN ty=00 imm=00000154
+	LOADSLOT ty=1101 dst=T0.14 srca=A0.0 obj=001.00
+	INITOBJ ty=0101 dst=T1.11 imm=00000001
+	LDIXIMM ty=0101 dst=T1.11 srca=T0.14
+	STIXIMM ty=0101 dst=A0.0 srca=T1.11
+	DROPOBJ ty=0101 dst=T1.11 imm=00000001
+   Tr: idx=9 base=91 num=2
+	LABEL ty=00 imm=00800028
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Proc_1
+   Tr: idx=0 base=0 num=36
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=0000013D
+	LOADSLOT ty=1101 dst=T0.1 srca=A0.0 obj=001.00
+	CONV ty=1101 dst=T1.1 srca=T0.1
+	MOV ty=1101 dst=L0.0 srca=T1.1
+	DBGLN ty=00 imm=00000143
+	INITOBJ ty=0101 dst=T0.2 imm=00000001
+	LDIXIMM ty=0101 dst=T0.2 srca=0300001101000011
+	LOADSLOT ty=1101 dst=T1.2 srca=A0.0 obj=001.00
+	STIXIMM ty=0101 dst=T1.2 srca=T0.2
+	DROPOBJ ty=0101 dst=T0.2 imm=00000001
+	INITOBJ ty=0102 dst=T0.3 imm=00000002
+	LOADSLOT ty=0102 dst=T0.3 srca=A0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.3 imm=00000003
+	LOADSLOT ty=0103 dst=T1.3 srca=T0.3 obj=002.00
+	DROPOBJ ty=0102 dst=T0.3 imm=00000002
+	STORESLOT ty=00 dst=T1.3 srca=I32(5) obj=003.01
+	DROPOBJ ty=0103 dst=T1.3 imm=00000003
+	INITOBJ ty=0102 dst=T0.4 imm=00000002
+	LOADSLOT ty=0102 dst=T0.4 srca=A0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.4 imm=00000003
+	LOADSLOT ty=0103 dst=T1.4 srca=T0.4 obj=002.00
+	DROPOBJ ty=0102 dst=T0.4 imm=00000002
+	LOADSLOT ty=00 dst=T2.1 srca=T1.4 obj=003.01
+	DROPOBJ ty=0103 dst=T1.4 imm=00000003
+	INITOBJ ty=0102 dst=T0.5 imm=00000002
+	LOADSLOT ty=0102 dst=T0.5 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.5 imm=00000003
+	LOADSLOT ty=0103 dst=T1.5 srca=T0.5 obj=002.00
+	DROPOBJ ty=0102 dst=T0.5 imm=00000002
+	STORESLOT ty=00 dst=T1.5 srca=T2.1 obj=003.01
+	DROPOBJ ty=0103 dst=T1.5 imm=00000003
+	LOADSLOT ty=1101 dst=T0.6 srca=A0.0 obj=001.00
+	STORESLOT ty=1101 dst=L0.0 srca=T0.6 obj=001.00
+	LOADSLOTA ty=1101 dst=T0.7 srca=L0.0 obj=001.00
+	CALL ty=00 dst=T2.2 srca=0300000118000026 imm=00000101
+   Tr: idx=1 base=36 num=1
+	CSRV ty=00 dst=T2.2 srca=0300000118000026
+   Tr: idx=2 base=37 num=3
+	DBGLN ty=00 imm=0000014B
+	LOADSLOT ty=00 dst=T2.3 srca=L0.0 obj=001.01
+	JCMP ty=00 opr=01 srca=T2.3 srcb=0300000000000001 imm=00800027
+   Tr: idx=3 base=40 num=23
+	DBGLN ty=00 imm=0000014D
+	INITOBJ ty=0102 dst=T0.8 imm=00000002
+	LOADSLOT ty=0102 dst=T0.8 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.6 imm=00000003
+	LOADSLOT ty=0103 dst=T1.6 srca=T0.8 obj=002.00
+	DROPOBJ ty=0102 dst=T0.8 imm=00000002
+	STORESLOT ty=00 dst=T1.6 srca=I32(6) obj=003.01
+	DROPOBJ ty=0103 dst=T1.6 imm=00000003
+	INITOBJ ty=0102 dst=T0.9 imm=00000002
+	LOADSLOT ty=0102 dst=T0.9 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.7 imm=00000003
+	LOADSLOT ty=0103 dst=T1.7 srca=T0.9 obj=002.00
+	DROPOBJ ty=0102 dst=T0.9 imm=00000002
+	LOADSLOTA ty=00 dst=T0.10 srca=T1.7 obj=003.00
+	DROPOBJ ty=0103 dst=T1.7 imm=00000003
+	INITOBJ ty=0102 dst=T1.8 imm=00000002
+	LOADSLOT ty=0102 dst=T1.8 srca=A0.0 obj=001.02
+	INITOBJ ty=0103 dst=T3.1 imm=00000003
+	LOADSLOT ty=0103 dst=T3.1 srca=T1.8 obj=002.00
+	DROPOBJ ty=0102 dst=T1.8 imm=00000002
+	LOADSLOT ty=00 dst=T2.4 srca=T3.1 obj=003.00
+	DROPOBJ ty=0103 dst=T3.1 imm=00000003
+	CALL ty=00 dst=T4.1 srca=030000010900000B imm=00000202
+   Tr: idx=4 base=63 num=1
+	CSRV ty=00 dst=T4.1 srca=030000010900000B
+   Tr: idx=5 base=64 num=18
+	DBGLN ty=00 imm=00000151
+	LOADSLOT ty=1101 dst=T0.11 srca=0300001101000011 obj=001.00
+	STORESLOT ty=1101 dst=L0.0 srca=T0.11 obj=001.00
+	INITOBJ ty=0102 dst=T0.12 imm=00000002
+	LOADSLOT ty=0102 dst=T0.12 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T1.9 imm=00000003
+	LOADSLOT ty=0103 dst=T1.9 srca=T0.12 obj=002.00
+	DROPOBJ ty=0102 dst=T0.12 imm=00000002
+	LOADSLOTA ty=00 dst=T0.13 srca=T1.9 obj=003.01
+	DROPOBJ ty=0103 dst=T1.9 imm=00000003
+	INITOBJ ty=0102 dst=T1.10 imm=00000002
+	LOADSLOT ty=0102 dst=T1.10 srca=L0.0 obj=001.02
+	INITOBJ ty=0103 dst=T3.2 imm=00000003
+	LOADSLOT ty=0103 dst=T3.2 srca=T1.10 obj=002.00
+	DROPOBJ ty=0102 dst=T1.10 imm=00000002
+	LOADSLOT ty=00 dst=T2.5 srca=T3.2 obj=003.01
+	DROPOBJ ty=0103 dst=T3.2 imm=00000003
+	CALL ty=00 dst=T4.2 srca=030000010B00000D imm=00000303
+   Tr: idx=6 base=82 num=1
+	CSRV ty=00 dst=T4.2 srca=030000010B00000D
+   Tr: idx=7 base=83 num=1
+	JMP ty=00 imm=00800028
+   Tr: idx=8 base=84 num=7
+	LABEL ty=00 imm=00800027
+	DBGLN ty=00 imm=00000154
+	LOADSLOT ty=1101 dst=T0.14 srca=A0.0 obj=001.00
+	INITOBJ ty=0101 dst=T1.11 imm=00000001
+	LDIXIMM ty=0101 dst=T1.11 srca=T0.14
+	STIXIMM ty=0101 dst=A0.0 srca=T1.11
+	DROPOBJ ty=0101 dst=T1.11 imm=00000001
+   Tr: idx=9 base=91 num=2
+	LABEL ty=00 imm=00800028
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Proc_1
+BGBCC_SHXC_BuildFunction: Begin Proc_2
+BGBCC_SHXC_BuildFunction: BegSim Proc_2
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=0000015F
+	DBGLN ty=00 imm=00000164
+	LDIXIMM ty=00 dst=T0.1 srca=A0.0
+	BINARY ty=00 dst=L0.0 srca=T0.1 srcb=I32(10)
+   Tr: idx=1 base=5 num=2
+	LABEL ty=00 imm=00800029
+	JCMP ty=08 opr=01 srca=030000000800000A srcb=I32(65) imm=0080002B
+   Tr: idx=2 base=7 num=5
+	DBGLN ty=00 imm=00000168
+	BINARY ty=00 opr=01 dst=L0.0 srca=L0.0 srcb=I32(1)
+	BINARY ty=00 opr=01 dst=T0.2 srca=L0.0 srcb=0300000000000009
+	STIXIMM ty=00 dst=A0.0 srca=T0.2
+	MOV ty=00 dst=L1.1 srca=0300000000000001
+   Tr: idx=3 base=12 num=2
+	LABEL ty=00 imm=0080002B
+	JCMP ty=00 opr=01 srca=L1.1 srcb=0300000000000001 imm=00800029
+   Tr: idx=4 base=14 num=2
+	LABEL ty=00 imm=0080002A
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Proc_2
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=0000015F
+	DBGLN ty=00 imm=00000164
+	LDIXIMM ty=00 dst=T0.1 srca=A0.0
+	BINARY ty=00 dst=L0.0 srca=T0.1 srcb=I32(10)
+   Tr: idx=1 base=5 num=2
+	LABEL ty=00 imm=00800029
+	JCMP ty=08 opr=01 srca=030000000800000A srcb=I32(65) imm=0080002B
+   Tr: idx=2 base=7 num=5
+	DBGLN ty=00 imm=00000168
+	BINARY ty=00 opr=01 dst=L0.0 srca=L0.0 srcb=I32(1)
+	BINARY ty=00 opr=01 dst=T0.2 srca=L0.0 srcb=0300000000000009
+	STIXIMM ty=00 dst=A0.0 srca=T0.2
+	MOV ty=00 dst=L1.1 srca=0300000000000001
+   Tr: idx=3 base=12 num=2
+	LABEL ty=00 imm=0080002B
+	JCMP ty=00 opr=01 srca=L1.1 srcb=0300000000000001 imm=00800029
+   Tr: idx=4 base=14 num=2
+	LABEL ty=00 imm=0080002A
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Proc_2
+BGBCC_SHXC_BuildFunction: Begin Proc_3
+BGBCC_SHXC_BuildFunction: BegSim Proc_3
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=00000178
+	CONV ty=1101 dst=T0.1 srca=0300001101000011
+	CONV ty=1101 dst=T1.1 srca=I32(0)
+	JCMP ty=1101 srca=T0.1 srcb=T1.1 imm=0080002C
+   Tr: idx=1 base=5 num=3
+	DBGLN ty=00 imm=0000017B
+	LOADSLOT ty=1101 dst=T0.2 srca=0300001101000011 obj=001.00
+	STIXIMM ty=1101 dst=A0.0 srca=T0.2
+   Tr: idx=2 base=8 num=9
+	LABEL ty=00 imm=0080002C
+	INITOBJ ty=0102 dst=T0.3 imm=00000002
+	LOADSLOT ty=0102 dst=T0.3 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.2 imm=00000003
+	LOADSLOT ty=0103 dst=T1.2 srca=T0.3 obj=002.00
+	DROPOBJ ty=0102 dst=T0.3 imm=00000002
+	LOADSLOTA ty=00 dst=T0.4 srca=T1.2 obj=003.01
+	DROPOBJ ty=0103 dst=T1.2 imm=00000003
+	CALL ty=00 dst=T2.1 srca=030000010B00000D imm=00000303
+   Tr: idx=3 base=17 num=1
+	CSRV ty=00 dst=T2.1 srca=030000010B00000D
+   Tr: idx=4 base=18 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim Proc_3
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B5080B
+	DBGLN ty=00 imm=00000178
+	CONV ty=1101 dst=T0.1 srca=0300001101000011
+	CONV ty=1101 dst=T1.1 srca=I32(0)
+	JCMP ty=1101 srca=T0.1 srcb=T1.1 imm=0080002C
+   Tr: idx=1 base=5 num=3
+	DBGLN ty=00 imm=0000017B
+	LOADSLOT ty=1101 dst=T0.2 srca=0300001101000011 obj=001.00
+	STIXIMM ty=1101 dst=A0.0 srca=T0.2
+   Tr: idx=2 base=8 num=9
+	LABEL ty=00 imm=0080002C
+	INITOBJ ty=0102 dst=T0.3 imm=00000002
+	LOADSLOT ty=0102 dst=T0.3 srca=0300001101000011 obj=001.02
+	INITOBJ ty=0103 dst=T1.2 imm=00000003
+	LOADSLOT ty=0103 dst=T1.2 srca=T0.3 obj=002.00
+	DROPOBJ ty=0102 dst=T0.3 imm=00000002
+	LOADSLOTA ty=00 dst=T0.4 srca=T1.2 obj=003.01
+	DROPOBJ ty=0103 dst=T1.2 imm=00000003
+	CALL ty=00 dst=T2.1 srca=030000010B00000D imm=00000303
+   Tr: idx=3 base=17 num=1
+	CSRV ty=00 dst=T2.1 srca=030000010B00000D
+   Tr: idx=4 base=18 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End Proc_3
+BGBCC_SHXC_BuildFunction: Begin putc
+BGBCC_SHXC_BuildFunction: BegSim putc
+   Tr: idx=0 base=0 num=2
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000084
+   Tr: idx=1 base=2 num=5
+	LABEL ty=00 imm=0080002D
+	CONV ty=100C dst=T0.1 srca=I32(-1412628216)
+	LDIXIMM ty=0C dst=T1.1 srca=T0.1
+	BINARY ty=00 opr=05 dst=T2.1 srca=T1.1 srcb=I32(8)
+	JCMP_Z ty=00 srca=T2.1 imm=0080002E
+   Tr: idx=2 base=7 num=1
+	JMP ty=00 imm=0080002D
+   Tr: idx=3 base=8 num=4
+	LABEL ty=00 imm=0080002E
+	CONV ty=100C dst=T0.2 srca=I32(-1412628220)
+	STIXIMM ty=0C dst=T0.2 srca=A0.0
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim putc
+   Tr: idx=0 base=0 num=2
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000084
+   Tr: idx=1 base=2 num=5
+	LABEL ty=00 imm=0080002D
+	CONV ty=100C dst=T0.1 srca=I32(-1412628216)
+	LDIXIMM ty=0C dst=T1.1 srca=T0.1
+	BINARY ty=00 opr=05 dst=T2.1 srca=T1.1 srcb=I32(8)
+	JCMP_Z ty=00 srca=T2.1 imm=0080002E
+   Tr: idx=2 base=7 num=1
+	JMP ty=00 imm=0080002D
+   Tr: idx=3 base=8 num=4
+	LABEL ty=00 imm=0080002E
+	CONV ty=100C dst=T0.2 srca=I32(-1412628220)
+	STIXIMM ty=0C dst=T0.2 srca=A0.0
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End putc
+BGBCC_SHXC_BuildFunction: Begin kbhit
+BGBCC_SHXC_BuildFunction: BegSim kbhit
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000008C
+	CONV ty=100C dst=T0.1 srca=I32(-1412628216)
+	LDIXIMM ty=0C dst=T1.1 srca=T0.1
+	BINARY ty=00 opr=05 dst=T2.1 srca=T1.1 srcb=I32(1)
+	RET ty=00 srca=T2.1
+   Tr: idx=1 base=6 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim kbhit
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000008C
+	CONV ty=100C dst=T0.1 srca=I32(-1412628216)
+	LDIXIMM ty=0C dst=T1.1 srca=T0.1
+	BINARY ty=00 opr=05 dst=T2.1 srca=T1.1 srcb=I32(1)
+	RET ty=00 srca=T2.1
+   Tr: idx=1 base=6 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End kbhit
+BGBCC_SHXC_BuildFunction: Begin getch
+BGBCC_SHXC_BuildFunction: BegSim getch
+   Tr: idx=0 base=0 num=2
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000008F
+   Tr: idx=1 base=2 num=5
+	LABEL ty=00 imm=0080002F
+	CONV ty=100C dst=T0.1 srca=I32(-1412628216)
+	LDIXIMM ty=0C dst=T1.1 srca=T0.1
+	BINARY ty=00 opr=05 dst=T2.1 srca=T1.1 srcb=I32(1)
+	JCMP_Z ty=00 opr=01 srca=T2.1 imm=00800030
+   Tr: idx=2 base=7 num=1
+	CALL ty=05 dst=T3.1 srca=030000011C000028
+   Tr: idx=3 base=8 num=1
+	CSRV ty=05 dst=T3.1 srca=030000011C000028
+   Tr: idx=4 base=9 num=1
+	JMP ty=00 imm=0080002F
+   Tr: idx=5 base=10 num=4
+	LABEL ty=00 imm=00800030
+	CONV ty=100C dst=T0.2 srca=I32(-1412628224)
+	LDIXIMM ty=0C dst=T1.2 srca=T0.2
+	RET ty=00 srca=T1.2
+   Tr: idx=6 base=14 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim getch
+   Tr: idx=0 base=0 num=2
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000008F
+   Tr: idx=1 base=2 num=5
+	LABEL ty=00 imm=0080002F
+	CONV ty=100C dst=T0.1 srca=I32(-1412628216)
+	LDIXIMM ty=0C dst=T1.1 srca=T0.1
+	BINARY ty=00 opr=05 dst=T2.1 srca=T1.1 srcb=I32(1)
+	JCMP_Z ty=00 opr=01 srca=T2.1 imm=00800030
+   Tr: idx=2 base=7 num=1
+	CALL ty=05 dst=T3.1 srca=030000011C000028
+   Tr: idx=3 base=8 num=1
+	CSRV ty=05 dst=T3.1 srca=030000011C000028
+   Tr: idx=4 base=9 num=1
+	JMP ty=00 imm=0080002F
+   Tr: idx=5 base=10 num=4
+	LABEL ty=00 imm=00800030
+	CONV ty=100C dst=T0.2 srca=I32(-1412628224)
+	LDIXIMM ty=0C dst=T1.2 srca=T0.2
+	RET ty=00 srca=T1.2
+   Tr: idx=6 base=14 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End getch
+BGBCC_SHXC_BuildFunction: Begin puts
+BGBCC_SHXC_BuildFunction: BegSim puts
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000096
+	DBGLN ty=00 imm=0000009A
+	MOV ty=1008 dst=L0.1 srca=A0.0
+   Tr: idx=1 base=4 num=3
+	LABEL ty=00 imm=00800031
+	LDIXIMM ty=08 dst=T0.1 srca=L0.1
+	JCMP_Z ty=00 srca=T0.1 imm=00800032
+   Tr: idx=2 base=7 num=6
+	MOV ty=1008 dst=T1.1 srca=L0.1
+	MOV ty=1008 dst=T2.1 srca=L0.1
+	LEAIMM ty=08 dst=T3.1 srca=T2.1 imm=00000001
+	MOV ty=1008 dst=L0.2 srca=T3.1
+	LDIXIMM ty=08 dst=T0.2 srca=T1.1
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=3 base=13 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=4 base=14 num=1
+	JMP ty=00 imm=00800031
+   Tr: idx=5 base=15 num=2
+	LABEL ty=00 imm=00800032
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim puts
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000096
+	DBGLN ty=00 imm=0000009A
+	MOV ty=1008 dst=L0.1 srca=A0.0
+   Tr: idx=1 base=4 num=3
+	LABEL ty=00 imm=00800031
+	LDIXIMM ty=08 dst=T0.1 srca=L0.1
+	JCMP_Z ty=00 srca=T0.1 imm=00800032
+   Tr: idx=2 base=7 num=6
+	MOV ty=1008 dst=T1.1 srca=L0.1
+	MOV ty=1008 dst=T2.1 srca=L0.1
+	LEAIMM ty=08 dst=T3.1 srca=T2.1 imm=00000001
+	MOV ty=1008 dst=L0.2 srca=T3.1
+	LDIXIMM ty=08 dst=T0.2 srca=T1.1
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=3 base=13 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=4 base=14 num=1
+	JMP ty=00 imm=00800031
+   Tr: idx=5 base=15 num=2
+	LABEL ty=00 imm=00800032
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End puts
+BGBCC_SHXC_BuildFunction: Begin gets
+BGBCC_SHXC_BuildFunction: BegSim gets
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000009F
+	DBGLN ty=00 imm=000000A4
+	MOV ty=1008 dst=L0.1 srca=A0.0
+   Tr: idx=1 base=4 num=2
+	LABEL ty=00 imm=00800033
+	CALL ty=00 dst=T0.1 srca=030000011E00002A
+   Tr: idx=2 base=6 num=1
+	CSRV ty=00 dst=T0.1 srca=030000011E00002A
+   Tr: idx=3 base=7 num=2
+	MOV ty=00 dst=L1.1 srca=T0.1
+	JCMP ty=00 opr=01 srca=L1.1 srcb=I32(8) imm=00800035
+   Tr: idx=4 base=9 num=1
+	JCMP ty=00 opr=01 srca=L1.1 srcb=I32(127) imm=00800035
+   Tr: idx=5 base=10 num=1
+	JMP ty=00 imm=00800035
+   Tr: idx=6 base=11 num=2
+	LABEL ty=00 imm=00800036
+	JCMP ty=1008 opr=04 srca=L0.1 srcb=A0.0 imm=00800038
+   Tr: idx=7 base=13 num=1
+	CALL ty=05 dst=T1.1 srca=030000011F00002B imm=00000101
+   Tr: idx=8 base=14 num=1
+	CSRV ty=05 dst=T1.1 srca=030000011F00002B
+   Tr: idx=9 base=15 num=1
+	LEAIMM ty=08 dst=L0.1 srca=L0.1 imm=FFFFFFFF
+   Tr: idx=10 base=16 num=3
+	LABEL ty=00 imm=00800038
+	STIXIMM ty=08 dst=L0.1 srca=I32(0)
+	JMP ty=00 imm=00800033
+   Tr: idx=11 base=19 num=2
+	LABEL ty=00 imm=00800035
+	JCMP ty=00 opr=01 srca=L1.1 srcb=I32(13) imm=00800039
+   Tr: idx=12 base=21 num=1
+	CALL ty=05 dst=T1.2 srca=030000011B000027 imm=00000101
+   Tr: idx=13 base=22 num=1
+	CSRV ty=05 dst=T1.2 srca=030000011B000027
+   Tr: idx=14 base=23 num=1
+	JMP ty=00 imm=00800034
+   Tr: idx=15 base=24 num=2
+	LABEL ty=00 imm=00800039
+	JCMP ty=00 opr=01 srca=L1.1 srcb=I32(10) imm=0080003A
+   Tr: idx=16 base=26 num=1
+	CALL ty=05 dst=T1.3 srca=030000011B000027 imm=00000101
+   Tr: idx=17 base=27 num=1
+	CSRV ty=05 dst=T1.3 srca=030000011B000027
+   Tr: idx=18 base=28 num=1
+	JMP ty=00 imm=00800034
+   Tr: idx=19 base=29 num=2
+	LABEL ty=00 imm=0080003A
+	CALL ty=05 dst=T1.4 srca=030000011B000027 imm=00000101
+   Tr: idx=20 base=31 num=1
+	CSRV ty=05 dst=T1.4 srca=030000011B000027
+   Tr: idx=21 base=32 num=6
+	MOV ty=1008 dst=T2.1 srca=L0.1
+	MOV ty=1008 dst=T3.1 srca=L0.1
+	LEAIMM ty=08 dst=T4.1 srca=T3.1 imm=00000001
+	MOV ty=1008 dst=L0.2 srca=T4.1
+	STIXIMM ty=08 dst=T2.1 srca=L1.1
+	JMP ty=00 imm=00800033
+   Tr: idx=22 base=38 num=3
+	LABEL ty=00 imm=00800034
+	STIXIMM ty=08 dst=L0.2 srca=I32(0)
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim gets
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000009F
+	DBGLN ty=00 imm=000000A4
+	MOV ty=1008 dst=L0.1 srca=A0.0
+   Tr: idx=1 base=4 num=2
+	LABEL ty=00 imm=00800033
+	CALL ty=00 dst=T0.1 srca=030000011E00002A
+   Tr: idx=2 base=6 num=1
+	CSRV ty=00 dst=T0.1 srca=030000011E00002A
+   Tr: idx=3 base=7 num=2
+	MOV ty=00 dst=L1.1 srca=T0.1
+	JCMP ty=00 opr=01 srca=L1.1 srcb=I32(8) imm=00800035
+   Tr: idx=4 base=9 num=1
+	JCMP ty=00 opr=01 srca=L1.1 srcb=I32(127) imm=00800035
+   Tr: idx=5 base=10 num=1
+	JMP ty=00 imm=00800035
+   Tr: idx=6 base=11 num=2
+	LABEL ty=00 imm=00800036
+	JCMP ty=1008 opr=04 srca=L0.1 srcb=A0.0 imm=00800038
+   Tr: idx=7 base=13 num=1
+	CALL ty=05 dst=T1.1 srca=030000011F00002B imm=00000101
+   Tr: idx=8 base=14 num=1
+	CSRV ty=05 dst=T1.1 srca=030000011F00002B
+   Tr: idx=9 base=15 num=1
+	LEAIMM ty=08 dst=L0.1 srca=L0.1 imm=FFFFFFFF
+   Tr: idx=10 base=16 num=3
+	LABEL ty=00 imm=00800038
+	STIXIMM ty=08 dst=L0.1 srca=I32(0)
+	JMP ty=00 imm=00800033
+   Tr: idx=11 base=19 num=2
+	LABEL ty=00 imm=00800035
+	JCMP ty=00 opr=01 srca=L1.1 srcb=I32(13) imm=00800039
+   Tr: idx=12 base=21 num=1
+	CALL ty=05 dst=T1.2 srca=030000011B000027 imm=00000101
+   Tr: idx=13 base=22 num=1
+	CSRV ty=05 dst=T1.2 srca=030000011B000027
+   Tr: idx=14 base=23 num=1
+	JMP ty=00 imm=00800034
+   Tr: idx=15 base=24 num=2
+	LABEL ty=00 imm=00800039
+	JCMP ty=00 opr=01 srca=L1.1 srcb=I32(10) imm=0080003A
+   Tr: idx=16 base=26 num=1
+	CALL ty=05 dst=T1.3 srca=030000011B000027 imm=00000101
+   Tr: idx=17 base=27 num=1
+	CSRV ty=05 dst=T1.3 srca=030000011B000027
+   Tr: idx=18 base=28 num=1
+	JMP ty=00 imm=00800034
+   Tr: idx=19 base=29 num=2
+	LABEL ty=00 imm=0080003A
+	CALL ty=05 dst=T1.4 srca=030000011B000027 imm=00000101
+   Tr: idx=20 base=31 num=1
+	CSRV ty=05 dst=T1.4 srca=030000011B000027
+   Tr: idx=21 base=32 num=6
+	MOV ty=1008 dst=T2.1 srca=L0.1
+	MOV ty=1008 dst=T3.1 srca=L0.1
+	LEAIMM ty=08 dst=T4.1 srca=T3.1 imm=00000001
+	MOV ty=1008 dst=L0.2 srca=T4.1
+	STIXIMM ty=08 dst=T2.1 srca=L1.1
+	JMP ty=00 imm=00800033
+   Tr: idx=22 base=38 num=3
+	LABEL ty=00 imm=00800034
+	STIXIMM ty=08 dst=L0.2 srca=I32(0)
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End gets
+BGBCC_SHXC_BuildFunction: Begin print_hex
+BGBCC_SHXC_BuildFunction: BegSim print_hex
+   Tr: idx=0 base=0 num=8
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000000BC
+	CONV ty=1008 dst=T0.1 srca=08000000000005AD
+	DBGLN ty=00 imm=000000C3
+	BINARY ty=0C opr=09 dst=T1.1 srca=A0.0 srcb=I32(28)
+	BINARY ty=0C opr=05 dst=T2.1 srca=T1.1 srcb=I32(15)
+	LDIX ty=08 dst=T1.2 srca=030000100800002E srcb=T2.1
+	CALL ty=05 dst=T3.1 srca=030000011B000027 imm=00000101
+   Tr: idx=1 base=8 num=1
+	CSRV ty=05 dst=T3.1 srca=030000011B000027
+   Tr: idx=2 base=9 num=4
+	BINARY ty=0C opr=09 dst=T1.3 srca=A0.0 srcb=I32(24)
+	BINARY ty=0C opr=05 dst=T2.2 srca=T1.3 srcb=I32(15)
+	LDIX ty=08 dst=T1.4 srca=030000100800002E srcb=T2.2
+	CALL ty=05 dst=T3.2 srca=030000011B000027 imm=00000101
+   Tr: idx=3 base=13 num=1
+	CSRV ty=05 dst=T3.2 srca=030000011B000027
+   Tr: idx=4 base=14 num=4
+	BINARY ty=0C opr=09 dst=T1.5 srca=A0.0 srcb=I32(20)
+	BINARY ty=0C opr=05 dst=T2.3 srca=T1.5 srcb=I32(15)
+	LDIX ty=08 dst=T1.6 srca=030000100800002E srcb=T2.3
+	CALL ty=05 dst=T3.3 srca=030000011B000027 imm=00000101
+   Tr: idx=5 base=18 num=1
+	CSRV ty=05 dst=T3.3 srca=030000011B000027
+   Tr: idx=6 base=19 num=4
+	BINARY ty=0C opr=09 dst=T1.7 srca=A0.0 srcb=I32(16)
+	BINARY ty=0C opr=05 dst=T2.4 srca=T1.7 srcb=I32(15)
+	LDIX ty=08 dst=T1.8 srca=030000100800002E srcb=T2.4
+	CALL ty=05 dst=T3.4 srca=030000011B000027 imm=00000101
+   Tr: idx=7 base=23 num=1
+	CSRV ty=05 dst=T3.4 srca=030000011B000027
+   Tr: idx=8 base=24 num=4
+	BINARY ty=0C opr=09 dst=T1.9 srca=A0.0 srcb=I32(12)
+	BINARY ty=0C opr=05 dst=T2.5 srca=T1.9 srcb=I32(15)
+	LDIX ty=08 dst=T1.10 srca=030000100800002E srcb=T2.5
+	CALL ty=05 dst=T3.5 srca=030000011B000027 imm=00000101
+   Tr: idx=9 base=28 num=1
+	CSRV ty=05 dst=T3.5 srca=030000011B000027
+   Tr: idx=10 base=29 num=4
+	BINARY ty=0C opr=09 dst=T1.11 srca=A0.0 srcb=I32(8)
+	BINARY ty=0C opr=05 dst=T2.6 srca=T1.11 srcb=I32(15)
+	LDIX ty=08 dst=T1.12 srca=030000100800002E srcb=T2.6
+	CALL ty=05 dst=T3.6 srca=030000011B000027 imm=00000101
+   Tr: idx=11 base=33 num=1
+	CSRV ty=05 dst=T3.6 srca=030000011B000027
+   Tr: idx=12 base=34 num=4
+	BINARY ty=0C opr=09 dst=T1.13 srca=A0.0 srcb=I32(4)
+	BINARY ty=0C opr=05 dst=T2.7 srca=T1.13 srcb=I32(15)
+	LDIX ty=08 dst=T1.14 srca=030000100800002E srcb=T2.7
+	CALL ty=05 dst=T3.7 srca=030000011B000027 imm=00000101
+   Tr: idx=13 base=38 num=1
+	CSRV ty=05 dst=T3.7 srca=030000011B000027
+   Tr: idx=14 base=39 num=3
+	BINARY ty=0C opr=05 dst=T1.15 srca=A0.0 srcb=I32(15)
+	LDIX ty=08 dst=T2.8 srca=030000100800002E srcb=T1.15
+	CALL ty=05 dst=T3.8 srca=030000011B000027 imm=00000101
+   Tr: idx=15 base=42 num=1
+	CSRV ty=05 dst=T3.8 srca=030000011B000027
+   Tr: idx=16 base=43 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim print_hex
+   Tr: idx=0 base=0 num=8
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000000BC
+	CONV ty=1008 dst=T0.1 srca=08000000000005AD
+	DBGLN ty=00 imm=000000C3
+	BINARY ty=0C opr=09 dst=T1.1 srca=A0.0 srcb=I32(28)
+	BINARY ty=0C opr=05 dst=T2.1 srca=T1.1 srcb=I32(15)
+	LDIX ty=08 dst=T1.2 srca=030000100800002E srcb=T2.1
+	CALL ty=05 dst=T3.1 srca=030000011B000027 imm=00000101
+   Tr: idx=1 base=8 num=1
+	CSRV ty=05 dst=T3.1 srca=030000011B000027
+   Tr: idx=2 base=9 num=4
+	BINARY ty=0C opr=09 dst=T1.3 srca=A0.0 srcb=I32(24)
+	BINARY ty=0C opr=05 dst=T2.2 srca=T1.3 srcb=I32(15)
+	LDIX ty=08 dst=T1.4 srca=030000100800002E srcb=T2.2
+	CALL ty=05 dst=T3.2 srca=030000011B000027 imm=00000101
+   Tr: idx=3 base=13 num=1
+	CSRV ty=05 dst=T3.2 srca=030000011B000027
+   Tr: idx=4 base=14 num=4
+	BINARY ty=0C opr=09 dst=T1.5 srca=A0.0 srcb=I32(20)
+	BINARY ty=0C opr=05 dst=T2.3 srca=T1.5 srcb=I32(15)
+	LDIX ty=08 dst=T1.6 srca=030000100800002E srcb=T2.3
+	CALL ty=05 dst=T3.3 srca=030000011B000027 imm=00000101
+   Tr: idx=5 base=18 num=1
+	CSRV ty=05 dst=T3.3 srca=030000011B000027
+   Tr: idx=6 base=19 num=4
+	BINARY ty=0C opr=09 dst=T1.7 srca=A0.0 srcb=I32(16)
+	BINARY ty=0C opr=05 dst=T2.4 srca=T1.7 srcb=I32(15)
+	LDIX ty=08 dst=T1.8 srca=030000100800002E srcb=T2.4
+	CALL ty=05 dst=T3.4 srca=030000011B000027 imm=00000101
+   Tr: idx=7 base=23 num=1
+	CSRV ty=05 dst=T3.4 srca=030000011B000027
+   Tr: idx=8 base=24 num=4
+	BINARY ty=0C opr=09 dst=T1.9 srca=A0.0 srcb=I32(12)
+	BINARY ty=0C opr=05 dst=T2.5 srca=T1.9 srcb=I32(15)
+	LDIX ty=08 dst=T1.10 srca=030000100800002E srcb=T2.5
+	CALL ty=05 dst=T3.5 srca=030000011B000027 imm=00000101
+   Tr: idx=9 base=28 num=1
+	CSRV ty=05 dst=T3.5 srca=030000011B000027
+   Tr: idx=10 base=29 num=4
+	BINARY ty=0C opr=09 dst=T1.11 srca=A0.0 srcb=I32(8)
+	BINARY ty=0C opr=05 dst=T2.6 srca=T1.11 srcb=I32(15)
+	LDIX ty=08 dst=T1.12 srca=030000100800002E srcb=T2.6
+	CALL ty=05 dst=T3.6 srca=030000011B000027 imm=00000101
+   Tr: idx=11 base=33 num=1
+	CSRV ty=05 dst=T3.6 srca=030000011B000027
+   Tr: idx=12 base=34 num=4
+	BINARY ty=0C opr=09 dst=T1.13 srca=A0.0 srcb=I32(4)
+	BINARY ty=0C opr=05 dst=T2.7 srca=T1.13 srcb=I32(15)
+	LDIX ty=08 dst=T1.14 srca=030000100800002E srcb=T2.7
+	CALL ty=05 dst=T3.7 srca=030000011B000027 imm=00000101
+   Tr: idx=13 base=38 num=1
+	CSRV ty=05 dst=T3.7 srca=030000011B000027
+   Tr: idx=14 base=39 num=3
+	BINARY ty=0C opr=05 dst=T1.15 srca=A0.0 srcb=I32(15)
+	LDIX ty=08 dst=T2.8 srca=030000100800002E srcb=T1.15
+	CALL ty=05 dst=T3.8 srca=030000011B000027 imm=00000101
+   Tr: idx=15 base=42 num=1
+	CSRV ty=05 dst=T3.8 srca=030000011B000027
+   Tr: idx=16 base=43 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End print_hex
+BGBCC_SHXC_BuildFunction: Begin print_hex_n
+BGBCC_SHXC_BuildFunction: BegSim print_hex_n
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000000CD
+	CONV ty=1008 dst=T0.1 srca=08000000000005AD
+	DBGLN ty=00 imm=000000D4
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(7) imm=0080003B
+   Tr: idx=1 base=5 num=4
+	BINARY ty=0C opr=09 dst=T1.1 srca=A0.0 srcb=I32(28)
+	BINARY ty=0C opr=05 dst=T2.1 srca=T1.1 srcb=I32(15)
+	LDIX ty=08 dst=T1.2 srca=0300001008000030 srcb=T2.1
+	CALL ty=05 dst=T3.1 srca=030000011B000027 imm=00000101
+   Tr: idx=2 base=9 num=1
+	CSRV ty=05 dst=T3.1 srca=030000011B000027
+   Tr: idx=3 base=10 num=2
+	LABEL ty=00 imm=0080003B
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(6) imm=0080003C
+   Tr: idx=4 base=12 num=4
+	BINARY ty=0C opr=09 dst=T1.3 srca=A0.0 srcb=I32(24)
+	BINARY ty=0C opr=05 dst=T2.2 srca=T1.3 srcb=I32(15)
+	LDIX ty=08 dst=T1.4 srca=0300001008000030 srcb=T2.2
+	CALL ty=05 dst=T3.2 srca=030000011B000027 imm=00000101
+   Tr: idx=5 base=16 num=1
+	CSRV ty=05 dst=T3.2 srca=030000011B000027
+   Tr: idx=6 base=17 num=2
+	LABEL ty=00 imm=0080003C
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(5) imm=0080003D
+   Tr: idx=7 base=19 num=4
+	BINARY ty=0C opr=09 dst=T1.5 srca=A0.0 srcb=I32(20)
+	BINARY ty=0C opr=05 dst=T2.3 srca=T1.5 srcb=I32(15)
+	LDIX ty=08 dst=T1.6 srca=0300001008000030 srcb=T2.3
+	CALL ty=05 dst=T3.3 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=23 num=1
+	CSRV ty=05 dst=T3.3 srca=030000011B000027
+   Tr: idx=9 base=24 num=2
+	LABEL ty=00 imm=0080003D
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(4) imm=0080003E
+   Tr: idx=10 base=26 num=4
+	BINARY ty=0C opr=09 dst=T1.7 srca=A0.0 srcb=I32(16)
+	BINARY ty=0C opr=05 dst=T2.4 srca=T1.7 srcb=I32(15)
+	LDIX ty=08 dst=T1.8 srca=0300001008000030 srcb=T2.4
+	CALL ty=05 dst=T3.4 srca=030000011B000027 imm=00000101
+   Tr: idx=11 base=30 num=1
+	CSRV ty=05 dst=T3.4 srca=030000011B000027
+   Tr: idx=12 base=31 num=2
+	LABEL ty=00 imm=0080003E
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(3) imm=0080003F
+   Tr: idx=13 base=33 num=4
+	BINARY ty=0C opr=09 dst=T1.9 srca=A0.0 srcb=I32(12)
+	BINARY ty=0C opr=05 dst=T2.5 srca=T1.9 srcb=I32(15)
+	LDIX ty=08 dst=T1.10 srca=0300001008000030 srcb=T2.5
+	CALL ty=05 dst=T3.5 srca=030000011B000027 imm=00000101
+   Tr: idx=14 base=37 num=1
+	CSRV ty=05 dst=T3.5 srca=030000011B000027
+   Tr: idx=15 base=38 num=2
+	LABEL ty=00 imm=0080003F
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(2) imm=00800040
+   Tr: idx=16 base=40 num=4
+	BINARY ty=0C opr=09 dst=T1.11 srca=A0.0 srcb=I32(8)
+	BINARY ty=0C opr=05 dst=T2.6 srca=T1.11 srcb=I32(15)
+	LDIX ty=08 dst=T1.12 srca=0300001008000030 srcb=T2.6
+	CALL ty=05 dst=T3.6 srca=030000011B000027 imm=00000101
+   Tr: idx=17 base=44 num=1
+	CSRV ty=05 dst=T3.6 srca=030000011B000027
+   Tr: idx=18 base=45 num=2
+	LABEL ty=00 imm=00800040
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(1) imm=00800041
+   Tr: idx=19 base=47 num=4
+	BINARY ty=0C opr=09 dst=T1.13 srca=A0.0 srcb=I32(4)
+	BINARY ty=0C opr=05 dst=T2.7 srca=T1.13 srcb=I32(15)
+	LDIX ty=08 dst=T1.14 srca=0300001008000030 srcb=T2.7
+	CALL ty=05 dst=T3.7 srca=030000011B000027 imm=00000101
+   Tr: idx=20 base=51 num=1
+	CSRV ty=05 dst=T3.7 srca=030000011B000027
+   Tr: idx=21 base=52 num=2
+	LABEL ty=00 imm=00800041
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(0) imm=00800042
+   Tr: idx=22 base=54 num=3
+	BINARY ty=0C opr=05 dst=T1.15 srca=A0.0 srcb=I32(15)
+	LDIX ty=08 dst=T2.8 srca=0300001008000030 srcb=T1.15
+	CALL ty=05 dst=T3.8 srca=030000011B000027 imm=00000101
+   Tr: idx=23 base=57 num=1
+	CSRV ty=05 dst=T3.8 srca=030000011B000027
+   Tr: idx=24 base=58 num=2
+	LABEL ty=00 imm=00800042
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim print_hex_n
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000000CD
+	CONV ty=1008 dst=T0.1 srca=08000000000005AD
+	DBGLN ty=00 imm=000000D4
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(7) imm=0080003B
+   Tr: idx=1 base=5 num=4
+	BINARY ty=0C opr=09 dst=T1.1 srca=A0.0 srcb=I32(28)
+	BINARY ty=0C opr=05 dst=T2.1 srca=T1.1 srcb=I32(15)
+	LDIX ty=08 dst=T1.2 srca=0300001008000030 srcb=T2.1
+	CALL ty=05 dst=T3.1 srca=030000011B000027 imm=00000101
+   Tr: idx=2 base=9 num=1
+	CSRV ty=05 dst=T3.1 srca=030000011B000027
+   Tr: idx=3 base=10 num=2
+	LABEL ty=00 imm=0080003B
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(6) imm=0080003C
+   Tr: idx=4 base=12 num=4
+	BINARY ty=0C opr=09 dst=T1.3 srca=A0.0 srcb=I32(24)
+	BINARY ty=0C opr=05 dst=T2.2 srca=T1.3 srcb=I32(15)
+	LDIX ty=08 dst=T1.4 srca=0300001008000030 srcb=T2.2
+	CALL ty=05 dst=T3.2 srca=030000011B000027 imm=00000101
+   Tr: idx=5 base=16 num=1
+	CSRV ty=05 dst=T3.2 srca=030000011B000027
+   Tr: idx=6 base=17 num=2
+	LABEL ty=00 imm=0080003C
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(5) imm=0080003D
+   Tr: idx=7 base=19 num=4
+	BINARY ty=0C opr=09 dst=T1.5 srca=A0.0 srcb=I32(20)
+	BINARY ty=0C opr=05 dst=T2.3 srca=T1.5 srcb=I32(15)
+	LDIX ty=08 dst=T1.6 srca=0300001008000030 srcb=T2.3
+	CALL ty=05 dst=T3.3 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=23 num=1
+	CSRV ty=05 dst=T3.3 srca=030000011B000027
+   Tr: idx=9 base=24 num=2
+	LABEL ty=00 imm=0080003D
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(4) imm=0080003E
+   Tr: idx=10 base=26 num=4
+	BINARY ty=0C opr=09 dst=T1.7 srca=A0.0 srcb=I32(16)
+	BINARY ty=0C opr=05 dst=T2.4 srca=T1.7 srcb=I32(15)
+	LDIX ty=08 dst=T1.8 srca=0300001008000030 srcb=T2.4
+	CALL ty=05 dst=T3.4 srca=030000011B000027 imm=00000101
+   Tr: idx=11 base=30 num=1
+	CSRV ty=05 dst=T3.4 srca=030000011B000027
+   Tr: idx=12 base=31 num=2
+	LABEL ty=00 imm=0080003E
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(3) imm=0080003F
+   Tr: idx=13 base=33 num=4
+	BINARY ty=0C opr=09 dst=T1.9 srca=A0.0 srcb=I32(12)
+	BINARY ty=0C opr=05 dst=T2.5 srca=T1.9 srcb=I32(15)
+	LDIX ty=08 dst=T1.10 srca=0300001008000030 srcb=T2.5
+	CALL ty=05 dst=T3.5 srca=030000011B000027 imm=00000101
+   Tr: idx=14 base=37 num=1
+	CSRV ty=05 dst=T3.5 srca=030000011B000027
+   Tr: idx=15 base=38 num=2
+	LABEL ty=00 imm=0080003F
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(2) imm=00800040
+   Tr: idx=16 base=40 num=4
+	BINARY ty=0C opr=09 dst=T1.11 srca=A0.0 srcb=I32(8)
+	BINARY ty=0C opr=05 dst=T2.6 srca=T1.11 srcb=I32(15)
+	LDIX ty=08 dst=T1.12 srca=0300001008000030 srcb=T2.6
+	CALL ty=05 dst=T3.6 srca=030000011B000027 imm=00000101
+   Tr: idx=17 base=44 num=1
+	CSRV ty=05 dst=T3.6 srca=030000011B000027
+   Tr: idx=18 base=45 num=2
+	LABEL ty=00 imm=00800040
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(1) imm=00800041
+   Tr: idx=19 base=47 num=4
+	BINARY ty=0C opr=09 dst=T1.13 srca=A0.0 srcb=I32(4)
+	BINARY ty=0C opr=05 dst=T2.7 srca=T1.13 srcb=I32(15)
+	LDIX ty=08 dst=T1.14 srca=0300001008000030 srcb=T2.7
+	CALL ty=05 dst=T3.7 srca=030000011B000027 imm=00000101
+   Tr: idx=20 base=51 num=1
+	CSRV ty=05 dst=T3.7 srca=030000011B000027
+   Tr: idx=21 base=52 num=2
+	LABEL ty=00 imm=00800041
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(0) imm=00800042
+   Tr: idx=22 base=54 num=3
+	BINARY ty=0C opr=05 dst=T1.15 srca=A0.0 srcb=I32(15)
+	LDIX ty=08 dst=T2.8 srca=0300001008000030 srcb=T1.15
+	CALL ty=05 dst=T3.8 srca=030000011B000027 imm=00000101
+   Tr: idx=23 base=57 num=1
+	CSRV ty=05 dst=T3.8 srca=030000011B000027
+   Tr: idx=24 base=58 num=2
+	LABEL ty=00 imm=00800042
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End print_hex_n
+BGBCC_SHXC_BuildFunction: Begin print_hex_genw
+BGBCC_SHXC_BuildFunction: BegSim print_hex_genw
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000000DE
+	DBGLN ty=00 imm=000000E3
+	MOV ty=00 dst=L1.1 srca=I32(1)
+   Tr: idx=1 base=4 num=2
+	LABEL ty=00 imm=00800043
+	JCMP ty=0C opr=02 srca=A0.0 srcb=I32(16) imm=00800044
+   Tr: idx=2 base=6 num=4
+	DBGLN ty=00 imm=000000E6
+	BINARY ty=0C opr=0A dst=A0.0 srca=A0.0 srcb=I32(4)
+	UNARY ty=00 opr=04 dst=L1.1 srca=L1.1
+	JMP ty=00 imm=00800043
+   Tr: idx=3 base=10 num=3
+	LABEL ty=00 imm=00800044
+	DBGLN ty=00 imm=000000F3
+	RET ty=00 srca=L1.1
+   Tr: idx=4 base=13 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim print_hex_genw
+   Tr: idx=0 base=0 num=4
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000000DE
+	DBGLN ty=00 imm=000000E3
+	MOV ty=00 dst=L1.1 srca=I32(1)
+   Tr: idx=1 base=4 num=2
+	LABEL ty=00 imm=00800043
+	JCMP ty=0C opr=02 srca=A0.0 srcb=I32(16) imm=00800044
+   Tr: idx=2 base=6 num=4
+	DBGLN ty=00 imm=000000E6
+	BINARY ty=0C opr=0A dst=A0.0 srca=A0.0 srcb=I32(4)
+	UNARY ty=00 opr=04 dst=L1.1 srca=L1.1
+	JMP ty=00 imm=00800043
+   Tr: idx=3 base=10 num=3
+	LABEL ty=00 imm=00800044
+	DBGLN ty=00 imm=000000F3
+	RET ty=00 srca=L1.1
+   Tr: idx=4 base=13 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End print_hex_genw
+BGBCC_SHXC_BuildFunction: Begin print_decimal
+BGBCC_SHXC_BuildFunction: BegSim print_decimal
+   Tr: idx=0 base=0 num=7
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000000F6
+	INITARR ty=08 dst=L0.0 imm=00000100
+	DBGLN ty=00 imm=000000FC
+	MOV ty=00 dst=L3.1 srca=A0.0
+	MOV ty=00 dst=L4.1 srca=I32(0)
+	JCMP ty=00 opr=05 srca=L3.1 srcb=I32(0) imm=00800045
+   Tr: idx=1 base=7 num=3
+	UNARY ty=00 opr=01 dst=T0.1 srca=L3.1
+	MOV ty=00 dst=L3.2 srca=T0.1
+	MOV ty=00 dst=L4.2 srca=I32(1)
+   Tr: idx=2 base=10 num=4
+	LABEL ty=00 imm=00800045
+	DBGLN ty=00 imm=00000100
+	MOV ty=1008 dst=L1.1 srca=L0.0
+	JCMP_Z ty=00 opr=01 srca=L3.2 imm=00800046
+   Tr: idx=3 base=14 num=5
+	MOV ty=1008 dst=T1.1 srca=L1.1
+	MOV ty=1008 dst=T2.1 srca=L1.1
+	LEAIMM ty=08 dst=T3.1 srca=T2.1 imm=00000001
+	MOV ty=1008 dst=L1.2 srca=T3.1
+	STIXIMM ty=08 dst=T1.1 srca=I32(48)
+   Tr: idx=4 base=19 num=1
+	LABEL ty=00 imm=00800046
+   Tr: idx=5 base=20 num=2
+	LABEL ty=00 imm=00800047
+	JCMP ty=00 opr=04 srca=L3.2 srcb=I32(0) imm=00800048
+   Tr: idx=6 base=22 num=9
+	BINARY ty=00 opr=04 dst=L2.0 srca=L3.2 srcb=I32(10)
+	BINARY ty=00 dst=T0.2 srca=I32(48) srcb=L2.0
+	MOV ty=1008 dst=T1.2 srca=L1.2
+	MOV ty=1008 dst=T2.2 srca=L1.2
+	LEAIMM ty=08 dst=T3.2 srca=T2.2 imm=00000001
+	MOV ty=1008 dst=L1.3 srca=T3.2
+	STIXIMM ty=08 dst=T1.2 srca=T0.2
+	BINARY ty=00 opr=03 dst=L3.2 srca=L3.2 srcb=I32(10)
+	JMP ty=00 imm=00800047
+   Tr: idx=7 base=31 num=2
+	LABEL ty=00 imm=00800048
+	JCMP_Z ty=00 srca=L4.2 imm=00800049
+   Tr: idx=8 base=33 num=5
+	MOV ty=1008 dst=T1.3 srca=L1.3
+	MOV ty=1008 dst=T2.3 srca=L1.3
+	LEAIMM ty=08 dst=T3.3 srca=T2.3 imm=00000001
+	MOV ty=1008 dst=L1.4 srca=T3.3
+	STIXIMM ty=08 dst=T1.3 srca=I32(45)
+   Tr: idx=9 base=38 num=2
+	LABEL ty=00 imm=00800049
+	DBGLN ty=00 imm=0000010A
+   Tr: idx=10 base=40 num=4
+	LABEL ty=00 imm=0080004A
+	CONV ty=1008 dst=T1.4 srca=L1.4
+	CONV ty=1008 dst=T2.4 srca=L0.0
+	JCMP ty=1008 opr=04 srca=T1.4 srcb=T2.4 imm=0080004B
+   Tr: idx=11 base=44 num=3
+	LEAIMM ty=08 dst=L1.4 srca=L1.4 imm=FFFFFFFF
+	LDIXIMM ty=08 dst=T0.3 srca=L1.4
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=12 base=47 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=13 base=48 num=1
+	JMP ty=00 imm=0080004A
+   Tr: idx=14 base=49 num=2
+	LABEL ty=00 imm=0080004B
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim print_decimal
+   Tr: idx=0 base=0 num=7
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000000F6
+	INITARR ty=08 dst=L0.0 imm=00000100
+	DBGLN ty=00 imm=000000FC
+	MOV ty=00 dst=L3.1 srca=A0.0
+	MOV ty=00 dst=L4.1 srca=I32(0)
+	JCMP ty=00 opr=05 srca=L3.1 srcb=I32(0) imm=00800045
+   Tr: idx=1 base=7 num=3
+	UNARY ty=00 opr=01 dst=T0.1 srca=L3.1
+	MOV ty=00 dst=L3.2 srca=T0.1
+	MOV ty=00 dst=L4.2 srca=I32(1)
+   Tr: idx=2 base=10 num=4
+	LABEL ty=00 imm=00800045
+	DBGLN ty=00 imm=00000100
+	MOV ty=1008 dst=L1.1 srca=L0.0
+	JCMP_Z ty=00 opr=01 srca=L3.2 imm=00800046
+   Tr: idx=3 base=14 num=5
+	MOV ty=1008 dst=T1.1 srca=L1.1
+	MOV ty=1008 dst=T2.1 srca=L1.1
+	LEAIMM ty=08 dst=T3.1 srca=T2.1 imm=00000001
+	MOV ty=1008 dst=L1.2 srca=T3.1
+	STIXIMM ty=08 dst=T1.1 srca=I32(48)
+   Tr: idx=4 base=19 num=1
+	LABEL ty=00 imm=00800046
+   Tr: idx=5 base=20 num=2
+	LABEL ty=00 imm=00800047
+	JCMP ty=00 opr=04 srca=L3.2 srcb=I32(0) imm=00800048
+   Tr: idx=6 base=22 num=9
+	BINARY ty=00 opr=04 dst=L2.0 srca=L3.2 srcb=I32(10)
+	BINARY ty=00 dst=T0.2 srca=I32(48) srcb=L2.0
+	MOV ty=1008 dst=T1.2 srca=L1.2
+	MOV ty=1008 dst=T2.2 srca=L1.2
+	LEAIMM ty=08 dst=T3.2 srca=T2.2 imm=00000001
+	MOV ty=1008 dst=L1.3 srca=T3.2
+	STIXIMM ty=08 dst=T1.2 srca=T0.2
+	BINARY ty=00 opr=03 dst=L3.2 srca=L3.2 srcb=I32(10)
+	JMP ty=00 imm=00800047
+   Tr: idx=7 base=31 num=2
+	LABEL ty=00 imm=00800048
+	JCMP_Z ty=00 srca=L4.2 imm=00800049
+   Tr: idx=8 base=33 num=5
+	MOV ty=1008 dst=T1.3 srca=L1.3
+	MOV ty=1008 dst=T2.3 srca=L1.3
+	LEAIMM ty=08 dst=T3.3 srca=T2.3 imm=00000001
+	MOV ty=1008 dst=L1.4 srca=T3.3
+	STIXIMM ty=08 dst=T1.3 srca=I32(45)
+   Tr: idx=9 base=38 num=2
+	LABEL ty=00 imm=00800049
+	DBGLN ty=00 imm=0000010A
+   Tr: idx=10 base=40 num=4
+	LABEL ty=00 imm=0080004A
+	CONV ty=1008 dst=T1.4 srca=L1.4
+	CONV ty=1008 dst=T2.4 srca=L0.0
+	JCMP ty=1008 opr=04 srca=T1.4 srcb=T2.4 imm=0080004B
+   Tr: idx=11 base=44 num=3
+	LEAIMM ty=08 dst=L1.4 srca=L1.4 imm=FFFFFFFF
+	LDIXIMM ty=08 dst=T0.3 srca=L1.4
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=12 base=47 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=13 base=48 num=1
+	JMP ty=00 imm=0080004A
+   Tr: idx=14 base=49 num=2
+	LABEL ty=00 imm=0080004B
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End print_decimal
+BGBCC_SHXC_BuildFunction: Begin print_decimal_n
+BGBCC_SHXC_BuildFunction: BegSim print_decimal_n
+   Tr: idx=0 base=0 num=7
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000010E
+	INITARR ty=08 dst=L0.0 imm=00000100
+	DBGLN ty=00 imm=00000114
+	MOV ty=00 dst=L3.1 srca=A0.0
+	MOV ty=00 dst=L5.1 srca=I32(0)
+	JCMP ty=00 opr=05 srca=L3.1 srcb=I32(0) imm=0080004C
+   Tr: idx=1 base=7 num=3
+	UNARY ty=00 opr=01 dst=T0.1 srca=L3.1
+	MOV ty=00 dst=L3.2 srca=T0.1
+	MOV ty=00 dst=L5.2 srca=I32(1)
+   Tr: idx=2 base=10 num=5
+	LABEL ty=00 imm=0080004C
+	DBGLN ty=00 imm=00000118
+	MOV ty=1008 dst=L1.1 srca=L0.0
+	MOV ty=00 dst=L4.1 srca=A1.0
+	DBGLN ty=00 imm=0000011A
+   Tr: idx=3 base=15 num=2
+	LABEL ty=00 imm=0080004D
+	JCMP ty=00 opr=04 srca=L4.1 srcb=I32(0) imm=0080004E
+   Tr: idx=4 base=17 num=10
+	BINARY ty=00 opr=04 dst=L2.0 srca=L3.2 srcb=I32(10)
+	BINARY ty=00 dst=T0.2 srca=I32(48) srcb=L2.0
+	MOV ty=1008 dst=T1.1 srca=L1.1
+	MOV ty=1008 dst=T2.1 srca=L1.1
+	LEAIMM ty=08 dst=T3.1 srca=T2.1 imm=00000001
+	MOV ty=1008 dst=L1.2 srca=T3.1
+	STIXIMM ty=08 dst=T1.1 srca=T0.2
+	BINARY ty=00 opr=03 dst=L3.2 srca=L3.2 srcb=I32(10)
+	UNARY ty=00 opr=05 dst=L4.1 srca=L4.1
+	JMP ty=00 imm=0080004D
+   Tr: idx=5 base=27 num=2
+	LABEL ty=00 imm=0080004E
+	DBGLN ty=00 imm=00000124
+   Tr: idx=6 base=29 num=4
+	LABEL ty=00 imm=0080004F
+	CONV ty=1008 dst=T1.2 srca=L1.2
+	CONV ty=1008 dst=T2.2 srca=L0.0
+	JCMP ty=1008 opr=04 srca=T1.2 srcb=T2.2 imm=00800050
+   Tr: idx=7 base=33 num=3
+	LEAIMM ty=08 dst=L1.2 srca=L1.2 imm=FFFFFFFF
+	LDIXIMM ty=08 dst=T0.3 srca=L1.2
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=36 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=9 base=37 num=1
+	JMP ty=00 imm=0080004F
+   Tr: idx=10 base=38 num=2
+	LABEL ty=00 imm=00800050
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim print_decimal_n
+   Tr: idx=0 base=0 num=7
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000010E
+	INITARR ty=08 dst=L0.0 imm=00000100
+	DBGLN ty=00 imm=00000114
+	MOV ty=00 dst=L3.1 srca=A0.0
+	MOV ty=00 dst=L5.1 srca=I32(0)
+	JCMP ty=00 opr=05 srca=L3.1 srcb=I32(0) imm=0080004C
+   Tr: idx=1 base=7 num=3
+	UNARY ty=00 opr=01 dst=T0.1 srca=L3.1
+	MOV ty=00 dst=L3.2 srca=T0.1
+	MOV ty=00 dst=L5.2 srca=I32(1)
+   Tr: idx=2 base=10 num=5
+	LABEL ty=00 imm=0080004C
+	DBGLN ty=00 imm=00000118
+	MOV ty=1008 dst=L1.1 srca=L0.0
+	MOV ty=00 dst=L4.1 srca=A1.0
+	DBGLN ty=00 imm=0000011A
+   Tr: idx=3 base=15 num=2
+	LABEL ty=00 imm=0080004D
+	JCMP ty=00 opr=04 srca=L4.1 srcb=I32(0) imm=0080004E
+   Tr: idx=4 base=17 num=10
+	BINARY ty=00 opr=04 dst=L2.0 srca=L3.2 srcb=I32(10)
+	BINARY ty=00 dst=T0.2 srca=I32(48) srcb=L2.0
+	MOV ty=1008 dst=T1.1 srca=L1.1
+	MOV ty=1008 dst=T2.1 srca=L1.1
+	LEAIMM ty=08 dst=T3.1 srca=T2.1 imm=00000001
+	MOV ty=1008 dst=L1.2 srca=T3.1
+	STIXIMM ty=08 dst=T1.1 srca=T0.2
+	BINARY ty=00 opr=03 dst=L3.2 srca=L3.2 srcb=I32(10)
+	UNARY ty=00 opr=05 dst=L4.1 srca=L4.1
+	JMP ty=00 imm=0080004D
+   Tr: idx=5 base=27 num=2
+	LABEL ty=00 imm=0080004E
+	DBGLN ty=00 imm=00000124
+   Tr: idx=6 base=29 num=4
+	LABEL ty=00 imm=0080004F
+	CONV ty=1008 dst=T1.2 srca=L1.2
+	CONV ty=1008 dst=T2.2 srca=L0.0
+	JCMP ty=1008 opr=04 srca=T1.2 srcb=T2.2 imm=00800050
+   Tr: idx=7 base=33 num=3
+	LEAIMM ty=08 dst=L1.2 srca=L1.2 imm=FFFFFFFF
+	LDIXIMM ty=08 dst=T0.3 srca=L1.2
+	CALL ty=05 dst=T4.1 srca=030000011B000027 imm=00000101
+   Tr: idx=8 base=36 num=1
+	CSRV ty=05 dst=T4.1 srca=030000011B000027
+   Tr: idx=9 base=37 num=1
+	JMP ty=00 imm=0080004F
+   Tr: idx=10 base=38 num=2
+	LABEL ty=00 imm=00800050
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End print_decimal_n
+BGBCC_SHXC_BuildFunction: Begin free
+BGBCC_SHXC_BuildFunction: BegSim free
+   Tr: idx=0 base=0 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim free
+   Tr: idx=0 base=0 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End free
+BGBCC_SHXC_BuildFunction: Begin TK_GetTimeMs
+BGBCC_SHXC_BuildFunction: BegSim TK_GetTimeMs
+   Tr: idx=0 base=0 num=9
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000211
+	DBGLN ty=00 imm=00000216
+	CONV ty=1000 dst=T0.1 srca=I32(8355840)
+	MOV ty=100C dst=L0.1 srca=T0.1
+	DBGLN ty=00 imm=00000218
+	LDIX ty=0C dst=T1.1 srca=L0.1 srcb=I32(4)
+	MOV ty=00 dst=L1.1 srca=T1.1
+	RET ty=00 srca=L1.1
+   Tr: idx=1 base=9 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim TK_GetTimeMs
+   Tr: idx=0 base=0 num=9
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000211
+	DBGLN ty=00 imm=00000216
+	CONV ty=1000 dst=T0.1 srca=I32(8355840)
+	MOV ty=100C dst=L0.1 srca=T0.1
+	DBGLN ty=00 imm=00000218
+	LDIX ty=0C dst=T1.1 srca=L0.1 srcb=I32(4)
+	MOV ty=00 dst=L1.1 srca=T1.1
+	RET ty=00 srca=L1.1
+   Tr: idx=1 base=9 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End TK_GetTimeMs
+BGBCC_SHXC_BuildFunction: Begin clock
+BGBCC_SHXC_BuildFunction: BegSim clock
+   Tr: idx=0 base=0 num=3
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000021C
+	CALL ty=0C dst=T0.1 srca=0300000127000036
+   Tr: idx=1 base=3 num=1
+	CSRV ty=0C dst=T0.1 srca=0300000127000036
+   Tr: idx=2 base=4 num=1
+	RET ty=0C srca=T0.1
+   Tr: idx=3 base=5 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim clock
+   Tr: idx=0 base=0 num=3
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000021C
+	CALL ty=0C dst=T0.1 srca=0300000127000036
+   Tr: idx=1 base=3 num=1
+	CSRV ty=0C dst=T0.1 srca=0300000127000036
+   Tr: idx=2 base=4 num=1
+	RET ty=0C srca=T0.1
+   Tr: idx=3 base=5 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End clock
+BGBCC_SHXC_BuildFunction: Begin __start
+BGBCC_SHXC_BuildFunction: BegSim __start
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000229
+	INITARR ty=1008 dst=L0.0 imm=00000004
+	DBGLN ty=00 imm=0000022D
+	CALL ty=05 dst=T0.1 srca=030000011F00002B imm=00000101
+   Tr: idx=1 base=5 num=1
+	CSRV ty=05 dst=T0.1 srca=030000011F00002B
+   Tr: idx=2 base=6 num=3
+	DBGLN ty=00 imm=0000022F
+	STIX ty=1008 dst=L0.0 srca=I32(0) srcb=08000000000005CD
+	CALL ty=00 dst=T1.1 srca=0300000113000021 imm=00000202
+   Tr: idx=3 base=9 num=1
+	CSRV ty=00 dst=T1.1 srca=0300000113000021
+   Tr: idx=4 base=10 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __start
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000229
+	INITARR ty=1008 dst=L0.0 imm=00000004
+	DBGLN ty=00 imm=0000022D
+	CALL ty=05 dst=T0.1 srca=030000011F00002B imm=00000101
+   Tr: idx=1 base=5 num=1
+	CSRV ty=05 dst=T0.1 srca=030000011F00002B
+   Tr: idx=2 base=6 num=3
+	DBGLN ty=00 imm=0000022F
+	STIX ty=1008 dst=L0.0 srca=I32(0) srcb=08000000000005CD
+	CALL ty=00 dst=T1.1 srca=0300000113000021 imm=00000202
+   Tr: idx=3 base=9 num=1
+	CSRV ty=00 dst=T1.1 srca=0300000113000021
+   Tr: idx=4 base=10 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __start
+BGBCC_SHXC_BuildFunction: Begin __shllli
+BGBCC_SHXC_BuildFunction: BegSim __shllli
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000023B
+	INITOBJ ty=04 dst=L0.0 imm=00000019
+	DBGLN ty=00 imm=0000023F
+	BINARY ty=00 opr=05 dst=T0.1 srca=A1.0 srcb=I32(31)
+	JCMP_Z ty=00 opr=01 srca=T0.1 imm=0080007C
+   Tr: idx=1 base=6 num=1
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=0080007D
+   Tr: idx=2 base=7 num=1
+	RET ty=0119 srca=A0.0
+   Tr: idx=3 base=8 num=2
+	LABEL ty=00 imm=0080007D
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=0080007E
+   Tr: idx=4 base=10 num=4
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.2 obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=5 base=14 num=5
+	LABEL ty=00 imm=0080007E
+	DBGLN ty=00 imm=0000024A
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=6 base=19 num=19
+	LABEL ty=00 imm=0080007C
+	DBGLN ty=00 imm=0000024F
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=019.00
+	CONV ty=0C dst=T2.1 srca=T0.3
+	MOV ty=00 dst=T3.1 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.1 srca=T2.1 srcb=T3.1
+	STORESLOT ty=0C dst=L0.0 srca=T1.1 obj=019.00
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=019.01
+	CONV ty=0C dst=T2.2 srca=T0.4
+	MOV ty=00 dst=T3.2 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.2 srca=T2.2 srcb=T3.2
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=019.00
+	BINARY ty=00 opr=01 dst=T2.3 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.1 srca=T0.5
+	MOV ty=00 dst=T5.1 srca=T2.3
+	BINARY ty=0C opr=08 dst=T3.3 srca=T4.1 srcb=T5.1
+	BINARY ty=0C opr=06 dst=T0.6 srca=T1.2 srcb=T3.3
+	STORESLOT ty=0C dst=L0.0 srca=T0.6 obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=7 base=38 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __shllli
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000023B
+	INITOBJ ty=04 dst=L0.0 imm=00000019
+	DBGLN ty=00 imm=0000023F
+	BINARY ty=00 opr=05 dst=T0.1 srca=A1.0 srcb=I32(31)
+	JCMP_Z ty=00 opr=01 srca=T0.1 imm=0080007C
+   Tr: idx=1 base=6 num=1
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=0080007D
+   Tr: idx=2 base=7 num=1
+	RET ty=0119 srca=A0.0
+   Tr: idx=3 base=8 num=2
+	LABEL ty=00 imm=0080007D
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=0080007E
+   Tr: idx=4 base=10 num=4
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.2 obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=5 base=14 num=5
+	LABEL ty=00 imm=0080007E
+	DBGLN ty=00 imm=0000024A
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=6 base=19 num=19
+	LABEL ty=00 imm=0080007C
+	DBGLN ty=00 imm=0000024F
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=019.00
+	CONV ty=0C dst=T2.1 srca=T0.3
+	MOV ty=00 dst=T3.1 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.1 srca=T2.1 srcb=T3.1
+	STORESLOT ty=0C dst=L0.0 srca=T1.1 obj=019.00
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=019.01
+	CONV ty=0C dst=T2.2 srca=T0.4
+	MOV ty=00 dst=T3.2 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.2 srca=T2.2 srcb=T3.2
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=019.00
+	BINARY ty=00 opr=01 dst=T2.3 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.1 srca=T0.5
+	MOV ty=00 dst=T5.1 srca=T2.3
+	BINARY ty=0C opr=08 dst=T3.3 srca=T4.1 srcb=T5.1
+	BINARY ty=0C opr=06 dst=T0.6 srca=T1.2 srcb=T3.3
+	STORESLOT ty=0C dst=L0.0 srca=T0.6 obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=7 base=38 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __shllli
+BGBCC_SHXC_BuildFunction: Begin __shrlli
+BGBCC_SHXC_BuildFunction: BegSim __shrlli
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000254
+	INITOBJ ty=04 dst=L0.0 imm=00000019
+	DBGLN ty=00 imm=00000258
+	BINARY ty=00 opr=05 dst=T0.1 srca=A1.0 srcb=I32(31)
+	JCMP_Z ty=00 opr=01 srca=T0.1 imm=0080007F
+   Tr: idx=1 base=6 num=1
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=00800080
+   Tr: idx=2 base=7 num=1
+	RET ty=0119 srca=A0.0
+   Tr: idx=3 base=8 num=2
+	LABEL ty=00 imm=00800080
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=00800081
+   Tr: idx=4 base=10 num=4
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=019.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.2 obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=5 base=14 num=5
+	LABEL ty=00 imm=00800081
+	DBGLN ty=00 imm=00000263
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=6 base=19 num=19
+	LABEL ty=00 imm=0080007F
+	DBGLN ty=00 imm=00000268
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=019.01
+	CONV ty=0C dst=T2.1 srca=T0.3
+	MOV ty=00 dst=T3.1 srca=A1.0
+	BINARY ty=0C opr=09 dst=T1.1 srca=T2.1 srcb=T3.1
+	STORESLOT ty=0C dst=L0.0 srca=T1.1 obj=019.01
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=019.00
+	CONV ty=0C dst=T2.2 srca=T0.4
+	MOV ty=00 dst=T3.2 srca=A1.0
+	BINARY ty=0C opr=09 dst=T1.2 srca=T2.2 srcb=T3.2
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=019.01
+	BINARY ty=00 opr=01 dst=T2.3 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.1 srca=T0.5
+	MOV ty=00 dst=T5.1 srca=T2.3
+	BINARY ty=0C opr=08 dst=T3.3 srca=T4.1 srcb=T5.1
+	BINARY ty=0C opr=06 dst=T0.6 srca=T1.2 srcb=T3.3
+	STORESLOT ty=0C dst=L0.0 srca=T0.6 obj=019.00
+	RET ty=0119 srca=L0.0
+   Tr: idx=7 base=38 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __shrlli
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000254
+	INITOBJ ty=04 dst=L0.0 imm=00000019
+	DBGLN ty=00 imm=00000258
+	BINARY ty=00 opr=05 dst=T0.1 srca=A1.0 srcb=I32(31)
+	JCMP_Z ty=00 opr=01 srca=T0.1 imm=0080007F
+   Tr: idx=1 base=6 num=1
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=00800080
+   Tr: idx=2 base=7 num=1
+	RET ty=0119 srca=A0.0
+   Tr: idx=3 base=8 num=2
+	LABEL ty=00 imm=00800080
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=00800081
+   Tr: idx=4 base=10 num=4
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=019.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.2 obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=5 base=14 num=5
+	LABEL ty=00 imm=00800081
+	DBGLN ty=00 imm=00000263
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=6 base=19 num=19
+	LABEL ty=00 imm=0080007F
+	DBGLN ty=00 imm=00000268
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=019.01
+	CONV ty=0C dst=T2.1 srca=T0.3
+	MOV ty=00 dst=T3.1 srca=A1.0
+	BINARY ty=0C opr=09 dst=T1.1 srca=T2.1 srcb=T3.1
+	STORESLOT ty=0C dst=L0.0 srca=T1.1 obj=019.01
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=019.00
+	CONV ty=0C dst=T2.2 srca=T0.4
+	MOV ty=00 dst=T3.2 srca=A1.0
+	BINARY ty=0C opr=09 dst=T1.2 srca=T2.2 srcb=T3.2
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=019.01
+	BINARY ty=00 opr=01 dst=T2.3 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.1 srca=T0.5
+	MOV ty=00 dst=T5.1 srca=T2.3
+	BINARY ty=0C opr=08 dst=T3.3 srca=T4.1 srcb=T5.1
+	BINARY ty=0C opr=06 dst=T0.6 srca=T1.2 srcb=T3.3
+	STORESLOT ty=0C dst=L0.0 srca=T0.6 obj=019.00
+	RET ty=0119 srca=L0.0
+   Tr: idx=7 base=38 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __shrlli
+BGBCC_SHXC_BuildFunction: Begin __sarlli
+BGBCC_SHXC_BuildFunction: BegSim __sarlli
+   Tr: idx=0 base=0 num=8
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000026D
+	INITOBJ ty=04 dst=L0.0 imm=00000019
+	DBGLN ty=00 imm=00000272
+	MOV ty=0C dst=L1.1 srca=I32(0)
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=019.01
+	BINARY ty=0C opr=05 dst=T1.1 srca=T0.1 srcb=I32(-2147483648)
+	JCMP_Z ty=0C srca=T1.1 imm=00800082
+   Tr: idx=1 base=8 num=2
+	CONV ty=0C dst=T0.2 srca=I32(-1)
+	MOV ty=0C dst=L1.2 srca=T0.2
+   Tr: idx=2 base=10 num=4
+	LABEL ty=00 imm=00800082
+	DBGLN ty=00 imm=00000276
+	BINARY ty=00 opr=05 dst=T0.3 srca=A1.0 srcb=I32(31)
+	JCMP_Z ty=00 opr=01 srca=T0.3 imm=00800083
+   Tr: idx=3 base=14 num=1
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=00800084
+   Tr: idx=4 base=15 num=1
+	RET ty=0119 srca=A0.0
+   Tr: idx=5 base=16 num=2
+	LABEL ty=00 imm=00800084
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=00800085
+   Tr: idx=6 base=18 num=4
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=019.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.4 obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=L1.2 obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=7 base=22 num=2
+	LABEL ty=00 imm=00800085
+	JCMP ty=0C opr=04 srca=L1.2 srcb=I32(0) imm=00800086
+   Tr: idx=8 base=24 num=3
+	STORESLOT ty=0C dst=L0.0 srca=L1.2 obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=L1.2 obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=9 base=27 num=4
+	LABEL ty=00 imm=00800086
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=10 base=31 num=24
+	LABEL ty=00 imm=00800083
+	DBGLN ty=00 imm=00000282
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=019.01
+	CONV ty=0C dst=T2.1 srca=T0.5
+	MOV ty=00 dst=T3.1 srca=A1.0
+	BINARY ty=0C opr=09 dst=T1.2 srca=T2.1 srcb=T3.1
+	BINARY ty=00 opr=01 dst=T0.6 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T3.2 srca=L1.2
+	MOV ty=00 dst=T4.1 srca=T0.6
+	BINARY ty=0C opr=08 dst=T2.2 srca=T3.2 srcb=T4.1
+	BINARY ty=0C opr=06 dst=T0.7 srca=T1.2 srcb=T2.2
+	STORESLOT ty=0C dst=L0.0 srca=T0.7 obj=019.01
+	LOADSLOT ty=0C dst=T0.8 srca=A0.0 obj=019.00
+	CONV ty=0C dst=T2.3 srca=T0.8
+	MOV ty=00 dst=T3.3 srca=A1.0
+	BINARY ty=0C opr=09 dst=T1.3 srca=T2.3 srcb=T3.3
+	LOADSLOT ty=0C dst=T0.9 srca=A0.0 obj=019.01
+	BINARY ty=00 opr=01 dst=T2.4 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.2 srca=T0.9
+	MOV ty=00 dst=T5.1 srca=T2.4
+	BINARY ty=0C opr=08 dst=T3.4 srca=T4.2 srcb=T5.1
+	BINARY ty=0C opr=06 dst=T0.10 srca=T1.3 srcb=T3.4
+	STORESLOT ty=0C dst=L0.0 srca=T0.10 obj=019.00
+	RET ty=0119 srca=L0.0
+   Tr: idx=11 base=55 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __sarlli
+   Tr: idx=0 base=0 num=8
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000026D
+	INITOBJ ty=04 dst=L0.0 imm=00000019
+	DBGLN ty=00 imm=00000272
+	MOV ty=0C dst=L1.1 srca=I32(0)
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=019.01
+	BINARY ty=0C opr=05 dst=T1.1 srca=T0.1 srcb=I32(-2147483648)
+	JCMP_Z ty=0C srca=T1.1 imm=00800082
+   Tr: idx=1 base=8 num=2
+	CONV ty=0C dst=T0.2 srca=I32(-1)
+	MOV ty=0C dst=L1.2 srca=T0.2
+   Tr: idx=2 base=10 num=4
+	LABEL ty=00 imm=00800082
+	DBGLN ty=00 imm=00000276
+	BINARY ty=00 opr=05 dst=T0.3 srca=A1.0 srcb=I32(31)
+	JCMP_Z ty=00 opr=01 srca=T0.3 imm=00800083
+   Tr: idx=3 base=14 num=1
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=00800084
+   Tr: idx=4 base=15 num=1
+	RET ty=0119 srca=A0.0
+   Tr: idx=5 base=16 num=2
+	LABEL ty=00 imm=00800084
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=00800085
+   Tr: idx=6 base=18 num=4
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=019.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.4 obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=L1.2 obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=7 base=22 num=2
+	LABEL ty=00 imm=00800085
+	JCMP ty=0C opr=04 srca=L1.2 srcb=I32(0) imm=00800086
+   Tr: idx=8 base=24 num=3
+	STORESLOT ty=0C dst=L0.0 srca=L1.2 obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=L1.2 obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=9 base=27 num=4
+	LABEL ty=00 imm=00800086
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=019.01
+	RET ty=0119 srca=L0.0
+   Tr: idx=10 base=31 num=24
+	LABEL ty=00 imm=00800083
+	DBGLN ty=00 imm=00000282
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=019.01
+	CONV ty=0C dst=T2.1 srca=T0.5
+	MOV ty=00 dst=T3.1 srca=A1.0
+	BINARY ty=0C opr=09 dst=T1.2 srca=T2.1 srcb=T3.1
+	BINARY ty=00 opr=01 dst=T0.6 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T3.2 srca=L1.2
+	MOV ty=00 dst=T4.1 srca=T0.6
+	BINARY ty=0C opr=08 dst=T2.2 srca=T3.2 srcb=T4.1
+	BINARY ty=0C opr=06 dst=T0.7 srca=T1.2 srcb=T2.2
+	STORESLOT ty=0C dst=L0.0 srca=T0.7 obj=019.01
+	LOADSLOT ty=0C dst=T0.8 srca=A0.0 obj=019.00
+	CONV ty=0C dst=T2.3 srca=T0.8
+	MOV ty=00 dst=T3.3 srca=A1.0
+	BINARY ty=0C opr=09 dst=T1.3 srca=T2.3 srcb=T3.3
+	LOADSLOT ty=0C dst=T0.9 srca=A0.0 obj=019.01
+	BINARY ty=00 opr=01 dst=T2.4 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.2 srca=T0.9
+	MOV ty=00 dst=T5.1 srca=T2.4
+	BINARY ty=0C opr=08 dst=T3.4 srca=T4.2 srcb=T5.1
+	BINARY ty=0C opr=06 dst=T0.10 srca=T1.3 srcb=T3.4
+	STORESLOT ty=0C dst=L0.0 srca=T0.10 obj=019.00
+	RET ty=0119 srca=L0.0
+   Tr: idx=11 base=55 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __sarlli
+BGBCC_SHXC_BuildFunction: Begin __negxli
+BGBCC_SHXC_BuildFunction: BegSim __negxli
+   Tr: idx=0 base=0 num=35
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000291
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	DBGLN ty=00 imm=00000296
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	UNARY ty=0C opr=02 dst=T1.1 srca=T0.1
+	CONV ty=0D dst=T2.1 srca=T1.1
+	BINARY ty=0D dst=L1.0 srca=T2.1 srcb=0500000000000001
+	CONV ty=0C dst=T0.2 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.00
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.01
+	UNARY ty=0C opr=02 dst=T1.2 srca=T0.3
+	CONV ty=0D dst=T2.2 srca=T1.2
+	BINARY ty=0D dst=T3.1 srca=L1.0 srcb=T2.2
+	BINARY ty=0D dst=L1.0 srca=T3.1 srcb=0500000000000000
+	CONV ty=0C dst=T0.4 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.01
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=01A.02
+	UNARY ty=0C opr=02 dst=T1.3 srca=T0.5
+	CONV ty=0D dst=T2.3 srca=T1.3
+	BINARY ty=0D dst=T3.2 srca=L1.0 srcb=T2.3
+	BINARY ty=0D dst=L1.0 srca=T3.2 srcb=0500000000000000
+	CONV ty=0C dst=T0.6 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.02
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.7 srca=A0.0 obj=01A.03
+	UNARY ty=0C opr=02 dst=T1.4 srca=T0.7
+	CONV ty=0D dst=T2.4 srca=T1.4
+	BINARY ty=0D dst=T3.3 srca=L1.0 srcb=T2.4
+	BINARY ty=0D dst=L1.0 srca=T3.3 srcb=0500000000000000
+	CONV ty=0C dst=T0.8 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=35 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __negxli
+   Tr: idx=0 base=0 num=35
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000291
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	DBGLN ty=00 imm=00000296
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	UNARY ty=0C opr=02 dst=T1.1 srca=T0.1
+	CONV ty=0D dst=T2.1 srca=T1.1
+	BINARY ty=0D dst=L1.0 srca=T2.1 srcb=0500000000000001
+	CONV ty=0C dst=T0.2 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.00
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.01
+	UNARY ty=0C opr=02 dst=T1.2 srca=T0.3
+	CONV ty=0D dst=T2.2 srca=T1.2
+	BINARY ty=0D dst=T3.1 srca=L1.0 srcb=T2.2
+	BINARY ty=0D dst=L1.0 srca=T3.1 srcb=0500000000000000
+	CONV ty=0C dst=T0.4 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.01
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=01A.02
+	UNARY ty=0C opr=02 dst=T1.3 srca=T0.5
+	CONV ty=0D dst=T2.3 srca=T1.3
+	BINARY ty=0D dst=T3.2 srca=L1.0 srcb=T2.3
+	BINARY ty=0D dst=L1.0 srca=T3.2 srcb=0500000000000000
+	CONV ty=0C dst=T0.6 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.02
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.7 srca=A0.0 obj=01A.03
+	UNARY ty=0C opr=02 dst=T1.4 srca=T0.7
+	CONV ty=0D dst=T2.4 srca=T1.4
+	BINARY ty=0D dst=T3.3 srca=L1.0 srcb=T2.4
+	BINARY ty=0D dst=L1.0 srca=T3.3 srcb=0500000000000000
+	CONV ty=0C dst=T0.8 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=35 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __negxli
+BGBCC_SHXC_BuildFunction: Begin __addxli
+BGBCC_SHXC_BuildFunction: BegSim __addxli
+   Tr: idx=0 base=0 num=43
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002A1
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	DBGLN ty=00 imm=000002A6
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	CONV ty=0D dst=T1.1 srca=T0.1
+	LOADSLOT ty=0C dst=T0.2 srca=A1.0 obj=01A.00
+	CONV ty=0D dst=T2.1 srca=T1.1
+	CONV ty=0D dst=T3.1 srca=T0.2
+	BINARY ty=0D dst=L1.0 srca=T2.1 srcb=T3.1
+	CONV ty=0C dst=T0.3 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.00
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.01
+	CONV ty=0D dst=T1.2 srca=T0.4
+	BINARY ty=0D dst=T2.2 srca=L1.0 srcb=T1.2
+	LOADSLOT ty=0C dst=T0.5 srca=A1.0 obj=01A.01
+	CONV ty=0D dst=T1.3 srca=T2.2
+	CONV ty=0D dst=T3.2 srca=T0.5
+	BINARY ty=0D dst=L1.0 srca=T1.3 srcb=T3.2
+	CONV ty=0C dst=T0.6 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.01
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.7 srca=A0.0 obj=01A.02
+	CONV ty=0D dst=T1.4 srca=T0.7
+	BINARY ty=0D dst=T2.3 srca=L1.0 srcb=T1.4
+	LOADSLOT ty=0C dst=T0.8 srca=A1.0 obj=01A.02
+	CONV ty=0D dst=T1.5 srca=T2.3
+	CONV ty=0D dst=T3.3 srca=T0.8
+	BINARY ty=0D dst=L1.0 srca=T1.5 srcb=T3.3
+	CONV ty=0C dst=T0.9 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.02
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.10 srca=A0.0 obj=01A.03
+	CONV ty=0D dst=T1.6 srca=T0.10
+	BINARY ty=0D dst=T2.4 srca=L1.0 srcb=T1.6
+	LOADSLOT ty=0C dst=T0.11 srca=A1.0 obj=01A.03
+	CONV ty=0D dst=T1.7 srca=T2.4
+	CONV ty=0D dst=T3.4 srca=T0.11
+	BINARY ty=0D dst=L1.0 srca=T1.7 srcb=T3.4
+	CONV ty=0C dst=T0.12 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=43 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __addxli
+   Tr: idx=0 base=0 num=43
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002A1
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	DBGLN ty=00 imm=000002A6
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	CONV ty=0D dst=T1.1 srca=T0.1
+	LOADSLOT ty=0C dst=T0.2 srca=A1.0 obj=01A.00
+	CONV ty=0D dst=T2.1 srca=T1.1
+	CONV ty=0D dst=T3.1 srca=T0.2
+	BINARY ty=0D dst=L1.0 srca=T2.1 srcb=T3.1
+	CONV ty=0C dst=T0.3 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.00
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.01
+	CONV ty=0D dst=T1.2 srca=T0.4
+	BINARY ty=0D dst=T2.2 srca=L1.0 srcb=T1.2
+	LOADSLOT ty=0C dst=T0.5 srca=A1.0 obj=01A.01
+	CONV ty=0D dst=T1.3 srca=T2.2
+	CONV ty=0D dst=T3.2 srca=T0.5
+	BINARY ty=0D dst=L1.0 srca=T1.3 srcb=T3.2
+	CONV ty=0C dst=T0.6 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.01
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.7 srca=A0.0 obj=01A.02
+	CONV ty=0D dst=T1.4 srca=T0.7
+	BINARY ty=0D dst=T2.3 srca=L1.0 srcb=T1.4
+	LOADSLOT ty=0C dst=T0.8 srca=A1.0 obj=01A.02
+	CONV ty=0D dst=T1.5 srca=T2.3
+	CONV ty=0D dst=T3.3 srca=T0.8
+	BINARY ty=0D dst=L1.0 srca=T1.5 srcb=T3.3
+	CONV ty=0C dst=T0.9 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.02
+	BINARY ty=0D opr=0A dst=L1.0 srca=L1.0 srcb=I32(32)
+	LOADSLOT ty=0C dst=T0.10 srca=A0.0 obj=01A.03
+	CONV ty=0D dst=T1.6 srca=T0.10
+	BINARY ty=0D dst=T2.4 srca=L1.0 srcb=T1.6
+	LOADSLOT ty=0C dst=T0.11 srca=A1.0 obj=01A.03
+	CONV ty=0D dst=T1.7 srca=T2.4
+	CONV ty=0D dst=T3.4 srca=T0.11
+	BINARY ty=0D dst=L1.0 srca=T1.7 srcb=T3.4
+	CONV ty=0C dst=T0.12 srca=L1.0
+	STORESLOT ty=0C dst=L0.0 srca=L1.0 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=43 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __addxli
+BGBCC_SHXC_BuildFunction: Begin __subxli
+BGBCC_SHXC_BuildFunction: BegSim __subxli
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002B2
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	INITOBJ ty=04 dst=L1.0 imm=0000001A
+	DBGLN ty=00 imm=000002B7
+	CALL ty=011A dst=T0.1 srca=030000012D00003C imm=00000101
+   Tr: idx=1 base=6 num=1
+	CSRV ty=011A dst=T0.1 srca=030000012D00003C
+   Tr: idx=2 base=7 num=2
+	MOV ty=011A dst=L1.1 srca=T0.1
+	CALL ty=011A dst=T0.2 srca=030000012E00003D imm=00000202
+   Tr: idx=3 base=9 num=1
+	CSRV ty=011A dst=T0.2 srca=030000012E00003D
+   Tr: idx=4 base=10 num=2
+	MOV ty=011A dst=L0.1 srca=T0.2
+	RET ty=011A srca=L0.1
+   Tr: idx=5 base=12 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __subxli
+   Tr: idx=0 base=0 num=6
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002B2
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	INITOBJ ty=04 dst=L1.0 imm=0000001A
+	DBGLN ty=00 imm=000002B7
+	CALL ty=011A dst=T0.1 srca=030000012D00003C imm=00000101
+   Tr: idx=1 base=6 num=1
+	CSRV ty=011A dst=T0.1 srca=030000012D00003C
+   Tr: idx=2 base=7 num=2
+	MOV ty=011A dst=L1.1 srca=T0.1
+	CALL ty=011A dst=T0.2 srca=030000012E00003D imm=00000202
+   Tr: idx=3 base=9 num=1
+	CSRV ty=011A dst=T0.2 srca=030000012E00003D
+   Tr: idx=4 base=10 num=2
+	MOV ty=011A dst=L0.1 srca=T0.2
+	RET ty=011A srca=L0.1
+   Tr: idx=5 base=12 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __subxli
+BGBCC_SHXC_BuildFunction: Begin __andxli
+BGBCC_SHXC_BuildFunction: BegSim __andxli
+   Tr: idx=0 base=0 num=20
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002BC
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	LOADSLOT ty=0C dst=T1.1 srca=A0.0 obj=01A.00
+	BINARY ty=0C opr=05 dst=T2.1 srca=T0.1 srcb=T1.1
+	STORESLOT ty=0C dst=L0.0 srca=T2.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	LOADSLOT ty=0C dst=T1.2 srca=A0.0 obj=01A.01
+	BINARY ty=0C opr=05 dst=T2.2 srca=T0.2 srcb=T1.2
+	STORESLOT ty=0C dst=L0.0 srca=T2.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	LOADSLOT ty=0C dst=T1.3 srca=A0.0 obj=01A.02
+	BINARY ty=0C opr=05 dst=T2.3 srca=T0.3 srcb=T1.3
+	STORESLOT ty=0C dst=L0.0 srca=T2.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	LOADSLOT ty=0C dst=T1.4 srca=A0.0 obj=01A.03
+	BINARY ty=0C opr=05 dst=T2.4 srca=T0.4 srcb=T1.4
+	STORESLOT ty=0C dst=L0.0 srca=T2.4 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=20 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __andxli
+   Tr: idx=0 base=0 num=20
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002BC
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	LOADSLOT ty=0C dst=T1.1 srca=A0.0 obj=01A.00
+	BINARY ty=0C opr=05 dst=T2.1 srca=T0.1 srcb=T1.1
+	STORESLOT ty=0C dst=L0.0 srca=T2.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	LOADSLOT ty=0C dst=T1.2 srca=A0.0 obj=01A.01
+	BINARY ty=0C opr=05 dst=T2.2 srca=T0.2 srcb=T1.2
+	STORESLOT ty=0C dst=L0.0 srca=T2.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	LOADSLOT ty=0C dst=T1.3 srca=A0.0 obj=01A.02
+	BINARY ty=0C opr=05 dst=T2.3 srca=T0.3 srcb=T1.3
+	STORESLOT ty=0C dst=L0.0 srca=T2.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	LOADSLOT ty=0C dst=T1.4 srca=A0.0 obj=01A.03
+	BINARY ty=0C opr=05 dst=T2.4 srca=T0.4 srcb=T1.4
+	STORESLOT ty=0C dst=L0.0 srca=T2.4 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=20 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __andxli
+BGBCC_SHXC_BuildFunction: Begin __orxli
+BGBCC_SHXC_BuildFunction: BegSim __orxli
+   Tr: idx=0 base=0 num=20
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002C6
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	LOADSLOT ty=0C dst=T1.1 srca=A0.0 obj=01A.00
+	BINARY ty=0C opr=06 dst=T2.1 srca=T0.1 srcb=T1.1
+	STORESLOT ty=0C dst=L0.0 srca=T2.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	LOADSLOT ty=0C dst=T1.2 srca=A0.0 obj=01A.01
+	BINARY ty=0C opr=06 dst=T2.2 srca=T0.2 srcb=T1.2
+	STORESLOT ty=0C dst=L0.0 srca=T2.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	LOADSLOT ty=0C dst=T1.3 srca=A0.0 obj=01A.02
+	BINARY ty=0C opr=06 dst=T2.3 srca=T0.3 srcb=T1.3
+	STORESLOT ty=0C dst=L0.0 srca=T2.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	LOADSLOT ty=0C dst=T1.4 srca=A0.0 obj=01A.03
+	BINARY ty=0C opr=06 dst=T2.4 srca=T0.4 srcb=T1.4
+	STORESLOT ty=0C dst=L0.0 srca=T2.4 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=20 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __orxli
+   Tr: idx=0 base=0 num=20
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002C6
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	LOADSLOT ty=0C dst=T1.1 srca=A0.0 obj=01A.00
+	BINARY ty=0C opr=06 dst=T2.1 srca=T0.1 srcb=T1.1
+	STORESLOT ty=0C dst=L0.0 srca=T2.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	LOADSLOT ty=0C dst=T1.2 srca=A0.0 obj=01A.01
+	BINARY ty=0C opr=06 dst=T2.2 srca=T0.2 srcb=T1.2
+	STORESLOT ty=0C dst=L0.0 srca=T2.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	LOADSLOT ty=0C dst=T1.3 srca=A0.0 obj=01A.02
+	BINARY ty=0C opr=06 dst=T2.3 srca=T0.3 srcb=T1.3
+	STORESLOT ty=0C dst=L0.0 srca=T2.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	LOADSLOT ty=0C dst=T1.4 srca=A0.0 obj=01A.03
+	BINARY ty=0C opr=06 dst=T2.4 srca=T0.4 srcb=T1.4
+	STORESLOT ty=0C dst=L0.0 srca=T2.4 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=20 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __orxli
+BGBCC_SHXC_BuildFunction: Begin __xorxli
+BGBCC_SHXC_BuildFunction: BegSim __xorxli
+   Tr: idx=0 base=0 num=20
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002D0
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	LOADSLOT ty=0C dst=T1.1 srca=A0.0 obj=01A.00
+	BINARY ty=0C opr=07 dst=T2.1 srca=T0.1 srcb=T1.1
+	STORESLOT ty=0C dst=L0.0 srca=T2.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	LOADSLOT ty=0C dst=T1.2 srca=A0.0 obj=01A.01
+	BINARY ty=0C opr=07 dst=T2.2 srca=T0.2 srcb=T1.2
+	STORESLOT ty=0C dst=L0.0 srca=T2.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	LOADSLOT ty=0C dst=T1.3 srca=A0.0 obj=01A.02
+	BINARY ty=0C opr=07 dst=T2.3 srca=T0.3 srcb=T1.3
+	STORESLOT ty=0C dst=L0.0 srca=T2.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	LOADSLOT ty=0C dst=T1.4 srca=A0.0 obj=01A.03
+	BINARY ty=0C opr=07 dst=T2.4 srca=T0.4 srcb=T1.4
+	STORESLOT ty=0C dst=L0.0 srca=T2.4 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=20 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __xorxli
+   Tr: idx=0 base=0 num=20
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=000002D0
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	LOADSLOT ty=0C dst=T1.1 srca=A0.0 obj=01A.00
+	BINARY ty=0C opr=07 dst=T2.1 srca=T0.1 srcb=T1.1
+	STORESLOT ty=0C dst=L0.0 srca=T2.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	LOADSLOT ty=0C dst=T1.2 srca=A0.0 obj=01A.01
+	BINARY ty=0C opr=07 dst=T2.2 srca=T0.2 srcb=T1.2
+	STORESLOT ty=0C dst=L0.0 srca=T2.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	LOADSLOT ty=0C dst=T1.3 srca=A0.0 obj=01A.02
+	BINARY ty=0C opr=07 dst=T2.3 srca=T0.3 srcb=T1.3
+	STORESLOT ty=0C dst=L0.0 srca=T2.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	LOADSLOT ty=0C dst=T1.4 srca=A0.0 obj=01A.03
+	BINARY ty=0C opr=07 dst=T2.4 srca=T0.4 srcb=T1.4
+	STORESLOT ty=0C dst=L0.0 srca=T2.4 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=1 base=20 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __xorxli
+BGBCC_SHXC_BuildFunction: Begin __shlxli
+BGBCC_SHXC_BuildFunction: BegSim __shlxli
+   Tr: idx=0 base=0 num=14
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000030E
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	DBGLN ty=00 imm=00000312
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.4 obj=01A.03
+	DBGLN ty=00 imm=00000315
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=00800087
+   Tr: idx=1 base=14 num=9
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.5 obj=01A.00
+	LOADSLOT ty=0C dst=T0.6 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.6 obj=01A.01
+	LOADSLOT ty=0C dst=T0.7 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.7 obj=01A.02
+	LOADSLOT ty=0C dst=T0.8 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.8 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=2 base=23 num=3
+	LABEL ty=00 imm=00800087
+	DBGLN ty=00 imm=0000031C
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=00800088
+   Tr: idx=3 base=26 num=8
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	LOADSLOT ty=0C dst=T0.9 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.9 obj=01A.01
+	LOADSLOT ty=0C dst=T0.10 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.10 obj=01A.02
+	LOADSLOT ty=0C dst=T0.11 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.11 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=4 base=34 num=3
+	LABEL ty=00 imm=00800088
+	DBGLN ty=00 imm=00000323
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(64) imm=00800089
+   Tr: idx=5 base=37 num=7
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	LOADSLOT ty=0C dst=T0.12 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.12 obj=01A.02
+	LOADSLOT ty=0C dst=T0.13 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.13 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=6 base=44 num=3
+	LABEL ty=00 imm=00800089
+	DBGLN ty=00 imm=0000032A
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(96) imm=0080008A
+   Tr: idx=7 base=47 num=6
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.02
+	LOADSLOT ty=0C dst=T0.14 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.14 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=8 base=53 num=3
+	LABEL ty=00 imm=0080008A
+	DBGLN ty=00 imm=00000332
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(96) imm=0080008B
+   Tr: idx=9 base=56 num=10
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.02
+	LOADSLOT ty=0C dst=T0.15 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.1 srca=A1.0 srcb=I32(96)
+	CONV ty=0C dst=T3.1 srca=T0.15
+	MOV ty=00 dst=T4.1 srca=T1.1
+	BINARY ty=0C opr=08 dst=T2.1 srca=T3.1 srcb=T4.1
+	STORESLOT ty=0C dst=L0.0 srca=T2.1 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=10 base=66 num=3
+	LABEL ty=00 imm=0080008B
+	DBGLN ty=00 imm=00000339
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(64) imm=0080008C
+   Tr: idx=11 base=69 num=21
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	LOADSLOT ty=0C dst=T0.16 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.2 srca=A1.0 srcb=I32(64)
+	CONV ty=0C dst=T3.2 srca=T0.16
+	MOV ty=00 dst=T4.2 srca=T1.2
+	BINARY ty=0C opr=08 dst=T2.2 srca=T3.2 srcb=T4.2
+	STORESLOT ty=0C dst=L0.0 srca=T2.2 obj=01A.02
+	LOADSLOT ty=0C dst=T0.17 srca=A0.0 obj=01A.01
+	BINARY ty=00 opr=01 dst=T1.3 srca=A1.0 srcb=I32(64)
+	CONV ty=0C dst=T3.3 srca=T0.17
+	MOV ty=00 dst=T4.3 srca=T1.3
+	BINARY ty=0C opr=08 dst=T2.3 srca=T3.3 srcb=T4.3
+	LOADSLOT ty=0C dst=T0.18 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.4 srca=I32(96) srcb=A1.0
+	CONV ty=0C dst=T4.4 srca=T0.18
+	MOV ty=00 dst=T5.1 srca=T1.4
+	BINARY ty=0C opr=09 dst=T3.4 srca=T4.4 srcb=T5.1
+	BINARY ty=0C opr=06 dst=T0.19 srca=T2.3 srcb=T3.4
+	STORESLOT ty=0C dst=L0.0 srca=T0.19 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=12 base=90 num=3
+	LABEL ty=00 imm=0080008C
+	DBGLN ty=00 imm=00000341
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(32) imm=0080008D
+   Tr: idx=13 base=93 num=32
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	LOADSLOT ty=0C dst=T0.20 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.5 srca=A1.0 srcb=I32(32)
+	CONV ty=0C dst=T3.5 srca=T0.20
+	MOV ty=00 dst=T4.5 srca=T1.5
+	BINARY ty=0C opr=08 dst=T2.4 srca=T3.5 srcb=T4.5
+	STORESLOT ty=0C dst=L0.0 srca=T2.4 obj=01A.01
+	LOADSLOT ty=0C dst=T0.21 srca=A0.0 obj=01A.01
+	BINARY ty=00 opr=01 dst=T1.6 srca=A1.0 srcb=I32(32)
+	CONV ty=0C dst=T3.6 srca=T0.21
+	MOV ty=00 dst=T4.6 srca=T1.6
+	BINARY ty=0C opr=08 dst=T2.5 srca=T3.6 srcb=T4.6
+	LOADSLOT ty=0C dst=T0.22 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.7 srca=I32(64) srcb=A1.0
+	CONV ty=0C dst=T4.7 srca=T0.22
+	MOV ty=00 dst=T5.2 srca=T1.7
+	BINARY ty=0C opr=09 dst=T3.7 srca=T4.7 srcb=T5.2
+	BINARY ty=0C opr=06 dst=T0.23 srca=T2.5 srcb=T3.7
+	STORESLOT ty=0C dst=L0.0 srca=T0.23 obj=01A.02
+	LOADSLOT ty=0C dst=T0.24 srca=A0.0 obj=01A.02
+	BINARY ty=00 opr=01 dst=T1.8 srca=A1.0 srcb=I32(32)
+	CONV ty=0C dst=T3.8 srca=T0.24
+	MOV ty=00 dst=T4.8 srca=T1.8
+	BINARY ty=0C opr=08 dst=T2.6 srca=T3.8 srcb=T4.8
+	LOADSLOT ty=0C dst=T0.25 srca=A0.0 obj=01A.01
+	BINARY ty=00 opr=01 dst=T1.9 srca=I32(64) srcb=A1.0
+	CONV ty=0C dst=T4.9 srca=T0.25
+	MOV ty=00 dst=T5.3 srca=T1.9
+	BINARY ty=0C opr=09 dst=T3.9 srca=T4.9 srcb=T5.3
+	BINARY ty=0C opr=06 dst=T0.26 srca=T2.6 srcb=T3.9
+	STORESLOT ty=0C dst=L0.0 srca=T0.26 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=14 base=125 num=41
+	LABEL ty=00 imm=0080008D
+	DBGLN ty=00 imm=0000034B
+	LOADSLOT ty=0C dst=T0.27 srca=A0.0 obj=01A.00
+	CONV ty=0C dst=T2.7 srca=T0.27
+	MOV ty=00 dst=T3.10 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.10 srca=T2.7 srcb=T3.10
+	STORESLOT ty=0C dst=L0.0 srca=T1.10 obj=01A.00
+	LOADSLOT ty=0C dst=T0.28 srca=A0.0 obj=01A.01
+	CONV ty=0C dst=T2.8 srca=T0.28
+	MOV ty=00 dst=T3.11 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.11 srca=T2.8 srcb=T3.11
+	LOADSLOT ty=0C dst=T0.29 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T2.9 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.10 srca=T0.29
+	MOV ty=00 dst=T5.4 srca=T2.9
+	BINARY ty=0C opr=09 dst=T3.12 srca=T4.10 srcb=T5.4
+	BINARY ty=0C opr=06 dst=T0.30 srca=T1.11 srcb=T3.12
+	STORESLOT ty=0C dst=L0.0 srca=T0.30 obj=01A.01
+	LOADSLOT ty=0C dst=T0.31 srca=A0.0 obj=01A.02
+	CONV ty=0C dst=T2.10 srca=T0.31
+	MOV ty=00 dst=T3.13 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.12 srca=T2.10 srcb=T3.13
+	LOADSLOT ty=0C dst=T0.32 srca=A0.0 obj=01A.01
+	BINARY ty=00 opr=01 dst=T2.11 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.11 srca=T0.32
+	MOV ty=00 dst=T5.5 srca=T2.11
+	BINARY ty=0C opr=09 dst=T3.14 srca=T4.11 srcb=T5.5
+	BINARY ty=0C opr=06 dst=T0.33 srca=T1.12 srcb=T3.14
+	STORESLOT ty=0C dst=L0.0 srca=T0.33 obj=01A.02
+	LOADSLOT ty=0C dst=T0.34 srca=A0.0 obj=01A.03
+	CONV ty=0C dst=T2.12 srca=T0.34
+	MOV ty=00 dst=T3.15 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.13 srca=T2.12 srcb=T3.15
+	LOADSLOT ty=0C dst=T0.35 srca=A0.0 obj=01A.02
+	BINARY ty=00 opr=01 dst=T2.13 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.12 srca=T0.35
+	MOV ty=00 dst=T5.6 srca=T2.13
+	BINARY ty=0C opr=09 dst=T3.16 srca=T4.12 srcb=T5.6
+	BINARY ty=0C opr=06 dst=T0.36 srca=T1.13 srcb=T3.16
+	STORESLOT ty=0C dst=L0.0 srca=T0.36 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=15 base=166 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __shlxli
+   Tr: idx=0 base=0 num=14
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=0000030E
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	DBGLN ty=00 imm=00000312
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.4 obj=01A.03
+	DBGLN ty=00 imm=00000315
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=00800087
+   Tr: idx=1 base=14 num=9
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.5 obj=01A.00
+	LOADSLOT ty=0C dst=T0.6 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.6 obj=01A.01
+	LOADSLOT ty=0C dst=T0.7 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.7 obj=01A.02
+	LOADSLOT ty=0C dst=T0.8 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.8 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=2 base=23 num=3
+	LABEL ty=00 imm=00800087
+	DBGLN ty=00 imm=0000031C
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=00800088
+   Tr: idx=3 base=26 num=8
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	LOADSLOT ty=0C dst=T0.9 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.9 obj=01A.01
+	LOADSLOT ty=0C dst=T0.10 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.10 obj=01A.02
+	LOADSLOT ty=0C dst=T0.11 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.11 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=4 base=34 num=3
+	LABEL ty=00 imm=00800088
+	DBGLN ty=00 imm=00000323
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(64) imm=00800089
+   Tr: idx=5 base=37 num=7
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	LOADSLOT ty=0C dst=T0.12 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.12 obj=01A.02
+	LOADSLOT ty=0C dst=T0.13 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.13 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=6 base=44 num=3
+	LABEL ty=00 imm=00800089
+	DBGLN ty=00 imm=0000032A
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(96) imm=0080008A
+   Tr: idx=7 base=47 num=6
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.02
+	LOADSLOT ty=0C dst=T0.14 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.14 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=8 base=53 num=3
+	LABEL ty=00 imm=0080008A
+	DBGLN ty=00 imm=00000332
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(96) imm=0080008B
+   Tr: idx=9 base=56 num=10
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.02
+	LOADSLOT ty=0C dst=T0.15 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.1 srca=A1.0 srcb=I32(96)
+	CONV ty=0C dst=T3.1 srca=T0.15
+	MOV ty=00 dst=T4.1 srca=T1.1
+	BINARY ty=0C opr=08 dst=T2.1 srca=T3.1 srcb=T4.1
+	STORESLOT ty=0C dst=L0.0 srca=T2.1 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=10 base=66 num=3
+	LABEL ty=00 imm=0080008B
+	DBGLN ty=00 imm=00000339
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(64) imm=0080008C
+   Tr: idx=11 base=69 num=21
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	LOADSLOT ty=0C dst=T0.16 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.2 srca=A1.0 srcb=I32(64)
+	CONV ty=0C dst=T3.2 srca=T0.16
+	MOV ty=00 dst=T4.2 srca=T1.2
+	BINARY ty=0C opr=08 dst=T2.2 srca=T3.2 srcb=T4.2
+	STORESLOT ty=0C dst=L0.0 srca=T2.2 obj=01A.02
+	LOADSLOT ty=0C dst=T0.17 srca=A0.0 obj=01A.01
+	BINARY ty=00 opr=01 dst=T1.3 srca=A1.0 srcb=I32(64)
+	CONV ty=0C dst=T3.3 srca=T0.17
+	MOV ty=00 dst=T4.3 srca=T1.3
+	BINARY ty=0C opr=08 dst=T2.3 srca=T3.3 srcb=T4.3
+	LOADSLOT ty=0C dst=T0.18 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.4 srca=I32(96) srcb=A1.0
+	CONV ty=0C dst=T4.4 srca=T0.18
+	MOV ty=00 dst=T5.1 srca=T1.4
+	BINARY ty=0C opr=09 dst=T3.4 srca=T4.4 srcb=T5.1
+	BINARY ty=0C opr=06 dst=T0.19 srca=T2.3 srcb=T3.4
+	STORESLOT ty=0C dst=L0.0 srca=T0.19 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=12 base=90 num=3
+	LABEL ty=00 imm=0080008C
+	DBGLN ty=00 imm=00000341
+	JCMP ty=00 opr=04 srca=A1.0 srcb=I32(32) imm=0080008D
+   Tr: idx=13 base=93 num=32
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.00
+	LOADSLOT ty=0C dst=T0.20 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.5 srca=A1.0 srcb=I32(32)
+	CONV ty=0C dst=T3.5 srca=T0.20
+	MOV ty=00 dst=T4.5 srca=T1.5
+	BINARY ty=0C opr=08 dst=T2.4 srca=T3.5 srcb=T4.5
+	STORESLOT ty=0C dst=L0.0 srca=T2.4 obj=01A.01
+	LOADSLOT ty=0C dst=T0.21 srca=A0.0 obj=01A.01
+	BINARY ty=00 opr=01 dst=T1.6 srca=A1.0 srcb=I32(32)
+	CONV ty=0C dst=T3.6 srca=T0.21
+	MOV ty=00 dst=T4.6 srca=T1.6
+	BINARY ty=0C opr=08 dst=T2.5 srca=T3.6 srcb=T4.6
+	LOADSLOT ty=0C dst=T0.22 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T1.7 srca=I32(64) srcb=A1.0
+	CONV ty=0C dst=T4.7 srca=T0.22
+	MOV ty=00 dst=T5.2 srca=T1.7
+	BINARY ty=0C opr=09 dst=T3.7 srca=T4.7 srcb=T5.2
+	BINARY ty=0C opr=06 dst=T0.23 srca=T2.5 srcb=T3.7
+	STORESLOT ty=0C dst=L0.0 srca=T0.23 obj=01A.02
+	LOADSLOT ty=0C dst=T0.24 srca=A0.0 obj=01A.02
+	BINARY ty=00 opr=01 dst=T1.8 srca=A1.0 srcb=I32(32)
+	CONV ty=0C dst=T3.8 srca=T0.24
+	MOV ty=00 dst=T4.8 srca=T1.8
+	BINARY ty=0C opr=08 dst=T2.6 srca=T3.8 srcb=T4.8
+	LOADSLOT ty=0C dst=T0.25 srca=A0.0 obj=01A.01
+	BINARY ty=00 opr=01 dst=T1.9 srca=I32(64) srcb=A1.0
+	CONV ty=0C dst=T4.9 srca=T0.25
+	MOV ty=00 dst=T5.3 srca=T1.9
+	BINARY ty=0C opr=09 dst=T3.9 srca=T4.9 srcb=T5.3
+	BINARY ty=0C opr=06 dst=T0.26 srca=T2.6 srcb=T3.9
+	STORESLOT ty=0C dst=L0.0 srca=T0.26 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=14 base=125 num=41
+	LABEL ty=00 imm=0080008D
+	DBGLN ty=00 imm=0000034B
+	LOADSLOT ty=0C dst=T0.27 srca=A0.0 obj=01A.00
+	CONV ty=0C dst=T2.7 srca=T0.27
+	MOV ty=00 dst=T3.10 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.10 srca=T2.7 srcb=T3.10
+	STORESLOT ty=0C dst=L0.0 srca=T1.10 obj=01A.00
+	LOADSLOT ty=0C dst=T0.28 srca=A0.0 obj=01A.01
+	CONV ty=0C dst=T2.8 srca=T0.28
+	MOV ty=00 dst=T3.11 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.11 srca=T2.8 srcb=T3.11
+	LOADSLOT ty=0C dst=T0.29 srca=A0.0 obj=01A.00
+	BINARY ty=00 opr=01 dst=T2.9 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.10 srca=T0.29
+	MOV ty=00 dst=T5.4 srca=T2.9
+	BINARY ty=0C opr=09 dst=T3.12 srca=T4.10 srcb=T5.4
+	BINARY ty=0C opr=06 dst=T0.30 srca=T1.11 srcb=T3.12
+	STORESLOT ty=0C dst=L0.0 srca=T0.30 obj=01A.01
+	LOADSLOT ty=0C dst=T0.31 srca=A0.0 obj=01A.02
+	CONV ty=0C dst=T2.10 srca=T0.31
+	MOV ty=00 dst=T3.13 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.12 srca=T2.10 srcb=T3.13
+	LOADSLOT ty=0C dst=T0.32 srca=A0.0 obj=01A.01
+	BINARY ty=00 opr=01 dst=T2.11 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.11 srca=T0.32
+	MOV ty=00 dst=T5.5 srca=T2.11
+	BINARY ty=0C opr=09 dst=T3.14 srca=T4.11 srcb=T5.5
+	BINARY ty=0C opr=06 dst=T0.33 srca=T1.12 srcb=T3.14
+	STORESLOT ty=0C dst=L0.0 srca=T0.33 obj=01A.02
+	LOADSLOT ty=0C dst=T0.34 srca=A0.0 obj=01A.03
+	CONV ty=0C dst=T2.12 srca=T0.34
+	MOV ty=00 dst=T3.15 srca=A1.0
+	BINARY ty=0C opr=08 dst=T1.13 srca=T2.12 srcb=T3.15
+	LOADSLOT ty=0C dst=T0.35 srca=A0.0 obj=01A.02
+	BINARY ty=00 opr=01 dst=T2.13 srca=I32(32) srcb=A1.0
+	CONV ty=0C dst=T4.12 srca=T0.35
+	MOV ty=00 dst=T5.6 srca=T2.13
+	BINARY ty=0C opr=09 dst=T3.16 srca=T4.12 srcb=T5.6
+	BINARY ty=0C opr=06 dst=T0.36 srca=T1.13 srcb=T3.16
+	STORESLOT ty=0C dst=L0.0 srca=T0.36 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=15 base=166 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __shlxli
+BGBCC_SHXC_BuildFunction: Begin __shrxli
+BGBCC_SHXC_BuildFunction: BegSim __shrxli
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000357
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	DBGLN ty=00 imm=00000363
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=0080008E
+   Tr: idx=1 base=5 num=9
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.4 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=2 base=14 num=3
+	LABEL ty=00 imm=0080008E
+	DBGLN ty=00 imm=0000036B
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=0080008F
+   Tr: idx=3 base=17 num=8
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.5 obj=01A.00
+	LOADSLOT ty=0C dst=T0.6 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.6 obj=01A.01
+	LOADSLOT ty=0C dst=T0.7 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.7 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=4 base=25 num=3
+	LABEL ty=00 imm=0080008F
+	DBGLN ty=00 imm=00000372
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(64) imm=00800090
+   Tr: idx=5 base=28 num=7
+	LOADSLOT ty=0C dst=T0.8 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.8 obj=01A.00
+	LOADSLOT ty=0C dst=T0.9 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.9 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=6 base=35 num=3
+	LABEL ty=00 imm=00800090
+	DBGLN ty=00 imm=00000379
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(96) imm=00800091
+   Tr: idx=7 base=38 num=7
+	LOADSLOT ty=0C dst=T0.10 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.10 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.03
+	DBGLN ty=00 imm=0000037F
+	RET ty=011A srca=L0.0
+   Tr: idx=8 base=45 num=7
+	LABEL ty=00 imm=00800091
+	DBGLN ty=00 imm=00000382
+	STORESLOT ty=0C dst=L0.0 srca=I32(1437226410) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(1437226410) obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(1437226410) obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=I32(1437226410) obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=9 base=52 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: EndSim __shrxli
+   Tr: idx=0 base=0 num=5
+	DBGFN ty=00 imm=0000022772B510F4
+	DBGLN ty=00 imm=00000357
+	INITOBJ ty=04 dst=L0.0 imm=0000001A
+	DBGLN ty=00 imm=00000363
+	JCMP_Z ty=00 opr=01 srca=A1.0 imm=0080008E
+   Tr: idx=1 base=5 num=9
+	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=T0.1 obj=01A.00
+	LOADSLOT ty=0C dst=T0.2 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.2 obj=01A.01
+	LOADSLOT ty=0C dst=T0.3 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.3 obj=01A.02
+	LOADSLOT ty=0C dst=T0.4 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.4 obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=2 base=14 num=3
+	LABEL ty=00 imm=0080008E
+	DBGLN ty=00 imm=0000036B
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(32) imm=0080008F
+   Tr: idx=3 base=17 num=8
+	LOADSLOT ty=0C dst=T0.5 srca=A0.0 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=T0.5 obj=01A.00
+	LOADSLOT ty=0C dst=T0.6 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.6 obj=01A.01
+	LOADSLOT ty=0C dst=T0.7 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.7 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=4 base=25 num=3
+	LABEL ty=00 imm=0080008F
+	DBGLN ty=00 imm=00000372
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(64) imm=00800090
+   Tr: idx=5 base=28 num=7
+	LOADSLOT ty=0C dst=T0.8 srca=A0.0 obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=T0.8 obj=01A.00
+	LOADSLOT ty=0C dst=T0.9 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.9 obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=6 base=35 num=3
+	LABEL ty=00 imm=00800090
+	DBGLN ty=00 imm=00000379
+	JCMP ty=00 opr=01 srca=A1.0 srcb=I32(96) imm=00800091
+   Tr: idx=7 base=38 num=7
+	LOADSLOT ty=0C dst=T0.10 srca=A0.0 obj=01A.03
+	STORESLOT ty=0C dst=L0.0 srca=T0.10 obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=I32(0) obj=01A.03
+	DBGLN ty=00 imm=0000037F
+	RET ty=011A srca=L0.0
+   Tr: idx=8 base=45 num=7
+	LABEL ty=00 imm=00800091
+	DBGLN ty=00 imm=00000382
+	STORESLOT ty=0C dst=L0.0 srca=I32(1437226410) obj=01A.00
+	STORESLOT ty=0C dst=L0.0 srca=I32(1437226410) obj=01A.01
+	STORESLOT ty=0C dst=L0.0 srca=I32(1437226410) obj=01A.02
+	STORESLOT ty=0C dst=L0.0 srca=I32(1437226410) obj=01A.03
+	RET ty=011A srca=L0.0
+   Tr: idx=9 base=52 num=1
+	RETDFL ty=00
+BGBCC_SHXC_BuildFunction: End __shrxli

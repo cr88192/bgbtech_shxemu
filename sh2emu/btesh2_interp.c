@@ -729,7 +729,10 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 {
 	int tpair_v[32768];
 	int tpair_c[32768];
+	BTESH2_Trace *trtop[64];
 	BTESH2_Trace *tr;
+	u32 baddr;
+	char *snm;
 	int ntp;
 	int nt, ntl, tno, ano;
 	int i, j, k;
@@ -753,6 +756,7 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 	printf("dCol/dTot=%d/%d %.2f%%\n",
 		cpu->tr_dcol, cpu->tr_dtot, (cpu->tr_dcol*100.0)/cpu->tr_dtot);
 	
+#if 0
 	ntp=0;
 	for(i=0; i<65536; i++)
 	{
@@ -785,6 +789,46 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 			btesh2_print_NameForNameID((j   )&255),
 			tpair_c[i]);
 	}
+#endif
+
+#if 1
+	if(BTESH2_CpuNolink(cpu))
+	{
+		for(i=0; i<64; i++)
+			trtop[i]=NULL;
+		for(i=0; i<(BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL); i++)
+		{
+			tr=cpu->icache[i];
+			if(!tr)
+				continue;
+			for(j=63; j>=0; j--)
+			{
+				if(!trtop[j])
+					continue;
+				if(trtop[j]->excnt>=tr->excnt)
+					break;
+			}
+			j++;
+			if(j>=64)continue;
+			for(k=63; k>j; k--)
+				trtop[k]=trtop[k-1];
+			trtop[j]=tr;
+		}
+		for(i=0; i<16; i++)
+		{
+			tr=trtop[i];
+			if(!j)continue;
+			printf("  %08X % 8d", tr->srcpc, tr->excnt);
+
+			j=BTESH2_LookupNameForAddr(cpu, tr->srcpc, &snm, &baddr);
+			if(j>0)
+			{
+				printf(" %s+%06X", snm, tr->srcpc-baddr);
+			}
+			printf("\n");
+		}
+	}
+#endif
 
 	return(0);
 }
@@ -795,7 +839,7 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 	int i, j, k, l;
 	
 	BTESH2_DumpTraces(cpu);
-//	BTESH2_StatTraces(cpu);
+	BTESH2_StatTraces(cpu);
 
 	printf("Current GPRs:\n");
 	printf("R0   =%08X | R1  =%08X | R2   =%08X | R3   =%08X\n",
@@ -835,6 +879,7 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 		printf("XF12 =%08X | XF13=%08X | XF14 =%08X | XF15 =%08X\n",
 			cpu->fregs[28], cpu->fregs[29], cpu->fregs[30], cpu->fregs[31]);
 
+#if 0
 		printf("FPU Regs (Float):\n");
 		printf("FR0 =% e |FR1 =% e |FR2 =% e |FR3 =% e\n",
 			((float *)cpu->fregs)[ 0], ((float *)cpu->fregs)[ 1],
@@ -848,8 +893,9 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 		printf("FR12=% e |FR13=% e |FR14=% e |FR15=% e\n",
 			((float *)cpu->fregs)[12], ((float *)cpu->fregs)[13],
 			((float *)cpu->fregs)[14], ((float *)cpu->fregs)[15]);
+#endif
 
-#if 1
+#if 0
 		printf("FPU Regs (Double):\n");
 		d0=(((u64)cpu->fregs[ 0])<<32)|(cpu->fregs[ 1]);
 		d1=(((u64)cpu->fregs[ 2])<<32)|(cpu->fregs[ 3]);
@@ -923,13 +969,13 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 	}
 	
 	printf("Stack:\n");
-	for(i=0; i<8; i++)
+	for(i=0; i<16; i++)
 	{
-		printf("% 4d: ", i*8*4);
-		for(j=0; j<8; j++)
+		printf("%08X % 4d: ", cpu->regs[15]+i*4*4, i*4*4);
+		for(j=0; j<4; j++)
 		{
 			if(j)printf(" ");
-			k=i*8+j;
+			k=i*4+j;
 			l=BTESH2_GetAddrDWord(cpu, cpu->regs[15]+k*4);
 			printf("%08X", l);
 		}

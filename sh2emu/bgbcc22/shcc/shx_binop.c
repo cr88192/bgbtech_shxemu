@@ -870,6 +870,13 @@ int BGBCC_SHXC_EmitCallVReg(
 		sctx->sreg_live|=0x0004;
 //		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx,
 //			dst, BGBCC_SH_REG_R2);
+		BGBCC_SHXC_EmitLdaFrameVRegReg(ctx, sctx,
+			dst, BGBCC_SH_REG_R2);
+		if(BGBCC_CCXL_IsRegTempP(ctx, dst))
+		{
+			BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx,
+				dst, BGBCC_SH_REG_R2);
+		}
 	}
 
 	ni=0; nf=0; ns=0;

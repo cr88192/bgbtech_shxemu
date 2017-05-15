@@ -1034,7 +1034,7 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				break;
 			}
 
-#if 1
+#if 0
 			if(((opw2>>8)&15)==op->rn)
 			{
 				if((opw2&0xF000)==0x3000)
@@ -1472,7 +1472,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		
 		if(isds)
 			break;
-		
+
+#if 0
 		if(((opw2&0xF00F)==0x400C) && (((opw2>>4)&15)==op->rn))
 		{
 			op->rn=(opw2>>8)&15;
@@ -1526,7 +1527,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->Run=BTSH_Op_MOV_DecStRegImmD;
 			break;
 		}
-		
+#endif
+
 		break;
 	case 0xF: /* F--- */
 		switch(opw&15)
@@ -1744,6 +1746,7 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 
 int BTESH2_Trace_TraceUpdateJTrig(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 {
+	tr->excnt++;
 	if(tr->jtrig)
 	{
 		tr->jtrig--;
@@ -2774,6 +2777,7 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 //	tr->jtrig=126;
 //	tr->jtrig=62;
 	tr->jtrig=30;
+	tr->excnt=0;
 //	BTESH2_TryJitTrace(cpu, tr);
 
 	return(0);

@@ -513,7 +513,7 @@ BCCX_Node *BGBCP_ExpressionCast(BGBCP_ParseState *ctx, char **str)
 	if(!strcmp(b, "(") && (ty==BTK_BRACE))
 	{
 //		n=BGBCP_DefType(ctx, &s1);
-		n=BGBCP_ArgDefinition(ctx, &s1);
+		n=BGBCP_ArgDefinition2(ctx, &s1);
 		if(n)
 		{
 //			n1=BGBCP_DefName2(ctx, &s1);

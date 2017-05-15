@@ -447,6 +447,68 @@ int BGBCC_CCXL_StackGetCntCallArgs(BGBCC_TransState *ctx)
 	return(n);
 }
 
+int BGBCC_CCXL_StackGetConvCallArgs(BGBCC_TransState *ctx,
+	ccxl_register fnreg)
+{
+	BGBCC_CCXL_LiteralInfo *lobj;
+	BGBCC_CCXL_RegisterInfo *rfn;
+	ccxl_register treg, dreg;
+	ccxl_type bty, dty, sty;
+	int ms, ps;
+	int i, j, k, n, an;
+	
+	rfn=NULL;
+	
+	if(BGBCC_CCXL_IsRegGlobalP(ctx, fnreg))
+	{
+		i=BGBCC_CCXL_GetRegID(ctx, fnreg);
+		rfn=ctx->reg_globals[i];
+	}
+
+	bty=BGBCC_CCXL_GetRegType(ctx, fnreg);
+	if(BGBCC_CCXL_TypeFunctionP(ctx, bty))
+	{
+		i=BGBCC_CCXL_TypeObjectLiteralIndex(ctx, bty);
+		lobj=ctx->literals[i];
+		rfn=lobj->decl;
+	}
+
+	ms=ctx->markstack[ctx->markstackpos-1];
+	ps=ctx->regstackpos;
+	n=ps-ms;
+
+	an=0;
+	while(ps>ms)
+	{
+		ps--;
+		dreg=ctx->regstack[ps];
+		sty=BGBCC_CCXL_GetRegType(ctx, dreg);
+
+		if(an>=rfn->n_args)
+		{
+			if(BGBCC_CCXL_IsRegFloatP(ctx, dreg))
+			{
+				dty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_D);
+				BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &treg);
+				BGBCC_CCXL_EmitConv(ctx, dty, sty, treg, dreg);
+				ctx->regstack[ps]=treg;
+			}
+		}else
+		{
+			dty=rfn->args[an]->type;
+			if(!BGBCC_CCXL_TypeCompatibleP(ctx, dty, sty))
+			{
+				BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &treg);
+				BGBCC_CCXL_EmitConv(ctx, dty, sty, treg, dreg);
+				ctx->regstack[ps]=treg;
+			}
+		}
+
+		an++;
+	}
+	return(n);
+}
+
 ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx, char *name)
 {
 	ccxl_register treg, dreg;
@@ -467,17 +529,26 @@ ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx, char *name)
 //	i=BGBCC_CCXL_LookupAsRegister(ctx, name, &treg);
 	if(i<0)
 	{
+
+#if 0
 		BGBCC_CCXL_Error(ctx, "Undeclared Function %s\n", name);
 		BGBCC_CCXL_StackPushConstInt(ctx, 0);
 //		ri=BGBCC_CCXL_GetGlobal(ctx, name);
 //		ri->sig=bgbcc_strdup("(z)i");
 		return(CCXL_STATUS_NO);
+#endif
+
+		BGBCC_CCXL_Warn(ctx, "Undeclared Function %s\n", name);
+		i=BGBCC_CCXL_HandleMissingProto(ctx, name);
 	}
 
 	j=BGBCC_CCXL_LookupAsRegister(ctx, name, &treg);
 	bty=BGBCC_CCXL_GetRegReturnType(ctx, treg);
 	BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
-	n=BGBCC_CCXL_StackGetCntCallArgs(ctx);
+
+	n=BGBCC_CCXL_StackGetConvCallArgs(ctx, treg);
+//	n=BGBCC_CCXL_StackGetCntCallArgs(ctx);
+
 	BGBCC_CCXL_EmitCallOp(ctx, bty, dreg, treg, n);
 	BGBCC_CCXL_StackTransforCallArgs(ctx);
 	BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
@@ -775,17 +846,28 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 	int i, j, k;
 
 	opr=-1;
-	if(!strcmp(op, "+"))opr=CCXL_BINOP_ADD;
-	if(!strcmp(op, "-"))opr=CCXL_BINOP_SUB;
-	if(!strcmp(op, "*"))opr=CCXL_BINOP_MUL;
-	if(!strcmp(op, "/"))opr=CCXL_BINOP_DIV;
-	if(!strcmp(op, "%"))opr=CCXL_BINOP_MOD;
-	if(!strcmp(op, "&"))opr=CCXL_BINOP_AND;
-	if(!strcmp(op, "|"))opr=CCXL_BINOP_OR;
-	if(!strcmp(op, "^"))opr=CCXL_BINOP_XOR;
-	if(!strcmp(op, "<<"))opr=CCXL_BINOP_SHL;
-	if(!strcmp(op, ">>"))opr=CCXL_BINOP_SHR;
-	if(!strcmp(op, ">>>"))opr=CCXL_BINOP_SHRR;
+	if(!strcmp(op, "+"))
+		opr=CCXL_BINOP_ADD;
+	if(!strcmp(op, "-"))
+		opr=CCXL_BINOP_SUB;
+	if(!strcmp(op, "*"))
+		opr=CCXL_BINOP_MUL;
+	if(!strcmp(op, "/"))
+		opr=CCXL_BINOP_DIV;
+	if(!strcmp(op, "%"))
+		opr=CCXL_BINOP_MOD;
+	if(!strcmp(op, "&"))
+		opr=CCXL_BINOP_AND;
+	if(!strcmp(op, "|"))
+		opr=CCXL_BINOP_OR;
+	if(!strcmp(op, "^"))
+		opr=CCXL_BINOP_XOR;
+	if(!strcmp(op, "<<"))
+		opr=CCXL_BINOP_SHL;
+	if(!strcmp(op, ">>"))
+		opr=CCXL_BINOP_SHR;
+	if(!strcmp(op, ">>>"))
+		opr=CCXL_BINOP_SHRR;
 
 	if(opr>=0)
 	{
@@ -1104,6 +1186,21 @@ ccxl_status BGBCC_CCXL_StackBinaryOpStore(BGBCC_TransState *ctx,
 		dty=BGBCC_CCXL_GetRegType(ctx, dreg);
 //		BGBCC_CCXL_GetTypeBinaryDest(ctx, opr, sty, tty, &dty);
 
+		if(	!BGBCC_CCXL_TypeEqualP(ctx, dty, sty) ||
+			!BGBCC_CCXL_TypeEqualP(ctx, dty, tty))
+		{
+			if(BGBCC_CCXL_IsRegImmILFDP(ctx, treg) &&
+				BGBCC_CCXL_TypeSmallFloat128P(ctx, dty))
+			{
+				dty=sty; tty=sty;
+
+				if((opr!=CCXL_BINOP_SHL) && (opr!=CCXL_BINOP_SHR))
+				{
+					BGBCC_CCXL_ConvImm(ctx, dty, tty, treg, &treg);
+				}
+			}
+		}
+
 //		if(BGBCC_CCXL_TypeArrayOrPointerP(ctx, sty) &&
 //			BGBCC_CCXL_TypeIntP(ctx, tty))
 		if(BGBCC_CCXL_TypeArrayOrPointerP(ctx, sty) &&
@@ -1368,6 +1465,23 @@ ccxl_status BGBCC_CCXL_StackPushConstInt128(
 	BGBCC_CCXLR3_EmitArgInt(ctx, val_hi);
 
 	BGBCC_CCXL_GetRegForInt128Value(ctx, &sreg, val_lo, val_hi);
+	BGBCC_CCXL_PushRegister(ctx, sreg);
+	return(CCXL_STATUS_YES);
+//	BGBCC_CCXL_StubError(ctx);
+}
+
+ccxl_status BGBCC_CCXL_StackPushConstFloat128(
+	BGBCC_TransState *ctx, s64 val_lo, s64 val_hi)
+{
+	ccxl_register sreg;
+
+	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PushConstF128", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LDCONSTXF);
+	BGBCC_CCXLR3_EmitArgInt(ctx, val_lo);
+	BGBCC_CCXLR3_EmitArgInt(ctx, val_hi);
+
+	BGBCC_CCXL_GetRegForFloat128Value(ctx, &sreg, val_lo, val_hi);
 	BGBCC_CCXL_PushRegister(ctx, sreg);
 	return(CCXL_STATUS_YES);
 //	BGBCC_CCXL_StubError(ctx);

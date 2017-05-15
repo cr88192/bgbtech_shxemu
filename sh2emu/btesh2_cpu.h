@@ -416,6 +416,7 @@ byte csfl;		//control state flags
 byte jtrig;		//jit trigger count
 byte jtflag;	//JIT flags
 byte lnkcnt;	//link ref-count
+u32 excnt;		//execution count
 BTESH2_Trace *(*Run)(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 BTESH2_Trace *trnext;		//next trace to execute
 BTESH2_Trace *trjmpnext;	//next trace to execute (on a jump)

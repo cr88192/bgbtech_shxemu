@@ -46,6 +46,8 @@ UVLI (128-bit):
 
 Normal UVLI and SVLI values will use the 64-bit variety.
 * The 32-bit case is a subset, and will be used for Tags and IDs.
+* Most 128-bit values will also use the 64-bit variety.
+** However, they will encode the value as a pair.
 
 
 SVLI:
@@ -57,6 +59,16 @@ FVLI:
 ** SVLI exp;
 ** SVLI frac;
 * value=frac*(2.0^exp)
+
+XFVLI:
+* Triple of SVLIs encoding a float128 number.
+** SVLI exp;
+** SVLI frac_lo;	//low mantissa bits
+** SVLI frac_hi;	//high mantissa bits
+* value=frac128*(2.0^exp)
+** Fraction is treated as if it were a 128-bit integer value.
+* (exp==0) && (frac_hi!=0)
+** frac_lo and frac_hi are interpreted as a float128 split into 64-bit halves.
 
 Strings:
 * Start with a SVLI:
@@ -321,6 +333,15 @@ Opcodes (Structural)
 * 0x17, LITDATA
 ** SVLI tag;
 ** DATABLOB data;
+* 0x18, LITXLONG
+** SVLI tag;
+** SVLI value_lo;
+** SVLI value_hi;
+** Int128 Literal
+* 0x19, LITXFLOAT
+** SVLI tag;
+** XFVLI value;
+** Float128 Literal
 
 Opcodes (Executable Code)
 * 0x20, MARK ( -- Mark )
@@ -411,7 +432,7 @@ Opcodes (Executable Code)
 ** SVLI value_hi;
 ** Load constant int128 onto stack.
 * 0x3A, LDCONSTXF ( -- Val )
-** FVLI value;
+** XFVLI value;
 ** Load constant float128 onto stack.
 
 * 0x40, POP ( Val -- )

@@ -325,6 +325,10 @@ X(__va_start_1):
 .global X(__va_arg_i)
 X(__va_arg_i):
 	mov.l @(r4, 48), r0
+	mov #16, r1
+	cmp/ge r1, r0
+	bt __va_arg_i.L0
+	
 	mov.l @(r4, r0), r6
 	add #4, r0
 	mov.l  r0, @(r4,  48)
@@ -332,9 +336,21 @@ X(__va_arg_i):
 	rts
 //	bra _exit
 	nop
+__va_arg_i.L0:
+	mov.l @(r4, 56), r0
+	mov.l @r0+, r6
+	mov.l  r0, @(r4, 56)
+	mov r6, r0
+	rts
+	nop
+
 .global X(__va_arg_l)
 X(__va_arg_l):
 	mov.l @(r4, 48), r0
+	mov #12, r1
+	cmp/ge r1, r0
+	bt __va_arg_l.L0
+
 	mov.l @(r4, r0), r6
 	add #4, r0
 	mov.l @(r4, r0), r7
@@ -344,23 +360,58 @@ X(__va_arg_l):
 	mov r7, r1
 	rts
 	nop
+__va_arg_l.L0:
+	mov.l @(r4, 56), r0
+	mov.l @r0+, r6
+	mov.l @r0+, r7
+	mov.l  r0, @(r4, 56)
+	mov r6, r0
+	mov r7, r1
+	rts
+	nop
 
 .global X(__va_arg_f)
 X(__va_arg_f):
-	mov.l @(r4, 52), r3
+	mov.l @(r4, 52), r0
+	mov #48, r1
+	cmp/ge r1, r0
+	bt __va_arg_f.L0
+
 	fmov.s @(r4, r0), fr0
 	add #4, r0
 	mov.l  r0, @(r4, 52)
 	rts
 	nop
+__va_arg_f.L0:
+	mov.l @(r4, 56), r0
+	fmov.s @r0+, fr0
+	mov.l  r0, @(r4, 56)
+	rts
+	nop
+
 .global X(__va_arg_d)
 X(__va_arg_d):
 	mov.l @(r4, 52), r0
-	fmov.s @(r4, r0), fr0
-	add #4, r0
+	
+	add #7, r0
+	and #-8, r0
+	
+	mov #48, r1
+	cmp/ge r1, r0
+	bt __va_arg_d.L0
+
 	fmov.s @(r4, r0), fr1
 	add #4, r0
+	fmov.s @(r4, r0), fr0
+	add #4, r0
 	mov.l  r0, @(r4, 52)
+	rts
+	nop
+__va_arg_d.L0:
+	mov.l @(r4, 56), r0
+	fmov.s @r0+, fr1
+	fmov.s @r0+, fr0
+	mov.l  r0, @(r4, 56)
 	rts
 	nop
 
@@ -846,6 +897,7 @@ X(__memcpy32_32):
 X(__memcpy32_36):
 	sts.l pr, @-r15
 	bsr __memcpy32_16
+	nop
 	mov 16, r0
 	add r0, r4
 	add r0, r5
@@ -854,6 +906,7 @@ X(__memcpy32_36):
 X(__memcpy32_40):
 	sts.l pr, @-r15
 	bsr __memcpy32_16
+	nop
 	mov 16, r0
 	add r0, r4
 	add r0, r5
@@ -862,6 +915,7 @@ X(__memcpy32_40):
 X(__memcpy32_44):
 	sts.l pr, @-r15
 	bsr __memcpy32_16
+	nop
 	mov 16, r0
 	add r0, r4
 	add r0, r5
@@ -870,6 +924,7 @@ X(__memcpy32_44):
 X(__memcpy32_48):
 	sts.l pr, @-r15
 	bsr __memcpy32_16
+	nop
 	mov 16, r0
 	add r0, r4
 	add r0, r5
@@ -878,6 +933,7 @@ X(__memcpy32_48):
 X(__memcpy32_52):
 	sts.l pr, @-r15
 	bsr __memcpy32_20
+	nop
 	mov 20, r0
 	add r0, r4
 	add r0, r5
@@ -886,6 +942,7 @@ X(__memcpy32_52):
 X(__memcpy32_56):
 	sts.l pr, @-r15
 	bsr __memcpy32_24
+	nop
 	mov 24, r0
 	add r0, r4
 	add r0, r5
@@ -894,6 +951,7 @@ X(__memcpy32_56):
 X(__memcpy32_60):
 	sts.l pr, @-r15
 	bsr __memcpy32_28
+	nop
 	mov 28, r0
 	add r0, r4
 	add r0, r5
@@ -902,6 +960,7 @@ X(__memcpy32_60):
 X(__memcpy32_64):
 	sts.l pr, @-r15
 	bsr __memcpy32_20
+	nop
 	mov 32, r0
 	add r0, r4
 	add r0, r5
@@ -958,6 +1017,44 @@ X(__memcpy32):
 	__memcpy32.l1_4:
 
 	lds.l @r15+, pr
+	rts
+	nop
+
+#endif
+
+#if 0
+.global X(strcpy)
+X(strcpy):
+	strcpy.L0:
+	mov.b @r5+, r3
+	mov.b r3, @r4
+	add #1, r4
+	tst r3, r3
+	bf strcpy.L0
+	rts
+	nop
+#endif
+
+#if 0
+.global X(strcmp)
+X(strcmp):
+//	sts.l pr, @-r15
+
+	strcmp.L1:
+	mov.b @r4+, r2
+	mov.b @r5+, r3
+	tst r2, r2
+	bt strcmp.L0
+	tst r3, r3
+	bt strcmp.L0
+	cmp/eq r3, r3
+	bt strcmp.L1
+
+	strcmp.L0:
+	mov r2, r0
+	sub r3, r0
+
+//	lds.l @r15+, pr
 	rts
 	nop
 

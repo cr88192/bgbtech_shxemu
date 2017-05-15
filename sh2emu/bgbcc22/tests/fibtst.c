@@ -160,7 +160,9 @@ int test_ar2d_0()
 int test_ll_0()
 {
 	long long li, lj, lk;
+	unsigned char *cs;
 	__int128 lxi, lxj, lxk;
+	int p0, p1, p2, p3;
 	int i, j, k;
 	
 //	li=0x12_3456_789A_BCDELL;
@@ -187,14 +189,53 @@ int test_ll_0()
 	printf("LL0: %8X_%8X\n", (int)(li>>32), (int)li);
 	printf("LL1: %8X_%8X\n", (int)(lj>>32), (int)lj);
 	printf("LL2: %8X_%8X\n", (int)(lk>>32), (int)lk);
+
+	lk=li/10;
+	printf("LL3: %8X_%8X\n", (int)(lk>>32), (int)lk);
+
+	lk=li>>2;
+	printf("LL4: %8X_%8X\n", (int)(lk>>32), (int)lk);
 	
 	lxi=0x01234567_89ABCDEF_FEDCBA98_76543210XL;
 	
+#if 0
+	cs=&lxi;
+	for(i=0; i<16; i++)
+	{
+		j=*cs;
+		cs++;
+		printf("%2X ", j);
+	}
+	printf("\n");
+#endif
+
 //	lxj=lxi+lxi;
 
-	printf("LX0: %8X_%8X_%8X_%8X\n",
-		(int)(lxi>>96), (int)(lxi>>64),
-		(int)(lxi>>32), (int)lxi);
+//	*(int *)-1=-1;
+
+	p0=(int)(lxi>>96);
+	p1=(int)(lxi>>64);
+	p2=(int)(lxi>>32);
+	p3=(int)lxi;
+//	p3=(int)(lxi>>0);
+
+//	*(int *)-1=-1;
+
+//	printf("LX0: %8X_%8X_", p0, p1);
+//	printf("%8X_%8X\n", p2, p3);
+	printf("LX0: %8X_%8X_%8X_%8X\n", p0, p1, p2, p3);
+
+//	printf("LX0: %8X_%8X_%8X_%8X\n",
+//		(int)(lxi>>96), (int)(lxi>>64),
+//		(int)(lxi>>32), (int)lxi);
+}
+#endif
+
+#if 1
+test_old1(a, b)
+int a, b;
+{
+	printf("Old Style %d %d\n", a, b);
 }
 #endif
 
@@ -301,6 +342,8 @@ int main()
 	puts("main: G\n");
 	
 	test_ll_0();
+	
+	test_old1(2, 3);
 
 	puts("main: H\n");
 }

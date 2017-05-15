@@ -101,8 +101,15 @@ int BGBCC_CCXL_AddVirtTr(BGBCC_TransState *ctx, BGBCC_CCXL_VirtTr *tr)
 int BGBCC_CCXL_EmitMarkEndTrace(BGBCC_TransState *ctx)
 {
 	BGBCC_CCXL_VirtTr *tr;
-	int i;
+	int i, n;
 
+	n=ctx->n_vop-ctx->s_vop;
+	if(!n)
+		return(-1);
+
+	if(n<0)
+		{ BGBCC_DBGBREAK }
+	
 	tr=BGBCC_CCXL_AllocVirtTr(ctx);
 
 	tr->b_ops=ctx->s_vop;

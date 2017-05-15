@@ -44,7 +44,7 @@ BCCX_Node *BGBCP_VarsList(BGBCP_ParseState *ctx, char **str, BCCX_Node *tn)
 
 		if(strcmp(b, ","))
 		{
-			BGBCP_Error(s, "PDSCR_CParse_VarsList: "
+			BGBCP_ErrorCtx(ctx, s, "PDSCR_CParse_VarsList: "
 				"Invalid token '%s' in vars list\n", b);
 
 //			printf("%p %s\n", s, s);
@@ -111,9 +111,8 @@ BCCX_Node *BGBCP_FunVarsList(BGBCP_ParseState *ctx, char **str)
 
 		if(strcmp(b, ","))
 		{
-			BGBCP_Error(s, "PDSCR_CParse_FunVarsList: "
-				"Invalid token '%s' "
-				"in vars list\n", b);
+			BGBCP_ErrorCtx(ctx, s, "PDSCR_CParse_FunVarsList: "
+				"Invalid token '%s' in vars list\n", b);
 //			*(int *)-1=-1;
 
 			*str=NULL;
@@ -195,7 +194,7 @@ BCCX_Node *BGBCP_DefName(BGBCP_ParseState *ctx, char **str)
 		BCCX_Set(n, "name", b);
 	}else
 	{
-		BGBCP_Error(s, "BGBCP_DefName: "
+		BGBCP_ErrorCtx(ctx, s, "BGBCP_DefName: "
 			"Invalid Token '%s'\n", b);
 //		*(int *)(-1)=-1;
 	}
@@ -247,7 +246,8 @@ BCCX_Node *BGBCP_DefName(BGBCP_ParseState *ctx, char **str)
 		break;
 	}
 
-	if(nl)BCCX_AddV(nty, BCCX_New1V("size", nl));
+//	if(nl)BCCX_AddV(nty, BCCX_New1V("size", nl));
+	if(nl)BCCX_Add(nty, BCCX_New1("size", nl));
 	if(anl)BCCX_Add(nty, anl);
 	BCCX_SetInt(nty, "flags", fl);
 	BCCX_SetInt(nty, "ind", ind);
@@ -300,7 +300,8 @@ BCCX_Node *BGBCP_VarDefinition(BGBCP_ParseState *ctx,
 {
 	char b[256], b2[256];
 	char *s, *s2;
-	int ty, ty2, fl, ind;
+	char *fn, *tdn;
+	int ty, ty2, fl, ind, fl1, ind1;
 	BCCX_Node *n, *n1, *n2, *n3, *n4;
 	BCCX_Node *nl;
 	int i, j;
@@ -431,10 +432,15 @@ BCCX_Node *BGBCP_VarDefinition(BGBCP_ParseState *ctx,
 //	BCCX_SetInt(n, "ind", ind+BCCX_GetInt(n, "ind"));
 //	BCCX_Add(n, BCCX_Clone(tn));
 
+	tdn=BCCX_Get(n, "name");
 	n4=BCCX_FindTag(n, "type");
-	BCCX_Set(n4, "name", BCCX_Get(tn, "name"));
-	BCCX_SetInt(n4, "flags", fl|BCCX_GetInt(n4, "flags"));
-	BCCX_SetInt(n4, "ind", ind+BCCX_GetInt(n4, "ind"));
+	fn=BCCX_Get(tn, "name");
+	fl1=fl|BCCX_GetInt(n4, "flags");
+	ind1=ind+BCCX_GetInt(n4, "ind");
+
+	BCCX_Set(n4, "name", fn);
+	BCCX_SetInt(n4, "flags", fl1);
+	BCCX_SetInt(n4, "ind", ind1);
 
 	n1=BCCX_FindTag(n4, "size");
 	n2=BCCX_FindTag(tn, "size");
@@ -480,12 +486,58 @@ BCCX_Node *BGBCP_VarDefinition(BGBCP_ParseState *ctx,
 
 BCCX_Node *BGBCP_ArgDefinition(BGBCP_ParseState *ctx, char **str)
 {
+	char b[256];
 	char *s, *s2;
 	BCCX_Node *n, *n1;
+	int i, ty;
 
 	s=*str;
 	n1=BGBCP_DefType(ctx, &s);
-	if(!n1)return(NULL);
+	if(!n1)
+	{
+//		BGBCC_DBGBREAK
+	
+#if 1
+		//Old Style
+		BGBCP_Token(s, b, &ty);
+		if(ty==BTK_NAME)
+		{
+			n1=BCCX_New("type");
+			BCCX_Set(n1, "name", "int");
+			BCCX_SetInt(n1, "flags", 0);
+			BCCX_SetInt(n1, "ind", 0);
+
+			n=BGBCP_VarDefinition(ctx, &s, n1);
+			BCCX_CheckDeleteUnlinked(n1);
+
+			*str=s;
+			return(n);
+		}
+#endif
+
+		return(NULL);
+	}
+
+	n=BGBCP_VarDefinition(ctx, &s, n1);
+	BCCX_CheckDeleteUnlinked(n1);
+
+	*str=s;
+	return(n);
+}
+
+BCCX_Node *BGBCP_ArgDefinition2(BGBCP_ParseState *ctx, char **str)
+{
+	char b[256];
+	char *s, *s2;
+	BCCX_Node *n, *n1;
+	int i, ty;
+
+	s=*str;
+	n1=BGBCP_DefType(ctx, &s);
+	if(!n1)
+	{
+		return(NULL);
+	}
 
 	n=BGBCP_VarDefinition(ctx, &s, n1);
 	BCCX_CheckDeleteUnlinked(n1);
@@ -498,7 +550,7 @@ BCCX_Node *BGBCP_Definition(BGBCP_ParseState *ctx, char **str)
 {
 	char b[256];
 	char *s, *s2;
-	BCCX_Node *n, *n1, *n2;
+	BCCX_Node *n, *n1, *n2, *ntl;
 	int tk0, tk1, tk2;
 	int i, ty;
 
@@ -574,6 +626,29 @@ BCCX_Node *BGBCP_Definition(BGBCP_ParseState *ctx, char **str)
 		n1=BGBCP_VarDefinition(ctx, &s2, n);
 		if(BCCX_TagIsP(n1, "proto"))
 		{
+			ntl=NULL;
+			BGBCP_Token(s2, b, &ty);
+			if(strcmp(b, "{") &&
+				strcmp(b, ",") &&
+				strcmp(b, ";"))
+			{
+				ntl=BCCX_New("argdecls");
+				while(s2 && strcmp(b, "{"))
+				{
+					n2=BGBCP_Definition(ctx, &s2);
+					if(n2)
+					{
+						BCCX_Add(ntl, n2);
+					}else
+					{
+						BGBCP_ErrorCtx(ctx, s, "Parse ArgDecl Fail");
+						break;
+					}
+
+					BGBCP_Token(s2, b, &ty);
+				}
+			}
+
 			BGBCP_Token(s2, b, &ty);
 			if(!strcmp(b, "{"))
 			{
@@ -588,6 +663,8 @@ BCCX_Node *BGBCP_Definition(BGBCP_ParseState *ctx, char **str)
 
 				BCCX_SetTag(n, "defun");
 				BCCX_AddV(n, BCCX_New1V("body", n1));
+
+				if(ntl)BCCX_Add(n, ntl);
 
 				tk2=tk1-tk0;
 				if(tk2>0)
@@ -610,6 +687,90 @@ BCCX_Node *BGBCP_Definition(BGBCP_ParseState *ctx, char **str)
 	return(NULL);
 }
 
+BCCX_Node *BGBCP_DefinitionOldStyle(BGBCP_ParseState *ctx, char **str)
+{
+	char b[256], b2[256];
+	char *s, *s2;
+	BCCX_Node *n, *n1, *n2, *ntl;
+	int tk0, tk1, tk2;
+	int i, ty, ty2;
+
+	s=*str;
+
+	s2=BGBCP_Token(s, b, &ty);
+	BGBCP_Token(s2, b2, &ty2);
+	
+	if((ty!=BTK_NAME) || strcmp(b2, "("))
+		return(NULL);
+
+	BGBCP_WarnCtx(ctx, s, "Old-style declaration\n");
+
+	n=BCCX_New("type");
+	BCCX_Set(n, "name", "int");
+	BCCX_SetInt(n, "flags", 0);
+	BCCX_SetInt(n, "ind", 0);
+
+	s2=s;
+	n1=BGBCP_VarDefinition(ctx, &s2, n);
+	if(BCCX_TagIsP(n1, "proto"))
+	{
+		ntl=NULL;
+		BGBCP_Token(s2, b, &ty);
+		if(strcmp(b, "{") &&
+			strcmp(b, ",") &&
+			strcmp(b, ";"))
+		{
+			ntl=BCCX_New("argdecls");
+			while(s2 && strcmp(b, "{"))
+			{
+				n2=BGBCP_Definition(ctx, &s2);
+				if(n2)
+				{
+					BCCX_Add(ntl, n2);
+				}else
+				{
+					BGBCP_ErrorCtx(ctx, s, "Parse ArgDecl Fail");
+					break;
+				}
+
+				BGBCP_Token(s2, b, &ty);
+			}
+		}
+
+		BGBCP_Token(s2, b, &ty);
+		if(!strcmp(b, "{"))
+		{
+			BCCX_CheckDeleteUnlinked(n);
+
+			n=BCCX_Clone(n1);
+			BCCX_CheckDeleteUnlinked(n1);
+
+			tk0=BGBCP_GetTokenCount();
+			n1=BGBCP_BlockStatement2(ctx, &s2);
+			tk1=BGBCP_GetTokenCount();
+
+			BCCX_SetTag(n, "defun");
+			BCCX_AddV(n, BCCX_New1V("body", n1));
+
+			if(ntl)BCCX_Add(n, ntl);
+
+			tk2=tk1-tk0;
+			if(tk2>0)
+				BCCX_SetInt(n, "tokens", tk2);
+
+			*str=s2;
+			return(n);
+		}
+	}
+
+	n1=BGBCP_VarsList(ctx, &s, n);
+	BCCX_CheckDeleteUnlinked(n);
+//		n1=BCCX_Clone(n1);
+	n=BCCX_New1("vars", n1);
+
+	*str=s;
+	return(n);
+}
 
 BCCX_Node *BGBCP_ForceDefinition(BGBCP_ParseState *ctx, char **str)
 {
@@ -711,7 +872,7 @@ BCCX_Node *BGBCP_ForceDefinition(BGBCP_ParseState *ctx, char **str)
 
 	BGBCP_Token(s, b, &ty);
 
-	BGBCP_Error(s, "BGBCP_ForceDefinition: "
+	BGBCP_ErrorCtx(ctx, s, "BGBCP_ForceDefinition: "
 		"Failed Parse Type '%s'\n", b);
 
 	return(NULL);

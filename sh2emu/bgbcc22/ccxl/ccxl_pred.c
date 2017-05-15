@@ -977,7 +977,7 @@ int BGBCC_CCXL_GetRegImmFloat128Value(
 	vf=*(u64 *)(&f);
 	
 	vh=((vf&0x7FFFFFFFFFFFFFFFLL)>>4)+
-		(((u64)(16383-2047))<<48)+
+		(((u64)(16383-1023))<<48)+
 		(vf&0x8000000000000000LL);
 	vl=vf<<60;
 
@@ -1179,6 +1179,23 @@ ccxl_status BGBCC_CCXL_GetRegForInt128Value(
 		(i&CCXL_REGINTPL_MASK)|
 		((j&CCXL_REGINTPL_MASK)<<CCXL_REGINTPH_SHL)|
 		CCXL_REGTY_IMM_I128_LVT;
+	*rreg=treg;
+	return(CCXL_STATUS_YES);
+}
+
+ccxl_status BGBCC_CCXL_GetRegForFloat128Value(
+	BGBCC_TransState *ctx, ccxl_register *rreg,
+	s64 val_lo, s64 val_hi)
+{
+	ccxl_register treg;
+	int i, j, k;
+	
+	i=BGBCC_CCXL_IndexLitS64(ctx, val_lo);
+	j=BGBCC_CCXL_IndexLitS64(ctx, val_hi);
+	treg.val=
+		(i&CCXL_REGINTPL_MASK)|
+		((j&CCXL_REGINTPL_MASK)<<CCXL_REGINTPH_SHL)|
+		CCXL_REGTY_IMM_F128_LVT;
 	*rreg=treg;
 	return(CCXL_STATUS_YES);
 }

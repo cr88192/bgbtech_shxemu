@@ -491,7 +491,8 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 	{
 		BGBCP_SetLinenum(name, tbuf, 1);
 		s=tbuf;
-		n1=BGBCP_Block(ctx, &s);
+//		n1=BGBCP_Block(ctx, &s);
+		n1=BGBCP_Toplevel(ctx, &s);
 	}
 
 	t1=clock();
