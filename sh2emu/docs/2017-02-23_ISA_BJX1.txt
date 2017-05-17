@@ -375,7 +375,7 @@ SHAD/SHLD Shift (64-bit Mode)
 ***		4mCB / MOV.B @-Rm, R0
 ***		4mDB / MOV.W/Q @-Rm, R0
 ***		4mEB / MOV.L @-Rm, R0
-***             4-FB -		
+***		4-FB -		
 **	4nmC SHAD Rm, Rn
 **	4nmD SHLD Rm, Rn
 **	4--E
@@ -412,7 +412,7 @@ SHAD/SHLD Shift (64-bit Mode)
 **	80nd MOV.B R0, @(Rn,disp)
 **	81nd MOV.W/Q R0, @(Rn,disp)
 ***		Always Word if disp==0
-**	82-- -
+**	82-- - XPFX1/Escape32B
 **	83-- / JSR/N
 **	84md MOV.B @(Rm,disp), R0
 **	85md MOV.W/Q @(Rm,disp), R0
@@ -499,7 +499,7 @@ SHAD/SHLD Shift (64-bit Mode)
 ****			FDFD / FTRV2
 ****			FEFD / FSCA			//
 **	FnmE FMAC FRm, FRn
-**	F--F ! (BT RES-32)
+**	F--F ! (BT Reserved-32)
 
 32-bit I-Forms (currently unsupported, reserved):
 * 0ni0-iiii MOVI20 #imm, Rn

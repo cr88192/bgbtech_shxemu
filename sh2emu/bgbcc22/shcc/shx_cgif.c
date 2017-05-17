@@ -766,10 +766,42 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 
 	BGBCC_SHXC_ResetFpscrDefaults(ctx, sctx);
 
+	j=0; k=-1;
 	for(i=0; i<16; i++)
 	{
-		BGBCC_SHXC_EmitReloadSavedFrameReg(ctx, sctx,
-			BGBCC_SH_REG_FR0+i);
+		if(sctx->freg_save&(1<<i))
+			{ j++; if(k<0)k=i; }
+	}
+	
+	if((j>2) && ((sctx->frm_size-32)>=64))
+	{
+		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
+			BGBCC_SH_REG_R0, sctx->frm_size-96+k*4);
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
+			BGBCC_SH_REG_SP, BGBCC_SH_REG_R0);
+
+		for(i=k; i<16; i++)
+		{
+			if(!(sctx->freg_save>>i))
+				break;
+			if(sctx->freg_save&(1<<i))
+			{
+				BGBCC_SHX_EmitOpLdIncRegReg(sctx, BGBCC_SH_NMID_FMOVS,
+					BGBCC_SH_REG_R0, BGBCC_SH_REG_FR0+i);
+			}else
+			{
+				BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
+					BGBCC_SH_REG_R0, 4);
+			}
+		}
+
+	}else
+	{
+		for(i=0; i<16; i++)
+		{
+			BGBCC_SHXC_EmitReloadSavedFrameReg(ctx, sctx,
+				BGBCC_SH_REG_FR0+i);
+		}
 	}
 	
 #if 1

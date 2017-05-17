@@ -22,10 +22,10 @@
  *   (-24) Saved R10
  *   (-28) Saved R9
  *   (-32) Saved R8
- *   (-36) Saved FR12
- *   (-40) Saved FR13
- *   (-44) Saved FR14
- *   (-48) Saved FR15
+ *   (-36) Saved FR15
+ *   (-40) Saved FR14
+ *   (-44) Saved FR13
+ *   (-48) Saved FR12
  *   ...
  *   SP (Stack Ref Point)
  */
@@ -861,10 +861,10 @@ int BGBCC_SHXC_SaveFrameOfsForFpReg(
 	ofs=0;
 	switch(reg)
 	{
-	case BGBCC_SH_REG_FR12: ofs=-36; break;
-	case BGBCC_SH_REG_FR13: ofs=-40; break;
-	case BGBCC_SH_REG_FR14: ofs=-44; break;
-	case BGBCC_SH_REG_FR15: ofs=-48; break;
+	case BGBCC_SH_REG_FR15: ofs=-36; break;
+	case BGBCC_SH_REG_FR14: ofs=-40; break;
+	case BGBCC_SH_REG_FR13: ofs=-44; break;
+	case BGBCC_SH_REG_FR12: ofs=-48; break;
 	}
 	return(ofs);
 }
@@ -2022,7 +2022,8 @@ int BGBCC_SHXC_EmitReleaseRegister(
 	}
 
 	/* value in register? */
-	for(i=0; i<5; i++)
+//	for(i=0; i<5; i++)
+	for(i=0; i<bgbcc_shx_maxreg; i++)
 	{
 		if(!((sctx->regalc_save)&(1<<i)))
 			continue;
@@ -2325,9 +2326,18 @@ int BGBCC_SHXC_EmitMovVRegVReg(
 		}
 	}
 #endif
-	
-	cdreg=BGBCC_SHXC_EmitTryGetRegisterWrite(ctx, sctx, dreg);
-	csreg=BGBCC_SHXC_EmitTryGetRegisterRead(ctx, sctx, sreg);
+
+//	if(BGBCC_CCXL_TypeSmallIntP(ctx, type) ||
+//		BGBCC_CCXL_TypePointerP(ctx, type))
+	if(0)
+	{
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+	}else
+	{
+		cdreg=BGBCC_SHXC_EmitTryGetRegisterWrite(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitTryGetRegisterRead(ctx, sctx, sreg);
+	}
 
 	if((cdreg>=0) && (cdreg!=BGBCC_SH_REG_ZZR))
 	{

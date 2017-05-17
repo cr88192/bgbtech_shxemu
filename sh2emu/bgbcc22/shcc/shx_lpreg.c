@@ -1,9 +1,17 @@
-const byte bgbcc_shx_lcachereg[6]={
-	BGBCC_SH_REG_LR13,
-	BGBCC_SH_REG_LR11,
-	BGBCC_SH_REG_LR10,
-	BGBCC_SH_REG_LR9,
+//const byte bgbcc_shx_lcachereg[6]={
+//	BGBCC_SH_REG_LR13,
+//	BGBCC_SH_REG_LR11,
+//	BGBCC_SH_REG_LR10,
+//	BGBCC_SH_REG_LR9,
+//	BGBCC_SH_REG_LR8, 255 };
+
+const byte bgbcc_shx_lcachereg[8]={
+	BGBCC_SH_REG_LR14, BGBCC_SH_REG_LR13,
+	BGBCC_SH_REG_LR12, BGBCC_SH_REG_LR11,
+	BGBCC_SH_REG_LR10, BGBCC_SH_REG_LR9,
 	BGBCC_SH_REG_LR8, 255 };
+const byte bgbcc_shx_lminreg=0;
+const byte bgbcc_shx_lmaxreg=6;
 
 int BGBCC_SHXC_EmitTryGetLpRegister(
 	BGBCC_TransState *ctx,
@@ -14,7 +22,8 @@ int BGBCC_SHXC_EmitTryGetLpRegister(
 	int i;
 
 	/* value already in a register? */
-	for(i=1; i<4; i++)
+//	for(i=1; i<4; i++)
+	for(i=bgbcc_shx_lminreg; i<bgbcc_shx_lmaxreg; i++)
 	{
 		if(!((sctx->regalc_save)&(3<<i)))
 			continue;
@@ -44,22 +53,33 @@ int BGBCC_SHXC_EmitGetLpRegister(
 	ccxl_register reg, int fl)
 {
 	ccxl_register zreg;
-	int creg;
+	int creg, excl;
 	int i;
 
 	creg=BGBCC_SHXC_EmitTryGetLpRegister(ctx, sctx, reg, fl);
 	if((creg>=0) && (creg!=BGBCC_SH_REG_ZZR))
 		return(creg);
 
-	for(i=1; i<4; i++)
+	excl=0;
+	if(sctx->use_bp)
+		excl|=1;
+	if(sctx->is_pic)
+		excl|=4;
+
+//	for(i=1; i<4; i++)
+	for(i=bgbcc_shx_lminreg; i<bgbcc_shx_lmaxreg; i++)
 		if(sctx->regalc_ltcnt[i]<255)
 			sctx->regalc_ltcnt[i]++;
 
 	zreg.val=CCXL_REGTY_TEMP|CCXL_REGID_REGMASK;
 
 	/* Check for registers not holding a live value. */
-	for(i=2; i<5; i++)
+//	for(i=2; i<5; i++)
+	for(i=bgbcc_shx_lminreg; i<bgbcc_shx_lmaxreg; i++)
 	{
+		if(excl&(3<<i))
+			continue;
+
 		if(!((sctx->regalc_save)&(3<<i)))
 			continue;
 		if(!((sctx->regalc_live)&(3<<i)))
@@ -78,8 +98,12 @@ int BGBCC_SHXC_EmitGetLpRegister(
 	}
 
 	/* Check for unallocated registers. */
-	for(i=1; i<4; i++)
+//	for(i=1; i<4; i++)
+	for(i=bgbcc_shx_lminreg; i<bgbcc_shx_lmaxreg; i++)
 	{
+		if(excl&(3<<i))
+			continue;
+
 		if((sctx->regalc_save)&(1<<i))
 			continue;
 		if((sctx->regalc_live)&(3<<i))
@@ -111,11 +135,13 @@ int BGBCC_SHXC_EmitReleaseLpRegister(
 	BGBCC_SHX_Context *sctx,
 	ccxl_register reg)
 {
+	static int rchk=0;
 	int creg;
 	int i;
 
 	/* value in register? */
-	for(i=1; i<4; i++)
+//	for(i=1; i<4; i++)
+	for(i=bgbcc_shx_lminreg; i<bgbcc_shx_lmaxreg; i++)
 	{
 		if(!((sctx->regalc_save)&(3<<i)))
 			continue;
@@ -131,7 +157,13 @@ int BGBCC_SHXC_EmitReleaseLpRegister(
 				if((sctx->regalc_dirty)&(1<<i))
 				{
 					creg=bgbcc_shx_lcachereg[i+1];
-					BGBCC_SHXC_EmitStoreFrameVRegReg(ctx, sctx, reg, creg);
+					if(!rchk)
+					{
+						rchk++;
+						BGBCC_SHXC_EmitStoreFrameVRegReg(
+							ctx, sctx, reg, creg);
+						rchk--;
+					}
 					sctx->regalc_dirty&=~(1<<i);
 				}
 

@@ -817,7 +817,8 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 		for(i=0; i<16; i++)
 		{
 			tr=trtop[i];
-			if(!j)continue;
+			if(!tr)
+				continue;
 			printf("  %08X % 8d", tr->srcpc, tr->excnt);
 
 			j=BTESH2_LookupNameForAddr(cpu, tr->srcpc, &snm, &baddr);
