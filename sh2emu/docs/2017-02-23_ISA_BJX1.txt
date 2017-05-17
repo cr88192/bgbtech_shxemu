@@ -298,8 +298,10 @@ SHAD/SHLD Shift (64-bit Mode)
 ***		4-14 -
 ***		4-24 ROTCL Rn
 ***		4-34
-***		4n44 EXTU.L Rn			//zero extend 32 -> 64
-***		4n54 EXTS.L Rn			//sign extend 32 -> 64
+***		4n44 ! EXTU.L Rn			//zero extend 32 -> 64
+***		4n54 ! EXTS.L Rn			//sign extend 32 -> 64
+***		4n64 ! MOV.W @R0, Rn		//(Alt MOV.W, BJX1-64)
+***		4m74 ! MOV.W Rm, @R0		//(Alt MOV.W, BJX1-64)
 ***             ..
 ***		4n84 / DIVU R0, Rn
 ***		4n94 / DIVS R0, Rn
