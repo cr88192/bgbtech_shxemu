@@ -165,6 +165,16 @@ ccxl_type BGBCC_CCXL_GetRegType(
 		{ tty.val=CCXL_TY_SB|CCXL_TY_PTRIDX1; return(tty); }
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_WSTRING)
 		{ tty.val=CCXL_TY_US|CCXL_TY_PTRIDX1; return(tty); }
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LONG_LVT)
+		{ tty.val=CCXL_TY_L; return(tty); }
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE_LVT)
+		{ tty.val=CCXL_TY_D; return(tty); }
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_I128_LVT)
+		{ tty.val=CCXL_TY_I128; return(tty); }
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_F128_LVT)
+		{ tty.val=CCXL_TY_F128; return(tty); }
 	
 	tty.val=CCXL_TY_UNDEF_I;
 	return(tty);

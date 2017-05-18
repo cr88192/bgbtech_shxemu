@@ -390,9 +390,9 @@ int BGBCC_SHXC_EmitBinaryVRegVRegVRegInt(
 
 	if(nm1>=0)
 	{
-		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
 		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, csreg, cdreg);
 		if(nm2>=0)
@@ -412,9 +412,9 @@ int BGBCC_SHXC_EmitBinaryVRegVRegVRegInt(
 
 	if(opr==CCXL_BINOP_MUL)
 	{
-		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
 		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MULL, ctreg, csreg);
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_STS,

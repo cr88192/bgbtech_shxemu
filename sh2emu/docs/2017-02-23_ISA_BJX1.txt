@@ -147,6 +147,7 @@ SHAD/SHLD Shift (64-bit Mode)
 * 1100-0000		//All bits are bit 63
 
 
+Basic I-Forms (16-bit)
 * 0---
 **	0--0 RES (32-bit ops)
 **	0--1 RES (32-bit ops)

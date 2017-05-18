@@ -32,7 +32,7 @@ int BGBCC_SHXC_EmitTryGetLpRegister(
 		{
 			sctx->regalc_live|=3<<i;
 			if(fl&1)
-				sctx->regalc_dirty|=3<<i;
+				sctx->regalc_dirty|=1<<i;
 
 			if(sctx->regalc_ltcnt[i]>0)
 				sctx->regalc_ltcnt[i]--;

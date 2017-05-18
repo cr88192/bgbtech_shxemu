@@ -1744,6 +1744,8 @@ int BGBCC_SHXC_EmitTryGetRegister(
 	BGBCC_SHX_Context *sctx,
 	ccxl_register reg, int fl)
 {
+	static int rchk=0;
+	ccxl_register reg1;
 	int creg, excl;
 	int i, bi;
 
@@ -1802,16 +1804,6 @@ int BGBCC_SHXC_EmitTryGetRegister(
 				if((bi<0) || 
 					(sctx->regalc_ltcnt[i]>sctx->regalc_ltcnt[bi]))
 						bi=i;
-
-#if 0
-				sctx->regalc_ltcnt[i]=0;
-				sctx->regalc_map[i]=reg;
-				sctx->regalc_utcnt[i]=1;
-				sctx->regalc_live|=1<<i;
-				sctx->regalc_dirty|=1<<i;
-				creg=bgbcc_shx_cachereg[i];
-				return(creg);
-#endif
 			}
 		}
 		
@@ -1819,6 +1811,26 @@ int BGBCC_SHXC_EmitTryGetRegister(
 		if(bi>=0)
 		{
 			i=bi;
+
+#if 1
+			if((sctx->regalc_dirty)&(1<<i))
+			{
+				reg1=sctx->regalc_map[i];
+				creg=bgbcc_shx_cachereg[i];		
+				if(BGBCC_CCXL_IsRegSgLongP(ctx, reg1))
+					creg=bgbcc_shx_lcachereg[i+1];
+
+				if(!rchk)
+				{
+					rchk++;
+					BGBCC_SHXC_EmitStoreFrameVRegReg(ctx,
+						sctx, reg1, creg);
+					rchk--;
+				}
+				sctx->regalc_dirty&=~(1<<i);
+			}
+#endif
+
 			sctx->regalc_ltcnt[i]=0;
 			sctx->regalc_map[i]=reg;
 			sctx->regalc_utcnt[i]=1;
@@ -1841,6 +1853,8 @@ int BGBCC_SHXC_EmitGetRegister(
 	BGBCC_SHX_Context *sctx,
 	ccxl_register reg, int fl)
 {
+	static int rchk=0;
+	ccxl_register reg1;
 	int creg, lng, excl, bi;
 	int i;
 
@@ -1882,21 +1896,8 @@ int BGBCC_SHXC_EmitGetRegister(
 			continue;
 		if(!((sctx->regalc_live)&(1<<i)))
 		{
-			if((bi<0) || (sctx->regalc_ltcnt[i]>sctx->regalc_ltcnt[bi]))
+			if((bi<0) || (sctx->regalc_ltcnt[i]>=sctx->regalc_ltcnt[bi]))
 				bi=i;
-
-#if 0
-			sctx->regalc_ltcnt[i]=0;
-			sctx->regalc_map[i]=reg;
-			sctx->regalc_utcnt[i]=1;
-			sctx->regalc_live|=1<<i;
-			if(fl&1)
-				sctx->regalc_dirty|=1<<i;
-			creg=bgbcc_shx_cachereg[i];
-			if(fl&2)
-				{ BGBCC_SHXC_EmitLoadFrameVRegReg(ctx, sctx, reg, creg); }
-			return(creg);
-#endif
 		}
 	}
 
@@ -1904,6 +1905,26 @@ int BGBCC_SHXC_EmitGetRegister(
 	if(bi>=0)
 	{
 		i=bi;
+
+#if 1
+		if((sctx->regalc_dirty)&(1<<i))
+		{
+			reg1=sctx->regalc_map[i];
+			creg=bgbcc_shx_cachereg[i];		
+			if(BGBCC_CCXL_IsRegSgLongP(ctx, reg1))
+				creg=bgbcc_shx_lcachereg[i+1];
+
+			if(!rchk)
+			{
+				rchk++;
+				BGBCC_SHXC_EmitStoreFrameVRegReg(ctx,
+					sctx, reg1, creg);
+				rchk--;
+			}
+			sctx->regalc_dirty&=~(1<<i);
+		}
+#endif
+
 		sctx->regalc_ltcnt[i]=0;
 		sctx->regalc_map[i]=reg;
 		sctx->regalc_utcnt[i]=1;
@@ -2041,6 +2062,7 @@ int BGBCC_SHXC_EmitReleaseRegister(
 
 			if(!sctx->regalc_utcnt[i])
 			{
+#if 1
 				if((sctx->regalc_dirty)&(1<<i))
 				{
 					creg=bgbcc_shx_cachereg[i];		
@@ -2053,6 +2075,7 @@ int BGBCC_SHXC_EmitReleaseRegister(
 					}
 					sctx->regalc_dirty&=~(1<<i);
 				}
+#endif
 
 				sctx->regalc_live&=~(1<<i);
 			}
@@ -2089,7 +2112,7 @@ int BGBCC_SHXC_EmitSyncRegisters(
 				continue;
 
 			if(BGBCC_CCXL_IsRegSgLongP(ctx, reg))
-				creg=bgbcc_shx_lcachereg[i];
+				creg=bgbcc_shx_lcachereg[i+1];
 
 			BGBCC_SHXC_EmitStoreFrameVRegReg(ctx, sctx, reg, creg);
 
@@ -2239,6 +2262,8 @@ int BGBCC_SHXC_EmitMovRegReg(
 		return(1);
 	}
 
+	printf("BGBCC_SHXC_EmitMovRegReg: "
+		"Bad MOV Regs Rm=%02X Rn=%02X\n", sreg, dreg);
 	BGBCC_CCXL_StubError(ctx);
 	return(0);
 
@@ -2327,16 +2352,33 @@ int BGBCC_SHXC_EmitMovVRegVReg(
 	}
 #endif
 
-//	if(BGBCC_CCXL_TypeSmallIntP(ctx, type) ||
-//		BGBCC_CCXL_TypePointerP(ctx, type))
-	if(0)
+	if(BGBCC_CCXL_TypeSmallIntP(ctx, type) ||
+		BGBCC_CCXL_TypePointerP(ctx, type))
+//	if(0)
+//	if(1)
 	{
-		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
-		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		csreg=BGBCC_SHXC_EmitTryGetRegisterRead(ctx, sctx, sreg);
+		cdreg=BGBCC_SHXC_EmitTryGetRegisterWrite(ctx, sctx, dreg);
+
+		if((csreg<0) || (csreg==BGBCC_SH_REG_ZZR))
+			csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		if((cdreg<0) || (cdreg==BGBCC_SH_REG_ZZR))
+			cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		
+		if((cdreg&0xF0) != (csreg&0xF0))
+		{
+			printf("BGBCC_SHXC_EmitMovVRegVReg: "
+				"Bad MOV Regs Rm=%02X(%016llX) Rn=%02X(%016llX)\n",
+				csreg, sreg.val, cdreg, dreg.val);
+			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+			cdreg=BGBCC_SH_REG_ZZR;
+			csreg=BGBCC_SH_REG_ZZR;
+		}
 	}else
 	{
-		cdreg=BGBCC_SHXC_EmitTryGetRegisterWrite(ctx, sctx, dreg);
 		csreg=BGBCC_SHXC_EmitTryGetRegisterRead(ctx, sctx, sreg);
+		cdreg=BGBCC_SHXC_EmitTryGetRegisterWrite(ctx, sctx, dreg);
 	}
 
 	if((cdreg>=0) && (cdreg!=BGBCC_SH_REG_ZZR))

@@ -384,19 +384,19 @@ byte nofs_s32tab;
 
 int jitfl;
 
-ccxl_register regalc_map[6];
-byte regalc_ltcnt[6];	//lifetime count (who to evict)
-byte regalc_utcnt[6];	//current use count (0=unused)
-byte regalc_save;		//register has been saved and may hold a value
-byte regalc_live;		//register is currently holding a value
-byte regalc_dirty;
+ccxl_register regalc_map[16];
+byte regalc_ltcnt[16];	//lifetime count (who to evict)
+byte regalc_utcnt[16];	//current use count (0=unused)
+u16 regalc_save;		//register has been saved and may hold a value
+u16 regalc_live;		//register is currently holding a value
+u16 regalc_dirty;
 
-ccxl_register fregalc_map[4];
-byte fregalc_ltcnt[4];	//lifetime count (who to evict)
-byte fregalc_utcnt[4];	//current use count (0=unused)
-byte fregalc_save;		//register has been saved and may hold a value
-byte fregalc_live;		//register is currently holding a value
-byte fregalc_dirty;
+ccxl_register fregalc_map[16];
+byte fregalc_ltcnt[16];	//lifetime count (who to evict)
+byte fregalc_utcnt[16];	//current use count (0=unused)
+u16 fregalc_save;		//register has been saved and may hold a value
+u16 fregalc_live;		//register is currently holding a value
+u16 fregalc_dirty;
 
 u16 sreg_live;			//scratch registers live (per 3AC operation)
 u16 sreg_held;			//scratch registers live-held (multiple ops)
