@@ -65,6 +65,16 @@ int BGBCC_SHXC_RegNormalizeReg(
 	return(dreg);
 }
 
+int BGBCC_SHXC_CheckVRegIsZRegP(
+	BGBCC_TransState *ctx,
+	BGBCC_SHX_Context *sctx,
+	ccxl_register reg)
+{
+	if(((reg.val&0xFFF)==0xFFF) && ((reg.val>>56)<4))
+		return(1);
+	return(0);
+}
+
 int BGBCC_SHXC_GetStatusFpscrSz(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx)

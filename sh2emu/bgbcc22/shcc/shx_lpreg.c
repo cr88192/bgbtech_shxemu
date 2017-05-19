@@ -82,7 +82,9 @@ int BGBCC_SHXC_EmitGetLpRegister(
 
 		if(!((sctx->regalc_save)&(3<<i)))
 			continue;
-		if(!((sctx->regalc_live)&(3<<i)))
+//		if(!((sctx->regalc_live)&(3<<i)))
+		if(	!((sctx->regalc_live)&(3<<i)) &&
+			!((sctx->regalc_dirty)&(3<<i)))
 		{
 			sctx->regalc_map[i+0]=reg;
 			sctx->regalc_map[i+1]=zreg;
@@ -108,6 +110,16 @@ int BGBCC_SHXC_EmitGetLpRegister(
 			continue;
 		if((sctx->regalc_live)&(3<<i))
 			continue;
+
+//		if(	((sctx->regalc_live)&(3<<i)) ||
+//			((sctx->regalc_dirty)&(3<<i)))
+//				continue;
+
+		if((sctx->regalc_dirty)&(1<<i))
+			BGBCC_SHXC_EmitSyncRegisterIndex(ctx, sctx, i+0);
+		if((sctx->regalc_dirty)&(2<<i))
+			BGBCC_SHXC_EmitSyncRegisterIndex(ctx, sctx, i+1);
+
 		
 		sctx->regalc_map[i+0]=reg;
 		sctx->regalc_map[i+1]=zreg;

@@ -773,7 +773,8 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 			{ j++; if(k<0)k=i; }
 	}
 	
-	if((j>2) && ((sctx->frm_size-32)>=64))
+//	if((j>2) && ((sctx->frm_size-32)>=64))
+	if(0)
 	{
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
 			BGBCC_SH_REG_R0, sctx->frm_size-96+k*4);
@@ -1283,6 +1284,7 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 		ctx->lln=op->imm.si;
 		break;
 	case CCXL_VOP_LABEL:
+		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_EmitLabelFlushRegisters(ctx, sctx);
 		BGBCC_SHXC_ResetFpscrLocal(ctx, sctx);
 		BGBCC_SHX_EmitLabel(sctx,
@@ -1318,9 +1320,9 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 		BGBCC_SHXC_EmitLabelFlushRegisters(ctx, sctx);
 		break;
 	case CCXL_VOP_CALL:
+		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		sctx->sreg_live|=0x00F4;
 		sctx->sfreg_live|=0x0FF0;
-		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_EmitCallVReg(ctx, sctx,
 			op->type, op->dst, op->srca,
 			op->imm.call.na, op->imm.call.args);

@@ -985,6 +985,7 @@ int BGBCC_SHXC_EmitRegIsFpReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, in
 int BGBCC_SHXC_EmitRegIsDpReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int dreg);
 int BGBCC_SHXC_EmitRegIsLpReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int dreg);
 int BGBCC_SHXC_RegNormalizeReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int dreg);
+int BGBCC_SHXC_CheckVRegIsZRegP(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
 int BGBCC_SHXC_GetStatusFpscrSz(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx);
 int BGBCC_SHXC_GetStatusFpscrPr(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx);
 int BGBCC_SHXC_UpdateStatusFpscr(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, u32 state);
@@ -1081,6 +1082,7 @@ int BGBCC_SHXC_EmitTryGetRegisterDirty(BGBCC_TransState *ctx, BGBCC_SHX_Context 
 int BGBCC_SHXC_EmitTryGetRegisterWrite(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
 int BGBCC_SHXC_EmitTryGetRegisterRead(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
 int BGBCC_SHXC_EmitReleaseRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
+int BGBCC_SHXC_EmitSyncRegisterIndex(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int rgix);
 int BGBCC_SHXC_EmitSyncRegisters(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx);
 int BGBCC_SHXC_EmitLabelFlushRegisters(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx);
 int BGBCC_SHXC_EmitMovRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int sreg, int dreg);
