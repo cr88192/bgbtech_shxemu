@@ -632,6 +632,13 @@ int BGBCC_SHX_EmitRelocRelW12(BGBCC_SHX_Context *ctx, int lbl)
 
 int BGBCC_SHX_EmitOpNone(BGBCC_SHX_Context *ctx, int nmid)
 {
+	if(!BGBCC_SHX_TryEmitOpNone(ctx, nmid))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpNone(BGBCC_SHX_Context *ctx, int nmid)
+{
 	int opw, opw2;
 
 	opw=-1; opw2=-1;
@@ -668,6 +675,13 @@ int BGBCC_SHX_EmitOpNone(BGBCC_SHX_Context *ctx, int nmid)
 }
 
 int BGBCC_SHX_EmitOpReg(BGBCC_SHX_Context *ctx, int nmid, int reg)
+{
+	if(!BGBCC_SHX_TryEmitOpReg(ctx, nmid, reg))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpReg(BGBCC_SHX_Context *ctx, int nmid, int reg)
 {
 	int opw, opw2;
 
@@ -774,6 +788,13 @@ int BGBCC_SHX_EmitOpReg(BGBCC_SHX_Context *ctx, int nmid, int reg)
 
 int BGBCC_SHX_EmitOpImm(BGBCC_SHX_Context *ctx, int nmid, int imm)
 {
+	if(!BGBCC_SHX_TryEmitOpImm(ctx, nmid, imm))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpImm(BGBCC_SHX_Context *ctx, int nmid, int imm)
+{
 	int opw, opw2;
 
 	opw=-1; opw2=-1;
@@ -799,6 +820,13 @@ int BGBCC_SHX_EmitOpImm(BGBCC_SHX_Context *ctx, int nmid, int imm)
 }
 
 int BGBCC_SHX_EmitOpMReg(BGBCC_SHX_Context *ctx, int nmid, int reg)
+{
+	if(!BGBCC_SHX_TryEmitOpMReg(ctx, nmid, reg))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpMReg(BGBCC_SHX_Context *ctx, int nmid, int reg)
 {
 	int opw, opw2;
 
@@ -832,6 +860,14 @@ int BGBCC_SHX_EmitOpMReg(BGBCC_SHX_Context *ctx, int nmid, int reg)
 int BGBCC_SHX_EmitOpLblReg(BGBCC_SHX_Context *ctx,
 	int nmid, int lbl, int reg)
 {
+	if(!BGBCC_SHX_TryEmitOpLblReg(ctx, nmid, lbl, reg))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpLblReg(BGBCC_SHX_Context *ctx,
+	int nmid, int lbl, int reg)
+{
 	int opw, opw2, rlty;
 
 	opw=-1; opw2=-1; rlty=-1;
@@ -861,6 +897,13 @@ int BGBCC_SHX_EmitOpLblReg(BGBCC_SHX_Context *ctx,
 }
 
 int BGBCC_SHX_EmitOpLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
+{
+	if(!BGBCC_SHX_TryEmitOpLabel(ctx, nmid, lbl))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 {
 	int opw, opw2, rlty;
 
@@ -904,6 +947,13 @@ int BGBCC_SHX_EmitOpLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 }
 
 int BGBCC_SHX_EmitOpNear12Label(BGBCC_SHX_Context *ctx, int nmid, int lbl)
+{
+	if(!BGBCC_SHX_TryEmitOpNear12Label(ctx, nmid, lbl))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpNear12Label(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 {
 	int opw, opw2, opw3, rlty;
 
@@ -961,6 +1011,13 @@ int BGBCC_SHX_EmitOpNear12Label(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 }
 
 int BGBCC_SHX_EmitOpFarLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
+{
+	if(!BGBCC_SHX_TryEmitOpFarLabel(ctx, nmid, lbl))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpFarLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 {
 	int opw, opw2, opw3, rlty;
 
@@ -1081,6 +1138,13 @@ int BGBCC_SHX_EmitOpAutoLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 }
 
 int BGBCC_SHX_EmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
+{
+	if(!BGBCC_SHX_TryEmitOpRegReg(ctx, nmid, rm, rn))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 {
 	int opw, opw2;
 
@@ -1239,7 +1303,16 @@ int BGBCC_SHX_EmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	return(0);
 }
 
-int BGBCC_SHX_EmitOpRegStReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
+int BGBCC_SHX_EmitOpRegStReg(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int rn)
+{
+	if(!BGBCC_SHX_TryEmitOpRegStReg(ctx, nmid, rm, rn))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpRegStReg(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int rn)
 {
 	int opw, opw2;
 
@@ -1268,7 +1341,17 @@ int BGBCC_SHX_EmitOpRegStReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	return(0);
 }
 
-int BGBCC_SHX_EmitOpLdRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
+
+int BGBCC_SHX_EmitOpLdRegReg(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int rn)
+{
+	if(!BGBCC_SHX_TryEmitOpLdRegReg(ctx, nmid, rm, rn))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpLdRegReg(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int rn)
 {
 	int opw, opw2;
 
@@ -1299,7 +1382,16 @@ int BGBCC_SHX_EmitOpLdRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	return(0);
 }
 
+
 int BGBCC_SHX_EmitOpRegStDecReg(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int rn)
+{
+	if(!BGBCC_SHX_TryEmitOpRegStDecReg(ctx, nmid, rm, rn))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpRegStDecReg(BGBCC_SHX_Context *ctx,
 	int nmid, int rm, int rn)
 {
 	int opw, opw2;
@@ -1337,7 +1429,16 @@ int BGBCC_SHX_EmitOpRegStDecReg(BGBCC_SHX_Context *ctx,
 	return(0);
 }
 
+
 int BGBCC_SHX_EmitOpLdIncRegReg(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int rn)
+{
+	if(!BGBCC_SHX_TryEmitOpLdIncRegReg(ctx, nmid, rm, rn))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpLdIncRegReg(BGBCC_SHX_Context *ctx,
 	int nmid, int rm, int rn)
 {
 	int opw, opw2;
@@ -1376,7 +1477,15 @@ int BGBCC_SHX_EmitOpLdIncRegReg(BGBCC_SHX_Context *ctx,
 }
 
 
-int BGBCC_SHX_EmitOpRegStRegDisp(
+int BGBCC_SHX_EmitOpRegStRegDisp(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int rn, int disp)
+{
+	if(!BGBCC_SHX_TryEmitOpRegStRegDisp(ctx, nmid, rm, rn, disp))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpRegStRegDisp(
 	BGBCC_SHX_Context *ctx, int nmid, int rm, int rn, int disp)
 {
 	int opw, opw2;
@@ -1448,6 +1557,14 @@ int BGBCC_SHX_EmitOpRegStRegDisp(
 int BGBCC_SHX_EmitOpLdRegDispReg(BGBCC_SHX_Context *ctx,
 	int nmid, int rm, int disp, int rn)
 {
+	if(!BGBCC_SHX_TryEmitOpLdRegDispReg(ctx, nmid, rm, disp, rn))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpLdRegDispReg(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int disp, int rn)
+{
 	int opw, opw2;
 
 	if(disp==0)
@@ -1514,7 +1631,15 @@ int BGBCC_SHX_EmitOpLdRegDispReg(BGBCC_SHX_Context *ctx,
 	return(0);
 }
 
-int BGBCC_SHX_EmitOpRegStReg2(
+int BGBCC_SHX_EmitOpRegStReg2(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int ro, int rn)
+{
+	if(!BGBCC_SHX_TryEmitOpRegStReg2(ctx, nmid, rm, ro, rn))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpRegStReg2(
 	BGBCC_SHX_Context *ctx, int nmid, int rm, int ro, int rn)
 {
 	int opw, opw2;
@@ -1576,7 +1701,15 @@ int BGBCC_SHX_EmitOpRegStReg2(
 	return(0);
 }
 
-int BGBCC_SHX_EmitOpLdReg2Reg(
+int BGBCC_SHX_EmitOpLdReg2Reg(BGBCC_SHX_Context *ctx,
+	int nmid, int rm, int ro, int rn)
+{
+	if(!BGBCC_SHX_TryEmitOpLdReg2Reg(ctx, nmid, rm, ro, rn))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpLdReg2Reg(
 	BGBCC_SHX_Context *ctx, int nmid, int rm, int ro, int rn)
 {
 	int opw, opw2;
@@ -1639,7 +1772,16 @@ int BGBCC_SHX_EmitOpLdReg2Reg(
 	return(0);
 }
 
-int BGBCC_SHX_EmitOpRegImm(BGBCC_SHX_Context *ctx, int nmid, int reg, int imm)
+int BGBCC_SHX_EmitOpRegImm(BGBCC_SHX_Context *ctx,
+	int nmid, int reg, int imm)
+{
+	if(!BGBCC_SHX_TryEmitOpRegImm(ctx, nmid, reg, imm))
+		{ BGBCC_DBGBREAK }
+	return(1);
+}
+
+int BGBCC_SHX_TryEmitOpRegImm(BGBCC_SHX_Context *ctx,
+	int nmid, int reg, int imm)
 {
 	int opw, opw2;
 

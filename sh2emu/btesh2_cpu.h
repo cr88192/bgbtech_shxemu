@@ -218,6 +218,18 @@
 #define BTESH2_NMID_CLRS		0x61	//
 #define BTESH2_NMID_SETS		0x62	//
 
+#define BTESH2_NMID_MOVI20		0x64	//MOVI20
+#define BTESH2_NMID_MOVI20S		0x65	//MOVI20S
+#define BTESH2_NMID_MOVUB		0x66	//MOVU.B
+#define BTESH2_NMID_MOVUW		0x67	//MOVU.W
+#define BTESH2_NMID_MOVUL		0x67	//MOVU.L
+
+#define BTESH2_NMID_LEAB		0x68	//LEA.B
+#define BTESH2_NMID_LEAW		0x69	//LEA.W
+#define BTESH2_NMID_LEAL		0x6A	//LEA.L
+#define BTESH2_NMID_LEAQ		0x6B	//LEA.Q
+#define BTESH2_NMID_LEAO		0x6C	//LEA.O
+
 #define BTESH2_NMID_FABS		0x80	//
 #define BTESH2_NMID_FADD		0x81	//
 #define BTESH2_NMID_FCMPEQ		0x82	//
@@ -246,7 +258,6 @@
 
 #define BTESH2_NMID_MOVI		0xC0	//
 #define BTESH2_NMID_MOVIV		0xC1	//
-
 #define BTESH2_NMID_PREF		0xC2	//
 #define BTESH2_NMID_OCBI		0xC3	//
 #define BTESH2_NMID_OCBP		0xC4	//
@@ -261,6 +272,7 @@
 #define BTESH2_FMID_REGLDABS	0x05	//@(Abs), Rn
 #define BTESH2_FMID_REGST		0x06	//Rm, @Rn
 #define BTESH2_FMID_REGLD		0x07	//@Rm, Rn
+
 #define BTESH2_FMID_REGDECST	0x08	//Rm, @-Rn
 #define BTESH2_FMID_REGINCLD	0x09	//@Rm+, Rn
 #define BTESH2_FMID_REGSTR0N	0x0A	//Rm, @(Ro+Rn)
@@ -269,24 +281,27 @@
 #define BTESH2_FMID_REGLDDISP	0x0D	//@(Rm+Disp), Rn
 #define BTESH2_FMID_ABS			0x0E	//@(Abs)
 #define BTESH2_FMID_NONE		0x0F	//-
-#define BTESH2_FMID_IMM			0x10	//Imm
 
+#define BTESH2_FMID_IMM			0x10	//Imm
 #define BTESH2_FMID_LDREG		0x11	//@Rm
 #define BTESH2_FMID_STREG		0x12	//@Rn
 #define BTESH2_FMID_IMMSTRMN	0x13	//Imm, @(Rm+Rn)
 #define BTESH2_FMID_REGVIMM		0x14	//<Imm>, Rn
-
 #define BTESH2_FMID_FREGREG		0x15	//FRm, FRn
 #define BTESH2_FMID_FREGRM		0x16	//FRm
 #define BTESH2_FMID_FREGRN		0x17	//FRn
 
-#define BTESH2_FMID_DREGREG		0x18	//FRm, FRn
-#define BTESH2_FMID_DREGRM		0x19	//FRm
-#define BTESH2_FMID_DREGRN		0x1A	//FRn
+#define BTESH2_FMID_DREGREG		0x18	//DRm, DRn
+#define BTESH2_FMID_DREGRM		0x19	//DRm
+#define BTESH2_FMID_DREGRN		0x1A	//DRn
 #define BTESH2_FMID_IMMSTRN		0x1B	//Imm, @Rn
 #define BTESH2_FMID_IMMDECSTRN	0x1C	//Imm, @-Rn
-
 #define BTESH2_FMID_REGREGREG	0x1D	//Rn, Rm, Ro
+#define BTESH2_FMID_REGINCST	0x1E	//Rm, @+Rn
+#define BTESH2_FMID_REGDECLD	0x1F	//@Rm-, Rn
+
+#define BTESH2_FMID_REGSTRODISP	0x20	//Rm, @(Rn,Ro,Disp)
+#define BTESH2_FMID_REGLDRODISP	0x21	//@(Rm,Ro,Disp), Rn
 
 
 typedef unsigned char byte;
@@ -507,5 +522,12 @@ void BTESH2_FreeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 void BTESH2_FlushTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 
 force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc);
+
+int BTESH2_DecodeOpcode_2A(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
+	u32 pc, u16 opw, u16 opw2);
+int BTESH2_DecodeOpcode_BJX1(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
+	u32 pc, u16 opw, u16 opw2);
+int BTESH2_DecodeOpcode_BJX1_8E(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
+	u32 pc, u16 opw, u16 opw2);
 
 #endif

@@ -1255,32 +1255,22 @@
                     <string value="Microseconds for one run through Dhrystone: "/>
                   </args>
                 </funcall>
-                <funcall name="print_float_ss" fn="tests/dhry/dhry_1.c" ln=297>
+                <funcall name="printf" fn="tests/dhry/dhry_1.c" ln=296>
                   <args>
-                    <ref name="Microseconds"/>
+                    <string value="%6.1f &#10;"/>
                   </args>
                 </funcall>
-                <funcall name="printf" fn="tests/dhry/dhry_1.c" ln=297>
-                  <args>
-                    <string value="&#10;"/>
-                  </args>
-                </funcall>
-                <funcall name="printf" fn="tests/dhry/dhry_1.c" ln=300>
+                <funcall name="printf" fn="tests/dhry/dhry_1.c" ln=302>
                   <args>
                     <string value="Dhrystones per Second: &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;"/>
                   </args>
                 </funcall>
-                <funcall name="print_float_ss" fn="tests/dhry/dhry_1.c" ln=303>
+                <funcall name="printf" fn="tests/dhry/dhry_1.c" ln=304>
                   <args>
-                    <ref name="Dhrystones_Per_Second"/>
+                    <string value="%6.1f &#10;"/>
                   </args>
                 </funcall>
-                <funcall name="printf" fn="tests/dhry/dhry_1.c" ln=303>
-                  <args>
-                    <string value="&#10;"/>
-                  </args>
-                </funcall>
-                <funcall name="printf" fn="tests/dhry/dhry_1.c" ln=306>
+                <funcall name="printf" fn="tests/dhry/dhry_1.c" ln=309>
                   <args>
                     <string value="&#10;"/>
                   </args>
@@ -1293,10 +1283,10 @@
       <type flags=0 ind=0 name="int"/>
       <args/>
     </defun>
-    <defun name="Proc_1" tokens=139 fn="tests/dhry/dhry_1.c" ln=312>
+    <defun name="Proc_1" tokens=139 fn="tests/dhry/dhry_1.c" ln=315>
       <body>
         <begin tokens=139>
-          <vars fn="tests/dhry/dhry_1.c" ln=317>
+          <vars fn="tests/dhry/dhry_1.c" ln=320>
             <var name="Next_Record">
               <value>
                 <objref name="Ptr_Comp">
@@ -1308,7 +1298,7 @@
               <type flags=0 ind=1 name="record"/>
             </var>
           </vars>
-          <assign fn="tests/dhry/dhry_1.c" ln=323>
+          <assign fn="tests/dhry/dhry_1.c" ln=326>
             <left>
               <unary op="*">
                 <value>
@@ -1328,7 +1318,7 @@
               </unary>
             </right>
           </assign>
-          <assign fn="tests/dhry/dhry_1.c" ln=323>
+          <assign fn="tests/dhry/dhry_1.c" ln=326>
             <left>
               <objref name="Int_Comp">
                 <value>
@@ -1348,7 +1338,7 @@
               <int value=5/>
             </right>
           </assign>
-          <assign fn="tests/dhry/dhry_1.c" ln=323>
+          <assign fn="tests/dhry/dhry_1.c" ln=326>
             <left>
               <objref name="Int_Comp">
                 <value>
@@ -1380,7 +1370,7 @@
               </objref>
             </right>
           </assign>
-          <assign fn="tests/dhry/dhry_1.c" ln=323>
+          <assign fn="tests/dhry/dhry_1.c" ln=326>
             <left>
               <objref name="Ptr_Comp">
                 <value>
@@ -1396,7 +1386,7 @@
               </objref>
             </right>
           </assign>
-          <funcall name="Proc_3" fn="tests/dhry/dhry_1.c" ln=323>
+          <funcall name="Proc_3" fn="tests/dhry/dhry_1.c" ln=326>
             <args>
               <unary op="&amp;">
                 <value>
@@ -1409,7 +1399,7 @@
               </unary>
             </args>
           </funcall>
-          <if fn="tests/dhry/dhry_1.c" ln=331>
+          <if fn="tests/dhry/dhry_1.c" ln=334>
             <cond>
               <binary op="==">
                 <left>
@@ -1426,7 +1416,7 @@
             </cond>
             <then>
               <begin tokens=62>
-                <assign fn="tests/dhry/dhry_1.c" ln=333>
+                <assign fn="tests/dhry/dhry_1.c" ln=336>
                   <left>
                     <objref name="Int_Comp">
                       <value>
@@ -1446,7 +1436,7 @@
                     <int value=6/>
                   </right>
                 </assign>
-                <funcall name="Proc_6" fn="tests/dhry/dhry_1.c" ln=333>
+                <funcall name="Proc_6" fn="tests/dhry/dhry_1.c" ln=336>
                   <args>
                     <objref name="Enum_Comp">
                       <value>
@@ -1463,7 +1453,7 @@
                     </objref>
                   </args>
                 </funcall>
-                <assign fn="tests/dhry/dhry_1.c" ln=337>
+                <assign fn="tests/dhry/dhry_1.c" ln=340>
                   <left>
                     <objref name="Ptr_Comp">
                       <value>
@@ -1479,7 +1469,7 @@
                     </objref>
                   </right>
                 </assign>
-                <funcall name="Proc_7" fn="tests/dhry/dhry_1.c" ln=337>
+                <funcall name="Proc_7" fn="tests/dhry/dhry_1.c" ln=340>
                   <args>
                     <objref name="Int_Comp">
                       <value>
@@ -1499,7 +1489,7 @@
               </begin>
             </then>
             <else>
-              <assign fn="tests/dhry/dhry_1.c" ln=340>
+              <assign fn="tests/dhry/dhry_1.c" ln=343>
                 <left>
                   <unary op="*">
                     <value>
@@ -1537,20 +1527,20 @@
         </vars>
       </argdecls>
     </defun>
-    <defun name="Proc_2" tokens=48 fn="tests/dhry/dhry_1.c" ln=346>
+    <defun name="Proc_2" tokens=48 fn="tests/dhry/dhry_1.c" ln=349>
       <body>
         <begin tokens=48>
-          <vars fn="tests/dhry/dhry_1.c" ln=351>
+          <vars fn="tests/dhry/dhry_1.c" ln=354>
             <var name="Int_Loc">
               <type flags=0 ind=0 name="int"/>
             </var>
           </vars>
-          <vars fn="tests/dhry/dhry_1.c" ln=351>
+          <vars fn="tests/dhry/dhry_1.c" ln=354>
             <var name="Enum_Loc">
               <type flags=0 ind=0 name="GS2"/>
             </var>
           </vars>
-          <assign fn="tests/dhry/dhry_1.c" ln=356>
+          <assign fn="tests/dhry/dhry_1.c" ln=359>
             <left>
               <ref name="Int_Loc"/>
             </left>
@@ -1569,7 +1559,7 @@
               </binary>
             </right>
           </assign>
-          <do_while fn="tests/dhry/dhry_1.c" ln=356>
+          <do_while fn="tests/dhry/dhry_1.c" ln=359>
             <cond>
               <binary op="!=">
                 <left>
@@ -1581,7 +1571,7 @@
               </binary>
             </cond>
             <body>
-              <if fn="tests/dhry/dhry_1.c" ln=356>
+              <if fn="tests/dhry/dhry_1.c" ln=359>
                 <cond>
                   <binary op="==">
                     <left>
@@ -1594,7 +1584,7 @@
                 </cond>
                 <then>
                   <begin tokens=17>
-                    <assign op="-" fn="tests/dhry/dhry_1.c" ln=360>
+                    <assign op="-" fn="tests/dhry/dhry_1.c" ln=363>
                       <left>
                         <ref name="Int_Loc"/>
                       </left>
@@ -1602,7 +1592,7 @@
                         <int value=1/>
                       </right>
                     </assign>
-                    <assign fn="tests/dhry/dhry_1.c" ln=360>
+                    <assign fn="tests/dhry/dhry_1.c" ln=363>
                       <left>
                         <unary op="*">
                           <value>
@@ -1621,7 +1611,7 @@
                         </binary>
                       </right>
                     </assign>
-                    <assign fn="tests/dhry/dhry_1.c" ln=360>
+                    <assign fn="tests/dhry/dhry_1.c" ln=363>
                       <left>
                         <ref name="Enum_Loc"/>
                       </left>
@@ -1650,10 +1640,10 @@
         </vars>
       </argdecls>
     </defun>
-    <defun name="Proc_3" tokens=31 fn="tests/dhry/dhry_1.c" ln=369>
+    <defun name="Proc_3" tokens=31 fn="tests/dhry/dhry_1.c" ln=372>
       <body>
         <begin tokens=31>
-          <if fn="tests/dhry/dhry_1.c" ln=376>
+          <if fn="tests/dhry/dhry_1.c" ln=379>
             <cond>
               <binary op="!=">
                 <left>
@@ -1665,7 +1655,7 @@
               </binary>
             </cond>
             <then>
-              <assign fn="tests/dhry/dhry_1.c" ln=379>
+              <assign fn="tests/dhry/dhry_1.c" ln=382>
                 <left>
                   <unary op="*">
                     <value>
@@ -1683,7 +1673,7 @@
               </assign>
             </then>
           </if>
-          <funcall name="Proc_7" fn="tests/dhry/dhry_1.c" ln=379>
+          <funcall name="Proc_7" fn="tests/dhry/dhry_1.c" ln=382>
             <args>
               <int value=10/>
             </args>
@@ -1704,15 +1694,15 @@
         </vars>
       </argdecls>
     </defun>
-    <defun name="Proc_4" tokens=21 fn="tests/dhry/dhry_1.c" ln=384>
+    <defun name="Proc_4" tokens=21 fn="tests/dhry/dhry_1.c" ln=387>
       <body>
         <begin tokens=21>
-          <vars fn="tests/dhry/dhry_1.c" ln=387>
+          <vars fn="tests/dhry/dhry_1.c" ln=390>
             <var name="Bool_Loc">
               <type flags=0 ind=0 name="int"/>
             </var>
           </vars>
-          <assign fn="tests/dhry/dhry_1.c" ln=390>
+          <assign fn="tests/dhry/dhry_1.c" ln=393>
             <left>
               <ref name="Bool_Loc"/>
             </left>
@@ -1727,7 +1717,7 @@
               </binary>
             </right>
           </assign>
-          <assign fn="tests/dhry/dhry_1.c" ln=390>
+          <assign fn="tests/dhry/dhry_1.c" ln=393>
             <left>
               <ref name="Bool_Glob"/>
             </left>
@@ -1742,7 +1732,7 @@
               </binary>
             </right>
           </assign>
-          <assign fn="tests/dhry/dhry_1.c" ln=390>
+          <assign fn="tests/dhry/dhry_1.c" ln=393>
             <left>
               <ref name="Ch_2_Glob"/>
             </left>
@@ -1755,10 +1745,10 @@
       <type flags=0 ind=0 name="int"/>
       <args/>
     </defun>
-    <defun name="Proc_5" tokens=10 fn="tests/dhry/dhry_1.c" ln=396>
+    <defun name="Proc_5" tokens=10 fn="tests/dhry/dhry_1.c" ln=399>
       <body>
         <begin tokens=10>
-          <assign fn="tests/dhry/dhry_1.c" ln=399>
+          <assign fn="tests/dhry/dhry_1.c" ln=402>
             <left>
               <ref name="Ch_1_Glob"/>
             </left>
@@ -1766,7 +1756,7 @@
               <charstring value="A"/>
             </right>
           </assign>
-          <assign fn="tests/dhry/dhry_1.c" ln=399>
+          <assign fn="tests/dhry/dhry_1.c" ln=402>
             <left>
               <ref name="Bool_Glob"/>
             </left>

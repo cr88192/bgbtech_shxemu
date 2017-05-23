@@ -394,23 +394,23 @@ X(__va_arg_d):
 	mov.l @(r4, 52), r0
 	
 	add #7, r0
-	and #-8, r0
+	and #0xF8, r0
 	
 	mov #48, r1
 	cmp/ge r1, r0
 	bt __va_arg_d.L0
 
-	fmov.s @(r4, r0), fr1
-	add #4, r0
-	fmov.s @(r4, r0), fr0
-	add #4, r0
+	add r4, r0
+	fmov.s @r0+, fr0
+	fmov.s @r0+, fr1
+	sub r4, r0
 	mov.l  r0, @(r4, 52)
 	rts
 	nop
 __va_arg_d.L0:
 	mov.l @(r4, 56), r0
-	fmov.s @r0+, fr1
 	fmov.s @r0+, fr0
+	fmov.s @r0+, fr1
 	mov.l  r0, @(r4, 56)
 	rts
 	nop
@@ -1047,7 +1047,7 @@ X(strcmp):
 	bt strcmp.L0
 	tst r3, r3
 	bt strcmp.L0
-	cmp/eq r3, r3
+	cmp/eq r2, r3
 	bt strcmp.L1
 
 	strcmp.L0:

@@ -509,7 +509,8 @@ int BGBCC_CCXL_StackGetConvCallArgs(BGBCC_TransState *ctx,
 	return(n);
 }
 
-ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx, char *name)
+ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx,
+	char *name, int flag)
 {
 	ccxl_register treg, dreg;
 	ccxl_type bty;
@@ -518,7 +519,10 @@ ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx, char *name)
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "CallName", __FILE__, __LINE__);
 
-	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLN);
+	if(flag&1)
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLNV);
+	else
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLN);
 	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
 	i=BGBCC_CCXL_LookupLocalIndex(ctx, name);
@@ -544,20 +548,34 @@ ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx, char *name)
 
 	j=BGBCC_CCXL_LookupAsRegister(ctx, name, &treg);
 	bty=BGBCC_CCXL_GetRegReturnType(ctx, treg);
-	BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
+	
+	if(!(flag&1) || BGBCC_CCXL_TypeValueObjectP(ctx, bty))
+	{
+		BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
+	}else
+	{
+		dreg.val=CCXL_REGID_REG_Z;
+	}
 
 	n=BGBCC_CCXL_StackGetConvCallArgs(ctx, treg);
 //	n=BGBCC_CCXL_StackGetCntCallArgs(ctx);
 
 	BGBCC_CCXL_EmitCallOp(ctx, bty, dreg, treg, n);
 	BGBCC_CCXL_StackTransforCallArgs(ctx);
-	BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
-	BGBCC_CCXL_PushRegister(ctx, dreg);
+	if(!(flag&1))
+	{
+		BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
+		BGBCC_CCXL_PushRegister(ctx, dreg);
+	}else if(BGBCC_CCXL_TypeValueObjectP(ctx, bty))
+	{
+		BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, dreg);
+	}
 	BGBCC_CCXL_RegisterCheckRelease(ctx, treg);
 	return(CCXL_STATUS_YES);
 }
 
-ccxl_status BGBCC_CCXL_StackPopCall(BGBCC_TransState *ctx)
+ccxl_status BGBCC_CCXL_StackPopCall(BGBCC_TransState *ctx, int flag)
 {
 	ccxl_register treg, dreg;
 	ccxl_type bty;
@@ -565,18 +583,37 @@ ccxl_status BGBCC_CCXL_StackPopCall(BGBCC_TransState *ctx)
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PopCall", __FILE__, __LINE__);
 
-	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLP);
+	if(flag&1)
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLPV);
+	else
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLP);
 
 //	j=BGBCC_CCXL_LookupAsRegister(ctx, name, &treg);
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
-
 	bty=BGBCC_CCXL_GetRegReturnType(ctx, treg);
-	BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
+
+	if(!(flag&1) || BGBCC_CCXL_TypeValueObjectP(ctx, bty))
+	{
+		BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
+	}else
+	{
+		dreg.val=CCXL_REGID_REG_Z;
+	}
+
 	n=BGBCC_CCXL_StackGetCntCallArgs(ctx);
 	BGBCC_CCXL_EmitCallOp(ctx, bty, dreg, treg, n);
 	BGBCC_CCXL_StackTransforCallArgs(ctx);
-	BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
-	BGBCC_CCXL_PushRegister(ctx, dreg);
+
+	if(!(flag&1))
+	{
+		BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
+		BGBCC_CCXL_PushRegister(ctx, dreg);
+	}else if(BGBCC_CCXL_TypeValueObjectP(ctx, bty))
+	{
+		BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, dreg);
+	}
+
 	BGBCC_CCXL_RegisterCheckRelease(ctx, treg);
 	return(CCXL_STATUS_YES);
 }

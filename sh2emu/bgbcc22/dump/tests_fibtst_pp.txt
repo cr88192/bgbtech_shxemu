@@ -144,5 +144,6 @@ puts("main: D\n");
 /*342*/ puts("main: G\n");
 /*344*/ test_ll_0();
 /*346*/ test_old1(2,3);
-/*348*/ puts("main: H\n");
-}
+/*348*/ printf("pp %f\n",3.14159);
+/*351*/ puts("main: H\n");
+/*353*/ }

@@ -345,6 +345,10 @@ int main()
 	
 	test_old1(2, 3);
 
+	printf("pp %f\n", 3.14159);
+//	*(int *)-1=-1;
+
 	puts("main: H\n");
+
 }
 #endif

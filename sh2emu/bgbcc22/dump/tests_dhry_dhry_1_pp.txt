@@ -193,65 +193,63 @@ else
 /(float)Number_Of_Runs;
 Dhrystones_Per_Second=(float)Number_Of_Runs/(float)User_Time;
 /*294*/ printf("Microseconds for one run through Dhrystone: ");
-/*297*/ print_float_ss(Microseconds);
-printf("\n");
-/*300*/ printf("Dhrystones per Second:                      ");
-/*303*/ print_float_ss(Dhrystones_Per_Second);
-printf("\n");
-/*306*/ printf("\n");
+/*296*/ printf("%6.1f \n",(double)Microseconds);
+/*302*/ printf("Dhrystones per Second:                      ");
+/*304*/ printf("%6.1f \n",(double)Dhrystones_Per_Second);
+/*309*/ printf("\n");
 }
-/*309*/ }
-/*312*/ Proc_1(Ptr_Val_Par)
-/*315*/ Rec_Pointer Ptr_Val_Par;
-/*317*/ {
+/*312*/ }
+/*315*/ Proc_1(Ptr_Val_Par)
+/*318*/ Rec_Pointer Ptr_Val_Par;
+/*320*/ {
 Rec_Pointer Next_Record=Ptr_Val_Par->Ptr_Comp;
-/*323*/ *Ptr_Val_Par->Ptr_Comp= *Ptr_Glob;
+/*326*/ *Ptr_Val_Par->Ptr_Comp= *Ptr_Glob;
 Ptr_Val_Par->variant.var_1.Int_Comp=5;
 Next_Record->variant.var_1.Int_Comp
 =Ptr_Val_Par->variant.var_1.Int_Comp;
 Next_Record->Ptr_Comp=Ptr_Val_Par->Ptr_Comp;
 Proc_3(&Next_Record->Ptr_Comp);
-/*331*/ if(Next_Record->Discr==Ident_1)
-/*333*/ {
+/*334*/ if(Next_Record->Discr==Ident_1)
+/*336*/ {
 Next_Record->variant.var_1.Int_Comp=6;
 Proc_6(Ptr_Val_Par->variant.var_1.Enum_Comp,&Next_Record->variant.var_1.Enum_Comp);
-/*337*/ Next_Record->Ptr_Comp=Ptr_Glob->Ptr_Comp;
+/*340*/ Next_Record->Ptr_Comp=Ptr_Glob->Ptr_Comp;
 Proc_7(Next_Record->variant.var_1.Int_Comp,10,&Next_Record->variant.var_1.Int_Comp);
-/*340*/ }
+/*343*/ }
 else
 *Ptr_Val_Par= *Ptr_Val_Par->Ptr_Comp;
 }
-/*346*/ Proc_2(Int_Par_Ref)
-/*351*/ One_Fifty*Int_Par_Ref;
+/*349*/ Proc_2(Int_Par_Ref)
+/*354*/ One_Fifty*Int_Par_Ref;
 {
 One_Fifty Int_Loc;
 Enumeration Enum_Loc;
-/*356*/ Int_Loc= *Int_Par_Ref+10;
+/*359*/ Int_Loc= *Int_Par_Ref+10;
 do
 if(Ch_1_Glob=='A')
-/*360*/ {
+/*363*/ {
 Int_Loc-=1;
 *Int_Par_Ref=Int_Loc-Int_Glob;
 Enum_Loc=Ident_1;
 }
 while(Enum_Loc!=Ident_1);
 }
-/*369*/ Proc_3(Ptr_Ref_Par)
-/*374*/ Rec_Pointer*Ptr_Ref_Par;
-/*376*/ {
+/*372*/ Proc_3(Ptr_Ref_Par)
+/*377*/ Rec_Pointer*Ptr_Ref_Par;
+/*379*/ {
 if(Ptr_Glob!=0)
-/*379*/ *Ptr_Ref_Par=Ptr_Glob->Ptr_Comp;
+/*382*/ *Ptr_Ref_Par=Ptr_Glob->Ptr_Comp;
 Proc_7(10,Int_Glob,&Ptr_Glob->variant.var_1.Int_Comp);
 }
-/*384*/ Proc_4()
-/*387*/ {
+/*387*/ Proc_4()
+/*390*/ {
 Boolean Bool_Loc;
-/*390*/ Bool_Loc=Ch_1_Glob=='A';
+/*393*/ Bool_Loc=Ch_1_Glob=='A';
 Bool_Glob=Bool_Loc|Bool_Glob;
 Ch_2_Glob='B';
 }
-/*396*/ Proc_5()
-/*399*/ {
+/*399*/ Proc_5()
+/*402*/ {
 Ch_1_Glob='A';
 Bool_Glob=0;
 }

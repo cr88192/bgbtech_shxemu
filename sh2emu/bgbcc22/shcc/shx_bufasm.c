@@ -255,6 +255,7 @@ int BGBCC_SHXA_ParseOperand(char **rcs, BGBCC_SHX_OpcodeArg *opv)
 		
 		if((*cs=='-') || ((cs[0]==' ') && (cs[1]=='-')))
 		{
+			if(*cs==' ')cs++;
 			cs++;
 			cs1=BGBCC_SHXA_ParseTokenAlt(cs, &tk0);
 

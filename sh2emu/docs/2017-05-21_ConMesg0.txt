@@ -1,0 +1,115 @@
+Console Messages
+* Enable/Disable Features
+* Query for features
+* Supports Query/Control for [[ConGFX0]]
+* ...
+
+
+Escape Sequences
+* ST \e\\		String Terminator
+* APC \e_		Application Command
+* SOS \eX		Start Of String
+* Packet0 \e\x80	Start Of Packet (8-bit Mode, Compact)
+* ..
+* Packet15 \e\x8F
+
+
+APC here will be followed by a marker similar to that for a CSI sequence (zero or more numeric parameters terminated by another character).
+
+This is in-turn followed by data payload, and terminated by an ST marker.
+
+
+The Packet0 .. Packet15 messages may be used on 8-bit clean connections, and will encode the first byte of a Base128 sequence.
+
+This message will be terminated by any byte outside the Base128 range.
+
+
+Base85
+* Will use the characters between '!' and 'u' to encode data.
+* v/w/x/y/z/~ will be allowed as substitutions for ', ", \, &amp;, ], &lt;
+* Values are encoded starting from the MSB end.
+
+
+Base128
+* Uses the values 0x80..0xFF
+** May be used if the connection is 8-bit clean.
+** Main motivation is to mostly to avoid using div/mod where possible.
+* Nominally encodes the data in roughly the same way as Base85 (32b -> 5B).
+** May optionally encode another byte every 96 bits.
+** For every coded DWORD, the high 3 bits of first byte will be taken.
+** This will form a 9 bit value:
+*** 0..255: Ignored
+*** 256..511: Low 8 bits used as an additional byte.
+*** Emitting a byte causes this value to reset to 0.
+
+
+APC P: Command Packet
+* Will send an escape-coded data packet.
+* The packet's payload will be encoded with Base85 or Base128.
+
+
+Packet Structure:
+* WORD tag;
+** Bits 0..9: Message Tag
+** Tag=0..255: General Messages (Unidirectional)
+** Tag=256..511: Request
+*** Tags where the other end is expected to give a response.
+** Tag=512..767: Response
+*** Response to a prior request.
+** Bits 10..15: Message Payload Size (short, 2..63 bytes)
+*** If size==1, a 16-bit size follows.
+
+
+Packet Tags:
+* 1: Enable Features
+** WORD caps;
+** Enable features; caps says which to enable.
+** Ignores caps which don't change console behavior.
+* 2: Disable Features
+** WORD caps;
+** Disable features; caps says which to disable.
+** Ignores caps which don't change console behavior.
+* 3: Mouse Status
+** Gives the mouse position status.
+** Given as 3 WORDs encoding X, Y, and Button state.
+* 4: Audio Block
+* 256: Basic Caps Request (Program->Console)
+** Other end sends a Null Response (512)
+** Payload: WORD caps;
+** The payload WORD contains a bitmask of capabilities.
+* 512: Basic Caps Response (Console->Program)
+** Sent due to a Null Request
+** Contains a WORD saying which of these capabilities are supported.
+** May contain additional words to describe capabilities.
+
+
+Capabilities Flags:
+* 1&=ConGFX LRB0 Modes (24 bit block enocoding)
+* 2&=ConGFX LRB1 Modes (32/64 bit block encoding)
+* 4&=Raw Keyboard
+** Keyboard feedback will include key up/down events, ...
+* 8&=Mouse Position Feedback
+** Stream mouse position and buttons.
+* 16&=Audio Playback
+
+
+LRB1 Capabilities:
+* 1&=Supports LRB0 4x4x1
+* 2&=Supports RGB555 Ext'ed Colors
+* 4&=Supports RGBD6 Ext'ed Colors
+* 8&=Supports RGB444 Ext'ed Colors
+* 16&=Supports 4x8x1
+* 32&=Supports 8x4x1
+* 64&=Supports 4x4x2
+
+
+Audio Block:
+* Gives a block of Audio data encoded as 1 or more audio blocks.
+* The audio data is preceded by a WORD giving the associated stream ID.
+**    0..1023: Audio Data, Payload=Data
+** 1024..2047: Begin Stream, Payload=WAVEFORMATEX
+** 2048..3071: End or Control Stream, Payload=Control Message
+** 3072..4095: Reserved
+* Basic supported codecs should include raw PCM and MS-IMA-ADPCM.
+
+

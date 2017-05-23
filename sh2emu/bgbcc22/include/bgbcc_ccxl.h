@@ -96,6 +96,8 @@
 #define CCXL_REGINTPH_MASK		0x00FFFFFFF0000000ULL	//LVT (high half index)
 #define CCXL_REGINTPH_SHL		28
 
+#define CCXL_REGID_REG_Z		0x0000000000FFFFFFULL	//placeholder void reg
+
 #define CCXL_LITID_STRUCT		1
 #define CCXL_LITID_UNION		2
 #define CCXL_LITID_TYPEDEF		3

@@ -5,12 +5,30 @@ Console Graphics may be mixed with ASCII and ANSI codes.
 Each graphics block will be a single character cell, and will use the same layout as the textual console.
 Control characters are to behave similarly to as to when printing ASCII text. 
 
+
 * ESC !
 ** Enter LBR0 Mode
 ** Blocks are encoded as 4 base85 characters representing a 25 bit value.
 * ESC $
 ** Enter LBR1 Mode
 ** Blocks are encoded as 5 base85 characters representing a 32 bit value.
+* \x1F
+** Enter LRB1 mode, Shorthand.
+
+
+Base85
+* Will use the characters between '!' and 'u' to encode data.
+* v/w/x/y/z/~ will be allowed as substitutions for ', ", \, &amp;, ], &lt;
+* Values are encoded starting from the MSB end.
+
+
+Base128
+* Uses the values 0x80..0xFF
+** May be used if the connection is 8-bit clean.
+** Main motivation is to mostly to avoid using div/mod where possible.
+* Nominally encodes the data in roughly the same way as Base85 (32b -> 5B).
+** LRB blocks do not allow the extra-byte trick.
+
 
 LBR0 Blocks:
 * Bits 0..15: Pixel Bits

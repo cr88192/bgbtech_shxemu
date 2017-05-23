@@ -1034,10 +1034,17 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		break;
 	case BGBCC_RIL3OP_CALLN:
 		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
-		BGBCC_CCXL_StackCallName(ctx, s0);
+		BGBCC_CCXL_StackCallName(ctx, s0, 0);
 		break;
 	case BGBCC_RIL3OP_CALLP:
-		BGBCC_CCXL_StackPopCall(ctx);
+		BGBCC_CCXL_StackPopCall(ctx, 0);
+		break;
+	case BGBCC_RIL3OP_CALLNV:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackCallName(ctx, s0, 1);
+		break;
+	case BGBCC_RIL3OP_CALLPV:
+		BGBCC_CCXL_StackPopCall(ctx, 1);
 		break;
 
 	case BGBCC_RIL3OP_LDIXC:

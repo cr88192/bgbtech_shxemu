@@ -157,6 +157,36 @@ bool BGBCC_CCXL_TypeUnsignedLongP(
 	return(false);
 }
 
+bool BGBCC_CCXL_TypeSgIntP(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	if(BGBCC_CCXL_TypeArrayP(ctx, ty))
+		return(false);
+	if(BGBCC_CCXL_TypePointerP(ctx, ty))
+		return(false);
+
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_I)
+		return(true);
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_UI)
+		return(true);
+	return(false);
+}
+
+bool BGBCC_CCXL_TypeSgNLongP(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	if(BGBCC_CCXL_TypeArrayP(ctx, ty))
+		return(false);
+	if(BGBCC_CCXL_TypePointerP(ctx, ty))
+		return(false);
+
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_NL)
+		return(true);
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_UNL)
+		return(true);
+	return(false);
+}
+
 bool BGBCC_CCXL_TypeSgLongP(
 	BGBCC_TransState *ctx, ccxl_type ty)
 {

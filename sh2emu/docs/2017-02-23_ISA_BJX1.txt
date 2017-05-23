@@ -127,6 +127,12 @@ Normal instructions will be 16 bit, and are expressed in nibbles.
 The endianess of instructions and PC-relative loads will always match the machine endianess.
 Loads performed relative to registers will use the local endianess.
 
+Displacements:
+* Are normally scaled by the size of the data type.
+* disp4, disp8, and disp12 are zero extended.
+* disp8s is sign-extended.
+
+
 If an instruction is preceded with a '/', it is not implemented, but more just to say what is there.
 
 Instructions precded with '!' are extensions specific to this VM.
@@ -375,6 +381,7 @@ Basic I-Forms (16-bit)
 ***		4m8B / MOV.B R0, @Rn+
 ***		4m9B / MOV.W/Q R0, @Rn+
 ***		4mAB / MOV.L R0, @Rn+
+***		4-BB -
 ***		4mCB / MOV.B @-Rm, R0
 ***		4mDB / MOV.W/Q @-Rm, R0
 ***		4mEB / MOV.L @-Rm, R0
@@ -519,17 +526,17 @@ Basic I-Forms (16-bit)
 * 3nm1-8ddd MOVU.B @(Rm, disp), Rn
 * 3nm1-9ddd MOVU.W @(Rm, disp), Rn
 
-* 3ni9-0ddd BCLR.B
-* 3ni9-1ddd BSET.B
-* 3ni9-2ddd BST.B
-* 3ni9-3ddd BLD.B
-* 3ni9-4ddd BAND.B
-* 3ni9-5ddd BOR.B
-* 3ni9-6ddd BXOR.B
+* 3ni9-0ddd / BCLR.B
+* 3ni9-1ddd / BSET.B
+* 3ni9-2ddd / BST.B
+* 3ni9-3ddd / BLD.B
+* 3ni9-4ddd / BAND.B
+* 3ni9-5ddd / BOR.B
+* 3ni9-6ddd / BXOR.B
 
-* 3ni9-Bddd BLDNOT.B
-* 3ni9-Cddd BANDNOT.B
-* 3ni9-Dddd BORNOT.B
+* 3ni9-Bddd / BLDNOT.B
+* 3ni9-Cddd / BANDNOT.B
+* 3ni9-Dddd / BORNOT.B
 
 
 Super-Ops will be instructions that when placed adjacent may be treated as a single combined instruction. This combined unit will have equivalent external behavior to the sequence of component instructions.
@@ -564,33 +571,38 @@ For XPFX0 I-Forms
 
 XPFX0/Escape32 I-Forms
 *	0---
-**		8Edd-0nm4 MOV.B Rm, @(Rn,R0,disp)	//Move Byte Rm to R0+Rn+disp
-**		8Edd-0nm5 MOV.W Rm, @(Rn,R0,disp)	//Move Word Rm to R0+Rn+disp*2
-**		8Edd-0nm6 MOV.L Rm, @(Rn,R0,disp)	//Rn+R0+disp*4
-**		8Edd-0nm7 MOV.Q Rm, @(Rn,R0,disp)	//Rn+R0+disp*8
+**      8Eoo-0oo0 (Resv)
+**      8Eoo-0oo1 (Resv)
+**      8Eoo-0oo2 (Resv)
+**      8Eoo-0oo3 (Resv)
+**		8Eod-0nm4 MOV.B Rm, @(Rn,Ro,disp4)	//Move Byte Rm to Rn+(Ro+disp)
+**		8Eod-0nm5 MOV.W Rm, @(Rn,Ro,disp4)	//Move Word Rm to Rn+(Ro+disp)*2
+**		8Eod-0nm6 MOV.L Rm, @(Rn,Ro,disp4)	//Rn+(Ro+disp)*4
+**		8Eod-0nm7 MOV.Q Rm, @(Rn,Ro,disp4)	//Rn+(Ro+disp)*8
 **      8Eoo-0oo8 (Resv Ext No-Arg Ops)
 **      8Eno-0oo9 (Resv Ext Unary Ops)
 **      8Enm-0ooA Resv
 **      8Enm-0ooB (Resv Ext Binary Ops)
-**		8Edd-0nmC MOV.B @(Rm,R0,disp), Rn	//Load Byte At R0+Rm+disp into Rn
-**		8Edd-0nmD MOV.W @(Rm,R0,disp), Rn	//Load Word At R0+Rm+disp*2 into Rn
-**		8Edd-0nmE MOV.L @(Rm,R0,disp), Rn	//Load DWord At R0+Rm+disp*4 into Rn
-**		8Edd-0nmF MOV.Q @(Rm,R0,disp), Rn	//Load QWord At R0+Rm+disp*8 into Rn
-* 	8Edd-1nmo MOV.L Rm, @(Rn,Ro,disp)		//Rn+4*(Ro+Disp)
+**		8Eod-0nmC MOV.B @(Rm,Ro,disp4), Rn	//Load Byte At Rm+Ro+disp into Rn
+**		8Eod-0nmD MOV.W @(Rm,Ro,disp4), Rn	//Load Word At Rm+(Ro+disp)*2 into Rn
+**		8Eod-0nmE MOV.L @(Rm,Ro,disp4), Rn	//Load DWord
+**		8Eod-0nmF MOV.Q @(Rm,Ro,disp4), Rn	//Load QWord
+* 	8Edd-1nmo MOV.L Rm, @(Rn,Ro,disp8s)		//Rn+4*(Ro+Disp)
 *	2---
-**		8Edd-2nm0 MOV.B Rm, @(Rn,disp)		//Store Byte Rm to @Rn
-**		8Edd-2nm1 MOV.W Rm, @(Rn,disp)		//Store Word Rm to @Rn
-**		8Edd-2nm2 MOV.L Rm, @(Rn,disp)		//Store DWord
-**		8Edd-2nm3 MOV.Q Rm, @(Rn,disp)		//Store QWord
-
-**		8Edd-2nm4 FMOV.S FRm, @(Rn,disp)	//Store Float
-**		8Edd-2nm5 FMOV.D DRm, @(Rn,disp)	//Store Double
-**		8Edd-2nm6 -
-**      ...
+**		8Edd-2nm0 MOV.B Rm, @(Rn,disp8s)	//Store Byte Rm to @Rn
+**		8Edd-2nm1 MOV.W Rm, @(Rn,disp8s)	//Store Word Rm to @Rn
+**		8Edd-2nm2 MOV.L Rm, @(Rn,disp8s)	//Store DWord
+**		8Edd-2nm3 MOV.Q Rm, @(Rn,disp8s)	//Store QWord
+**		8Edd-2nm4 FMOV.S FRm, @(Rn,disp8s)	//Store Float
+**		8Edd-2nm5 FMOV.D DRm, @(Rn,disp8s)	//Store Double
+**		8Edd-2nm6 FMOV.S @(Rm,disp8s), FRn	//Load Float
+**		8Edd-2nm7 FMOV.D @(Rm,disp8s), DRn	//Load Double
 **		8Edd-2nm8 -
 **		8Eii-2nm9 AND Rm, #imm8, Rn			//Rn=Rm&Imm8
 **		8Eii-2nmA XOR Rm, #imm8, Rn			//
 **		8Eii-2nmB OR Rm, #imm8, Rn			//
+**		8Edd-2nmC -
+**		8Edd-2nmD -
 **		8Eii-2nmE MULU Rm, #imm8, Rn		//Rn=Rm*Imm8
 **		8Eii-2nmF MULS Rm, #imm8, Rn		//Rn=Rm*Imm8
 *	3---
@@ -605,7 +617,7 @@ XPFX0/Escape32 I-Forms
 **		8Eii-3nm8 SUB Rm, #imm8, Rn			//Rn=Rm-Imm8
 **		8Eii-3ni9 (RESV 48/64)
 **		8Edd-3nmA -
-**		8Edd-3nmB LEA.L/Q @(Rm,disp), Rn	//
+**		8Edd-3nmB / LEA.L/Q @(Rm,disp), Rn	//
 **		8Eii-3nmC ADD Rm, #imm8, Rn			//Rn=Rm+Imm8
 **		8Edd-3nmD -
 **		8Edd-3nmE -
@@ -613,7 +625,7 @@ XPFX0/Escape32 I-Forms
 *	4---
 **		8Exx-4xx0 -
 **		...
-**		8Exx-4xx4 -
+**		8Exx-4xx3 -
 **		8Exx-4xx4
 ***			8Eii-4m84 MOV.B #imm, @Rn			//Store Imm to memory
 ***			8Eii-4m94 MOV.W #imm, @Rn			//
@@ -640,36 +652,35 @@ XPFX0/Escape32 I-Forms
 ***			8Est-4n8E MULSH Rs, Rt, Rn		//Rn=(Rs*Rt) SHR 32
 ***			8Est-4n9E MULUH Rs, Rt, Rn		//Rn=(Rs*Rt) SHR 32
 **		8Exx-4xxF
-
 *	8Edd-5nmo MOV.L @(Rm,Ro,disp), Rn		//Rm+(Ro+disp)*4
 *	6---
-**		8Edd-6nm0 MOV.B @(Rm,disp), Rn
-**		8Edd-6nm1 MOV.W @(Rm,disp), Rn
-**		8Edd-6nm2 MOV.L @(Rm,disp), Rn
-**		8Edd-6nm3 MOV.Q @(Rm,disp), Rn
-
-**		8Edd-6nm4 FMOV.S @(Rm,disp), FRn	//Load Float
-**		8Edd-6nm5 FMOV.D @(Rm,disp), DRn	//Load Double
-
-**		8Edd-6nm8 LEA.B @(Rm,disp), Rn		//Rn=Rm+disp*1
-**		8Edd-6nm9 LEA.W @(Rm,disp), Rn		//Rn=Rm+disp*2
-**		8Edd-6nmA LEA.L @(Rm,disp), Rn		//Rn=Rm+disp*4
-**		8Edd-6nmB LEA.Q @(Rm,disp), Rn		//Rn=Rm+disp*8
-**		8Edd-6nmC MOVZX.B @(Rm,disp), Rn	//Rm+disp*1
-**		8Edd-6nmD MOVZX.W @(Rm,disp), Rn	//Rm+disp*2
-**		8Edd-6nmE MOVZX.L @(Rm,disp), Rn	//Rm+disp*4
-**		8Edd-6nmF MOV.L/Q @(Rm,disp), Rn	//Rm+disp*(4|8)
+**		8Edd-6nm0 MOV.B @(Rm,disp8s), Rn
+**		8Edd-6nm1 MOV.W @(Rm,disp8s), Rn
+**		8Edd-6nm2 MOV.L @(Rm,disp8s), Rn
+**		8Edd-6nm3 MOV.Q @(Rm,disp8s), Rn
+**		8Eod-6nm4 LEA.B @(Rm,Ro,disp4), Rn	//Load Byte At Rm+Ro+disp into Rn
+**		8Eod-6nm5 LEA.W @(Rm,Ro,disp4), Rn	//Load Word At Rm+(Ro+disp)*2 into Rn
+**		8Eod-6nm6 LEA.L @(Rm,Ro,disp4), Rn	//Load DWord
+**		8Eod-6nm7 LEA.Q @(Rm,Ro,disp4), Rn	//Load QWord
+**		8Edd-6nm8 LEA.B @(Rm,disp8s), Rn	//Rn=Rm+disp*1
+**		8Edd-6nm9 LEA.W @(Rm,disp8s), Rn	//Rn=Rm+disp*2
+**		8Edd-6nmA LEA.L @(Rm,disp8s), Rn	//Rn=Rm+disp*4
+**		8Edd-6nmB LEA.Q @(Rm,disp8s), Rn	//Rn=Rm+disp*8
+**		8Edd-6nmC MOVU.B @(Rm,disp8s), Rn	//Rm+disp*1
+**		8Edd-6nmD MOVU.W @(Rm,disp8s), Rn	//Rm+disp*2
+**		8Edd-6nmE MOVU.L @(Rm,disp8s), Rn	//Rm+disp*4
+**		8Edd-6nmF / MOV.L/Q @(Rm,disp8s), Rn	//Rm+disp*(4|8)
 
 *	8Eii-7nii ADD #imm16, Rn
 * 	8---
-**		8Edd-80no MOV.B R0, @(Rn,Ro,disp)
-**		8Edd-81no MOV.W R0, @(Rn,Ro,disp)
-**		8Edd-82no MOV.L R0, @(Rn,Ro,disp)
-**		8Edd-83no MOV.Q R0, @(Rn,Ro,disp)
-**		8Edd-84mo MOV.B @(Rm,Ro,disp), R0
-**		8Edd-85mo MOV.W @(Rm,Ro,disp), R0
-**		8Edd-86mo MOV.L @(Rm,Ro,disp), R0
-**		8Edd-87mo MOV.Q @(Rm,Ro,disp), R0
+**		8Edd-80no / MOV.B R0, @(Rn,Ro,disp)
+**		8Edd-81no / MOV.W R0, @(Rn,Ro,disp)
+**		8Edd-82no / MOV.L R0, @(Rn,Ro,disp)
+**		8Edd-83no / MOV.Q R0, @(Rn,Ro,disp)
+**		8Edd-84mo / MOV.B @(Rm,Ro,disp), R0
+**		8Edd-85mo / MOV.W @(Rm,Ro,disp), R0
+**		8Edd-86mo / MOV.L @(Rm,Ro,disp), R0
+**		8Edd-87mo / MOV.Q @(Rm,Ro,disp), R0
 **		8Eii-88ii CMPEQ #imm16, R0
 **		8Edd-89dd BT disp16
 **		8Eii-8Aii MOVI48 #imm48, R0
@@ -678,7 +689,7 @@ XPFX0/Escape32 I-Forms
 **		8Edd-8Ddd BTS disp16
 **		8Exx-8Exx (Escape 64)
 **		8Edd-8Fdd BFS disp16
-*	8Edd-9ndd MOVA @(PC,disp16), Rn				//R0=PC+disp16*4, DWord Aligned
+*	8Edd-9ndd MOVA @(PC,disp16), Rn				//Rn=PC+disp16*4, DWord Aligned
 *	8Edd-Addd BRA disp20
 *	8Edd-Bddd BSR disp20
 *	C---
@@ -690,22 +701,22 @@ XPFX0/Escape32 I-Forms
 **		8Exx-C5xx -
 **		8Exx-C6xx -
 **		8Exx-C7xx
-***			8Edd-C7n0 MOV.B @(PC,disp8), Rn			//Volatile Memory Load
-***			8Edd-C7n1 MOV.W @(PC,disp8), Rn			//
-***			8Edd-C7n2 MOV.L @(PC,disp8), Rn			//
-***			8Edd-C7n3 MOV.Q @(PC,disp8), Rn			//
-***			8Edd-C7m4 MOV.B Rm, @(PC,disp8)			//Volatile Memory Store
-***			8Edd-C7m5 MOV.W Rm, @(PC,disp8)			//
-***			8Edd-C7m6 MOV.L Rm, @(PC,disp8)			//
-***			8Edd-C7m7 MOV.Q Rm, @(PC,disp8)			//
-***			8Edd-C7n8 MOVA.B @(PC,disp8), Rn		//Load Address
-***			8Edd-C7n9 MOVA.W @(PC,disp8), Rn		//
-***			8Edd-C7nA MOVA.L @(PC,disp8), Rn		//
-***			8Edd-C7nB MOVA.Q @(PC,disp8), Rn		//
-***			8Edd-C7nC FMOV.S @(PC,disp8), FRn		//? Load PC-rel Float
-***			8Edd-C7nD FMOV.D @(PC,disp8), DRn		//? Load PC-rel Double
+***			8Edd-C7n0 / MOV.B @(PC,disp8), Rn		//Volatile Memory Load
+***			8Edd-C7n1 / MOV.W @(PC,disp8), Rn		//
+***			8Edd-C7n2 / MOV.L @(PC,disp8), Rn		//
+***			8Edd-C7n3 / MOV.Q @(PC,disp8), Rn		//
+***			8Edd-C7m4 / MOV.B Rm, @(PC,disp8)		//Volatile Memory Store
+***			8Edd-C7m5 / MOV.W Rm, @(PC,disp8)		//
+***			8Edd-C7m6 / MOV.L Rm, @(PC,disp8)		//
+***			8Edd-C7m7 / MOV.Q Rm, @(PC,disp8)		//
+***			8Edd-C7n8 / MOVA.B @(PC,disp8), Rn		//Load Address
+***			8Edd-C7n9 / MOVA.W @(PC,disp8), Rn		//
+***			8Edd-C7nA / MOVA.L @(PC,disp8), Rn		//
+***			8Edd-C7nB / MOVA.Q @(PC,disp8), Rn		//
+***			8Edd-C7nC / FMOV.S @(PC,disp8), FRn		//? Load PC-rel Float
+***			8Edd-C7nD / FMOV.D @(PC,disp8), DRn		//? Load PC-rel Double
 ***			8Edd-C7nE -
-***			8Edd-C7nF LEA.LL/LQ @(Rn,disp4,disp4), Rn		//
+***			8Edd-C7nF / LEA.LL/LQ @(Rn,disp4,disp4), Rn		//
 **		8Ejj-C8nj TST #imm12, Rn
 **		8Ejj-C9nj AND #imm12, Rn
 **		8Ejj-CAnj XOR #imm12, Rn
@@ -721,6 +732,15 @@ XPFX0/Escape32 I-Forms
 
 Escape 64 (BJX32: Values truncated to 32-bits)
 
+* 8E0n-8Em4-oddd-dddd MOV.B Rm, @(Rn,Ro,disp28)	//Move Byte Rm to Rn+(Ro+disp)
+* 8E0n-8Em5-oddd-dddd MOV.W Rm, @(Rn,Ro,disp28)	//Move Word Rm to Rn+(Ro+disp)*2
+* 8E0n-8Em6-oddd-dddd MOV.L Rm, @(Rn,Ro,disp28)	//Rn+(Ro+disp)*4
+* 8E0n-8Em7-oddd-dddd MOV.Q Rm, @(Rn,Ro,disp28)	//Rn+(Ro+disp)*8
+* 8E0n-8EmC-oddd-dddd MOV.B @(Rm,Ro,disp28), Rn	//Load Byte
+* 8E0n-8EmD-oddd-dddd MOV.W @(Rm,Ro,disp28), Rn	//Load Word
+* 8E0n-8EmE-oddd-dddd MOV.L @(Rm,Ro,disp28), Rn	//Load DWord
+* 8E0n-8EmF-oddd-dddd MOV.Q @(Rm,Ro,disp28), Rn	//Load QWord
+
 * 8E1n-8Emo-dddd-dddd MOV.L Rm, @(Rn,Ro,disp32)		//Rn+4*(Ro+Disp)
 * 8E2n-8Em0-dddd-dddd MOV.B Rm, @(Rn,disp32)
 * 8E2n-8Em1-dddd-dddd MOV.W Rm, @(Rn,disp32)
@@ -730,18 +750,22 @@ Escape 64 (BJX32: Values truncated to 32-bits)
 * 8E3n-8EmB-dddd-dddd LEA.L/Q @(Rm,disp32), Rn	//
 
 * 8E5n-8Emo-dddd-dddd MOV.L @(Rm,Ro,disp32), Rn		//Rm+(Ro+disp)*4
+
 * 8E6n-8Em0-dddd-dddd MOV.B @(Rm,disp32), Rn
 * 8E6n-8Em1-dddd-dddd MOV.W @(Rm,disp32), Rn
 * 8E6n-8Em2-dddd-dddd MOV.L @(Rm,disp32), Rn
 * 8E6n-8Em3-dddd-dddd MOV.Q @(Rm,disp32), Rn
-
+* 8E6n-8Em4-oddd-dddd LEA.B @(Rm,Ro,disp28), Rn		//Rn=Rm+disp*1
+* 8E6n-8Em5-oddd-dddd LEA.W @(Rm,Ro,disp28), Rn		//Rn=Rm+disp*2
+* 8E6n-8Em6-oddd-dddd LEA.L @(Rm,Ro,disp28), Rn		//Rn=Rm+disp*4
+* 8E6n-8Em7-oddd-dddd LEA.Q @(Rm,Ro,disp28), Rn		//Rn=Rm+disp*8
 * 8E6n-8Em8-dddd-dddd LEA.B @(Rm,disp32), Rn		//Rn=Rm+disp*1
 * 8E6n-8Em9-dddd-dddd LEA.W @(Rm,disp32), Rn		//Rn=Rm+disp*2
 * 8E6n-8EmA-dddd-dddd LEA.L @(Rm,disp32), Rn		//Rn=Rm+disp*4
 * 8E6n-8EmB-dddd-dddd LEA.Q @(Rm,disp32), Rn		//Rn=Rm+disp*8
-* 8E6n-8EmC-dddd-dddd MOVZX.B @(Rm,disp32), Rn		//Rn=Rm+disp*1
-* 8E6n-8EmD-dddd-dddd MOVZX.W @(Rm,disp32), Rn		//Rn=Rm+disp*2
-* 8E6n-8EmE-dddd-dddd MOVZX.L @(Rm,disp32), Rn		//Rn=Rm+disp*4
+* 8E6n-8EmC-dddd-dddd MOVU.B @(Rm,disp32), Rn		//Rn=Rm+disp*1
+* 8E6n-8EmD-dddd-dddd MOVU.W @(Rm,disp32), Rn		//Rn=Rm+disp*2
+* 8E6n-8EmE-dddd-dddd MOVU.L @(Rm,disp32), Rn		//Rn=Rm+disp*4
 * 8E6n-8EmF-dddd-dddd MOV.L/Q @(Rm,disp32), Rn		//Rn=[Rm+disp32*(4|8)]
 
 * 8E7n-8Eii-iiii-iiii ADD #imm40, Rn
@@ -755,18 +779,18 @@ Escape 64 (BJX32: Values truncated to 32-bits)
 * 8EAd-8Edd-dddd-dddd BRA disp44
 * 8EBd-8Edd-dddd-dddd BSR disp44
 
-* 8EC7-8En0-dddd-dddd MOV.B @(PC,disp32), Rn		//Memory Load
-* 8EC7-8En1-dddd-dddd MOV.W @(PC,disp32), Rn		//
-* 8EC7-8En2-dddd-dddd MOV.L @(PC,disp32), Rn		//
-* 8EC7-8En3-dddd-dddd MOV.Q @(PC,disp32), Rn		//
-* 8EC7-8Em4-dddd-dddd MOV.B Rm, @(PC,disp32)		//Memory Store
-* 8EC7-8Em5-dddd-dddd MOV.W Rm, @(PC,disp32)		//
-* 8EC7-8Em6-dddd-dddd MOV.L Rm, @(PC,disp32)		//
-* 8EC7-8Em7-dddd-dddd MOV.Q Rm, @(PC,disp32)		//
-* 8EC7-8En8-dddd-dddd MOVA.B @(PC,disp32), Rn		//Load Address
-* 8EC7-8En9-dddd-dddd MOVA.W @(PC,disp32), Rn		//
-* 8EC7-8EnA-dddd-dddd MOVA.L @(PC,disp32), Rn		//
-* 8EC7-8EnB-dddd-dddd MOVA.Q @(PC,disp32), Rn		//
+* 8EC7-8En0-dddd-dddd / MOV.B @(PC,disp32), Rn		//Memory Load
+* 8EC7-8En1-dddd-dddd / MOV.W @(PC,disp32), Rn		//
+* 8EC7-8En2-dddd-dddd / MOV.L @(PC,disp32), Rn		//
+* 8EC7-8En3-dddd-dddd / MOV.Q @(PC,disp32), Rn		//
+* 8EC7-8Em4-dddd-dddd / MOV.B Rm, @(PC,disp32)		//Memory Store
+* 8EC7-8Em5-dddd-dddd / MOV.W Rm, @(PC,disp32)		//
+* 8EC7-8Em6-dddd-dddd / MOV.L Rm, @(PC,disp32)		//
+* 8EC7-8Em7-dddd-dddd / MOV.Q Rm, @(PC,disp32)		//
+* 8EC7-8En8-dddd-dddd / MOVA.B @(PC,disp32), Rn		//Load Address
+* 8EC7-8En9-dddd-dddd / MOVA.W @(PC,disp32), Rn		//
+* 8EC7-8EnA-dddd-dddd / MOVA.L @(PC,disp32), Rn		//
+* 8EC7-8EnB-dddd-dddd / MOVA.Q @(PC,disp32), Rn		//
 * 8EC7-8EnC-dddd-dddd FMOV.S @(PC,disp32), FRn		//
 * 8EC7-8EnD-dddd-dddd FMOV.D @(PC,disp32), DRn		//
 

@@ -49,6 +49,133 @@ int BGBCC_CCXL_BoolExpr(BGBCC_TransState *ctx, BCCX_Node *l)
 	return(-1);
 }
 
+int BGBCC_CCXL_IsFixIntAssignRVP(
+	BGBCC_TransState *ctx, BCCX_Node *l,
+	char **rname, int *rval)
+{
+	BCCX_Node *c, *ct, *cv, *t, *n, *u, *v, *n1;
+	BCCX_Node *ln, *rn, *ln2, *rn2;
+	ccxl_label l0, l1, l2;
+	char *name;
+	char *s0, *s1, *s2;
+	s64 li;
+	int i, j, k;
+
+	if(!BCCX_TagIsP(l, "assign"))
+		return(0);
+
+	s0=BCCX_Get(l, "op");
+	if(s0)
+		return(0);
+
+	ln=BCCX_Fetch(l, "left");
+	rn=BCCX_Fetch(l, "right");
+	ln=BGBCC_CCXL_ReduceExpr(ctx, ln);
+	rn=BGBCC_CCXL_ReduceExpr(ctx, rn);
+
+	name=NULL;
+	if(BCCX_TagIsP(ln, "ref"))
+		{ name=BCCX_Get(ln, "name"); }
+
+	i=0;
+	if(BCCX_TagIsP(rn, "int"))
+	{
+		li=BCCX_GetInt(rn, "value");
+		if(((int)li)==li)
+			i=1;
+	}
+	
+	if(name && i)
+	{
+		*rname=name;
+		*rval=li;
+		return(1);
+	}
+
+	return(0);
+}
+
+int BGBCC_CCXL_IsFixIntCompareRVP(
+	BGBCC_TransState *ctx, BCCX_Node *l,
+	char **rname, char **rcmp, int *rval)
+{
+	BCCX_Node *c, *ct, *cv, *t, *n, *u, *v, *n1;
+	BCCX_Node *ln, *rn, *ln2, *rn2;
+	ccxl_label l0, l1, l2;
+	char *name, *op;
+	char *s0, *s1, *s2;
+	s64 li;
+	int i, j, k;
+
+	if(!BCCX_TagIsP(l, "binary"))
+		return(0);
+
+	s0=BCCX_Get(l, "op");
+	if(!s0)
+		return(0);
+	
+	op=NULL;
+	if(!strcmp(s0, "=="))op=s0;
+	if(!strcmp(s0, "!="))op=s0;
+	if(!strcmp(s0, "<" ))op=s0;
+	if(!strcmp(s0, ">" ))op=s0;
+	if(!strcmp(s0, "<="))op=s0;
+	if(!strcmp(s0, ">="))op=s0;
+
+	ln=BCCX_Fetch(l, "left");
+	rn=BCCX_Fetch(l, "right");
+	ln=BGBCC_CCXL_ReduceExpr(ctx, ln);
+	rn=BGBCC_CCXL_ReduceExpr(ctx, rn);
+
+	name=NULL;
+	if(BCCX_TagIsP(ln, "ref"))
+		{ name=BCCX_Get(ln, "name"); }
+
+	i=0;
+	if(BCCX_TagIsP(rn, "int"))
+	{
+		li=BCCX_GetInt(rn, "value");
+		if(((int)li)==li)
+			i=1;
+	}
+	
+	if(name && op && i)
+	{
+		*rname=name;
+		*rcmp=op;
+		*rval=li;
+		return(1);
+	}
+
+	return(0);
+}
+
+int BGBCC_CCXL_IsTagVarRVP(
+	BGBCC_TransState *ctx, BCCX_Node *l,
+	char *tag, char *name)
+{
+	BCCX_Node *c, *ct, *cv, *t, *n, *u, *v, *n1;
+	ccxl_label l0, l1, l2;
+	char *s0, *s1, *s2;
+	s64 li;
+	int i, j, k;
+
+	if(!BCCX_TagIsP(l, tag))
+		return(0);
+
+	v=BCCX_Fetch(l, "value");
+	v=BGBCC_CCXL_ReduceExpr(ctx, v);
+
+	s0=NULL;
+	if(BCCX_TagIsP(v, "ref"))
+		{ s0=BCCX_Get(v, "name"); }
+	
+	if(s0 && name && !strcmp(s0, name))
+		return(1);
+
+	return(0);
+}
+
 BCCX_Node *BGBCC_CCXL_WrapIntSuf(s64 i, char *suf)
 {
 	BCCX_Node *t;

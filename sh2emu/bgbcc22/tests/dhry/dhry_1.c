@@ -293,15 +293,18 @@ main ()
 #endif
     printf ("Microseconds for one run through Dhrystone: ");
 //    printf ("%6.1f \n", Microseconds);
+    printf ("%6.1f \n", (double) Microseconds);
+//    *(int *)-1=-1;
 //    printf (" %f \n", Microseconds);
-	print_float_ss(Microseconds);
-    printf ("\n");
+//	print_float_ss(Microseconds);
+//    printf ("\n");
 
     printf ("Dhrystones per Second:                      ");
 //    printf ("%6.1f \n", Dhrystones_Per_Second);
+    printf ("%6.1f \n", (double) Dhrystones_Per_Second);
 //    printf (" %f \n", Dhrystones_Per_Second);
-	print_float_ss(Dhrystones_Per_Second);
-    printf ("\n");
+//	print_float_ss(Dhrystones_Per_Second);
+ //   printf ("\n");
 
     printf ("\n");
   }

@@ -121,6 +121,17 @@ void BGBCC_CCXL_CompileArgsList(BGBCC_TransState *ctx, BCCX_Node *lst)
 
 void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 {
+	BGBCC_CCXL_CompileFuncallI(ctx, l, 0);
+}
+
+void BGBCC_CCXL_CompileFuncallStmt(BGBCC_TransState *ctx, BCCX_Node *l)
+{
+	BGBCC_CCXL_CompileFuncallI(ctx, l, 1);
+}
+
+void BGBCC_CCXL_CompileFuncallI(BGBCC_TransState *ctx,
+	BCCX_Node *l, int flag)
+{
 	char *s0, *s1, *s2;
 	BCCX_Node *c, *d, *t, *u, *v;
 	int i, j;
@@ -138,7 +149,8 @@ void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 			BGBCC_CCXL_CompileExprListReverse(ctx,
 				BCCX_Fetch(l, "args"));
 			BGBCC_CCXL_StackVaEnd(ctx);
-			BGBCC_CCXL_StackPushConstInt(ctx, 0);
+			if(!(flag&1))
+				BGBCC_CCXL_StackPushConstInt(ctx, 0);
 			return;
 		}
 
@@ -147,7 +159,8 @@ void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 			BGBCC_CCXL_CompileExprListReverse(ctx,
 				BCCX_Fetch(l, "args"));
 			BGBCC_CCXL_StackVaStart(ctx);
-			BGBCC_CCXL_StackPushConstInt(ctx, 0);
+			if(!(flag&1))
+				BGBCC_CCXL_StackPushConstInt(ctx, 0);
 			return;
 		}
 
@@ -164,7 +177,7 @@ void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 		BGBCC_CCXL_PushMark(ctx);
 		BGBCC_CCXL_CompileExprListReverse(ctx,
 			BCCX_Fetch(l, "args"));
-		BGBCC_CCXL_StackCallName(ctx, s0);
+		BGBCC_CCXL_StackCallName(ctx, s0, flag);
 		return;
 	}
 
@@ -183,7 +196,7 @@ void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 	BGBCC_CCXL_CompileExprListReverse(ctx,
 		BCCX_Fetch(l, "args"));
 	BGBCC_CCXL_CompileExpr(ctx, c);
-	BGBCC_CCXL_StackPopCall(ctx);
+	BGBCC_CCXL_StackPopCall(ctx, flag);
 	return;
 }
 
@@ -201,7 +214,7 @@ void BGBCC_CCXL_CompileMethodcall(BGBCC_TransState *ctx, BCCX_Node *l)
 	BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
 	BGBCC_CCXL_StackLoadSlot(ctx, BCCX_Get(l, "name"));
 
-	BGBCC_CCXL_StackPopCall(ctx);
+	BGBCC_CCXL_StackPopCall(ctx, 0);
 	return;
 }
 

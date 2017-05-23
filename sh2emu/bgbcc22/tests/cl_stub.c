@@ -336,6 +336,7 @@ void print_float_ss(float val)
 void printf(char *str, ...)
 {
 	va_list lst;
+	double f;
 	char pcfill;
 	char *s, *s1;
 	int v, w, wf;
@@ -427,7 +428,10 @@ void printf(char *str, ...)
 
 #ifdef ARCH_HAS_FPU
 		case 'f':
-			print_float(va_arg(lst, double));
+			f=6969.6969;
+			f=va_arg(lst, double);
+//			*(int *)-1=-1;
+			print_float(f);
 			break;
 #endif
 

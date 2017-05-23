@@ -176,8 +176,10 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 {
 	BCCX_Node *c, *ct, *cv, *t, *n, *u, *v, *n1;
 	BCCX_Node *ln, *rn, *ln2, *rn2;
+	BCCX_Node *ni, *nc, *ns, *nb;
 	ccxl_label l0, l1, l2;
 	char *s0, *s1, *s2;
+	int i0, i1, i2, i3;
 	int i, j, k;
 
 	if(!l)
@@ -414,6 +416,35 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "for"))
 	{
+		ni=BCCX_Fetch(l, "init");
+		nc=BCCX_Fetch(l, "cond");
+		nb=BCCX_Fetch(l, "body");
+		ns=BCCX_Fetch(l, "step");
+
+		i=1;
+		i=i&&BGBCC_CCXL_IsFixIntAssignRVP(ctx, ni, &s0, &i0);
+		i=i&&BGBCC_CCXL_IsFixIntCompareRVP(ctx, nc, &s1, &s2, &i1);
+		i=i&&(	BGBCC_CCXL_IsTagVarRVP(ctx, ns, "postinc", s0) ||
+				BGBCC_CCXL_IsTagVarRVP(ctx, ns, "preinc", s0));
+		i=i&&(!strcmp(s0, s1));
+		i=i&&(!strcmp(s2, "<") || !strcmp(s2, "<="));
+		i=i&&(	BCCX_TagIsP(nb, "assign") ||
+				BCCX_TagIsP(nb, "funcall") ||
+				BCCX_TagIsP(nb, "setindex"));
+		
+		if(i && ((i1-i0)<=8))
+		{
+			if(!strcmp(s2, "<="))i1++;
+			for(i=i0; i<i1; i++)
+			{
+				BGBCC_CCXL_StackPushConstInt(ctx, i);
+				BGBCC_CCXL_PopStore(ctx, s0);
+				BGBCC_CCXL_CompileStatement(ctx, nb);
+			}
+
+			return;
+		}
+
 		l0=BGBCC_CCXL_GenSym(ctx);
 		l1=BGBCC_CCXL_GenSym(ctx);
 		l2=BGBCC_CCXL_GenSym(ctx);
@@ -421,15 +452,15 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 		ctx->contstack[ctx->contstackpos++]=l1;
 		ctx->breakstack[ctx->breakstackpos++]=l2;
 
-		BGBCC_CCXL_CompileStatement(ctx, BCCX_Fetch(l, "init"));
+		BGBCC_CCXL_CompileStatement(ctx, ni);
 
 		BGBCC_CCXL_EmitLabel(ctx, l0);
-		BGBCC_CCXL_CompileJCF(ctx, BCCX_Fetch(l, "cond"), l2);
+		BGBCC_CCXL_CompileJCF(ctx, nc, l2);
 
-		BGBCC_CCXL_CompileStatement(ctx, BCCX_Fetch(l, "body"));
+		BGBCC_CCXL_CompileStatement(ctx, nb);
 
 		BGBCC_CCXL_EmitLabel(ctx, l1);
-		BGBCC_CCXL_CompileStatement(ctx, BCCX_Fetch(l, "step"));
+		BGBCC_CCXL_CompileStatement(ctx, ns);
 		BGBCC_CCXL_CompileJmp(ctx, l0);
 
 		BGBCC_CCXL_EmitLabel(ctx, l2);
@@ -505,6 +536,12 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 
 		ctx->contstackpos--;
 		ctx->breakstackpos--;
+		return;
+	}
+
+	if(BCCX_TagIsP(l, "funcall"))
+	{
+		BGBCC_CCXL_CompileFuncallStmt(ctx, l);
 		return;
 	}
 

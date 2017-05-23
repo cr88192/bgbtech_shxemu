@@ -161,19 +161,20 @@ print_decimal_n(fp,6);
 /*336*/ void printf(char*str,...)
 {
 va_list lst;
+double f;
 char pcfill;
 char*s,*s1;
 int v,w,wf;
-/*343*/ __builtin_va_start(lst,str);
-/*345*/ s=str;
+/*344*/ __builtin_va_start(lst,str);
+/*346*/ s=str;
 while(*s)
 {
 if(*s!='%')
 {putc(*s++);continue;}
-/*353*/ if(s[1]=='%')
+/*354*/ if(s[1]=='%')
 {s+=2;putc('%');continue;}
 s++;
-/*360*/ if(*s=='0')
+/*361*/ if(*s=='0')
 {
 pcfill='0';
 s++;
@@ -181,13 +182,13 @@ s++;
 {
 pcfill=' ';
 }
-/*369*/ w=0;
+/*370*/ w=0;
 if((*s>='0')&&(*s<='9'))
 {
 while((*s>='0')&&(*s<='9'))
 w=(w*10)+((*s++)-'0');
 }
-/*376*/ wf=0;
+/*377*/ wf=0;
 if(*s=='.')
 {
 s++;
@@ -197,15 +198,15 @@ while((*s>='0')&&(*s<='9'))
 wf=(wf*10)+((*s++)-'0');
 }
 }
-/*391*/ switch(*s++)
+/*392*/ switch(*s++)
 {
 case'c':
 v=__builtin_va_arg(lst,int);
 putc(v);
 break;
-/*398*/ case'd':
-/*400*/ v=__builtin_va_arg(lst,int);
-/*404*/ if(w)
+/*399*/ case'd':
+/*401*/ v=__builtin_va_arg(lst,int);
+/*405*/ if(w)
 {
 print_decimal_n(v,w);
 }else
@@ -215,90 +216,92 @@ print_decimal(v);
 break;
 case'X':
 v=__builtin_va_arg(lst,int);
-/*415*/ if(!w)w=print_hex_genw(v);
+/*416*/ if(!w)w=print_hex_genw(v);
 print_hex_n(v,w);
 break;
 case's':
 s1=__builtin_va_arg(lst,char*);
 puts(s1);
 break;
-/*423*/ case'p':
+/*424*/ case'p':
 s1=__builtin_va_arg(lst,char*);
 print_hex((u32)s1);
 break;
-/*429*/ case'f':
-print_float(__builtin_va_arg(lst,double));
+/*430*/ case'f':
+f=6969.6969;
+f=__builtin_va_arg(lst,double);
+/*434*/ print_float(f);
 break;
-/*434*/ default:
+/*438*/ default:
 break;
 }
-/*438*/ }
+/*442*/ }
 __builtin_va_end(lst);
 }
-/*443*/ byte*tk_malloc_rov=((void*)0);
-/*446*/ void*malloc(int sz)
+/*447*/ byte*tk_malloc_rov=((void*)0);
+/*450*/ void*malloc(int sz)
 {
 byte*p;
-/*450*/ if(!tk_malloc_rov)
+/*454*/ if(!tk_malloc_rov)
 {
-/*453*/ tk_malloc_rov=(byte*)0x90000000;
+/*457*/ tk_malloc_rov=(byte*)0x90000000;
 }
-/*456*/ sz=(sz+3)&(~3);
+/*460*/ sz=(sz+3)&(~3);
 p=tk_malloc_rov;
 tk_malloc_rov=p+sz;
 return(p);
-/*462*/ }
-/*464*/ int free(void*ptr)
+/*466*/ }
+/*468*/ int free(void*ptr)
 {
-/*467*/ }
-/*470*/ int strcpy(char*dst,char*src)
+/*471*/ }
+/*474*/ int strcpy(char*dst,char*src)
 {
 char*ct,*cs;
-/*474*/ ct=dst;cs=src;
-/*479*/ while(*ct++ = *cs++);
-/*481*/ return(0);
+/*478*/ ct=dst;cs=src;
+/*483*/ while(*ct++ = *cs++);
+/*485*/ return(0);
 }
-/*486*/ int strcmp(char*dst,char*src)
+/*490*/ int strcmp(char*dst,char*src)
 {
-/*489*/ char*ct,*cs;
-/*502*/ ct=dst;cs=src;
+/*493*/ char*ct,*cs;
+/*506*/ ct=dst;cs=src;
 while(*cs&&(*cs!= *ct))
 {cs++;ct++;}
 return(*ct- *cs);
-/*526*/ }
-/*529*/ u32 TK_GetTimeMs(void)
+/*530*/ }
+/*533*/ u32 TK_GetTimeMs(void)
 {
 u32*sreg;
 int ms;
-/*534*/ sreg=(int*)0x007F8000;
-/*536*/ ms=sreg[4];
+/*538*/ sreg=(int*)0x007F8000;
+/*540*/ ms=sreg[4];
 return(ms);
 }
-/*540*/ int clock(void)
+/*544*/ int clock(void)
 {
 return(TK_GetTimeMs());
-/*544*/ }
-/*546*/ int time(void)
+/*548*/ }
+/*550*/ int time(void)
 {
 return(clock()>>10);
 }
-/*551*/ int main(int argc,char*argv[]);
-/*553*/ void __start()
+/*555*/ int main(int argc,char*argv[]);
+/*557*/ void __start()
 {
 char*t_argv[4];
-/*557*/ puts("__start: OK A\n");
-/*559*/ t_argv[0]="tk_dummy";
+/*561*/ puts("__start: OK A\n");
+/*563*/ t_argv[0]="tk_dummy";
 main(1,t_argv);
 }
-/*565*/ typedef struct u64_obj_s u64_obj_t;
+/*569*/ typedef struct u64_obj_s u64_obj_t;
 struct u64_obj_s{
 u32 lo;
 u32 hi;
 };
-/*571*/ u64_obj_t __shllli(u64_obj_t ival,int shl)
+/*575*/ u64_obj_t __shllli(u64_obj_t ival,int shl)
 {
 u64_obj_t oval;
-/*575*/ if(!(shl&31))
+/*579*/ if(!(shl&31))
 {
 if(!shl)
 return(ival);
@@ -308,18 +311,18 @@ oval.lo=0;
 oval.hi=ival.lo;
 return(oval);
 }
-/*586*/ oval.lo=0;
+/*590*/ oval.lo=0;
 oval.hi=0;
 return(oval);
 }
-/*591*/ oval.lo=ival.lo<<shl;
+/*595*/ oval.lo=ival.lo<<shl;
 oval.hi=(ival.hi<<shl)|(ival.lo<<(32-shl));
 return(oval);
 }
-/*596*/ u64_obj_t __shrlli(u64_obj_t ival,int shl)
+/*600*/ u64_obj_t __shrlli(u64_obj_t ival,int shl)
 {
 u64_obj_t oval;
-/*600*/ if(!(shl&31))
+/*604*/ if(!(shl&31))
 {
 if(!shl)
 return(ival);
@@ -329,22 +332,22 @@ oval.lo=ival.hi;
 oval.hi=0;
 return(oval);
 }
-/*611*/ oval.lo=0;
+/*615*/ oval.lo=0;
 oval.hi=0;
 return(oval);
 }
-/*616*/ oval.hi=ival.hi>>shl;
+/*620*/ oval.hi=ival.hi>>shl;
 oval.lo=(ival.lo>>shl)|(ival.hi<<(32-shl));
 return(oval);
 }
-/*621*/ u64_obj_t __sarlli(u64_obj_t ival,int shl)
+/*625*/ u64_obj_t __sarlli(u64_obj_t ival,int shl)
 {
 u64_obj_t oval;
 u32 m;
-/*626*/ m=0;
+/*630*/ m=0;
 if(ival.hi&0x80000000)
 m=(u32)(-1);
-/*630*/ if(!(shl&31))
+/*634*/ if(!(shl&31))
 {
 if(!shl)
 return(ival);
@@ -355,22 +358,22 @@ if(m>0)
 oval.lo=0;oval.hi=0;
 return(oval);
 }
-/*642*/ oval.hi=(ival.hi>>shl)|(m<<(32-shl));
+/*646*/ oval.hi=(ival.hi>>shl)|(m<<(32-shl));
 oval.lo=(ival.lo>>shl)|(ival.hi<<(32-shl));
 return(oval);
 }
-/*649*/ typedef struct u128_obj_s u128_obj_t;
+/*653*/ typedef struct u128_obj_s u128_obj_t;
 struct u128_obj_s{
 u32 la;
 u32 lb;
 u32 lc;
 u32 ld;
 };
-/*657*/ u128_obj_t __negxli(u128_obj_t va)
+/*661*/ u128_obj_t __negxli(u128_obj_t va)
 {
 u128_obj_t oval;
 u64 t;
-/*662*/ t=((u64)(~va.la))+1;
+/*666*/ t=((u64)(~va.la))+1;
 oval.la=t;t=t>>32;
 t=t+((u64)(~va.lb))+0;
 oval.lb=t;t=t>>32;
@@ -380,11 +383,11 @@ t=t+((u64)(~va.ld))+0;
 oval.ld=t;
 return(oval);
 }
-/*673*/ u128_obj_t __addxli(u128_obj_t va,u128_obj_t vb)
+/*677*/ u128_obj_t __addxli(u128_obj_t va,u128_obj_t vb)
 {
 u128_obj_t oval;
 u64 t;
-/*678*/ t=((u64)va.la)+vb.la;
+/*682*/ t=((u64)va.la)+vb.la;
 oval.la=t;t=t>>32;
 t=t+((u64)va.lb)+vb.lb;
 oval.lb=t;t=t>>32;
@@ -394,15 +397,15 @@ t=t+((u64)va.ld)+vb.ld;
 oval.ld=t;
 return(oval);
 }
-/*690*/ u128_obj_t __subxli(u128_obj_t va,u128_obj_t vb)
+/*694*/ u128_obj_t __subxli(u128_obj_t va,u128_obj_t vb)
 {
 u128_obj_t oval,vc;
 u64 t;
-/*695*/ vc=__negxli(vb);
+/*699*/ vc=__negxli(vb);
 oval=__addxli(va,vc);
 return(oval);
 }
-/*700*/ u128_obj_t __andxli(u128_obj_t va,u128_obj_t vb)
+/*704*/ u128_obj_t __andxli(u128_obj_t va,u128_obj_t vb)
 {
 u128_obj_t oval;
 oval.la=va.la&va.la;
@@ -411,7 +414,7 @@ oval.lc=va.lc&va.lc;
 oval.ld=va.ld&va.ld;
 return(oval);
 }
-/*710*/ u128_obj_t __orxli(u128_obj_t va,u128_obj_t vb)
+/*714*/ u128_obj_t __orxli(u128_obj_t va,u128_obj_t vb)
 {
 u128_obj_t oval;
 oval.la=va.la|va.la;
@@ -420,7 +423,7 @@ oval.lc=va.lc|va.lc;
 oval.ld=va.ld|va.ld;
 return(oval);
 }
-/*720*/ u128_obj_t __xorxli(u128_obj_t va,u128_obj_t vb)
+/*724*/ u128_obj_t __xorxli(u128_obj_t va,u128_obj_t vb)
 {
 u128_obj_t oval;
 oval.la=va.la^va.la;
@@ -429,49 +432,49 @@ oval.lc=va.lc^va.lc;
 oval.ld=va.ld^va.ld;
 return(oval);
 }
-/*782*/ u128_obj_t __shlxli(u128_obj_t va,int shl)
+/*786*/ u128_obj_t __shlxli(u128_obj_t va,int shl)
 {
 u128_obj_t oval;
-/*786*/ oval.la=va.la;oval.lb=va.lb;
+/*790*/ oval.la=va.la;oval.lb=va.lb;
 oval.lc=va.lc;oval.ld=va.ld;
-/*789*/ if(!shl)
+/*793*/ if(!shl)
 {
 oval.la=va.la;oval.lb=va.lb;
 oval.lc=va.lc;oval.ld=va.ld;
 return(oval);
 }
-/*796*/ if(shl==32)
+/*800*/ if(shl==32)
 {
 oval.la=0;oval.lb=va.la;
 oval.lc=va.lb;oval.ld=va.lc;
 return(oval);
 }
-/*803*/ if(shl==64)
+/*807*/ if(shl==64)
 {
 oval.la=0;oval.lb=0;
 oval.lc=va.la;oval.ld=va.lb;
 return(oval);
 }
-/*810*/ if(shl==96)
+/*814*/ if(shl==96)
 {
 oval.la=0;oval.lb=0;
 oval.lc=0;oval.ld=va.la;
 return(oval);
 }
-/*818*/ if(shl>96)
+/*822*/ if(shl>96)
 {
 oval.la=0;oval.lb=0;
 oval.lc=0;oval.ld=va.la<<(shl-96);
 return(oval);
 }
-/*825*/ if(shl>64)
+/*829*/ if(shl>64)
 {
 oval.la=0;oval.lb=0;
 oval.lc=va.la<<(shl-64);
 oval.ld=(va.lb<<(shl-64))|(va.la>>(96-shl));
 return(oval);
 }
-/*833*/ if(shl>32)
+/*837*/ if(shl>32)
 {
 oval.la=0;
 oval.lb=(va.la<<(shl-32));
@@ -479,7 +482,7 @@ oval.lc=(va.lb<<(shl-32))|(va.la>>(64-shl));
 oval.ld=(va.lc<<(shl-32))|(va.lb>>(64-shl));
 return(oval);
 }
-/*843*/ if(1)
+/*847*/ if(1)
 {
 oval.la=(va.la<<shl);
 oval.lb=(va.lb<<shl)|(va.la>>(32-shl));
@@ -487,35 +490,35 @@ oval.lc=(va.lc<<shl)|(va.lb>>(32-shl));
 oval.ld=(va.ld<<shl)|(va.lc>>(32-shl));
 return(oval);
 }
-/*852*/ }
-/*855*/ u128_obj_t __shrxli(u128_obj_t va,int shl)
+/*856*/ }
+/*859*/ u128_obj_t __shrxli(u128_obj_t va,int shl)
 {
 u128_obj_t oval;
-/*867*/ if(!shl)
+/*871*/ if(!shl)
 {
 oval.la=va.la;oval.lb=va.lb;
 oval.lc=va.lc;oval.ld=va.ld;
 return(oval);
-/*873*/ }
-/*875*/ if(shl==32)
+/*877*/ }
+/*879*/ if(shl==32)
 {
 oval.la=va.lb;oval.lb=va.lc;
 oval.lc=va.ld;oval.ld=0;
 return(oval);
 }
-/*882*/ if(shl==64)
+/*886*/ if(shl==64)
 {
 oval.la=va.lc;oval.lb=va.ld;
 oval.lc=0;oval.ld=0;
 return(oval);
 }
-/*889*/ if(shl==96)
+/*893*/ if(shl==96)
 {
 oval.la=va.ld;oval.lb=0;
 oval.lc=0;oval.ld=0;
-/*895*/ return(oval);
+/*899*/ return(oval);
 }
-/*898*/ oval.la=0x55AA55AA;oval.lb=0x55AA55AA;
+/*902*/ oval.la=0x55AA55AA;oval.lb=0x55AA55AA;
 oval.lc=0x55AA55AA;oval.ld=0x55AA55AA;
 return(oval);
-/*903*/ }
+/*907*/ }

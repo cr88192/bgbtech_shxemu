@@ -429,7 +429,7 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
 {
-	int v;
+	int v, le;
 	u32 *mmio;
 
 	mmio=(u32 *)(sp->data);
@@ -467,8 +467,16 @@ int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 	
 	case 0x41:
 //		printf("Tx: %c\n", val);
-		printf("%c", val);
+		
+		le=btesh2_gfxcon_esc;
 		BTESH2_GfxCon_PrintChar(val);
+//		if(	(btesh2_gfxcon_esc==3) ||
+//			(btesh2_gfxcon_esc==4) ||
+//			(btesh2_gfxcon_esc==5))
+		if(btesh2_gfxcon_esc || le)
+			break;
+
+		printf("%c", val);
 		fflush(stdout);
 		if(!kirq)
 			kirq++;

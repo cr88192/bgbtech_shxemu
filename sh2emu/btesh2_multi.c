@@ -38,6 +38,8 @@
 #endif
 
 #include "btesh2_decode.c"
+#include "btesh2_decode_2a.c"
+#include "btesh2_decode_b1.c"
 #include "btesh2_interp.c"
 #include "btesh2_ldelf.c"
 

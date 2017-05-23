@@ -1045,9 +1045,9 @@
         </args>
       </proto>
     </vars>
-    <defun name="main" tokens=216 fn="tests/fibtst.c" ln=275>
+    <defun name="main" tokens=223 fn="tests/fibtst.c" ln=275>
       <body>
-        <begin tokens=216>
+        <begin tokens=223>
           <vars fn="tests/fibtst.c" ln=275>
             <var name="i">
               <type flags=0 ind=0 name="int"/>
@@ -1299,7 +1299,12 @@
               <int value=2/>
             </args>
           </funcall>
-          <funcall name="puts" fn="tests/fibtst.c" ln=348>
+          <funcall name="printf" fn="tests/fibtst.c" ln=348>
+            <args>
+              <string value="pp %f&#10;"/>
+            </args>
+          </funcall>
+          <funcall name="puts" fn="tests/fibtst.c" ln=351>
             <args>
               <string value="main: H&#10;"/>
             </args>
