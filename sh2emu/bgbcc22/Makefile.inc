@@ -71,6 +71,8 @@ libs: $(LIBS)
 apps: $(APPS)
 includes: $(DEP_HDRS)
 
+install: all
+	cp *$(BINSUF) $(INST_BIN)
 
 autohead$(BINSUF): autohead.c
 	$(CC_OUTTOOL)autohead$(BINSUF) autohead.c

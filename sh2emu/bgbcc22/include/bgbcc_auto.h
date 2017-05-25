@@ -1286,4 +1286,5 @@ void ccAddInclude(char *path);
 void ccAddLibrary(char *path);
 void ccAddSource(char *path);
 void ccAddDefineString(char *str);
+int help(char *arg0);
 int main(int argc, char *argv[], char **env);

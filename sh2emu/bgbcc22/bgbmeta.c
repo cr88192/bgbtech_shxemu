@@ -1030,6 +1030,19 @@ void ccAddDefineString(char *str)
 	BGBPP_AddStaticDefine(NULL, tb, tb2);
 }
 
+int help(char *arg0)
+{
+	printf("Usage: %s [options] [files]\n", arg0);
+	printf("/D<name>[=val]      Define Name\n");
+	printf("/I<path>            Add Include Path\n");
+	printf("/L<path>            Add Library Path\n");
+	printf("/S<path>            Add Source Path\n");
+	printf("/Fn<name>           Metadata Output Name\n");
+	printf("/Fw<name>           ExWAD Output Name\n");
+	printf("/Fi<name>           Program Image Name\n");
+	printf("/Fe<name>           Program Executable Name\n");
+}
+
 int main(int argc, char *argv[], char **env)
 {
 	char tb[256];
@@ -1100,7 +1113,8 @@ int main(int argc, char *argv[], char **env)
 				continue;
 			}
 
-			if(!strncmp(argv[i], "/Fi", 3))
+			if(!strncmp(argv[i], "/Fi", 3) ||
+				!strncmp(argv[i], "/Fe", 3))
 			{
 				frbcfn=argv[i]+3;
 				continue;
@@ -1133,6 +1147,54 @@ int main(int argc, char *argv[], char **env)
 				{ i++; break; }
 			if(!strcmp(argv[i], "--pc"))
 				m|=1;
+
+			if(!strncmp(argv[i], "-I", 2))
+			{
+				ccAddInclude(argv[i]+2);
+				continue;
+			}
+			if(!strncmp(argv[i], "-L", 2))
+			{
+				ccAddLibrary(argv[i]+2);
+				continue;
+			}
+			if(!strncmp(argv[i], "-S", 2))
+			{
+				ccAddSource(argv[i]+2);
+				continue;
+			}
+
+			if(!strncmp(argv[i], "-D", 2))
+			{
+				ccAddDefineString(argv[i]+2);
+				continue;
+			}
+
+			if(!strncmp(argv[i], "-Fn", 3))
+			{
+				metafn=argv[i]+3;
+				continue;
+			}
+
+			if(!strncmp(argv[i], "-Fw", 3))
+			{
+				wadfn=argv[i]+3;
+				continue;
+			}
+
+			if(!strncmp(argv[i], "-Fi", 3))
+			{
+				frbcfn=argv[i]+3;
+				continue;
+			}
+
+			if(!strcmp(argv[i], "-o"))
+			{
+				frbcfn=argv[i+1];
+				i++;
+				continue;
+			}
+
 			continue;
 		}
 		uds[nuds++]=argv[i];
@@ -1140,6 +1202,12 @@ int main(int argc, char *argv[], char **env)
 
 	nargs=0; args[nargs++]=argv[0];
 	for(; i<argc; i++)args[nargs++]=argv[i];
+
+	if(!metafn && !wadfn && !frbcfn)
+	{
+		help(argv[0]);
+		return(0);
+	}
 
 	if(frbcfn)
 	{

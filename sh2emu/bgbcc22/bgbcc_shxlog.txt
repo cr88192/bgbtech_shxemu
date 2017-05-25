@@ -1,7 +1,7 @@
 BGBCC_SHXC_BuildFunction: Begin printf
 BGBCC_SHXC_BuildFunction: BegSim printf
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000150
 	DBGLN ty=00 imm=00000158
 	VA_START ty=00 dst=L0.0 srca=A0.0
@@ -238,7 +238,7 @@ BGBCC_SHXC_BuildFunction: BegSim printf
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim printf
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000150
 	DBGLN ty=00 imm=00000158
 	VA_START ty=00 dst=L0.0 srca=A0.0
@@ -477,7 +477,7 @@ BGBCC_SHXC_BuildFunction: End printf
 BGBCC_SHXC_BuildFunction: Begin strcpy
 BGBCC_SHXC_BuildFunction: BegSim strcpy
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000001DA
 	DBGLN ty=00 imm=000001DE
 	MOV ty=1008 dst=L0.1 srca=A0.0
@@ -508,7 +508,7 @@ BGBCC_SHXC_BuildFunction: BegSim strcpy
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim strcpy
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000001DA
 	DBGLN ty=00 imm=000001DE
 	MOV ty=1008 dst=L0.1 srca=A0.0
@@ -541,7 +541,7 @@ BGBCC_SHXC_BuildFunction: End strcpy
 BGBCC_SHXC_BuildFunction: Begin strcmp
 BGBCC_SHXC_BuildFunction: BegSim strcmp
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000001ED
 	DBGLN ty=00 imm=000001FA
 	MOV ty=1008 dst=L0.1 srca=A0.0
@@ -571,7 +571,7 @@ BGBCC_SHXC_BuildFunction: BegSim strcmp
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim strcmp
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000001ED
 	DBGLN ty=00 imm=000001FA
 	MOV ty=1008 dst=L0.1 srca=A0.0
@@ -603,7 +603,7 @@ BGBCC_SHXC_BuildFunction: End strcmp
 BGBCC_SHXC_BuildFunction: Begin countPrimes
 BGBCC_SHXC_BuildFunction: BegSim countPrimes
    Tr: idx=0 base=0 num=12
-	DBGFN ty=00 imm=000001F4FFAF8154
+	DBGFN ty=00 imm=0000023C1E257154
 	DBGLN ty=00 imm=00000019
 	STIX ty=00 dst=G4(primes) srca=I32(0) srcb=I32(2)
 	STIX ty=00 dst=G5(sieve) srca=I32(0) srcb=I32(4)
@@ -686,7 +686,7 @@ BGBCC_SHXC_BuildFunction: BegSim countPrimes
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim countPrimes
    Tr: idx=0 base=0 num=12
-	DBGFN ty=00 imm=000001F4FFAF8154
+	DBGFN ty=00 imm=0000023C1E257154
 	DBGLN ty=00 imm=00000019
 	STIX ty=00 dst=G4(primes) srca=I32(0) srcb=I32(2)
 	STIX ty=00 dst=G5(sieve) srca=I32(0) srcb=I32(4)
@@ -771,7 +771,7 @@ BGBCC_SHXC_BuildFunction: End countPrimes
 BGBCC_SHXC_BuildFunction: Begin main
 BGBCC_SHXC_BuildFunction: BegSim main
    Tr: idx=0 base=0 num=3
-	DBGFN ty=00 imm=000001F4FFAF8154
+	DBGFN ty=00 imm=0000023C1E257154
 	DBGLN ty=00 imm=00000036
 	CALL ty=00 dst=T0.1 srca=G9(clock)
    Tr: idx=1 base=3 num=1
@@ -807,7 +807,7 @@ BGBCC_SHXC_BuildFunction: BegSim main
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim main
    Tr: idx=0 base=0 num=3
-	DBGFN ty=00 imm=000001F4FFAF8154
+	DBGFN ty=00 imm=0000023C1E257154
 	DBGLN ty=00 imm=00000036
 	CALL ty=00 dst=T0.1 srca=G9(clock)
    Tr: idx=1 base=3 num=1
@@ -845,7 +845,7 @@ BGBCC_SHXC_BuildFunction: End main
 BGBCC_SHXC_BuildFunction: Begin clock
 BGBCC_SHXC_BuildFunction: BegSim clock
    Tr: idx=0 base=0 num=3
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000220
 	CALL ty=0C dst=T0.1 srca=G29(TK_GetTimeMs)
    Tr: idx=1 base=3 num=1
@@ -856,7 +856,7 @@ BGBCC_SHXC_BuildFunction: BegSim clock
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim clock
    Tr: idx=0 base=0 num=3
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000220
 	CALL ty=0C dst=T0.1 srca=G29(TK_GetTimeMs)
    Tr: idx=1 base=3 num=1
@@ -869,7 +869,7 @@ BGBCC_SHXC_BuildFunction: End clock
 BGBCC_SHXC_BuildFunction: Begin time
 BGBCC_SHXC_BuildFunction: BegSim time
    Tr: idx=0 base=0 num=3
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000226
 	CALL ty=00 dst=T0.1 srca=G9(clock)
    Tr: idx=1 base=3 num=1
@@ -881,7 +881,7 @@ BGBCC_SHXC_BuildFunction: BegSim time
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim time
    Tr: idx=0 base=0 num=3
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000226
 	CALL ty=00 dst=T0.1 srca=G9(clock)
    Tr: idx=1 base=3 num=1
@@ -895,7 +895,7 @@ BGBCC_SHXC_BuildFunction: End time
 BGBCC_SHXC_BuildFunction: Begin putc
 BGBCC_SHXC_BuildFunction: BegSim putc
    Tr: idx=0 base=0 num=2
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000084
    Tr: idx=1 base=2 num=5
 	LABEL ty=00 imm=0080000E
@@ -912,7 +912,7 @@ BGBCC_SHXC_BuildFunction: BegSim putc
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim putc
    Tr: idx=0 base=0 num=2
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000084
    Tr: idx=1 base=2 num=5
 	LABEL ty=00 imm=0080000E
@@ -931,7 +931,7 @@ BGBCC_SHXC_BuildFunction: End putc
 BGBCC_SHXC_BuildFunction: Begin kbhit
 BGBCC_SHXC_BuildFunction: BegSim kbhit
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000008C
 	CONV ty=100C dst=T0.1 srca=I32(-1412628216)
 	LDIXIMM ty=0C dst=T1.1 srca=T0.1
@@ -941,7 +941,7 @@ BGBCC_SHXC_BuildFunction: BegSim kbhit
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim kbhit
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000008C
 	CONV ty=100C dst=T0.1 srca=I32(-1412628216)
 	LDIXIMM ty=0C dst=T1.1 srca=T0.1
@@ -953,7 +953,7 @@ BGBCC_SHXC_BuildFunction: End kbhit
 BGBCC_SHXC_BuildFunction: Begin getch
 BGBCC_SHXC_BuildFunction: BegSim getch
    Tr: idx=0 base=0 num=2
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000008F
    Tr: idx=1 base=2 num=5
 	LABEL ty=00 imm=00800010
@@ -974,7 +974,7 @@ BGBCC_SHXC_BuildFunction: BegSim getch
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim getch
    Tr: idx=0 base=0 num=2
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000008F
    Tr: idx=1 base=2 num=5
 	LABEL ty=00 imm=00800010
@@ -997,7 +997,7 @@ BGBCC_SHXC_BuildFunction: End getch
 BGBCC_SHXC_BuildFunction: Begin puts
 BGBCC_SHXC_BuildFunction: BegSim puts
    Tr: idx=0 base=0 num=4
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000096
 	DBGLN ty=00 imm=0000009A
 	MOV ty=1008 dst=L0.1 srca=A0.0
@@ -1019,7 +1019,7 @@ BGBCC_SHXC_BuildFunction: BegSim puts
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim puts
    Tr: idx=0 base=0 num=4
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000096
 	DBGLN ty=00 imm=0000009A
 	MOV ty=1008 dst=L0.1 srca=A0.0
@@ -1043,7 +1043,7 @@ BGBCC_SHXC_BuildFunction: End puts
 BGBCC_SHXC_BuildFunction: Begin gets
 BGBCC_SHXC_BuildFunction: BegSim gets
    Tr: idx=0 base=0 num=4
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000009F
 	DBGLN ty=00 imm=000000A4
 	MOV ty=1008 dst=L0.1 srca=A0.0
@@ -1100,7 +1100,7 @@ BGBCC_SHXC_BuildFunction: BegSim gets
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim gets
    Tr: idx=0 base=0 num=4
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000009F
 	DBGLN ty=00 imm=000000A4
 	MOV ty=1008 dst=L0.1 srca=A0.0
@@ -1159,7 +1159,7 @@ BGBCC_SHXC_BuildFunction: End gets
 BGBCC_SHXC_BuildFunction: Begin print_hex
 BGBCC_SHXC_BuildFunction: BegSim print_hex
    Tr: idx=0 base=0 num=8
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000000BC
 	CONV ty=1008 dst=T0.1 srca=080000000000002F
 	DBGLN ty=00 imm=000000C3
@@ -1205,7 +1205,7 @@ BGBCC_SHXC_BuildFunction: BegSim print_hex
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim print_hex
    Tr: idx=0 base=0 num=8
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000000BC
 	CONV ty=1008 dst=T0.1 srca=080000000000002F
 	DBGLN ty=00 imm=000000C3
@@ -1253,7 +1253,7 @@ BGBCC_SHXC_BuildFunction: End print_hex
 BGBCC_SHXC_BuildFunction: Begin print_hex_n
 BGBCC_SHXC_BuildFunction: BegSim print_hex_n
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000000CD
 	CONV ty=1008 dst=T0.1 srca=080000000000002F
 	DBGLN ty=00 imm=000000D4
@@ -1323,7 +1323,7 @@ BGBCC_SHXC_BuildFunction: BegSim print_hex_n
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim print_hex_n
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000000CD
 	CONV ty=1008 dst=T0.1 srca=080000000000002F
 	DBGLN ty=00 imm=000000D4
@@ -1395,7 +1395,7 @@ BGBCC_SHXC_BuildFunction: End print_hex_n
 BGBCC_SHXC_BuildFunction: Begin print_hex_genw
 BGBCC_SHXC_BuildFunction: BegSim print_hex_genw
    Tr: idx=0 base=0 num=4
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000000DE
 	DBGLN ty=00 imm=000000E3
 	MOV ty=00 dst=L1.1 srca=I32(1)
@@ -1415,7 +1415,7 @@ BGBCC_SHXC_BuildFunction: BegSim print_hex_genw
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim print_hex_genw
    Tr: idx=0 base=0 num=4
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000000DE
 	DBGLN ty=00 imm=000000E3
 	MOV ty=00 dst=L1.1 srca=I32(1)
@@ -1437,7 +1437,7 @@ BGBCC_SHXC_BuildFunction: End print_hex_genw
 BGBCC_SHXC_BuildFunction: Begin print_decimal
 BGBCC_SHXC_BuildFunction: BegSim print_decimal
    Tr: idx=0 base=0 num=7
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000000F6
 	INITARR ty=08 dst=L0.0 imm=00000100
 	DBGLN ty=00 imm=000000FC
@@ -1502,7 +1502,7 @@ BGBCC_SHXC_BuildFunction: BegSim print_decimal
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim print_decimal
    Tr: idx=0 base=0 num=7
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000000F6
 	INITARR ty=08 dst=L0.0 imm=00000100
 	DBGLN ty=00 imm=000000FC
@@ -1569,7 +1569,7 @@ BGBCC_SHXC_BuildFunction: End print_decimal
 BGBCC_SHXC_BuildFunction: Begin print_decimal_n
 BGBCC_SHXC_BuildFunction: BegSim print_decimal_n
    Tr: idx=0 base=0 num=7
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000010E
 	INITARR ty=08 dst=L0.0 imm=00000100
 	DBGLN ty=00 imm=00000114
@@ -1619,7 +1619,7 @@ BGBCC_SHXC_BuildFunction: BegSim print_decimal_n
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim print_decimal_n
    Tr: idx=0 base=0 num=7
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000010E
 	INITARR ty=08 dst=L0.0 imm=00000100
 	DBGLN ty=00 imm=00000114
@@ -1671,7 +1671,7 @@ BGBCC_SHXC_BuildFunction: End print_decimal_n
 BGBCC_SHXC_BuildFunction: Begin print_float
 BGBCC_SHXC_BuildFunction: BegSim print_float
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000129
 	DBGLN ty=00 imm=0000012D
 	MOV ty=00 dst=L2.1 srca=I32(0)
@@ -1706,7 +1706,7 @@ BGBCC_SHXC_BuildFunction: BegSim print_float
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim print_float
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000129
 	DBGLN ty=00 imm=0000012D
 	MOV ty=00 dst=L2.1 srca=I32(0)
@@ -1743,7 +1743,7 @@ BGBCC_SHXC_BuildFunction: End print_float
 BGBCC_SHXC_BuildFunction: Begin print_float_ss
 BGBCC_SHXC_BuildFunction: BegSim print_float_ss
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000013C
 	DBGLN ty=00 imm=00000140
 	MOV ty=00 dst=L2.1 srca=I32(0)
@@ -1778,7 +1778,7 @@ BGBCC_SHXC_BuildFunction: BegSim print_float_ss
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim print_float_ss
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000013C
 	DBGLN ty=00 imm=00000140
 	MOV ty=00 dst=L2.1 srca=I32(0)
@@ -1815,7 +1815,7 @@ BGBCC_SHXC_BuildFunction: End print_float_ss
 BGBCC_SHXC_BuildFunction: Begin malloc
 BGBCC_SHXC_BuildFunction: BegSim malloc
    Tr: idx=0 base=0 num=4
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000001C2
 	DBGLN ty=00 imm=000001C6
 	JCMP_Z ty=1009 opr=01 srca=G26(tk_malloc_rov) imm=00800056
@@ -1835,7 +1835,7 @@ BGBCC_SHXC_BuildFunction: BegSim malloc
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim malloc
    Tr: idx=0 base=0 num=4
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000001C2
 	DBGLN ty=00 imm=000001C6
 	JCMP_Z ty=1009 opr=01 srca=G26(tk_malloc_rov) imm=00800056
@@ -1865,7 +1865,7 @@ BGBCC_SHXC_BuildFunction: End free
 BGBCC_SHXC_BuildFunction: Begin TK_GetTimeMs
 BGBCC_SHXC_BuildFunction: BegSim TK_GetTimeMs
    Tr: idx=0 base=0 num=9
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000215
 	DBGLN ty=00 imm=0000021A
 	CONV ty=1000 dst=T0.1 srca=I32(8355840)
@@ -1878,7 +1878,7 @@ BGBCC_SHXC_BuildFunction: BegSim TK_GetTimeMs
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim TK_GetTimeMs
    Tr: idx=0 base=0 num=9
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000215
 	DBGLN ty=00 imm=0000021A
 	CONV ty=1000 dst=T0.1 srca=I32(8355840)
@@ -1893,7 +1893,7 @@ BGBCC_SHXC_BuildFunction: End TK_GetTimeMs
 BGBCC_SHXC_BuildFunction: Begin __start
 BGBCC_SHXC_BuildFunction: BegSim __start
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000022D
 	INITARR ty=1008 dst=L0.0 imm=00000004
 	DBGLN ty=00 imm=00000231
@@ -1906,7 +1906,7 @@ BGBCC_SHXC_BuildFunction: BegSim __start
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __start
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000022D
 	INITARR ty=1008 dst=L0.0 imm=00000004
 	DBGLN ty=00 imm=00000231
@@ -1921,7 +1921,7 @@ BGBCC_SHXC_BuildFunction: End __start
 BGBCC_SHXC_BuildFunction: Begin __shllli
 BGBCC_SHXC_BuildFunction: BegSim __shllli
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000023F
 	INITOBJ ty=04 dst=L0.0 imm=00000008
 	DBGLN ty=00 imm=00000243
@@ -1969,7 +1969,7 @@ BGBCC_SHXC_BuildFunction: BegSim __shllli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __shllli
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000023F
 	INITOBJ ty=04 dst=L0.0 imm=00000008
 	DBGLN ty=00 imm=00000243
@@ -2019,7 +2019,7 @@ BGBCC_SHXC_BuildFunction: End __shllli
 BGBCC_SHXC_BuildFunction: Begin __shrlli
 BGBCC_SHXC_BuildFunction: BegSim __shrlli
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000258
 	INITOBJ ty=04 dst=L0.0 imm=00000008
 	DBGLN ty=00 imm=0000025C
@@ -2067,7 +2067,7 @@ BGBCC_SHXC_BuildFunction: BegSim __shrlli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __shrlli
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000258
 	INITOBJ ty=04 dst=L0.0 imm=00000008
 	DBGLN ty=00 imm=0000025C
@@ -2117,7 +2117,7 @@ BGBCC_SHXC_BuildFunction: End __shrlli
 BGBCC_SHXC_BuildFunction: Begin __sarlli
 BGBCC_SHXC_BuildFunction: BegSim __sarlli
    Tr: idx=0 base=0 num=8
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000271
 	INITOBJ ty=04 dst=L0.0 imm=00000008
 	DBGLN ty=00 imm=00000276
@@ -2186,7 +2186,7 @@ BGBCC_SHXC_BuildFunction: BegSim __sarlli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __sarlli
    Tr: idx=0 base=0 num=8
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000271
 	INITOBJ ty=04 dst=L0.0 imm=00000008
 	DBGLN ty=00 imm=00000276
@@ -2257,7 +2257,7 @@ BGBCC_SHXC_BuildFunction: End __sarlli
 BGBCC_SHXC_BuildFunction: Begin __negxli
 BGBCC_SHXC_BuildFunction: BegSim __negxli
    Tr: idx=0 base=0 num=35
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000295
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	DBGLN ty=00 imm=0000029A
@@ -2296,7 +2296,7 @@ BGBCC_SHXC_BuildFunction: BegSim __negxli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __negxli
    Tr: idx=0 base=0 num=35
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000295
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	DBGLN ty=00 imm=0000029A
@@ -2337,7 +2337,7 @@ BGBCC_SHXC_BuildFunction: End __negxli
 BGBCC_SHXC_BuildFunction: Begin __addxli
 BGBCC_SHXC_BuildFunction: BegSim __addxli
    Tr: idx=0 base=0 num=43
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002A5
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	DBGLN ty=00 imm=000002AA
@@ -2384,7 +2384,7 @@ BGBCC_SHXC_BuildFunction: BegSim __addxli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __addxli
    Tr: idx=0 base=0 num=43
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002A5
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	DBGLN ty=00 imm=000002AA
@@ -2433,7 +2433,7 @@ BGBCC_SHXC_BuildFunction: End __addxli
 BGBCC_SHXC_BuildFunction: Begin __subxli
 BGBCC_SHXC_BuildFunction: BegSim __subxli
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002B6
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	INITOBJ ty=04 dst=L1.0 imm=00000009
@@ -2453,7 +2453,7 @@ BGBCC_SHXC_BuildFunction: BegSim __subxli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __subxli
    Tr: idx=0 base=0 num=6
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002B6
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	INITOBJ ty=04 dst=L1.0 imm=00000009
@@ -2475,7 +2475,7 @@ BGBCC_SHXC_BuildFunction: End __subxli
 BGBCC_SHXC_BuildFunction: Begin __andxli
 BGBCC_SHXC_BuildFunction: BegSim __andxli
    Tr: idx=0 base=0 num=20
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002C0
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=009.00
@@ -2499,7 +2499,7 @@ BGBCC_SHXC_BuildFunction: BegSim __andxli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __andxli
    Tr: idx=0 base=0 num=20
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002C0
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=009.00
@@ -2525,7 +2525,7 @@ BGBCC_SHXC_BuildFunction: End __andxli
 BGBCC_SHXC_BuildFunction: Begin __orxli
 BGBCC_SHXC_BuildFunction: BegSim __orxli
    Tr: idx=0 base=0 num=20
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002CA
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=009.00
@@ -2549,7 +2549,7 @@ BGBCC_SHXC_BuildFunction: BegSim __orxli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __orxli
    Tr: idx=0 base=0 num=20
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002CA
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=009.00
@@ -2575,7 +2575,7 @@ BGBCC_SHXC_BuildFunction: End __orxli
 BGBCC_SHXC_BuildFunction: Begin __xorxli
 BGBCC_SHXC_BuildFunction: BegSim __xorxli
    Tr: idx=0 base=0 num=20
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002D4
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=009.00
@@ -2599,7 +2599,7 @@ BGBCC_SHXC_BuildFunction: BegSim __xorxli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __xorxli
    Tr: idx=0 base=0 num=20
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=000002D4
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	LOADSLOT ty=0C dst=T0.1 srca=A0.0 obj=009.00
@@ -2625,7 +2625,7 @@ BGBCC_SHXC_BuildFunction: End __xorxli
 BGBCC_SHXC_BuildFunction: Begin __shlxli
 BGBCC_SHXC_BuildFunction: BegSim __shlxli
    Tr: idx=0 base=0 num=14
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000312
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	DBGLN ty=00 imm=00000316
@@ -2809,7 +2809,7 @@ BGBCC_SHXC_BuildFunction: BegSim __shlxli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __shlxli
    Tr: idx=0 base=0 num=14
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=00000312
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	DBGLN ty=00 imm=00000316
@@ -2995,7 +2995,7 @@ BGBCC_SHXC_BuildFunction: End __shlxli
 BGBCC_SHXC_BuildFunction: Begin __shrxli
 BGBCC_SHXC_BuildFunction: BegSim __shrxli
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000035B
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	DBGLN ty=00 imm=00000367
@@ -3059,7 +3059,7 @@ BGBCC_SHXC_BuildFunction: BegSim __shrxli
 	RETDFL ty=00
 BGBCC_SHXC_BuildFunction: EndSim __shrxli
    Tr: idx=0 base=0 num=5
-	DBGFN ty=00 imm=000001F4FFAF849D
+	DBGFN ty=00 imm=0000023C1E25749D
 	DBGLN ty=00 imm=0000035B
 	INITOBJ ty=04 dst=L0.0 imm=00000009
 	DBGLN ty=00 imm=00000367
