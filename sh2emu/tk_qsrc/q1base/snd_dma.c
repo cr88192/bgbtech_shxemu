@@ -167,6 +167,7 @@ S_Init
 */
 void S_Init (void)
 {
+	int i;
 
 	Con_Printf("\nSound Initialization\n");
 
@@ -208,7 +209,9 @@ void S_Init (void)
 
 	SND_InitScaletable ();
 
-	known_sfx = Hunk_AllocName (MAX_SFX*sizeof(sfx_t), "sfx_t");
+	i=MAX_SFX*sizeof(sfx_t);
+
+	known_sfx = Hunk_AllocName (i, "sfx_t");
 	num_sfx = 0;
 
 // create a piece of DMA memory

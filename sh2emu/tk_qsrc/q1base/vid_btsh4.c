@@ -26,13 +26,22 @@ viddef_t	vid;				// global video state
 
 // #define	BASEWIDTH	320
 // #define	BASEHEIGHT	200
-// #define	BASEHEIGHT	240
+//#define	BASEHEIGHT	240
 
 // #define	BASEWIDTH	480
 // #define	BASEHEIGHT	360
 
+#ifndef CONGFX
+
 #define	BASEWIDTH	640
 #define	BASEHEIGHT	480
+
+#else
+
+#define	BASEWIDTH	320
+#define	BASEHEIGHT	200
+
+#endif
 
 //byte	vid_buffer[BASEWIDTH*(BASEHEIGHT+4)];
 // byte	vid_buffer[BASEWIDTH*BASEHEIGHT*2];
@@ -240,14 +249,16 @@ void	VID_SetPalette (unsigned char *palette)
 //		cr=cr*1.5;
 //		cg=cg*1.5;
 //		cb=cb*1.5;
-		
-//		cy=(2*cg+cr+cb)/4;
-//		cu=((cb-cg)/2)+128;
-//		cv=((cr-cg)/2)+128;
 
+#ifdef CONGFX		
+		cy=(2*cg+cr+cb)/4;
+		cu=((cb-cg)/2)+128;
+		cv=((cr-cg)/2)+128;
+#else
 		cy=((  77*cr +150*cg + 29*cb + 127)>>8);
 		cu=((- 43*cr - 85*cg +128*cb + 127)>>8)+128;
 		cv=(( 128*cr -107*cg - 21*cb + 127)>>8)+128;
+#endif
 
 //		cy+=16;
 		
@@ -332,6 +343,7 @@ void	VID_Init (unsigned char *palette)
 //	D_InitCaches (surfcache, 512*1024);
 	D_InitCaches (surfcache, BASEWIDTH*BASEHEIGHT*3*2);
 
+#ifndef CONGFX
 	vid_vreg=(u32 *)0xA05F8000;
 	vid_vreg[(0x44/4)]=0x000D;
 //	vid_vreg[(0x5C/4)]=320|(240<<10)|(320<<20);
@@ -344,6 +356,7 @@ void	VID_Init (unsigned char *palette)
 		((BASEWIDTH+1)<<20);
 
 	vid_vram=(u32 *)0xA5000000;
+#endif
 
 #if 1
 //	vid.buffer = vid.conbuffer = (byte *) vid_vram;
@@ -357,6 +370,8 @@ void	VID_Init (unsigned char *palette)
 	vid.colormap16 = host_colormap16;
 #endif
 
+#ifndef CONGFX
+
 #if 1
 //	vid_vreg[(0x44/4)]=0x0005;
 //	vid_vreg[(0x44/4)]=0x0001;
@@ -367,6 +382,8 @@ void	VID_Init (unsigned char *palette)
 		(BASEWIDTH/2-1)|
 		((BASEHEIGHT-1)<<10)|
 		((BASEWIDTH/2+1)<<20);
+#endif
+
 #endif
 
 	printf("VID_Init: B\n");
@@ -410,13 +427,371 @@ void	VID_Shutdown (void)
 {
 }
 
+#ifdef CONGFX
+
+u16 VID_ConGfx_EncBlock16_YuvToRGB555(u16 clra)
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int clrb;
+	
+#if 1
+	cy=(clra>>10)&63;
+	cv=(clra>> 5)&31;
+	cu=(clra    )&31;
+	
+	cu1=cu-16;
+	cv1=cv-16;
+//	cu1=0;
+//	cv1=0;
+	
+	cg=cy>>1;
+//	cg=cy-(cu1+cv1);
+//	cg=(2*cy-(cu1+cv1))>>1;
+	cb=cg+cu1;
+	cr=cg+cv1;
+#endif
+
+#if 0
+		cy=(pxa>>8)&0xFC;
+		cv=(pxa>>2)&0xF8;
+		cu=(pxa<<3)&0xF8;
+		cy=cy|(cy>>6);
+		if(cu<128)cu=cu|(cu>>5);
+		if(cv<128)cv=cv|(cv>>5);
+
+		cu1=(cu-128)<<1; cv1=(cv-128)<<1;
+		cg=cy-((cu1+cv1)>>2);
+		cb=cg+cu1;
+		cr=cg+cv1;
+		
+		cr=cr>>3;
+		cg=cg>>3;
+		cb=cb>>3;
+#endif
+	
+	if((cr|cg|cb)&0xE0)
+	{
+		if(cr<0)cr=0;
+		if(cr>31)cr=31;
+		if(cg<0)cg=0;
+		if(cg>31)cg=31;
+		if(cb<0)cb=0;
+		if(cb>31)cb=31;
+	}
+	
+	clrb=(cr<<10)|(cg<<5)|cb;
+//	if(!clrb)clrb|=1;
+	return(clrb);
+}
+
+u16 VID_ConGfx_EncBlock16_YuvToRGB444(u16 clra)
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int clrb;
+	
+#if 1
+	cy=(clra>>10)&63;
+	cv=(clra>> 5)&31;
+	cu=(clra    )&31;
+	
+	cu1=cu-16;
+	cv1=cv-16;
+//	cu1=0;
+//	cv1=0;
+	
+	cu1=cu1<<1;
+	cv1=cv1<<1;
+	
+	cg=cy;
+//	cg=cy>>2;
+//	cg=(cy>>2)-((cu1+cv1)>>4);
+//	cg=cy-((cu1+cv1)>>1);
+//	cg=cy-(cu1+cv1);
+//	cg=(2*cy-(cu1+cv1))>>1;
+	cb=cg+cu1;
+	cr=cg+cv1;
+//	cb=cg+(cu1>>1);
+//	cr=cg+(cv1>>1);
+
+	cr=(cr+1)>>2;
+	cg=(cg+1)>>2;
+	cb=(cb+1)>>2;
+
+#endif
+	
+	if((cr|cg|cb)&0xF0)
+	{
+		if(cr<0)cr=0;
+		if(cr>15)cr=15;
+		if(cg<0)cg=0;
+		if(cg>15)cg=15;
+		if(cb<0)cb=0;
+		if(cb>15)cb=15;
+	}
+	
+	clrb=(cb<<8)|(cg<<4)|cr;
+	return(clrb);
+}
+
+void	VID_ConGfx_EncBlock16(u16 *src, u32 *dsta, u32 *dstb)
+{
+	const sbyte idxtab[8]={0,0, 0,1,2,3, 3,3};
+	u16 tpxb[16];
+	u16 *cs, *cs1, *ct;
+	u16 px, px1;
+	int cmin, cmax, cavg;
+	u16 clra, clrb;
+	u32 clrc, clrd;
+	u32 px2;
+	u32 dxa, dxb;
+	int cy, cu, cv;
+	int cy0, cy1, cu0, cu1, cv0, cv1;
+	int cr, cg, cb, cd;
+	int l0, l0b;
+	int x, y;
+	int i, j, k;
+
+	cmin=65536;
+	cmax=-1;
+//	ct=tpxb+16;
+	ct=tpxb; cs=src;
+	for(y=0; y<4; y++)
+	{
+//		cs1=src+y*BASEWIDTH;
+		cs1=cs;
+		cs+=BASEWIDTH;
+		for(x=0; x<4; x++)
+		{
+			px=*cs1++;
+//			*(--ct)=px;
+			*ct++=px;
+
+//			px1=px;
+			px1=px&0xFC00;
+
+			if(px1<cmin)cmin=px;
+			if(px1>cmax)cmax=px;
+		}
+	}
+	
+//	cmin=0x7FFF;
+//	cmax=0x7FFF;
+	
+	cavg=(cmin+cmax)/2;
+	
+#if 1
+	l0=(2*16777216)/(cmax-cavg+1);
+	l0b=(4*16777216);
+	ct=tpxb; px1=0; px2=0;
+	for(i=0; i<16; i++)
+	{
+		px=*ct++;
+		j=idxtab[((px-cavg)*l0+l0b)>>24];
+		px2=(px2<<2)|j;
+		px1=(px1<<1)|(px>cavg);
+	}
+	
+//	px2=0xC33CC33C;
+#endif
+
+#if 0
+	ct=tpxb; px1=0;
+	for(i=0; i<16; i++)
+	{
+		px=*ct++;
+		px1=px1<<1;
+		if(px>cavg)
+			px1|=1;
+	}
+#endif
+
+//	px1&=0xFFFF;
+//	px1=0;
+
+
+//	conbufa[by2*80+bx]=0x30550000|px1;
+//	conbufb[by2*80+bx]=(clrb<<16)|clra;
+
+	cy0=cmin>>10;	cv0=(cmin>> 5)&31;	cu0=(cmin    )&31;
+	cy1=cmax>>10;	cv1=(cmax>> 5)&31;	cu1=(cmax    )&31;
+	cy=(cy0+cy1)>>1;
+	cu=cu0+cu1;
+	cv=cv0+cv1;
+
+	j=(cu0-cu1); j=j^(j>>31);
+	k=(cv0-cv1); k=k^(k>>31);
+
+//	if((j+k)>8)
+//	if((j+k)>4)
+//	if((j+k)>12)
+//	if(1)
+	if(0)
+	{
+		clrb=VID_ConGfx_EncBlock16_YuvToRGB444(cmin);
+		clra=VID_ConGfx_EncBlock16_YuvToRGB444(cmax);
+		clrc=(clrb<<12)|clra;
+		dxa=0x07000000|clrc;
+		dxb=px2;
+
+//		clrb=VID_ConGfx_EncBlock16_YuvToRGB555(cmin);
+//		clra=VID_ConGfx_EncBlock16_YuvToRGB555(cmax);
+//		dxa=0x00550000|px1;
+//		dxb=(clrb<<16)|clra;
+//		if(!dxb)dxb|=1;
+		*dsta=dxa;
+		*dstb=dxb;
+		return;
+	}
+
+//	cu1=cu-32;	cv1=cv-32;	
+	cu1=(cu-32)<<1;	cv1=(cv-32)<<1;
+//	cg=cy;
+//	cg=(4*cy-cu1-cv1)>>1;
+	cg=cy-((cu1+cv1)>>1);
+	cb=cg+cu1;	cr=cg+cv1;
+	cd=cy1-cy0;
+	
+	if((cr|cg|cb|cd)&0xC0)
+	{
+		if(cr<0)cr=0;
+		if(cg<0)cg=0;
+		if(cb<0)cb=0;
+		if(cd<0)cd=0;
+		if(cr>63)cr=63;
+		if(cg>63)cg=63;
+		if(cb>63)cb=63;
+		if(cd>63)cd=63;
+	}
+	
+	clrc=cr|(cg<<6)|(cb<<12)|(cd<<18);
+	dxa=0x03000000|clrc;
+	dxb=px2;
+	if(!dxb)dxb|=1;
+
+//	clrb=VID_ConGfx_EncBlock16_YuvToRGB555(cmin);
+//	clra=VID_ConGfx_EncBlock16_YuvToRGB555(cmax);
+//	dxa=0x00550000|px1;
+//	dxb=(clrb<<16)|clra;
+//	if(!dxb)dxb|=1;
+	*dsta=dxa;
+	*dstb=dxb;
+}
+#endif
+
+void tk_putc(int val);
+int tk_puts(char *msg);
+
+void	VID_ConGfx_SendB85_32(u32 bits)
+{
+	int v, v0, v1, v2, v3, v4;
+	
+	v=bits;
+//	v4=v%85; v=v/85;
+//	v3=v%85; v=v/85;
+//	v2=v%85; v=v/85;
+//	v1=v%85; v=v/85;
+//	v0=v%85;
+
+#if 0
+	v4=v;
+	v3=v4/85;
+	v2=v3/85;
+	v1=v2/85;
+	v0=v1/85;
+	v4-=v3*85;
+	v3-=v2*85;
+	v2-=v1*85;
+	v1-=v0*85;
+	
+	tk_putc('!'+v0);
+	tk_putc('!'+v1);
+	tk_putc('!'+v2);
+	tk_putc('!'+v3);
+	tk_putc('!'+v4);
+#endif
+
+#if 1
+	v4=v;
+	v3=v4>>7;
+	v2=v3>>7;
+	v1=v2>>7;
+	v0=v1>>7;
+	
+	tk_putc(0x80+(v0&127));
+	tk_putc(0x80+(v1&127));
+	tk_putc(0x80+(v2&127));
+	tk_putc(0x80+(v3&127));
+	tk_putc(0x80+(v4&127));
+#endif
+
+}
+
 void	VID_Update (vrect_t *rects)
 {
+#ifdef CONGFX
+	u32 *conbufa, *conbufb;
+	int bx, by, by2;
+#endif
+
 	byte *ics;
-	u16 *ict16, *ics16;
+	u16 *ict16, *ics16, *ics16b;
 	u32 *ict;
+	u32 bxa, bxb;
 	int pix;
 	int i, j, k;
+
+#ifdef CONGFX
+	conbufa=(u32 *)0xA0FF0000;
+	conbufb=conbufa+(80*61);
+
+	tk_puts("\x1B[1;1H");
+//	tk_putc(0x1B);
+//	tk_putc('$');
+
+	if(host_colormap16)
+	{
+		r_pixbytes=2;
+
+		tk_putc(0x1F);
+		ics16=(u16 *)vid.buffer;
+		for(by=0; by<50; by++)
+		{
+			tk_putc(0x1F);
+
+			ics16b=ics16;
+			for(bx=0; bx<80; bx++)
+			{
+				by2=by;
+
+//				k=by2*80+bx;
+//				VID_ConGfx_EncBlock16(ics16b, conbufa+k, conbufb+k);
+
+				VID_ConGfx_EncBlock16(ics16b, &bxa, &bxb);
+				if(bxb)
+				{
+					k=0x30000000;
+//					if((bx+1)>=80)
+//						k=0x20000000;
+					VID_ConGfx_SendB85_32(bxa|k);
+					VID_ConGfx_SendB85_32(bxb);
+				}else
+				{
+					k=0x10000000;
+//					if((bx+1)>=80)
+//						k=0;
+					VID_ConGfx_SendB85_32(bxa|k);
+				}
+
+				ics16b+=4;
+			}
+			ics16+=4*BASEWIDTH;
+		}
+	}
+#endif
+
+#ifndef CONGFX
 
 	if(host_colormap16)
 	{
@@ -494,6 +869,8 @@ void	VID_Update (vrect_t *rects)
 //	{
 //		*ict++=d_8to24table[j];
 //	}
+#endif
+
 }
 
 /*

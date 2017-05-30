@@ -13,16 +13,18 @@
 #ifndef __STDARG_INCLUDED
 #define __STDARG_INCLUDED
 
-#ifdef __GNUC__
+// #ifdef __GNUC__
+#if defined(__GNUC__) || defined(_BGBMETA)
 
-#ifndef __GNUC_VA_LIST
-#define __GNUC_VA_LIST
-typedef __builtin_va_list __gnuc_va_list;
-#endif
+//#ifndef __GNUC_VA_LIST
+//#define __GNUC_VA_LIST
+//typedef __builtin_va_list __gnuc_va_list;
+//#endif
 
 #ifndef _VALIST
 #define _VALIST
-typedef __gnuc_va_list va_list;
+// typedef __gnuc_va_list va_list;
+typedef __builtin_va_list va_list;
 #endif
 
 #define va_start(v,l)   __builtin_va_start(v,l)

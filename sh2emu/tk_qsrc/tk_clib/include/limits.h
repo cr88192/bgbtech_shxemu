@@ -42,6 +42,12 @@
 #define UINT_MAX 65535U
 #endif
 
+#ifndef INT_MIN
+#define INT_MIN (-INT_MAX-1)
+#define INT_MAX 2147483647
+#define UINT_MAX 4294967295U
+#endif
+
 #define LONG_MIN (-LONG_MAX-1)
 #define LONG_MAX 2147483647L
 #define ULONG_MAX 4294967295UL

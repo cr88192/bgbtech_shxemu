@@ -172,7 +172,7 @@ void Cvar_RegisterVariable (cvar_t *variable)
 	Q_strcpy (variable->string, oldstr);
 	variable->value = Q_atof (variable->string);
 	
-	printf("Cvar_RegisterVariable: %s %s %f,%d\n",
+	tk_printf("Cvar_RegisterVariable: %s %s %f,%d\n",
 		variable->name, variable->string, variable->value, (int)variable->value);
 	
 // link the variable in

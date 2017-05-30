@@ -35,14 +35,14 @@ typedef unsigned int size_t;
 #endif
 
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(_BGBMETA)
 
-#ifndef __GNUC_VA_LIST
-#define __GNUC_VA_LIST
-typedef __builtin_va_list __gnuc_va_list;
-#endif
+//#ifndef __GNUC_VA_LIST
+//#define __GNUC_VA_LIST
+//typedef __builtin_va_list __gnuc_va_list;
+//#endif
 
-typedef __gnuc_va_list __va_list;
+typedef __builtin_va_list __va_list;
 #else
 
 typedef char *__va_list;
@@ -92,7 +92,10 @@ struct _iobuf
     void *hfile;
 #elif defined(__gnu_linux__)
     int hfile;
+#else
+    int hfile;
 #endif
+
 #if (defined(__MVS__) || defined(__CMS__))
     void *hfile;
     void *asmbuf;

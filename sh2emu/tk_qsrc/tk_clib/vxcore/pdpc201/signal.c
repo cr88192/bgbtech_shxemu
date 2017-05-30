@@ -31,7 +31,8 @@ void __sigign(int sig);
 #define SIG_ERR __sigerr
 #define SIG_IGN __sigign
 
-__PDPCLIB_API__ void (*signal(int sig, void (*func)(int)))(int)
+// __PDPCLIB_API__ void (*signal(int sig, void (*func)(int)))(int)
+signal_t signal(int sig, signal_t func)
 {
     handlers[sig] = func;
     return (func);

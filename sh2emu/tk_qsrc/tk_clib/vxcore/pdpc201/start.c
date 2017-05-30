@@ -102,6 +102,8 @@ __PDPCLIB_API__ int CTYP __start()
 
 	tk_puts("A1\n");
 
+	__init_stdin();
+	
 	stdin->hfile = 0;
 	stdout->hfile = 1;
 	stderr->hfile = 2;
@@ -221,6 +223,10 @@ __PDPCLIB_API__ int CTYP __start()
 			}
 			argv[x] = p;
 			x++;
+
+			if(x>=MAXPARMS)
+				break;
+
 			p = strchr(p, srch);
 			if (p == NULL)
 			{
@@ -238,6 +244,7 @@ __PDPCLIB_API__ int CTYP __start()
 		argc = x;
 	}
 
+	tk_puts("A4\n");
 
 	__start_late();
 

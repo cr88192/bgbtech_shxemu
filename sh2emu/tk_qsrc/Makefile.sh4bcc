@@ -21,13 +21,11 @@ BUILD_RELEASE_DIR=release$(ARCH)$(GLIBC)
 
 TOOLPATH=/opt/cross/bin/
 
-CC=$(TOOLPATH)sh4-gcc
-OBJDUMP=$(TOOLPATH)sh4-objdump
+CC=bgbcc
+OBJDUMP=
 
-TK_CFL=-nostdinc -nostdlib -nostartfiles -fno-builtin \
-	-DARCH_SH4 -DARCH_SH4LE -O2
-TK_LDFL= $(TK_CFL) \
-	-Wl,-nostdlib -Wl,-e,_start -Wl,-T,sh4elf.x tk_clib/crt0.o
+TK_CFL=-DARCH_SH4 -DARCH_SH4LE -D__32BIT__
+TK_LDFL= $(TK_CFL)
 
 # BASE_CFLAGS=-Dstricmp=strcasecmp
 BASE_CFLAGS=-Itk_clib/include -Ltk_clib
@@ -37,7 +35,7 @@ LDFLAGS=$(TK_LDFL) -lvxcore
 
 all: targets
 
-targets: quake_sh4.elf quake_cgfx_sh4.elf primecnt_sh4.elf
+targets: quake_sh4b.elf quake_cgfx_sh4b.elf primecnt_sh4b.elf
 
 SQUAKE_SRCS = \
 	q1base/cl_demo.c \
@@ -144,17 +142,17 @@ SKIP_SRCS=\
 	q1base/snd_mixa.c \
 	q1base/sys_dosa.o
 
-quake_sh4.elf: $(SQUAKE_SRCS)
+quake_sh4b.elf: $(SQUAKE_SRCS)
 	$(CC) $(CFLAGS) -o $@ $(SQUAKE_SRCS) $(LDFLAGS)
-	$(OBJDUMP) -t quake_sh4.elf > quake_sh4.map
+#	$(OBJDUMP) -t $@ > quake_sh4b.map
 
-quake_cgfx_sh4.elf: $(SQUAKE_SRCS)
+quake_cgfx_sh4b.elf: $(SQUAKE_SRCS)
 	$(CC) $(CFLAGS) -DCONGFX -o $@ $(SQUAKE_SRCS) $(LDFLAGS)
-	$(OBJDUMP) -t $@ > quake_cgfx_sh4.map
+#	$(OBJDUMP) -t $@ > quake_cgfx_sh4b.map
 
-primecnt_sh4.elf: primecnt.c
+primecnt_sh4b.elf: primecnt.c
 	$(CC) $(CFLAGS) -o $@ primecnt.c $(LDFLAGS)
-	$(OBJDUMP) -t primecnt_sh4.elf > primecnt_sh4.map
+#	$(OBJDUMP) -t primecnt_sh4b.elf > primecnt_sh4b.map
 
 ####
 

@@ -30,7 +30,12 @@ void __sigign(int sig);
 #define SIGSEGV 5
 #define SIGTERM 6
 
-void (*signal(int sig, void (*func)(int)))(int);
+typedef void (*signal_t)(int);
+
+//signal_t signal(int sig, void (*func)(int));
+signal_t signal(int sig, signal_t func);
+
+// void (*signal(int sig, void (*func)(int)))(int);
 int raise(int sig);
 
 #endif

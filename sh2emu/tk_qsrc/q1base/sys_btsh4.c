@@ -160,17 +160,19 @@ void Sys_MakeCodeWriteable (nlint startaddr, nlint length)
 
 void Sys_Error (char *error, ...)
 {
-	char tb[1024];
+//	char tb[1024];
 	va_list         argptr;
 
-	printf("Sys_Error: ");   
+	tk_printf("Sys_Error: ");   
 	va_start(argptr, error);
 //	vfprintf(stdout, error, argptr);
-	vsprintf(tb, error, argptr);
+//	vsprintf(tb, error, argptr);
+	tk_vprintf(error, argptr);
 	va_end(argptr);
-	printf("%s\n", tb);
+//	printf("%s\n", tb);
 
-	exit(1);
+//	exit(1);
+	*(int *)-1=-1;
 }
 
 void Sys_Printf (char *fmt, ...)
@@ -180,9 +182,10 @@ void Sys_Printf (char *fmt, ...)
 	
 	va_start(argptr, fmt);
 //	vfprintf(stdout, fmt, argptr);
-	vsprintf(tb, fmt, argptr);
+//	vsprintf(tb, fmt, argptr);
+	tk_vprintf(fmt, argptr);
 	va_end(argptr);
-	tk_puts(tb);
+//	tk_puts(tb);
 }
 
 void Sys_Quit (void)
@@ -238,16 +241,24 @@ int main (int argc, char **argv)
 	static quakeparms_t    parms;
 	double		time, oldtime, newtime;
 
+	tk_puts("Q Main\n");
+
 //	parms.memsize = 8*1024*1024;
 	parms.memsize = 24*1024*1024;
 	parms.membase = malloc (parms.memsize);
 	parms.basedir = ".";
 
+	tk_puts("Q A0\n");
+
 	fprintf(stderr, "malloc'd: %d @ %p..%p\n",
 		parms.memsize,
 		parms.membase, parms.membase+parms.memsize);
 
+	tk_puts("Q A1\n");
+
 	COM_InitArgv (argc, argv);
+
+	tk_puts("Q A2\n");
 
 	parms.argc = com_argc;
 	parms.argv = com_argv;

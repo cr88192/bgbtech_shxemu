@@ -1576,72 +1576,100 @@ static short __toupR[257] = {
 
 #endif
 
-unsigned short *__isbuf = &__isbufR[1];
-short *__tolow = &__tolowR[1];
-short *__toup = &__toupR[1];
+// unsigned short *__isbuf = &__isbufR[1];
+// short *__tolow = &__tolowR[1];
+// short *__toup = &__toupR[1];
+
+unsigned short *__isbuf;
+short *__tolow;
+short *__toup;
+
+void __cytpe_init(void)
+{
+	if(__isbuf)
+		return;
+
+	__isbuf = &__isbufR[1];
+	__tolow = &__tolowR[1];
+	__toup = &__toupR[1];
+}
+
 #endif
 
 __PDPCLIB_API__ int isalnum(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0001U);
 }
 
 __PDPCLIB_API__ int isalpha(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0002U);
 }
 
 __PDPCLIB_API__ int iscntrl(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0004U);
 }
 
 __PDPCLIB_API__ int isdigit(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0008U);
 }
 
 __PDPCLIB_API__ int isgraph(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0010U);
 }
 
 __PDPCLIB_API__ int islower(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0020U);
 }
 
 __PDPCLIB_API__ int isprint(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0040U);
 }
 
 __PDPCLIB_API__ int ispunct(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0080U);
 }
 
 __PDPCLIB_API__ int isspace(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0100U);
 }
 
 __PDPCLIB_API__ int isupper(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0200U);
 }
 
 __PDPCLIB_API__ int isxdigit(int c)
 {
+	__cytpe_init();
     return (__isbuf[c] & 0x0400U);
 }
 
 __PDPCLIB_API__ int tolower(int c)
 {
+	__cytpe_init();
     return (__tolow[c]);
 }
 
 __PDPCLIB_API__ int toupper(int c)
 {
+	__cytpe_init();
     return (__toup[c]);
 }

@@ -151,6 +151,13 @@ static const char *fnm;
 static const char *modus;
 static int modeType;
 
+void __init_stdin(void)
+{
+	__stdin = &permFiles[0];
+	__stdout = &permFiles[1];
+	__stderr = &permFiles[2];
+}
+
 __PDPCLIB_API__ FILE **__get_stdin()
     { return(&__stdin); }
 __PDPCLIB_API__ FILE **__get_stdout()
@@ -1210,12 +1217,14 @@ static int vvprintf(const char *format, va_list arg, FILE *fq, char *s)
         {
             fin = 1;
         }
+
         else if (*format == '%')
         {
             format++;
             if (*format == 'd')
             {
                 vint = va_arg(arg, int);
+
                 if (vint < 0)
                 {
                     uvint = -vint;
@@ -1224,12 +1233,14 @@ static int vvprintf(const char *format, va_list arg, FILE *fq, char *s)
                 {
                     uvint = vint;
                 }
+
                 nptr = numbuf;
                 do
                 {
                     *nptr++ = (char)('0' + uvint % 10);
                     uvint /= 10;
                 } while (uvint > 0);
+
                 if (vint < 0)
                 {
                     *nptr++ = '-';
@@ -1240,12 +1251,15 @@ static int vvprintf(const char *format, va_list arg, FILE *fq, char *s)
                     outch(*nptr);
                     chcount++;
                 } while (nptr != numbuf);
+
             }
             else if (strchr("eEgGfF", *format) != NULL && *format != 0)
             {
+
                 vdbl = va_arg(arg, double);
                 dblcvt(vdbl, *format, 0, 6, numbuf);   /* 'e','f' etc. */
                 len = strlen(numbuf);
+
                 if (fq == NULL)
                 {
                     memcpy(s, numbuf, len);
@@ -1264,6 +1278,7 @@ static int vvprintf(const char *format, va_list arg, FILE *fq, char *s)
                 {
                     vcptr = "(null)";
                 }
+
                 if (fq == NULL)
                 {
                     len = strlen(vcptr);
@@ -1312,6 +1327,7 @@ static int vvprintf(const char *format, va_list arg, FILE *fq, char *s)
         }
         format++;
     }
+
     return (chcount);
 }
 

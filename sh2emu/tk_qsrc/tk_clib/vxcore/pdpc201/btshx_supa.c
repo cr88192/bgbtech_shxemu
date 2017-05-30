@@ -86,6 +86,160 @@ void tk_gets_n(char *msg, int n)
 		{ *s++=tk_getch(); }
 }
 
+u32 __moddi3(u32 a, u32 b)
+{
+	u32 q, r;
+	
+	q=a/b;
+	r=a-(q*b);
+	return(r);
+}
+
+#if 1
+typedef struct u64_obj_s u64_obj_t;
+struct u64_obj_s {
+u32 lo;
+u32 hi;
+};
+
+u64_obj_t __shllli(u64_obj_t ival, int shl)
+{
+	u64_obj_t oval;
+	
+	if(!(shl&31))
+	{
+		if(!shl)
+			return(ival);
+		if(shl==32)
+		{
+			oval.lo=0;
+			oval.hi=ival.lo;
+			return(oval);
+		}
+
+		oval.lo=0;
+		oval.hi=0;
+		return(oval);
+	}
+	
+	oval.lo=ival.lo<<shl;
+	oval.hi=(ival.hi<<shl)|(ival.lo<<(32-shl));
+	return(oval);
+}
+
+u64_obj_t __shrlli(u64_obj_t ival, int shl)
+{
+	u64_obj_t oval;
+	
+	if(!(shl&31))
+	{
+		if(!shl)
+			return(ival);
+		if(shl==32)
+		{
+			oval.lo=ival.hi;
+			oval.hi=0;
+			return(oval);
+		}
+
+		oval.lo=0;
+		oval.hi=0;
+		return(oval);
+	}
+
+	oval.hi=ival.hi>>shl;
+	oval.lo=(ival.lo>>shl)|(ival.hi<<(32-shl));
+	return(oval);
+}
+
+u64_obj_t __sarlli(u64_obj_t ival, int shl)
+{
+	u64_obj_t oval;
+	u32 m;
+
+	m=0;
+	if(ival.hi&0x80000000)
+		m=(u32)(-1);
+
+	if(!(shl&31))
+	{
+		if(!shl)
+			return(ival);
+		if(shl==32)
+			{	oval.lo=ival.hi;	oval.hi=m;	return(oval);	}
+		if(m>0)
+			{	oval.lo=m;	oval.hi=m;	return(oval);	}
+		oval.lo=0;	oval.hi=0;
+		return(oval);
+	}
+
+	oval.hi=(ival.hi>>shl)|(m<<(32-shl));
+	oval.lo=(ival.lo>>shl)|(ival.hi<<(32-shl));
+	return(oval);
+}
+
+u64_obj_t __udivlli(u64_obj_t a, u64_obj_t b)
+{
+	u64 lc, ld;
+	u64_obj_t c, d, e;
+
+	if(!b.hi)
+	{
+		if(!a.hi)
+		{
+			c.lo=a.lo/b.lo;
+			c.hi=0;
+			return(c);
+		}
+
+		c.hi=a.hi/b.lo;
+		c.lo=a.lo/b.lo;
+		d.hi=a.hi%b.lo;
+		d.lo=a.lo%b.lo;
+		
+		lc=((u64)d.hi)*((u64)b.lo);
+		*(u64 *)(&c)+=lc;
+		return(c);
+	}
+
+	if(!a.hi)
+		{ c.lo=0; c.hi=0; return(c); }
+	if(b.hi>a.hi)
+		{ c.lo=0; c.hi=0; return(c); }
+
+	c.lo=a.hi/b.hi;
+	c.hi=0;
+	return(c);
+
+//	c.lo=a.lo/b.hi;
+//	d.hi=a.hi/b.lo;
+//	d.lo=a.lo/b.lo;
+}
+
+//u64_obj_t __sdivlli(u64_obj_t a, u64_obj_t b)
+//{
+//}
+
+s64 __sdivlli(s64 a, s64 b)
+{
+	u64 ua, ub, uc;
+	int sg;
+	
+	sg=0;
+	
+	ua=(u64)a;
+	if(ua&0x80000000_00000000ULL)
+		{ ua=-ua; sg=1; }
+	ub=(u64)a;
+	if(ub&0x80000000_00000000ULL)
+		{ ub=-ub; sg^=1; }
+	uc=ua/ub;
+	if(sg)
+		{ uc=-uc; }
+	return((s64)uc);
+}
+#endif
+
 int __read(int handle, void *buf, size_t len, int *errind)
 {
 	int i;
@@ -199,6 +353,7 @@ void __rename(const char *oldfn, const char *newfn)
 
 void __exita(int status)
 {
+	*(int *)-1=-1;
 //	vx_exit(status);
 }
 
@@ -256,7 +411,7 @@ void __allocmem(size_t size, void **ptr)
 void __freemem(void *ptr)
 {
 //	vx_free(ptr);
-	TKMM_Free(ptr);
+//	TKMM_Free(ptr);
 }
 
 unsigned char *__envptr;
@@ -290,3 +445,342 @@ char **__get_cmdenv()
 
 // int __setj(jmp_buf env)
 // { }
+
+
+void tk_print_hex(u32 v)
+{
+	static char *chrs="0123456789ABCDEF";
+
+	tk_putc(chrs[(v>>28)&15]);
+	tk_putc(chrs[(v>>24)&15]);
+	tk_putc(chrs[(v>>20)&15]);
+	tk_putc(chrs[(v>>16)&15]);
+	tk_putc(chrs[(v>>12)&15]);
+	tk_putc(chrs[(v>> 8)&15]);
+	tk_putc(chrs[(v>> 4)&15]);
+	tk_putc(chrs[(v    )&15]);
+}
+
+void tk_print_hex_n(u32 v, int n)
+{
+	static char *chrs="0123456789ABCDEF";
+
+	if(n>7)tk_putc(chrs[(v>>28)&15]);
+	if(n>6)tk_putc(chrs[(v>>24)&15]);
+	if(n>5)tk_putc(chrs[(v>>20)&15]);
+	if(n>4)tk_putc(chrs[(v>>16)&15]);
+	if(n>3)tk_putc(chrs[(v>>12)&15]);
+	if(n>2)tk_putc(chrs[(v>> 8)&15]);
+	if(n>1)tk_putc(chrs[(v>> 4)&15]);
+	if(n>0)tk_putc(chrs[(v    )&15]);
+}
+
+int tk_print_hex_genw(u32 v)
+{
+	u32 w;
+	int i;
+
+	i=1;
+	while(v>=16)
+		{ v=v>>4; i++; }
+
+#if 0
+	w=v; i=1;
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+	if(w>=16) { w=w>>4; i++; }
+#endif
+
+	return(i);
+}
+
+void tk_print_decimal(int val)
+{
+	char tb[256];
+	char *t;
+	int i, k, s;
+	
+	k=val; s=0;
+	if(k<0)
+		{ k=-k; s=1; }
+	
+	t=tb;
+	if(!k)*t++='0';	
+	while(k>0)
+	{
+		i=k%10;
+		*t++='0'+i;
+		k=k/10;
+	}
+	if(s)*t++='-';
+	
+	while(t>tb)
+		{ t--; tk_putc(*t); }
+}
+
+void tk_print_decimal_n(int val, int num)
+{
+	char tb[256];
+	char *t;
+	int i, k, n, s;
+	
+	k=val; s=0;
+	if(k<0)
+		{ k=-k; s=1; }
+	
+	t=tb; n=num;
+//	if(!k)*t++=0;	
+	while(n>0)
+	{
+		i=k%10;
+		*t++='0'+i;
+		k=k/10;
+		n--;
+	}
+
+//	if(s)*t++='-';
+	
+	while(t>tb)
+		{ t--; tk_putc(*t); }
+}
+
+#ifdef ARCH_HAS_FPU
+void tk_print_float(double val)
+{
+	int ip, fp, sg;
+	
+	sg=0;
+	if(val<0)
+		{ val=-val; sg=1; }
+	
+	ip=(int)val;
+	fp=(int)((val-ip)*1000000);
+
+//	*(int *)-1=-1;
+
+	if(sg)tk_putc('-');
+	tk_print_decimal(ip);
+	tk_putc('.');
+	tk_print_decimal_n(fp, 6);
+}
+
+void tk_print_float_ss(float val)
+{
+	int ip, fp, sg;
+	
+	sg=0;
+	if(val<0.0f)
+		{ val=-val; sg=1; }
+	
+	ip=(int)val;
+	fp=(int)((val-ip)*1000000);
+
+//	*(int *)-1=-1;
+
+	if(sg)tk_putc('-');
+	tk_print_decimal(ip);
+	tk_putc('.');
+	tk_print_decimal_n(fp, 6);
+}
+#endif
+
+void tk_printf(char *str, ...)
+{
+	va_list lst;
+	double f;
+	char pcfill;
+	char *s, *s1;
+	int v, w, wf;
+
+	va_start(lst, str);
+	
+	s=str;
+	while(*s)
+	{
+		if(*s!='%')
+			{ tk_putc(*s++); continue; }
+
+		if(s[1]=='%')
+			{ s+=2; tk_putc('%'); continue; }
+		s++;
+
+#if 1
+		if(*s=='0')
+		{
+			pcfill='0';
+			s++;
+		}else
+		{
+			pcfill=' ';
+		}
+		
+		w=0;
+		if((*s>='0') && (*s<='9'))
+		{
+			while((*s>='0') && (*s<='9'))
+				w=(w*10)+((*s++)-'0');
+		}
+		
+		wf=0;
+		if(*s=='.')
+		{
+			s++;
+			if((*s>='0') && (*s<='9'))
+			{
+				while((*s>='0') && (*s<='9'))
+					wf=(wf*10)+((*s++)-'0');
+			}
+		}
+#endif
+
+#if 1
+		switch(*s++)
+		{
+		case 'c':
+			v=va_arg(lst, int);
+			tk_putc(v);
+			break;
+
+		case 'd':
+//			v=999;
+			v=va_arg(lst, int);
+
+//			*(int *)-1=-1;
+
+			if(w)
+				{ tk_print_decimal_n(v, w); }
+			else
+				{ tk_print_decimal(v); }
+			break;
+		case 'X':
+			v=va_arg(lst, int);
+
+			if(!w)w=tk_print_hex_genw(v);
+			tk_print_hex_n(v, w);
+			break;
+		case 's':
+			s1=va_arg(lst, char *);
+			tk_puts(s1);
+			break;
+
+		case 'p':
+			s1=va_arg(lst, char *);
+			tk_print_hex((u32)s1);
+			break;
+
+#ifdef ARCH_HAS_FPU
+		case 'f':
+			f=6969.6969;
+			f=va_arg(lst, double);
+			tk_print_float(f);
+			break;
+#endif
+
+		default:
+			break;
+		}
+#endif
+	}
+	va_end(lst);
+}
+
+
+void tk_vprintf(char *str, va_list lst)
+{
+	double f;
+	char pcfill;
+	char *s, *s1;
+	int v, w, wf;
+
+	s=str;
+	while(*s)
+	{
+		if(*s!='%')
+			{ tk_putc(*s++); continue; }
+
+		if(s[1]=='%')
+			{ s+=2; tk_putc('%'); continue; }
+		s++;
+
+#if 1
+		if(*s=='0')
+		{
+			pcfill='0';
+			s++;
+		}else
+		{
+			pcfill=' ';
+		}
+		
+		w=0;
+		if((*s>='0') && (*s<='9'))
+		{
+			while((*s>='0') && (*s<='9'))
+				w=(w*10)+((*s++)-'0');
+		}
+		
+		wf=0;
+		if(*s=='.')
+		{
+			s++;
+			if((*s>='0') && (*s<='9'))
+			{
+				while((*s>='0') && (*s<='9'))
+					wf=(wf*10)+((*s++)-'0');
+			}
+		}
+#endif
+
+#if 1
+		switch(*s++)
+		{
+		case 'c':
+			v=va_arg(lst, int);
+			tk_putc(v);
+			break;
+
+		case 'd':
+//			v=999;
+			v=va_arg(lst, int);
+
+//			*(int *)-1=-1;
+
+			if(w)
+				{ tk_print_decimal_n(v, w); }
+			else
+				{ tk_print_decimal(v); }
+			break;
+		case 'X':
+			v=va_arg(lst, int);
+
+			if(!w)w=tk_print_hex_genw(v);
+			tk_print_hex_n(v, w);
+			break;
+		case 's':
+			s1=va_arg(lst, char *);
+			tk_puts(s1);
+			break;
+
+		case 'p':
+			s1=va_arg(lst, char *);
+			tk_print_hex((u32)s1);
+			break;
+
+#ifdef ARCH_HAS_FPU
+		case 'f':
+			f=6969.6969;
+			f=va_arg(lst, double);
+			tk_print_float(f);
+			break;
+#endif
+
+		default:
+			break;
+		}
+#endif
+	}
+}

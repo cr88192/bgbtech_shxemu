@@ -45,6 +45,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <setjmp.h>
 
+#ifdef _BGBMETA
+int tk_puts(char *msg);
+void tk_printf(char *str, ...);
+
+int tk_kbhit(void);
+int tk_getch(void);
+void tk_gets(char *buf);
+#endif
+
 #if defined(_WIN32) && !defined(WINDED)
 
 #if defined(_M_IX86)
@@ -64,6 +73,10 @@ void	VID_UnlockBuffer (void);
 #if defined __i386__ // && !defined __sun__
 #define id386	1
 #else
+#define id386	0
+#endif
+
+#ifndef id386
 #define id386	0
 #endif
 

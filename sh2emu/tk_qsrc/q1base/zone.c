@@ -77,17 +77,38 @@ void Z_ClearZone (memzone_t *zone, int size)
 	
 // set the entire zone to one free block
 
-	zone->blocklist.next = zone->blocklist.prev = block =
-		(memblock_t *)( (byte *)zone + sizeof(memzone_t) );
+	tk_puts("Z_ClearZone: A0\n");
+
+	block = (memblock_t *)( (byte *)zone + sizeof(memzone_t) );
+
+//	*(int *)-1=-1;
+	tk_printf("Zone=%p Block=%p\n", zone, block);
+
+	zone->blocklist.prev = block;
+
+	zone->blocklist.next = block;
 	zone->blocklist.tag = 1;	// in use block
 	zone->blocklist.id = 0;
 	zone->blocklist.size = 0;
 	zone->rover = block;
+
+	tk_puts("Z_ClearZone: A1\n");
+	tk_printf("Zone=%p Block=%p\n", zone, block);
+
+	block->next = &zone->blocklist;
+	block->prev = block->next;
+
+	tk_puts("Z_ClearZone: A1 B\n");
 	
-	block->prev = block->next = &zone->blocklist;
+//	block->prev = block->next = &zone->blocklist;
 	block->tag = 0;			// free block
 	block->id = ZONEID;
+
+	tk_puts("Z_ClearZone: A1 C\n");
+
 	block->size = size - sizeof(memzone_t);
+
+	tk_puts("Z_ClearZone: A2\n");
 }
 
 

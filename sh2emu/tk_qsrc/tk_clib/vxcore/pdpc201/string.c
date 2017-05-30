@@ -465,13 +465,17 @@ __PDPCLIB_API__ size_t strlen(const char *s)
 #ifdef memcpy
 #undef memcpy
 #endif
-#ifndef __32BIT__
+
+// #ifndef __32BIT__
+#if 1
 __PDPCLIB_API__ void *memcpy(void *s1, const void *s2, size_t n)
 {
-    register const unsigned char *f = s2;
-    register const unsigned char *fe;
-    register unsigned char *t = s1;
-
+//    register const unsigned char *f = s2;
+//    register const unsigned char *fe;
+//    register unsigned char *t = s1;
+	char *f, *fe, *t;
+	
+	f=s2; t=s1;
     fe = f + n;
     while (f != fe)
     {
