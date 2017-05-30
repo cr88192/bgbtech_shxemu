@@ -211,7 +211,7 @@ void BGBCC_CCXL_AddFrameArg(BGBCC_TransState *ctx,
 	if(frame->n_eargs>0)
 	{
 		i=frame->n_vargs++;
-		if(decl->name)
+		if(decl->name && frame->args[i])
 		{
 			frame->args[i]->name=
 				decl->name;
@@ -563,10 +563,6 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 				ctx->cur_objstack[ctx->cur_objstackpos++]=obj;
 				ctx->cur_obj=obj;
 
-				obj->decl->n_fields=0;
-//				obj->decl->n_args=0;
-				obj->decl->n_vargs=0;
-
 //				ctx->ip=ctx->ips;
 //				ctx->n_goto=0;
 //				ctx->n_lbl=0;
@@ -574,6 +570,10 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 				obj->decl=decl;
 				obj->littype=CCXL_LITID_PROTOTYPE;
 				obj->decl->regtype=CCXL_LITID_FUNCTION;
+
+				obj->decl->n_fields=0;
+//				obj->decl->n_args=0;
+				obj->decl->n_vargs=0;
 				return;
 			}
 		}
@@ -730,7 +730,8 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		BGBCC_CCXL_AddLiteral(ctx, obj);
 
 //		obj->decl->type.val=256+obj->decl->gblid;
-		obj->decl->type.val=256+obj->litid;
+//		obj->decl->type.val=256+obj->litid;
+		obj->decl->type=BGBCC_CCXL_MakeTypeID(ctx, 256+obj->litid);
 
 		ctx->regstackpos=0;
 		ctx->uregstackpos=0;
@@ -760,7 +761,8 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 		BGBCC_CCXL_AddLiteral(ctx, obj);
 
 //		obj->decl->type.val=256+obj->decl->gblid;
-		obj->decl->type.val=256+obj->litid;
+//		obj->decl->type.val=256+obj->litid;
+		obj->decl->type=BGBCC_CCXL_MakeTypeID(ctx, 256+obj->litid);
 
 //		ctx->ip=ctx->ips;
 //		ctx->n_goto=0;
@@ -938,9 +940,9 @@ void BGBCC_CCXL_FixupObjSize(BGBCC_TransState *ctx,
 	int sza[2], ala[2];
 	BGBCC_CCXL_LiteralInfo *obj2;
 	ccxl_register reg;
-	ccxl_type tty;
-	int msz, nsz, msz2, nsz2;
-	int mal, nal, mal2, nal2;
+	ccxl_type tty, tty2;
+	int msz, nsz, msz2, nsz2, sz;
+	int mal, nal, mal2, nal2, al;
 	int i, j, k;
 
 	if(!obj)
@@ -987,6 +989,24 @@ void BGBCC_CCXL_FixupObjSize(BGBCC_TransState *ctx,
 					obj->decl->fields[i]->fxnsize=nsz2;
 					obj->decl->fields[i]->fxmalgn=mal2;
 					obj->decl->fields[i]->fxnalgn=nal2;
+				}else if(BGBCC_CCXL_TypeArrayP(ctx, tty))
+				{
+					BGBCC_CCXL_TypeDerefType(ctx, tty, &tty2);
+					while(BGBCC_CCXL_TypeArrayP(ctx, tty2))
+						BGBCC_CCXL_TypeDerefType(ctx, tty2, &tty2);
+					if(BGBCC_CCXL_TypeValueObjectP(ctx, tty2))
+					{
+						obj2=BGBCC_CCXL_LookupStructureForType(ctx, tty);
+						BGBCC_CCXL_FixupObjSize(ctx, obj2, flag);
+					}
+					
+					sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, tty);
+					al=BGBCC_CCXL_TypeGetLogicalAlign(ctx, tty);
+					if(sz<=0)
+						break;
+					if(al<=0)al=1;
+					msz=sz; nsz=sz;
+					mal=al; nal=al;
 				}else
 				{
 					BGBCC_DBGBREAK
@@ -1012,6 +1032,10 @@ void BGBCC_CCXL_FixupObjSize(BGBCC_TransState *ctx,
 				{ BGBCC_DBGBREAK }
 			break;
 		}
+		
+		al=ctx->arch_align_objmin;
+		if((al>0) && (mal==nal) && (mal<al))
+			{ mal=al; nal=al; }
 		
 		msz=(msz+(mal-1))&(~(mal-1));
 		nsz=(nsz+(nal-1))&(~(nal-1));
@@ -1057,6 +1081,24 @@ void BGBCC_CCXL_FixupObjSize(BGBCC_TransState *ctx,
 					obj->decl->fields[i]->fxnsize=nsz2;
 					obj->decl->fields[i]->fxmalgn=mal2;
 					obj->decl->fields[i]->fxnalgn=nal2;
+				}else if(BGBCC_CCXL_TypeArrayP(ctx, tty))
+				{
+					BGBCC_CCXL_TypeDerefType(ctx, tty, &tty2);
+					while(BGBCC_CCXL_TypeArrayP(ctx, tty2))
+						BGBCC_CCXL_TypeDerefType(ctx, tty2, &tty2);
+					if(BGBCC_CCXL_TypeValueObjectP(ctx, tty2))
+					{
+						obj2=BGBCC_CCXL_LookupStructureForType(ctx, tty);
+						BGBCC_CCXL_FixupObjSize(ctx, obj2, flag);
+					}
+					
+					sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, tty);
+					al=BGBCC_CCXL_TypeGetLogicalAlign(ctx, tty);
+					if(sz<=0)
+						break;
+					if(al<=0)al=1;
+					msz=sz; nsz=sz;
+					mal=al; nal=al;
 				}else
 				{
 					BGBCC_DBGBREAK
@@ -1079,6 +1121,10 @@ void BGBCC_CCXL_FixupObjSize(BGBCC_TransState *ctx,
 			break;
 		}
 
+		al=ctx->arch_align_objmin;
+		if((al>0) && (mal==nal) && (mal<al))
+			{ mal=al; nal=al; }
+		
 		msz=(msz+(mal-1))&(~(mal-1));
 		nsz=(nsz+(nal-1))&(~(nal-1));
 		obj->decl->fxmsize=msz;	obj->decl->fxnsize=nsz;

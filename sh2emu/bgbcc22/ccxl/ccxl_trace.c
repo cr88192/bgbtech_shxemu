@@ -54,9 +54,9 @@ int BGBCC_CCXL_AddVirtOp(BGBCC_TransState *ctx, BGBCC_CCXL_VirtOp *op)
 
 	if(!ctx->vop)
 	{
-		ctx->vop=bgbcc_malloc(1024*sizeof(BGBCC_CCXL_VirtOp *));
+		ctx->vop=bgbcc_malloc(4096*sizeof(BGBCC_CCXL_VirtOp *));
 		ctx->n_vop=0;
-		ctx->m_vop=1024;
+		ctx->m_vop=4096;
 	}
 
 	if((ctx->n_vop+1)>(ctx->m_vop))
@@ -64,7 +64,7 @@ int BGBCC_CCXL_AddVirtOp(BGBCC_TransState *ctx, BGBCC_CCXL_VirtOp *op)
 		i=ctx->m_vop+(ctx->m_vop>>1);
 		ctx->vop=bgbcc_realloc(ctx->vop,
 			i*sizeof(BGBCC_CCXL_VirtOp *));
-		ctx->n_vop=0;
+//		ctx->n_vop=0;
 		ctx->m_vop=i;
 	}
 
@@ -89,7 +89,7 @@ int BGBCC_CCXL_AddVirtTr(BGBCC_TransState *ctx, BGBCC_CCXL_VirtTr *tr)
 		i=ctx->m_vtr+(ctx->m_vtr>>1);
 		ctx->vtr=bgbcc_realloc(ctx->vtr,
 			i*sizeof(BGBCC_CCXL_VirtTr *));
-		ctx->n_vtr=0;
+//		ctx->n_vtr=0;
 		ctx->m_vtr=i;
 	}
 

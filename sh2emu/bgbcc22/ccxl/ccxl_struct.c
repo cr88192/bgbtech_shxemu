@@ -60,6 +60,49 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructureForSig2(
 	return(cur);
 }
 
+BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetStructureForSig(
+	BGBCC_TransState *ctx, char *sig)
+{
+	char *s, *t;
+
+	s=sig;
+	while(*s && (*s=='P'))
+		{ s++; }
+
+	return(BGBCC_CCXL_GetStructureForSig2(ctx, s));
+}
+
+BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetStructureForSig2(
+	BGBCC_TransState *ctx, char *sig)
+{
+	char tb[256];
+	BGBCC_CCXL_LiteralInfo *cur;
+	char *s, *t;
+	int i;
+	
+	s=sig;
+	if((*s!='X') && (*s!='Y'))
+		{ return(NULL); }
+	s++;
+		
+	if((*s>='0') && (*s<='9'))
+	{
+		i=atoi(s);
+		cur=ctx->literals[i];
+		return(cur);
+	}
+
+	t=tb;
+	while(*s && (*s!=';'))
+		*t++=*s++;
+	*t++=0;
+	
+	cur=BGBCC_CCXL_LookupStructure(ctx, tb);
+	if(!cur)
+		{ cur=BGBCC_CCXL_GetStruct(ctx, tb); }
+	return(cur);
+}
+
 int BGBCC_CCXL_LookupStructureIDForSig(
 	BGBCC_TransState *ctx, char *sig)
 {
@@ -80,6 +123,42 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructureForType(
 	if((type.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_BASIC)
 	{
 		bt=type.val&CCXL_TY_BASEMASK;
+		if(bt<256)
+		{
+//			BGBCC_CCXL_TagError(ctx,
+//				CCXL_TERR_STATUS(CCXL_STATUS_ERR_UNHANDLEDTYPE));
+			return(NULL);
+		}
+
+		st=ctx->literals[bt-256];
+		return(st);
+	}
+
+	if((type.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_BASIC2)
+	{
+//		BGBCC_DBGBREAK
+		bt=type.val&CCXL_TYB2_BASEMASK;
+		if(bt<256)
+		{
+//			BGBCC_CCXL_TagError(ctx,
+//				CCXL_TERR_STATUS(CCXL_STATUS_ERR_UNHANDLEDTYPE));
+			return(NULL);
+		}
+
+		st=ctx->literals[bt-256];
+		return(st);
+	}
+
+	if((type.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_BASIC3)
+	{
+		bt=type.val&CCXL_TYB3_BASEMASK;
+		if(bt<256)
+		{
+//			BGBCC_CCXL_TagError(ctx,
+//				CCXL_TERR_STATUS(CCXL_STATUS_ERR_UNHANDLEDTYPE));
+			return(NULL);
+		}
+
 		st=ctx->literals[bt-256];
 		return(st);
 	}
@@ -89,6 +168,13 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructureForType(
 		ovf=*(ctx->tyovf[type.val&CCXL_TYOVF_IDXMASK]);
 //		bt=type.val&CCXL_TYB2_BASEMASK;
 		bt=ovf.base;
+		if(bt<256)
+		{
+//			BGBCC_CCXL_TagError(ctx,
+//				CCXL_TERR_STATUS(CCXL_STATUS_ERR_UNHANDLEDTYPE));
+			return(NULL);
+		}
+
 		st=ctx->literals[bt-256];
 		return(st);
 	}

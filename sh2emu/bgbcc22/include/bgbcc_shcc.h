@@ -44,6 +44,7 @@
 
 #define BGBCC_SH_REG_FPUL		0x25
 #define BGBCC_SH_REG_FPSCR		0x26
+#define BGBCC_SH_REG_PC			0x27
 
 #define BGBCC_SH_REG_DBR		0x2F
 
@@ -56,7 +57,25 @@
 #define BGBCC_SH_REG_DR6		0x36
 #define BGBCC_SH_REG_DR7		0x37
 
-#define BGBCC_SH_REG_PC			0x3E
+#define BGBCC_SH_REG_DR8		0x38	
+#define BGBCC_SH_REG_DR9		0x39
+#define BGBCC_SH_REG_DR10		0x3A
+#define BGBCC_SH_REG_DR11		0x3B
+#define BGBCC_SH_REG_DR12		0x3C
+#define BGBCC_SH_REG_DR13		0x3D
+#define BGBCC_SH_REG_DR14		0x3E
+#define BGBCC_SH_REG_DR15		0x3F
+
+#define BGBCC_SH_REG_XD0		0x38	
+#define BGBCC_SH_REG_XD1		0x39
+#define BGBCC_SH_REG_XD2		0x3A
+#define BGBCC_SH_REG_XD3		0x3B
+#define BGBCC_SH_REG_XD4		0x3C
+#define BGBCC_SH_REG_XD5		0x3D
+#define BGBCC_SH_REG_XD6		0x3E
+#define BGBCC_SH_REG_XD7		0x3F
+
+//#define BGBCC_SH_REG_PC			0x3E
 
 #define BGBCC_SH_REG_FR0		0x40
 #define BGBCC_SH_REG_FR1		0x41
@@ -313,6 +332,13 @@
 
 #define BGBCC_SH_MAX_CACHEVAR 5
 
+
+#define BGBCC_SHX_GenLabelTemp(ctx)		\
+	BGBCC_SHX_GenLabelTempLLn(ctx, __FILE__, __LINE__)
+#define BGBCC_SHX_GenLabel(ctx)		\
+	BGBCC_SHX_GenLabelLLn(ctx, __FILE__, __LINE__)
+
+
 typedef struct BGBCC_SHX_Context_s BGBCC_SHX_Context;
 typedef struct BGBCC_SHX_OpcodeArg_s BGBCC_SHX_OpcodeArg;
 
@@ -365,8 +391,10 @@ int freg_save;
 int reg_vsave;
 int freg_vsave;
 
-u32 dfl_fpscr;		//default FPSCR state
-u32 cur_fpscr;		//current FPSCR state
+int sim_voffs;		//est' offset between real PC and sim PC
+
+s32 dfl_fpscr;		//default FPSCR state
+s32 cur_fpscr;		//current FPSCR state
 
 int ofs_s16tab[256];
 int ofs_s32tab[256];
@@ -428,6 +456,10 @@ int lvt16_n_idx;
 int lvt16_m_idx;
 int t_lvt16_lbl[1024];
 s64 t_lvt16_val[1024*2];
+
+int *genlabel_srcpos;
+int genlabel_limit;
+int t_genlabel_srcpos[4096];
 };
 
 /*

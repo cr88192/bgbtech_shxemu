@@ -125,15 +125,36 @@ int BGBCC_CCXL_GetRegID(
 ccxl_type BGBCC_CCXL_MakeTypeID(
 	BGBCC_TransState *ctx, int id)
 {
+	BGBCC_CCXL_TypeOverflow ovf;
 	ccxl_type tty;
-	tty.val=id;
-	return(tty);
+	int i, j, k;
+	
+	if(id<0)
+		{ BGBCC_DBGBREAK }
+	
+	if(id<4096)
+	{
+		tty.val=id;
+		return(tty);
+	}
+
+	memset(&ovf, 0, sizeof(BGBCC_CCXL_TypeOverflow));
+
+	ovf.base=id;
+	i=BGBCC_CCXL_TypeFromOverflow(ctx, &tty, ovf);
+	if(i>0)
+	{
+		return(tty);
+	}
+
+	BGBCC_DBGBREAK
 }
 
 ccxl_type BGBCC_CCXL_GetRegType(
 	BGBCC_TransState *ctx, ccxl_register reg)
 {
 	ccxl_type tty;
+	int i;
 	
 	if(((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_TEMP) ||
 		((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_ARG) ||
@@ -145,7 +166,10 @@ ccxl_type BGBCC_CCXL_GetRegType(
 
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_GLOBAL)
 	{
-		tty=ctx->reg_globals[reg.val&CCXL_REGID_REGMASK]->type;
+		i=reg.val&CCXL_REGID_REGMASK;
+		if(i>=ctx->n_reg_globals)
+			{ BGBCC_DBGBREAK }
+		tty=ctx->reg_globals[i]->type;
 //		BGBCC_CCXL_TypeFromSig(ctx, &tty,
 //			ctx->reg_globals[reg.val&16777215]->sig);
 //		tty.val=CCXL_TY_I;

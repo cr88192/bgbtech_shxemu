@@ -375,10 +375,79 @@ char *BGBCP_NameForSubArch(fourcc arch, fourcc subarch)
 		s="SH2"; break;
 	case BGBCC_ARCH_SH_SH4:
 		s="SH4"; break;
+
+	case BGBCC_ARCH_SH_SH2L:
+		s="SH2L"; break;
+	case BGBCC_ARCH_SH_SH4L:
+		s="SH4L"; break;
+
+	case BGBCC_ARCH_SH_SH2B:
+		s="SH2B"; break;
+	case BGBCC_ARCH_SH_SH4B:
+		s="SH4B"; break;
+
 	default:
 		s=NULL; break;
 	}
 	return(s);
+}
+
+char *BGBCP_DescForSubArch(fourcc arch, fourcc subarch)
+{
+	char *s;
+	
+	switch(arch)
+	{
+	case BGBCC_ARCH_SH_SH2:
+		s="SH2 Default Endian"; break;
+	case BGBCC_ARCH_SH_SH4:
+		s="SH4 Default Endian"; break;
+
+	case BGBCC_ARCH_SH_SH2L:
+		s="SH2 Little Endian"; break;
+	case BGBCC_ARCH_SH_SH4L:
+		s="SH4 Little Endian"; break;
+
+	case BGBCC_ARCH_SH_SH2B:
+		s="SH2 Big Endian"; break;
+	case BGBCC_ARCH_SH_SH4B:
+		s="SH4 Big Endian"; break;
+
+	default:
+		s=NULL; break;
+	}
+	return(s);
+}
+
+int BGBCP_QueryArchList(fourcc *rarch, int narch)
+{
+	int ntgt;
+	
+	ntgt=0;
+	rarch[ntgt++]=BGBCC_ARCH_SH_SH2;
+	rarch[ntgt++]=BGBCC_ARCH_SH_SH4;
+	rarch[ntgt++]=BGBCC_ARCH_SH_SH2B;
+	rarch[ntgt++]=BGBCC_ARCH_SH_SH4B;
+	rarch[ntgt++]=BGBCC_ARCH_SH_SH2L;
+	rarch[ntgt++]=BGBCC_ARCH_SH_SH4L;
+	return(ntgt);
+}
+
+int BGBCP_DumpTargets(void)
+{
+	fourcc tgts[256];
+	int ntgt;
+	int i, j, k;
+
+	ntgt=BGBCP_QueryArchList(tgts, 256);
+	
+	for(i=0; i<ntgt; i++)
+	{
+		printf("%-4s (%s)\n",
+			BGBCP_NameForSubArch(tgts[i], tgts[i]), 
+			BGBCP_DescForSubArch(tgts[i], tgts[i]));
+	}
+	return(0);
 }
 
 fourcc BGBCP_ImageFormatForName(char *name)

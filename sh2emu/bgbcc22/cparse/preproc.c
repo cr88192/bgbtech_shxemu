@@ -430,6 +430,10 @@ BGBPP_Def *BGBPP_AllocDefine(BGBCP_ParseState *ctx)
 
 void BGBPP_FreeDefine(BGBCP_ParseState *ctx, BGBPP_Def *def)
 {
+	if(!(def->name))
+		{ BGBCC_DBGBREAK }
+	def->name=NULL;
+
 	def->next=bgbpp_freedef;
 	bgbpp_freedef=def;
 }
@@ -1220,6 +1224,12 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		exp=BGBCP_ReduceExpr(ctx, exp);
 		i=BGBCP_BoolExpr(ctx, exp);
 
+		if(i<0)
+		{
+			BGBPP_Line(ctx, b2);
+			i=0;
+		}
+
 		bgbpp_ifmark=0;
 		if(i>0)
 		{
@@ -1235,6 +1245,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		{
 			BGBPP_Error(ctx, "#if pp-expr couldn't be evaluated\n");
 			BCCX_Print(exp);
+			BGBCC_DBGBREAK
 		}
 
 //		printf("%s: %d %d\n", str, bgbpp_iflvl, bgbpp_iflvl2);

@@ -182,6 +182,22 @@ char *BGBCP_EatSemicolonRequired(BGBCP_ParseState *ctx, char *s)
 	return(s);
 }
 
+char *BGBCP_EatExpectToken(BGBCP_ParseState *ctx, char *s, char *tok)
+{
+	char b[256], b2[256];
+//	char *s, *t;
+	int ty, ty2;
+
+	if(!s)
+		return(s);
+
+	s=BGBCP_Token(s, b, &ty); //token
+	if(strcmp(b, tok))
+		{ BGBCP_ErrorCtx(ctx, s, "Expected '%s' got '%s'\n", tok, b); }
+
+	return(s);
+}
+
 BCCX_Node *BGBCP_Statement(BGBCP_ParseState *ctx, char **str)
 {
 	char b[256], b2[256];

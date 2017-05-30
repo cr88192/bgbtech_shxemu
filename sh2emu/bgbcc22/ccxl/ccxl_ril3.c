@@ -1312,6 +1312,20 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		BGBCC_CCXL_StackLn(ctx, i0);
 		break;
 
+	case BGBCC_RIL3OP_LITTYPESIG:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackLitTypeSig(ctx, s0);
+		break;
+	case BGBCC_RIL3OP_VA_START:
+		BGBCC_CCXL_StackVaStart(ctx);
+		break;
+	case BGBCC_RIL3OP_VA_END:
+		BGBCC_CCXL_StackVaEnd(ctx);
+		break;
+	case BGBCC_RIL3OP_VA_ARG:
+		BGBCC_CCXL_StackVaArg(ctx);
+		break;
+
 	case BGBCC_RIL3OP_ADD:	BGBCC_CCXL_StackBinaryOp(ctx, "+"); break;
 	case BGBCC_RIL3OP_SUB:	BGBCC_CCXL_StackBinaryOp(ctx, "-"); break;
 	case BGBCC_RIL3OP_MUL:	BGBCC_CCXL_StackBinaryOp(ctx, "*"); break;

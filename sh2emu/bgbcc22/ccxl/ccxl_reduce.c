@@ -830,6 +830,8 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 			t=BGBCC_CCXL_WrapInt(0);
 			return(t);
 		}
+
+		return(BCCX_Clone(l));
 	}
 
 	if(BCCX_TagIsP(l, "sizeof"))

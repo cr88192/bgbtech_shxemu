@@ -683,7 +683,7 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	if(BCCX_TagIsP(l, "list"))
 	{
 		BGBCC_CCXL_StackPushConstInt(ctx, 0);
-		BGBCC_CCXL_StubWarn(ctx);
+		BGBCC_CCXL_StubError(ctx);
 		return;
 	}
 

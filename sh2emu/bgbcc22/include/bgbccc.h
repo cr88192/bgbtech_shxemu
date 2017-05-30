@@ -437,6 +437,8 @@ fourcc sub_arch;		//subset architecture
 byte arch_sizeof_long;
 byte arch_sizeof_ptr;
 byte arch_sizeof_valist;
+byte arch_align_max;	//don't use alignments larger than this
+byte arch_align_objmin;	//minimum alignment for value-objects
 
 byte ril3_norec;
 

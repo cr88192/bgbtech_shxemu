@@ -483,6 +483,8 @@ int BGBCP_DefTypeFlag(BGBCP_ParseState *ctx, char *tag)
 		if(!strcmp(tag, "const"))i=BGBCC_TYFL_CONST;
 		if(!strcmp(tag, "inline"))i=BGBCC_TYFL_INLINE;
 
+		if(!strcmp(tag, "register"))i=BGBCC_TYFL_INLINE;
+
 		if(!strcmp(tag, "__const"))i=BGBCC_TYFL_CONST;
 
 		if(!strcmp(tag, "__inline"))i=BGBCC_TYFL_INLINE;

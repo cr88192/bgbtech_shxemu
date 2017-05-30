@@ -43,20 +43,30 @@
 #define CCXL_TY_TYTY_BASIC		0x00000000	//type-type basic
 #define CCXL_TY_TYTY_BASIC2		0x10000000	//type-type basic2
 #define CCXL_TY_TYTY_OVF1		0x20000000	//type-type overflow
+#define CCXL_TY_TYTY_BASIC3		0x30000000	//type-type basic3
+
+#define CCXL_TYOVF_IDXMASK		0x0000FFFF	//type overflow index
 
 //Basic2 Type
 #define CCXL_TYB2_BASEMASK		0x0000003F	//base type or struct
 #define CCXL_TYB2_PTRMASK		0x000000C0	//pointer level
 #define CCXL_TYB2_PTRIDX1		0x00000040	//pointer level
-#define CCXL_TYB2_PTRSHL		6			//pointer level shl
 #define CCXL_TYB2_ARRMASK		0x0FFFFF00	//small array size
+#define CCXL_TYB2_PTRSHL		6			//pointer level shl
 #define CCXL_TYB2_ARRSHL		8			//array size shl
 
 #define CCXL_TYB2_BASETYMAX		64			//base type limit
 #define CCXL_TYB2_BASEARRMAX	1048576		//base array limit
 
-#define CCXL_TYOVF_IDXMASK		0x0000FFFF	//type overflow index
-
+//Basic3 Type
+#define CCXL_TYB3_BASEMASK		0x000FFFFF	//base type or struct
+#define CCXL_TYB3_PTRMASK		0x00300000	//pointer level
+#define CCXL_TYB3_PTRIDX1		0x00100000	//pointer level
+#define CCXL_TYB3_ARRMASK		0x0FC00000	//small array size
+#define CCXL_TYB3_PTRSHL		20			//pointer level shl
+#define CCXL_TYB3_ARRSHL		22			//array size shl
+#define CCXL_TYB3_BASETYMAX		1048576		//base type limit
+#define CCXL_TYB3_BASEARRMAX	64			//base array limit
 
 
 #define CCXL_REGTY_REGMASK			0x0F00000000000000ULL
@@ -164,6 +174,8 @@
 #define CCXL_TERR_STACK_OVERFLOW		0xA001
 #define CCXL_TERR_STACK_UNDERFLOW		0xA002
 #define CCXL_TERR_FORMAT_SANITY			0xA003
+
+#define CCXL_TERR_CONV_PTRRANGELOSS		0xA004
 
 #define CCXL_TERR_STATUS(st)			(0xA800+(st))
 

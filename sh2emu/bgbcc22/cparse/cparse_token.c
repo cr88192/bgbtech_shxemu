@@ -753,7 +753,7 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 				{ s++; continue; }
 			*t++=*s++;
 		}
-		if(*s=='e')
+		if((*s=='e') || (*s=='E'))
 		{
 			*t++=*s++;
 			if((*s=='+') || (*s=='-'))*t++=*s++;

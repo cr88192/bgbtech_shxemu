@@ -889,6 +889,9 @@ int BGBCC_SHXC_EmitSaveFrameReg(
 		if(sctx->reg_save&(1<<(reg&15)))
 			return(0);
 
+		if(!sctx->is_simpass && !(sctx->reg_vsave&(1<<(reg&15))))
+			{ BGBCC_DBGBREAK }
+
 		sctx->reg_save|=1<<(reg&15);
 		BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, ofs, reg);
 		return(1);
@@ -899,6 +902,9 @@ int BGBCC_SHXC_EmitSaveFrameReg(
 	{
 		if(sctx->freg_save&(1<<(reg&15)))
 			return(0);
+
+		if(!sctx->is_simpass && !(sctx->freg_vsave&(1<<(reg&15))))
+			{ BGBCC_DBGBREAK }
 
 		sctx->freg_save|=1<<(reg&15);
 		BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, ofs, reg);
@@ -1627,12 +1633,6 @@ int BGBCC_SHXC_EmitStoreFrameVRegReg(
 			return(1);
 		}
 
-		if(BGBCC_CCXL_TypeFunctionP(ctx, tty))
-		{
-			BGBCC_CCXL_StubError(ctx);
-			return(0);
-		}
-
 		if(BGBCC_CCXL_TypeSmallIntP(ctx, tty) ||
 			BGBCC_CCXL_TypeSmallLongP(ctx, tty) ||
 			BGBCC_CCXL_TypePointerP(ctx, tty))
@@ -1661,6 +1661,14 @@ int BGBCC_SHXC_EmitStoreFrameVRegReg(
 			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
 			return(1);
 		}
+
+		if(BGBCC_CCXL_TypeFunctionP(ctx, tty))
+		{
+			BGBCC_CCXL_StubError(ctx);
+			return(0);
+		}
+
+		BGBCC_CCXL_StubError(ctx);
 		return(0);
 	}
 	
@@ -2480,8 +2488,8 @@ int BGBCC_SHXC_EmitFpConvVRegVReg(
 {
 	int cdreg, csreg;
 	
-	cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 	csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+	cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 //	BGBCC_SHXC_EmitMovRegReg(ctx, sctx, csreg, cdreg);
 
 	if(	BGBCC_SHXC_EmitRegIsDpReg(ctx, sctx, csreg) ||
@@ -2779,8 +2787,11 @@ int BGBCC_SHXC_EmitJCmpVRegZero(
 	ccxl_register sreg,
 	int cmp, int lbl)
 {
+	ccxl_register treg;
+	
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, type) ||
-		BGBCC_CCXL_TypePointerP(ctx, type))
+		BGBCC_CCXL_TypePointerP(ctx, type) ||
+		BGBCC_CCXL_TypeArrayP(ctx, type))
 	{
 		return(BGBCC_SHXC_EmitJCmpVRegZeroInt(ctx, sctx,
 			type, sreg, cmp, lbl));
@@ -2794,6 +2805,27 @@ int BGBCC_SHXC_EmitJCmpVRegZero(
 			type, sreg, treg, cmp, lbl));
 	}
 #endif
+
+	if(BGBCC_CCXL_TypeSgLongP(ctx, type))
+	{
+		BGBCC_CCXL_GetRegForLongValue(ctx, &treg, 0);
+		return(BGBCC_SHXC_EmitJCmpVRegVReg(ctx, sctx,
+			type, sreg, treg, cmp, lbl));
+	}
+
+	if(BGBCC_CCXL_TypeFloatP(ctx, type))
+	{
+		BGBCC_CCXL_GetRegForFloatValue(ctx, &treg, 0.0);
+		return(BGBCC_SHXC_EmitJCmpVRegVReg(ctx, sctx,
+			type, sreg, treg, cmp, lbl));
+	}
+
+	if(BGBCC_CCXL_TypeDoubleP(ctx, type))
+	{
+		BGBCC_CCXL_GetRegForDoubleValue(ctx, &treg, 0.0);
+		return(BGBCC_SHXC_EmitJCmpVRegVReg(ctx, sctx,
+			type, sreg, treg, cmp, lbl));
+	}
 
 	BGBCC_CCXL_StubError(ctx);
 	return(0);

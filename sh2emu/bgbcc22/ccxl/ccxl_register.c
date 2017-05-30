@@ -53,7 +53,8 @@ ccxl_status BGBCC_CCXL_RegisterAllocTemporaryLLn(
 		ctx->cur_func->n_regs=0;
 		ctx->cur_func->m_regs=256;
 	}
-	
+
+#if 0
 	if(ctx->cur_func->n_regs>=16)
 	{
 		printf("RegAllocDbg:\n");
@@ -67,6 +68,7 @@ ccxl_status BGBCC_CCXL_RegisterAllocTemporaryLLn(
 			}
 		}
 	}
+#endif
 	
 	for(i=0; i<256; i++)
 	{
@@ -141,7 +143,8 @@ ccxl_status BGBCC_CCXL_RegisterAllocTemporaryInit(
 	if(BGBCC_CCXL_TypeValueObjectP(ctx, bty))
 	{
 		st=BGBCC_CCXL_LookupStructureForType(ctx, bty);
-		BGBCC_CCXL_EmitInitObj(ctx, bty, *rtreg, st);
+		if(st)
+			{ BGBCC_CCXL_EmitInitObj(ctx, bty, *rtreg, st); }
 //		*rtreg.val|=CCXL_REGFL_INIT;
 
 		i=rtreg->val&CCXL_REGID_BASEMASK;
@@ -224,7 +227,8 @@ ccxl_status BGBCC_CCXL_RegisterCheckRelease(
 			if(BGBCC_CCXL_TypeValueObjectP(ctx, ri->type))
 			{
 				st=BGBCC_CCXL_LookupStructureForType(ctx, ri->type);
-				BGBCC_CCXL_EmitDropObj(ctx, ri->type, reg, st);
+				if(st)
+					{ BGBCC_CCXL_EmitDropObj(ctx, ri->type, reg, st); }
 			}
 		}
 

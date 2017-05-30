@@ -98,10 +98,14 @@ BCCX_Node *BGBCP_ExpressionLit(BGBCP_ParseState *ctx, char **str)
 	if(!strcmp(b, "(") && (ty==BTK_BRACE))
 	{
 		s=BGBCP_Token(s, b, &ty);	//(
-		n=BGBCP_Expression(ctx, &s);
+		n=BGBCP_Expression2(ctx, &s);
 		s=BGBCP_Token(s, b, &ty);	//)
 
-		if(strcmp(b, ")"))printf("parser, token '%s'\n", b);
+		if(strcmp(b, ")"))
+		{
+			BGBCP_ErrorCtx(ctx, s, "parser, token '%s'\n", b);
+//			printf("parser, token '%s'\n", b);
+		}
 
 //		n=BGBCP_FunArgs(ctx, &s);
 //		if(CDR(n))n=CONS(SYM("begin"), n);
@@ -457,7 +461,7 @@ BCCX_Node *BGBCP_ExpressionUnary(BGBCP_ParseState *ctx, char **str)
 //			n=BGBCP_ExpandDefinition(n, n1);
 //			n=CDR(n);
 
-			n=BGBCP_ArgDefinition(ctx, &s);
+			n=BGBCP_ArgDefinition2(ctx, &s);
 			if(n)
 			{
 				n=BCCX_New1("sizeof", BCCX_New1("tyexpr", n));
@@ -476,7 +480,7 @@ BCCX_Node *BGBCP_ExpressionUnary(BGBCP_ParseState *ctx, char **str)
 			return(n);
 		}
 
-		n=BGBCP_ArgDefinition(ctx, &s);
+		n=BGBCP_ArgDefinition2(ctx, &s);
 		if(n)
 		{
 			n=BCCX_New1("sizeof", BCCX_New1("tyexpr", n));
@@ -525,7 +529,11 @@ BCCX_Node *BGBCP_ExpressionCast(BGBCP_ParseState *ctx, char **str)
 
 			s=s1;
 			s=BGBCP_Token(s, b, &ty);
-			if(strcmp(b, ")"))printf("parser, cast token '%s'\n", b);
+			if(strcmp(b, ")"))
+			{
+//				printf("parser, cast token '%s'\n", b);
+				BGBCP_ErrorCtx(ctx, s, "parser, cast token '%s'\n", b);
+			}
 
 			n1=BGBCP_ExpressionCast(ctx, &s);
 
@@ -953,10 +961,14 @@ BCCX_Node *BGBCP_ExpressionTCond(BGBCP_ParseState *ctx, char **str)
 		return(n1);
 	}
 
-	s=BGBCP_Token(s, b, &ty); //?
-	n2=BGBCP_ExpressionLop2(ctx, &s);
-	s=BGBCP_Token(s, b, &ty); //:
-	n3=BGBCP_ExpressionTCond(ctx, &s);
+//	s=BGBCP_Token(s, b, &ty); //?
+	s=BGBCP_EatExpectToken(ctx, s, "?");
+//	n2=BGBCP_ExpressionLop2(ctx, &s);
+	n2=BGBCP_Expression(ctx, &s);
+//	s=BGBCP_Token(s, b, &ty); //:
+	s=BGBCP_EatExpectToken(ctx, s, ":");
+//	n3=BGBCP_ExpressionTCond(ctx, &s);
+	n3=BGBCP_Expression(ctx, &s);
 
 	n=BCCX_New3("if",
 		BCCX_New1V("cond", n1),

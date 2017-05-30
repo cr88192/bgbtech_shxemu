@@ -273,6 +273,39 @@ char *bgbcc_loadfile(char *name, int *rsz)
 	return(buf);
 }
 
+char *bgbcc_loadfile2(char *name, int *rsz)
+{
+	char tb[256];
+	void *buf;
+	int i;
+
+	buf=bgbcc_loadfile(name, rsz);
+	if(buf)return(buf);
+	
+	for(i=0; i<bgbcc_nsrc; i++)
+	{
+		sprintf(tb, "%s/%s", bgbcc_src[i], name);
+		buf=bgbcc_loadfile(tb, rsz);
+		if(buf)return(buf);
+	}
+
+	for(i=0; i<bgbcc_ninc; i++)
+	{
+		sprintf(tb, "%s/%s", bgbcc_inc[i], name);
+		buf=bgbcc_loadfile(tb, rsz);
+		if(buf)return(buf);
+	}
+
+	for(i=0; i<bgbcc_nlib; i++)
+	{
+		sprintf(tb, "%s/%s", bgbcc_lib[i], name);
+		buf=bgbcc_loadfile(tb, rsz);
+		if(buf)return(buf);
+	}
+	
+	return(NULL);
+}
+
 #if 0
 int BGBCC_LoadCMeta(char *name)
 {
@@ -431,6 +464,16 @@ BCCX_Node *BGBCC_LoadCSourceAST(char *name)
 
 	if(!buf)
 	{
+		for(i=0; i<bgbcc_nlib; i++)
+		{
+			sprintf(tb, "%s/%s", bgbcc_lib[i], name);
+			buf=bgbcc_loadfile(tb, &sz);
+			if(buf)break;
+		}
+	}
+
+	if(!buf)
+	{
 		printf("BGBCC_LoadCSourceAST: fail load '%s'\n", name);
 		return(NULL);
 	}
@@ -515,14 +558,15 @@ int BGBCC_LoadCSourcesCCXL(
 		lang=BGBCP_LangForName(names[i]);
 		if(lang==BGBCC_IMGFMT_RIL3)
 		{
-			buf=bgbcc_loadfile(names[i], &sz);
+			buf=bgbcc_loadfile2(names[i], &sz);
 			if(buf)
 				{ BGBCC_CCXLR3_LoadBufferRIL(ctx, buf, sz); }
 			continue;
 		}
 		
 		t=BGBCC_LoadCSourceAST(names[i]);
-		if(!t)continue;
+		if(!t)
+			break;
 		BGBCC_CCXL_CompileModuleCTX(ctx, names[i], t);
 		BCCX_DeleteTree(t);
 		
@@ -534,6 +578,11 @@ int BGBCC_LoadCSourcesCCXL(
 			BCCX_DeleteTree(c);
 			c=n;
 		}
+	}
+	
+	if(i<nnames)
+	{
+		return(-1);
 	}
 
 //	if(ctx->ril_ip)
@@ -657,9 +706,62 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 #endif
 #endif
 
+	home=NULL;
+	base=NULL;
+
 	m=0;
 	for(i=1; i<argc; i++)
 	{
+#if 1
+		if((argv[i][0]=='/') || (argv[i][0]=='-'))
+		{
+			if(!strncmp(argv[i]+1, "FZx", 3))
+			{
+				m|=16;
+				continue;
+			}
+			if(!strncmp(argv[i]+1, "FZy", 3))
+			{
+				m|=32;
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "Fi", 2))
+			{
+				m|=64;
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "m", 1))
+			{
+				if(!strcmp(argv[i]+1, "m?"))
+				{
+					m|=128;
+					continue;
+				}
+			
+				mach_name=argv[i]+2;
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "cfg=", 4))
+			{
+				cfg=argv[i]+5;
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "home=", 5))
+			{
+				home=argv[i]+6;
+				continue;
+			}
+
+
+			continue;
+		}
+#endif
+
+#if 0
 		if(argv[i][0]=='/')
 		{
 			if(!strncmp(argv[i], "/FZx", 4))
@@ -737,10 +839,13 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 
 			continue;
 		}
+#endif
 	}
 
-	home=NULL;
-	base=NULL;
+	if(m&128)
+	{
+		BGBCP_DumpTargets();
+	}
 
 	inc_ok=0;
 	for(i=0; env[i]; i++)
@@ -987,8 +1092,8 @@ void ccAddInclude(char *path)
 	printf("Add include '%s'\n", path);
 
 	BGBCC_Init();
-	i=bgbcc_nlib++;
-	bgbcc_lib[i]=bgbcc_strdup(path);
+	i=bgbcc_ninc++;
+	bgbcc_inc[i]=bgbcc_strdup(path);
 	BGBPP_AddIncludePathFront(path);
 }
 
@@ -1033,6 +1138,7 @@ void ccAddDefineString(char *str)
 int help(char *arg0)
 {
 	printf("Usage: %s [options] [files]\n", arg0);
+	printf("For many options, '-' and '/' are equivalent\n");
 	printf("/D<name>[=val]      Define Name\n");
 	printf("/I<path>            Add Include Path\n");
 	printf("/L<path>            Add Library Path\n");
@@ -1041,6 +1147,10 @@ int help(char *arg0)
 	printf("/Fw<name>           ExWAD Output Name\n");
 	printf("/Fi<name>           Program Image Name\n");
 	printf("/Fe<name>           Program Executable Name\n");
+	printf("/m<arch>            Specify target arch\n");
+	printf("/cfg=<name>         Set Config File\n");
+	printf("/home=<path>        Set Home Path (Config Search)\n");
+	return(0);
 }
 
 int main(int argc, char *argv[], char **env)
@@ -1077,6 +1187,99 @@ int main(int argc, char *argv[], char **env)
 	n=0; m=0; nadds=0;
 	for(i=1; i<argc; i++)
 	{
+#if 1
+		if((argv[i][0]=='/') || (argv[i][0]=='-'))
+		{
+			if(!strncmp(argv[i]+1, "I", 1))
+			{
+				ccAddInclude(argv[i]+2);
+				continue;
+			}
+			if(!strncmp(argv[i]+1, "L", 1))
+			{
+				ccAddLibrary(argv[i]+2);
+				continue;
+			}
+			if(!strncmp(argv[i]+1, "S", 1))
+			{
+				ccAddSource(argv[i]+2);
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "D", 1))
+			{
+				ccAddDefineString(argv[i]+2);
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "Fn", 2))
+			{
+				metafn=argv[i]+3;
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "Fw", 2))
+			{
+				wadfn=argv[i]+3;
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "Fi", 2) ||
+				!strncmp(argv[i]+1, "Fe", 2))
+			{
+				frbcfn=argv[i]+3;
+				continue;
+			}
+
+			if(!strcmp(argv[i]+1, "o"))
+			{
+				frbcfn=argv[i+1];
+				i++;
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "l", 1))
+			{
+				sprintf(tb, "lib%s.ril", argv[i]+2);
+//				uds[nuds++]=bgbcc_strdup(tb);
+				j=nuds++;
+				while(j>0)
+					{ uds[j]=uds[j-1]; j--; }
+				uds[0]=bgbcc_strdup(tb);
+
+				continue;
+			}
+
+			if(!strcmp(argv[i]+1, "add"))
+			{
+				for(j=0; j<(argc-i-1); j++)
+				{
+					if(argv[i+j+1][0]=='/')break;
+					if(argv[i+j+1][0]=='-')break;
+					adds[nadds++]=argv[i+j+1];
+				}
+				i+=j;
+				continue;
+			}
+
+			if(!strncmp(argv[i]+1, "FZx", 3))
+			{
+				m|=16;
+				continue;
+			}
+
+			if(!strcmp(argv[i], "/?") || !strcmp(argv[i], "/help") ||
+				!strcmp(argv[i], "-help") || !strcmp(argv[i], "--help"))
+			{
+				m|=32;
+				continue;
+			}
+
+			continue;
+		}
+#endif
+
+#if 0
 		if(argv[i][0]=='/')
 		{
 			if(!strncmp(argv[i], "/I", 2))
@@ -1138,6 +1341,12 @@ int main(int argc, char *argv[], char **env)
 				continue;
 			}
 
+			if(!strcmp(argv[i], "/?") || !strcmp(argv[i], "/help"))
+			{
+				m|=32;
+				continue;
+			}
+
 			continue;
 		}
 
@@ -1195,17 +1404,38 @@ int main(int argc, char *argv[], char **env)
 				continue;
 			}
 
+			if(!strcmp(argv[i], "-help") || !strcmp(argv[i], "--help"))
+			{
+				m|=32;
+				continue;
+			}
+
 			continue;
 		}
+#endif
 		uds[nuds++]=argv[i];
 	}
 
 	nargs=0; args[nargs++]=argv[0];
 	for(; i<argc; i++)args[nargs++]=argv[i];
 
-	if(!metafn && !wadfn && !frbcfn)
+	if(m&32)
 	{
 		help(argv[0]);
+		return(0);
+	}
+
+	if(!nuds)
+	{
+		printf("No input files\n");
+//		help(argv[0]);
+		return(0);
+	}
+
+	if(!metafn && !wadfn && !frbcfn)
+	{
+		printf("No output file\n");
+//		help(argv[0]);
 		return(0);
 	}
 

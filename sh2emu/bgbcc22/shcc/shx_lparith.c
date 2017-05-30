@@ -514,7 +514,11 @@ int BGBCC_SHXC_EmitBinaryVRegVRegLong(
 	case CCXL_BINOP_ADD:	s0="__addlli"; break;
 	case CCXL_BINOP_SUB:	s0="__sublli"; break;
 	case CCXL_BINOP_MUL:	s0="__mullli"; break;
-	case CCXL_BINOP_DIV:	s0="__sdivlli"; break;
+	case CCXL_BINOP_DIV:
+		s0="__sdivlli";
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+			s0="__udivlli";
+		break;
 	case CCXL_BINOP_AND:	s0="__andlli"; break;
 	case CCXL_BINOP_OR:		s0="__orlli"; break;
 	case CCXL_BINOP_XOR:	s0="__xorlli"; break;
@@ -762,6 +766,16 @@ int BGBCC_SHXC_EmitUnaryVRegVRegLong(
 		nm1=BGBCC_SH_NMID_NOT; nm2=nm1;
 //		nm3=BGBCC_SH_NMID_CLRT;
 		break;
+
+	case CCXL_UNOP_INC:
+		nm1=BGBCC_SH_NMID_ADDC; nm2=nm1;
+		nm3=BGBCC_SH_NMID_SETT;
+		break;
+	case CCXL_UNOP_DEC:
+		nm1=BGBCC_SH_NMID_SUBC; nm2=nm1;
+		nm3=BGBCC_SH_NMID_SETT;
+		break;
+
 	default:		nm1=-1; nm2=-1; break;
 	}
 
@@ -830,8 +844,11 @@ int BGBCC_SHXC_EmitUnaryVRegVRegLong(
 	s0=NULL;
 	switch(opr)
 	{
-	case CCXL_UNOP_NEG:	s0="__neglli"; break;
-	case CCXL_UNOP_NOT:	s0="__notlli"; break;
+	case CCXL_UNOP_NEG:		s0="__neglli"; break;
+	case CCXL_UNOP_NOT:		s0="__notlli"; break;
+	case CCXL_UNOP_LNOT:	s0="__lnotlli"; break;
+	case CCXL_UNOP_INC:		s0="__inclli"; break;
+	case CCXL_UNOP_DEC:		s0="__declli"; break;
 	}
 
 	if(s0)
@@ -924,10 +941,13 @@ int BGBCC_SHXC_EmitJCmpVRegVRegLong(
 		BGBCC_SHX_EmitOpRegReg(sctx, nm3, ctreg+0, csreg+0);
 		BGBCC_SHX_EmitOpAutoLabel(sctx, nm4, l1);
 
-		if(l0!=lbl)
-			BGBCC_SHX_EmitOpLabel(sctx, nm2, l0);
+//		if(l0!=lbl)
+//			BGBCC_SHX_EmitOpLabel(sctx, nm2, l0);
 //		if(l1!=lbl)
 //			BGBCC_SHX_EmitOpLabel(sctx, nm2, l1);
+
+		if(l0!=lbl)
+			BGBCC_SHX_EmitLabel(sctx, l0);
 
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, treg);
