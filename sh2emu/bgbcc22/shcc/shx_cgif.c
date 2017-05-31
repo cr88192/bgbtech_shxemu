@@ -731,6 +731,7 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 	BGBCC_CCXL_RegisterInfo *obj)
 {
 	ccxl_type tty;
+	int tr0, tr1;
 	int p0, tsz;
 	int i, j, k;
 
@@ -789,13 +790,15 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 			{ j++; if(k<0)k=i; }
 	}
 	
-	if((j>2) && ((sctx->frm_size-32)>=64))
-//	if(0)
+//	if((j>2) && ((sctx->frm_size-32)>=64))
+	if(0)
 	{
+		tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_GR);
+
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
-			BGBCC_SH_REG_R0, sctx->frm_size-96+k*4);
+			tr0, sctx->frm_size-96+k*4);
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
-			BGBCC_SH_REG_SP, BGBCC_SH_REG_R0);
+			BGBCC_SH_REG_SP, tr0);
 
 		for(i=k; i<16; i++)
 		{
@@ -804,14 +807,15 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 			if(sctx->freg_save&(1<<i))
 			{
 				BGBCC_SHX_EmitOpLdIncRegReg(sctx, BGBCC_SH_NMID_FMOVS,
-					BGBCC_SH_REG_R0, BGBCC_SH_REG_FR0+i);
+					tr0, BGBCC_SH_REG_FR0+i);
 			}else
 			{
 				BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
-					BGBCC_SH_REG_R0, 4);
+					tr0, 4);
 			}
 		}
 
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
 	}else
 	{
 		for(i=0; i<16; i++)
@@ -834,10 +838,12 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 		BGBCC_SH_REG_SP, sctx->frm_size-(16-i)*4);
 	if(p0<=0)
 	{
+		tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_GR);
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
-			BGBCC_SH_REG_R0, sctx->frm_size-(16-i)*4);
+			tr0, sctx->frm_size-(16-i)*4);
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
-			BGBCC_SH_REG_R0, BGBCC_SH_REG_SP);
+			tr0, BGBCC_SH_REG_SP);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
 	}
 
 	for(; i<15; i++)
@@ -2246,6 +2252,9 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 		if((ctr<=imgbase) || (ctr>(imgbase+0x1000000)))
 			__debugbreak();
 
+		if(		(sctx->lbl_ofs[j]<0) ||
+				(sctx->lbl_ofs[j] > sctx->sec_lsz[sctx->lbl_sec[j]]))
+			__debugbreak();
 		
 		d=ctl-ctr;
 		switch(sctx->rlc_ty[i])
@@ -2385,6 +2394,12 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 		memcpy(obuf+k, sctx->sec_buf[i], j);
 		k+=j;
 		k=(k+63)&(~63);
+
+		s0=sctx->sec_name[i];
+		printf("%d: %s %08X..%08X %d\n", i, s0,
+			sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
+			sctx->sec_lsz[i]);
+
 	}
 	ofs_iend=k;
 
@@ -2395,6 +2410,11 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	sctx->sec_lsz[i]=j;
 	k+=j;
 	k=(k+63)&(~63);
+
+	s0=sctx->sec_name[i];
+	printf("%d: %s %08X..%08X %d\n", i, s0,
+		sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
+		sctx->sec_lsz[i]);
 
 	ofs_mend=k;
 	

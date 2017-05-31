@@ -246,7 +246,8 @@ int BGBCC_SHXC_EmitLoadFrameOfsFpReg(
 		}
 #endif
 
-		if(sctx->sreg_live&1)
+//		if(sctx->sreg_live&1)
+		if(1)
 		{
 			treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
 
@@ -300,6 +301,7 @@ int BGBCC_SHXC_EmitLoadFrameOfsFpReg(
 		return(1);
 
 	if(sctx->sreg_live&1)
+//	if(1)
 	{
 		treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
 
@@ -338,6 +340,7 @@ int BGBCC_SHXC_EmitStoreStackOfsFpReg(
 	int ofs, int dreg)
 {
 	int p0, p1;
+	int treg;
 	int ofs1, dreg2, sw;
 	int i, j, k;
 
@@ -356,6 +359,24 @@ int BGBCC_SHXC_EmitStoreStackOfsFpReg(
 		{
 			BGBCC_SHX_EmitOpRegStRegDisp(sctx, BGBCC_SH_NMID_FMOVS,
 				dreg2+(0^sw), BGBCC_SH_REG_SP, ofs1+0);
+			return(1);
+		}
+
+//		if(sctx->sreg_live&1)
+		if(1)
+		{
+			treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+
+			BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
+				treg, ofs1+4);
+			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
+				BGBCC_SH_REG_SP, treg);
+			BGBCC_SHX_EmitOpRegStReg(sctx, BGBCC_SH_NMID_FMOVS,
+				dreg2+(1^sw), treg);
+			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_FMOVS,
+				dreg2+(0^sw), treg);
+
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
 			return(1);
 		}
 

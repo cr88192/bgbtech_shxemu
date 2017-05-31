@@ -83,7 +83,8 @@ int BGBCC_SHX_EmitByte(BGBCC_SHX_Context *ctx, int val)
 	if(!ctx->sec_buf[ctx->sec])
 	{
 //		sz=4096;
-		sz=1<<18;
+//		sz=1<<18;
+		sz=1<<20;
 		buf=bgbcc_malloc(sz);
 		ctx->sec_buf[ctx->sec]=buf;
 		ctx->sec_end[ctx->sec]=buf+sz;
@@ -256,6 +257,10 @@ int BGBCC_SHX_EmitRawBytes(BGBCC_SHX_Context *ctx, byte *buf, int sz)
 			BGBCC_SHX_EmitByte(ctx, *s++);
 	}else
 	{
+		if((ctx->sec!=BGBCC_SH_CSEG_BSS) &&
+				(ctx->sec!=BGBCC_SH_CSEG_DATA))
+			{ n=-1; }
+	
 		n=sz;
 		while(n--)
 			BGBCC_SHX_EmitByte(ctx, 0);
@@ -446,7 +451,8 @@ int BGBCC_SHX_EmitLabel(BGBCC_SHX_Context *ctx, int lblid)
 
 	if(!ctx->lbl_ofs)
 	{
-		i=4096;
+//		i=4096;
+		i=65536;
 		ctx->lbl_ofs=bgbcc_malloc(i*sizeof(u32));
 		ctx->lbl_id =bgbcc_malloc(i*sizeof(u32));
 		ctx->lbl_sec=bgbcc_malloc(i*sizeof(byte));
@@ -485,6 +491,10 @@ int BGBCC_SHX_EmitLabel(BGBCC_SHX_Context *ctx, int lblid)
 	ctx->lbl_id[i]=lblid;
 	ctx->lbl_ofs[i]=BGBCC_SHX_EmitGetOffs(ctx);
 	ctx->lbl_sec[i]=ctx->sec;
+	
+	if((ctx->lbl_ofs[i]>>20) && (ctx->sec!=BGBCC_SH_CSEG_BSS))
+		{ BGBCC_DBGBREAK }
+
 	return(1);
 }
 
@@ -525,7 +535,8 @@ int BGBCC_SHX_GetNamedLabel(BGBCC_SHX_Context *ctx, char *name)
 	
 	if(!ctx->lbln_name)
 	{
-		i=1024;
+//		i=1024;
+		i=4096;
 		ctx->lbln_name=bgbcc_malloc(i*sizeof(char *));
 		ctx->lbln_id =bgbcc_malloc(i*sizeof(u32));
 		ctx->nlbln=0;
@@ -609,7 +620,8 @@ int BGBCC_SHX_EmitRelocTy(BGBCC_SHX_Context *ctx, int lblid, int ty)
 
 	if(!ctx->rlc_ofs)
 	{
-		i=4096;
+//		i=4096;
+		i=65536;
 		ctx->rlc_ofs=bgbcc_malloc(i*sizeof(u32));
 		ctx->rlc_id =bgbcc_malloc(i*sizeof(u32));
 		ctx->rlc_sec=bgbcc_malloc(i*sizeof(byte));

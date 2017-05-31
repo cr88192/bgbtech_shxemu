@@ -268,7 +268,10 @@ void BGBCC_CCXL_CompileFormJmpTF(BGBCC_TransState *ctx, BCCX_Node *l,
 				BGBCC_CCXL_IsBinaryP(ctx, ln, "||"))
 			{ BGBCC_CCXL_CompileFormJmpTF(ctx, ln, brt, lbl0); j=1; }
 		else
-			{ BGBCC_CCXL_CompileJCF(ctx, ln, brf); }
+		{
+//			BGBCC_CCXL_CompileJCF(ctx, ln, brf);
+			BGBCC_CCXL_CompileJCT(ctx, ln, brt);
+		}
 
 		if(j) { BGBCC_CCXL_EmitLabel(ctx, lbl0); }
 
@@ -276,7 +279,10 @@ void BGBCC_CCXL_CompileFormJmpTF(BGBCC_TransState *ctx, BCCX_Node *l,
 				BGBCC_CCXL_IsBinaryP(ctx, rn, "||"))
 			{ BGBCC_CCXL_CompileFormJmpTF(ctx, rn, brt, brf); k=1; }
 		else
-			{ BGBCC_CCXL_CompileJCF(ctx, rn, brf); }
+		{
+//			BGBCC_CCXL_CompileJCF(ctx, rn, brf);
+			BGBCC_CCXL_CompileJCT(ctx, rn, brt);
+		}
 
 		if(!k) { BGBCC_CCXL_CompileJmp(ctx, brf); }
 		return;

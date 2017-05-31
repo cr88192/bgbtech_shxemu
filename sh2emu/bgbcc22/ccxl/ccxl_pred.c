@@ -148,6 +148,8 @@ ccxl_type BGBCC_CCXL_MakeTypeID(
 	}
 
 	BGBCC_DBGBREAK
+	tty.val=0;
+	return(tty);
 }
 
 ccxl_type BGBCC_CCXL_GetRegType(

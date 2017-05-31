@@ -185,6 +185,8 @@ int BGBCC_CCXL_CompileInitArray(BGBCC_TransState *ctx,
 
 		cur=BCCX_Next(cur);
 	}
+
+	return(0);
 }
 
 void BGBCC_CCXL_CompileInitVar(BGBCC_TransState *ctx,
@@ -472,6 +474,7 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 		nb=BCCX_Fetch(l, "body");
 		ns=BCCX_Fetch(l, "step");
 
+#if 0
 		i=1;
 		i=i&&BGBCC_CCXL_IsFixIntAssignRVP(ctx, ni, &s0, &i0);
 		i=i&&BGBCC_CCXL_IsFixIntCompareRVP(ctx, nc, &s1, &s2, &i1);
@@ -495,6 +498,7 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 
 			return;
 		}
+#endif
 
 		l0=BGBCC_CCXL_GenSym(ctx);
 		l1=BGBCC_CCXL_GenSym(ctx);
@@ -503,15 +507,18 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 		ctx->contstack[ctx->contstackpos++]=l1;
 		ctx->breakstack[ctx->breakstackpos++]=l2;
 
-		BGBCC_CCXL_CompileStatement(ctx, ni);
+		if(ni)
+			{ BGBCC_CCXL_CompileStatement(ctx, ni); }
 
 		BGBCC_CCXL_EmitLabel(ctx, l0);
-		BGBCC_CCXL_CompileJCF(ctx, nc, l2);
+		if(nc)
+			{ BGBCC_CCXL_CompileJCF(ctx, nc, l2); }
 
 		BGBCC_CCXL_CompileStatement(ctx, nb);
 
 		BGBCC_CCXL_EmitLabel(ctx, l1);
-		BGBCC_CCXL_CompileStatement(ctx, ns);
+		if(ns)
+			{ BGBCC_CCXL_CompileStatement(ctx, ns); }
 		BGBCC_CCXL_CompileJmp(ctx, l0);
 
 		BGBCC_CCXL_EmitLabel(ctx, l2);

@@ -310,6 +310,7 @@ void BGBCC_CCXL_CompileJCT(BGBCC_TransState *ctx,
 
 	if(!l)
 	{
+		BGBCC_DBGBREAK
 		printf("BGBCC_CCXL_CompileJCT: No Expr\n");
 		BGBCC_CCXL_CompileJmp(ctx, lbl);
 		return;
@@ -361,6 +362,7 @@ void BGBCC_CCXL_CompileJCF(BGBCC_TransState *ctx, BCCX_Node *l, ccxl_label lbl)
 
 	if(!l)
 	{
+		BGBCC_DBGBREAK
 		printf("BGBCC_CCXL_CompileJCF: No Expr\n");
 		return;
 	}
@@ -375,7 +377,7 @@ void BGBCC_CCXL_CompileJCF(BGBCC_TransState *ctx, BCCX_Node *l, ccxl_label lbl)
 	}
 
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, "&&") ||
-			BGBCC_CCXL_IsBinaryP(ctx, l, "||"))
+		BGBCC_CCXL_IsBinaryP(ctx, l, "||"))
 	{
 		lbl1=BGBCC_CCXL_GenSym(ctx);
 		BGBCC_CCXL_CompileFormJmpTF(ctx, l, lbl1, lbl);

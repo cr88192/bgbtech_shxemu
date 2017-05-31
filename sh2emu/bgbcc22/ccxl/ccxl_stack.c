@@ -1029,7 +1029,8 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op)
 			pty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_I);
 			BGBCC_CCXL_RegisterAllocTemporary(ctx, pty, &dreg);
 
-			BGBCC_CCXL_EmitDiffPtr(ctx, sty, dreg, sreg, treg);
+			BGBCC_CCXL_TypeDerefType(ctx, sty, &bty);
+			BGBCC_CCXL_EmitDiffPtr(ctx, bty, dreg, sreg, treg);
 
 			BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
 			BGBCC_CCXL_RegisterCheckRelease(ctx, treg);

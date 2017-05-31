@@ -366,7 +366,15 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 	{
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, treg, BGBCC_SH_REG_R5);
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R4);
-		BGBCC_SHXC_EmitCallName(ctx, sctx, "__sdivsi3");
+
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			BGBCC_SHXC_EmitCallName(ctx, sctx, "__udivsi3");
+		}else
+		{
+			BGBCC_SHXC_EmitCallName(ctx, sctx, "__sdivsi3");
+		}
+
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R0);
 		return(1);
 	}
@@ -375,7 +383,16 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 	{
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, treg, BGBCC_SH_REG_R5);
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R4);
-		BGBCC_SHXC_EmitCallName(ctx, sctx, "__moddi3");
+//		BGBCC_SHXC_EmitCallName(ctx, sctx, "__moddi3");
+
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			BGBCC_SHXC_EmitCallName(ctx, sctx, "__umodsi3");
+		}else
+		{
+			BGBCC_SHXC_EmitCallName(ctx, sctx, "__smodsi3");
+		}
+
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R0);
 		return(1);
 	}
@@ -919,6 +936,7 @@ int BGBCC_SHXC_EmitCallBuiltin(
 {
 	int l0, l1, l2;
 
+#if 0
 	if(!strcmp(name, "strcpy"))
 	{
 		l0=BGBCC_SHX_GenLabelTemp(sctx);
@@ -964,6 +982,7 @@ int BGBCC_SHXC_EmitCallBuiltin(
 
 		return(1);
 	}
+#endif
 
 	return(0);
 }
@@ -982,6 +1001,7 @@ int BGBCC_SHXC_EmitCallBuiltinArgs(
 	int tr0, tr1;
 	int sz, al;
 
+#if 0
 	if(!strcmp(name, "memcpy") && (narg==3))
 	{
 		if(!BGBCC_CCXL_IsRegImmIntP(ctx, args[2]))
@@ -1049,6 +1069,7 @@ int BGBCC_SHXC_EmitCallBuiltinArgs(
 			}
 		}
 	}
+#endif
 
 	return(0);
 }
