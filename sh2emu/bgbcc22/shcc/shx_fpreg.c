@@ -565,7 +565,7 @@ int BGBCC_SHXC_EmitStoreBRegOfsFpReg(
 //			BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
 //				BGBCC_SH_REG_R0, ofs+8);
 			BGBCC_SHX_EmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
-				BGBCC_SH_REG_R0, ofs+8);
+				BGBCC_SH_REG_R0, ofs+4);
 
 //			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_FMOVS,
 //				dreg2+0, BGBCC_SH_REG_R0);

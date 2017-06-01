@@ -537,7 +537,9 @@ int BGBCC_SHXC_EmitLoadBRegIRegScReg(
 	{
 //		dreg2=BGBCC_SH_REG_R0+(dreg&15);
 		dreg2=BGBCC_SHXC_RegNormalizeReg(ctx, sctx, dreg);
-		sw=BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg2);
+//		sw=BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg2);
+//		sw=(sctx->is_le!=0);
+		sw=(sctx->is_le!=0)^(BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg2)==0);
 
 		BGBCC_SHX_EmitOpLdReg2Reg(sctx, nmid,
 			breg, BGBCC_SH_REG_R0, dreg2+(sw^0));
@@ -587,7 +589,9 @@ int BGBCC_SHXC_EmitStoreBRegIRegScReg(
 	{
 //		dreg2=BGBCC_SH_REG_R0+(dreg&15);
 		dreg2=BGBCC_SHXC_RegNormalizeReg(ctx, sctx, dreg);
-		sw=BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg2);
+//		sw=BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg2);
+//		sw=(sctx->is_le!=0);
+		sw=(sctx->is_le!=0)^(BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg2)==0);
 
 		BGBCC_SHX_EmitOpRegStReg2(sctx, nmid,
 			dreg2+(sw^0), breg, BGBCC_SH_REG_R0);
@@ -2778,8 +2782,6 @@ int BGBCC_SHXC_EmitJCmpVRegZeroInt(
 	int csreg, ctreg;
 	int nm1, nm2;
 	
-	csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
-
 	switch(cmp)
 	{
 	case CCXL_CMP_EQ:
@@ -2814,19 +2816,23 @@ int BGBCC_SHXC_EmitJCmpVRegZeroInt(
 	
 	if((nm1>=0) && (nm2>=0))
 	{
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+
+		BGBCC_SHXC_ResetFpscrLocal(ctx, sctx);
+
 		BGBCC_SHX_EmitOpReg(sctx, nm1, csreg);
 //		if(sctx->need_farjmp)
 //			BGBCC_SHX_EmitOpFarLabel(sctx, nm2, lbl);
 //		else
 //			BGBCC_SHX_EmitOpLabel(sctx, nm2, lbl);
-		BGBCC_SHXC_ResetFpscrLocal(ctx, sctx);
 
 		BGBCC_SHX_EmitOpAutoLabel(sctx, nm2, lbl);
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
 		return(1);
 	}
 	
-	BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+	BGBCC_CCXL_StubError(ctx);
+//	BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
 	return(0);
 }
 

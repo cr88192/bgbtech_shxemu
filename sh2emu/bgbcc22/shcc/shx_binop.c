@@ -364,8 +364,13 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 
 	if(opr==CCXL_BINOP_DIV)
 	{
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R5);
+
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, treg, BGBCC_SH_REG_R5);
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R4);
+
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
 
 		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
 		{
@@ -375,15 +380,24 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 			BGBCC_SHXC_EmitCallName(ctx, sctx, "__sdivsi3");
 		}
 
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R5);
+
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R0);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R0);
 		return(1);
 	}
 
 	if(opr==CCXL_BINOP_MOD)
 	{
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R5);
+
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, treg, BGBCC_SH_REG_R5);
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R4);
 //		BGBCC_SHXC_EmitCallName(ctx, sctx, "__moddi3");
+
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
 
 		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
 		{
@@ -393,7 +407,11 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 			BGBCC_SHXC_EmitCallName(ctx, sctx, "__smodsi3");
 		}
 
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R5);
+
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R0);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R0);
 		return(1);
 	}
 
@@ -509,19 +527,59 @@ int BGBCC_SHXC_EmitBinaryVRegVRegVRegInt(
 
 	if(opr==CCXL_BINOP_DIV)
 	{
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R5);
+
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, treg, BGBCC_SH_REG_R5);
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_R4);
-		BGBCC_SHXC_EmitCallName(ctx, sctx, "__sdivsi3");
+
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
+
+//		BGBCC_SHXC_EmitCallName(ctx, sctx, "__sdivsi3");
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			BGBCC_SHXC_EmitCallName(ctx, sctx, "__udivsi3");
+		}else
+		{
+			BGBCC_SHXC_EmitCallName(ctx, sctx, "__sdivsi3");
+		}
+
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R5);
+
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R0);
+
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R0);
+
 		return(1);
 	}
 
 	if(opr==CCXL_BINOP_MOD)
 	{
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R5);
+
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, treg, BGBCC_SH_REG_R5);
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, BGBCC_SH_REG_R4);
-		BGBCC_SHXC_EmitCallName(ctx, sctx, "__moddi3");
+
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
+
+//		BGBCC_SHXC_EmitCallName(ctx, sctx, "__moddi3");
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		{
+			BGBCC_SHXC_EmitCallName(ctx, sctx, "__umodsi3");
+		}else
+		{
+			BGBCC_SHXC_EmitCallName(ctx, sctx, "__smodsi3");
+		}
+
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R5);
+
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_R0);
+
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R0);
+
 		return(1);
 	}
 

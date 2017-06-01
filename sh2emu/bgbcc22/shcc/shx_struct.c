@@ -5,6 +5,7 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	ccxl_register sreg, int gblid, int fid)
 {
 	BGBCC_CCXL_RegisterInfo *obj, *fi;
+	ccxl_type type2;
 	int csreg, ctreg, cdreg;
 	int nm1, nm2, ty, sz;
 	int i, j, k;
@@ -13,10 +14,20 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	obj=ctx->literals[gblid]->decl;
 	fi=obj->fields[fid];
 
+	type2=fi->type;
+
 	ty=type.val;
 
 	if(BGBCC_CCXL_TypeValueObjectP(ctx, type) ||
 		BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+		i=BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(ctx, sctx,
+			type, dreg, sreg, gblid, fid);
+		return(i);
+	}
+
+	if(BGBCC_CCXL_TypeValueObjectP(ctx, type2) ||
+		BGBCC_CCXL_TypeArrayP(ctx, type2))
 	{
 		i=BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(ctx, sctx,
 			type, dreg, sreg, gblid, fid);
@@ -57,7 +68,18 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 			{ BGBCC_DBGBREAK }
 		if(((cdreg&15)==15) && ((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
 			{ BGBCC_DBGBREAK }
-		
+
+		if(BGBCC_CCXL_TypeDoubleP(ctx, type))
+		{
+			if((cdreg&BGBCC_SH_REG_RTMASK3)!=BGBCC_SH_REG_DR0)
+				{ BGBCC_DBGBREAK }
+		}
+		else if(BGBCC_CCXL_TypeFloatP(ctx, type))
+		{
+			if((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0)
+				{ BGBCC_DBGBREAK }
+		}
+
 		BGBCC_SHXC_EmitLoadBRegOfsReg(ctx, sctx,
 			nm1, csreg, fi->fxoffs, cdreg);
 		if(nm2>=0)
@@ -146,6 +168,17 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 			{ BGBCC_DBGBREAK }
 		if(((cdreg&15)==15) && ((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
 			{ BGBCC_DBGBREAK }
+
+		if(BGBCC_CCXL_TypeDoubleP(ctx, type))
+		{
+			if((csreg&BGBCC_SH_REG_RTMASK3)!=BGBCC_SH_REG_DR0)
+				{ BGBCC_DBGBREAK }
+		}
+		else if(BGBCC_CCXL_TypeFloatP(ctx, type))
+		{
+			if((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0)
+				{ BGBCC_DBGBREAK }
+		}
 
 		BGBCC_SHXC_EmitStoreBRegOfsReg(ctx, sctx,
 			nm1, cdreg, fi->fxoffs, csreg);

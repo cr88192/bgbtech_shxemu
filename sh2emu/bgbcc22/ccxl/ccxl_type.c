@@ -25,10 +25,20 @@ bool BGBCC_CCXL_TypeSmallTypeP(
 		{
 			return(true);
 		}
+
+		if(BGBCC_CCXL_TypeSmallDoubleP(ctx, sty))
+		{
+			return(true);
+		}
 	}
 
 	if(BGBCC_CCXL_TypeSmallDoubleP(ctx, dty))
 	{
+		if(BGBCC_CCXL_TypeSmallFloatP(ctx, sty))
+		{
+			return(true);
+		}
+
 		if(BGBCC_CCXL_TypeSmallDoubleP(ctx, sty))
 		{
 			return(true);
