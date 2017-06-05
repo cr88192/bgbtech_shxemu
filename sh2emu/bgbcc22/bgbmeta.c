@@ -28,6 +28,8 @@ int bgbcc_subarch;
 int bgbcc_argc;
 char **bgbcc_argv;
 
+u32 bgbcc_gshash;
+
 #if 0
 // BGBCC_API int BGBCC_BindSig(BGBCC_State *ctx, char *name, char *sig)
 {
@@ -207,10 +209,19 @@ int BGBCC_BindPPKey(BGBCP_ParseState *ctx, char *name, char *sig)
 {
 	char tb[256];
 
+	if(!BGBCC_BindIsMetaP(ctx))
+		return(0);
+
 	sprintf(tb, "CPreProc/%s", name);
 
 //	DYLL_MetaPath_BindKey(tb, sig);
 	dyllMetaBindKey(tb, sig);
+	return(0);
+}
+
+/* Should we preserve metadata? */
+int BGBCC_BindIsMetaP(BGBCP_ParseState *ctx)
+{
 	return(0);
 }
 
@@ -541,6 +552,10 @@ int BGBCC_LoadCSourcesCCXL(
 	ctx=bgbcc_malloc(sizeof(BGBCC_TransState));
 	memset(ctx, 0, sizeof(BGBCC_TransState));
 
+//	ctx->gs_seq=bgbcc_gshash;
+	bgbcc_gshash*=65521;
+	BGBCC_SeedGenSym(bgbcc_gshash);
+	
 	ctx->arch=bgbcc_arch;
 	ctx->sub_arch=bgbcc_subarch;
 	BGBCC_CCXL_SetupContextForArch(ctx);
@@ -677,7 +692,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	char buf[256];
 	static int init=0;
 	int inc_ok;
-	int i, m, endian;
+	int i, j, k, m, endian;
 	char *s, *t;
 	char *mach_name, *gcc_ver, *home, *base, *cfg;
 //#ifdef linux
@@ -708,10 +723,14 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 
 	home=NULL;
 	base=NULL;
+	bgbcc_gshash=0;
 
 	m=0;
 	for(i=1; i<argc; i++)
 	{
+		for(j=0; argv[i][j]; j++)
+			bgbcc_gshash=(bgbcc_gshash*65521)+argv[i][j];
+
 #if 1
 		if((argv[i][0]=='/') || (argv[i][0]=='-'))
 		{
@@ -976,6 +995,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 #endif
 
 	BGBPP_AddStaticDefine(NULL, "_BGBMETA", "");
+	BGBPP_AddStaticDefine(NULL, "_BGBCC", "");
 
 	//FIXME: do this properly
 	BGBPP_AddStaticDefine(NULL, "__DATE__", "\"Apr 01 2000\"");

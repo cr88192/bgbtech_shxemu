@@ -39,6 +39,9 @@ u64 btesh2_msec;
 u64 btesh2_tops;
 double btesh2_ips;
 
+
+FILE *btesh2_conout;
+
 #ifdef __linux
 static struct termios old_termios;
 int gfxdrv_kill;
@@ -478,6 +481,13 @@ int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 
 		printf("%c", val);
 		fflush(stdout);
+		
+		if(btesh2_conout)
+		{
+			fprintf(btesh2_conout, "%c", val);
+			fflush(btesh2_conout);
+		}
+		
 		if(!kirq)
 			kirq++;
 		break;
@@ -556,6 +566,8 @@ u32 btesh2_spanmmreg_GetD(BTESH2_PhysSpan *sp,
 	case 4: v=cpu->regs[BTESH2_REG_MMUCR]; break;
 	default:
 		printf("MMREG: Unhandled Get A=%08X\n", reladdr);
+		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		v=0; break;
 	}
 	return(v);
@@ -576,6 +588,8 @@ int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
 		break;
 	default:
 		printf("MMREG: Unhandled Set A=%08X V=%08X\n", reladdr, val);
+		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		break;
 	}
 	return(0);
@@ -592,6 +606,10 @@ u32 btesh2_peridbg_GetD(BTESH2_PhysSpan *sp,
 	default:
 		printf("PERIREG(%s): Unhandled Get A=%08X\n",
 			sp->name, reladdr);
+
+		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+
 		v=0; break;
 	}
 	return(v);
@@ -605,6 +623,10 @@ int btesh2_peridbg_SetD(BTESH2_PhysSpan *sp,
 	default:
 		printf("PERIREG(%s): Unhandled Set A=%08X V=%08X\n",
 			sp->name, reladdr, val);
+
+		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+
 		break;
 	}
 	return(0);
@@ -623,6 +645,10 @@ u32 btesh2_periasic_GetD(BTESH2_PhysSpan *sp,
 	default:
 		printf("PERIASIC(%s): Unhandled Get A=%08X\n",
 			sp->name, reladdr);
+
+		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+
 		v=0; break;
 	}
 	return(v);
@@ -636,6 +662,10 @@ int btesh2_periasic_SetD(BTESH2_PhysSpan *sp,
 	default:
 		printf("PERIASIC(%s): Unhandled Set A=%08X V=%08X\n",
 			sp->name, reladdr, val);
+
+		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+
 		break;
 	}
 	return(0);
@@ -646,6 +676,10 @@ u32 btesh2_spanemac_GetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr)
 {
 	printf("EMAC Get\n");
+
+	cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
+	BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+
 	return(0);
 }
 
@@ -653,6 +687,10 @@ int btesh2_spanemac_SetD(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
 {
 	printf("EMAC Set\n");
+
+	cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
+	BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+
 	return(0);
 }
 
@@ -1646,6 +1684,11 @@ int main(int argc, char *argv[])
 	i = fcntl(0, F_GETFL, 0);
 	fcntl(0, F_SETFL, i | O_NONBLOCK);
 	btesh2_ttynoncanon();
+#endif
+
+	btesh2_conout=NULL;
+#ifndef __EMSCRIPTEN__
+	btesh2_conout=fopen("btesh2_conout.txt", "wt");
 #endif
 
 	if(imgname || romname)

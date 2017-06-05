@@ -350,7 +350,12 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 
 	if(BCCX_TagIsP(l, "sizeof_expr"))
 	{
-		BGBCC_CCXL_CompileExpr(ctx, BCCX_Fetch(l, "value"));
+		v=BCCX_Fetch(l, "value");
+//		ctx->cgif_no3ac++;
+		BGBCC_CCXL_StackDisable3AC(ctx);
+		BGBCC_CCXL_CompileExpr(ctx, v);
+		BGBCC_CCXL_StackEnable3AC(ctx);
+//		ctx->cgif_no3ac--;
 		BGBCC_CCXL_StackSizeofVal(ctx);
 		return;
 	}

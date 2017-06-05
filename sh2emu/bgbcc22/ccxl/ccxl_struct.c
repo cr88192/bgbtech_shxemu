@@ -113,6 +113,95 @@ int BGBCC_CCXL_LookupStructureIDForSig(
 	return(cur->litid);
 }
 
+
+BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupTypedefForSig(
+	BGBCC_TransState *ctx, char *sig)
+{
+	char *s, *t;
+
+	s=sig;
+	while(*s && (*s=='P'))
+		{ s++; }
+
+	return(BGBCC_CCXL_LookupTypedefForSig2(ctx, s));
+}
+
+BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupTypedefForSig2(
+	BGBCC_TransState *ctx, char *sig)
+{
+	char tb[256];
+	BGBCC_CCXL_LiteralInfo *cur;
+	char *s, *t;
+	int i;
+	
+	s=sig;
+//	while(*s && (*s=='P'))
+//		{ s++; }
+	if(*s!='U')
+		{ return(NULL); }
+	s++;
+		
+	if((*s>='0') && (*s<='9'))
+	{
+		i=atoi(s);
+		cur=ctx->literals[i];
+		return(cur);
+	}
+
+	t=tb;
+	while(*s && (*s!=';'))
+		*t++=*s++;
+	*t++=0;
+	
+	cur=BGBCC_CCXL_LookupTypedef(ctx, tb, NULL);
+	return(cur);
+}
+
+BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedefForSig(
+	BGBCC_TransState *ctx, char *sig)
+{
+	char *s, *t;
+
+	s=sig;
+	while(*s && (*s=='P'))
+		{ s++; }
+
+	return(BGBCC_CCXL_GetTypedefForSig2(ctx, s));
+}
+
+BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedefForSig2(
+	BGBCC_TransState *ctx, char *sig)
+{
+	char tb[256];
+	BGBCC_CCXL_LiteralInfo *cur;
+	char *s, *t;
+	int i;
+	
+	s=sig;
+	if(*s!='U')
+		{ return(NULL); }
+	s++;
+		
+	if((*s>='0') && (*s<='9'))
+	{
+		i=atoi(s);
+		cur=ctx->literals[i];
+		return(cur);
+	}
+
+	t=tb;
+	while(*s && (*s!=';'))
+		*t++=*s++;
+	*t++=0;
+	
+	cur=BGBCC_CCXL_LookupTypedef(ctx, tb, NULL);
+	if(!cur)
+		{ cur=BGBCC_CCXL_GetTypedef2(ctx, tb); }
+	return(cur);
+}
+
+
+
 BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructureForType(
 	BGBCC_TransState *ctx, ccxl_type type)
 {

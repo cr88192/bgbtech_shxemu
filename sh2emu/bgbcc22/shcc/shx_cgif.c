@@ -1373,7 +1373,8 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 	case CCXL_VOP_CALL:
 		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_ResetFpscrDefaults(ctx, sctx);
-		sctx->sreg_live|=0x00F4;
+//		sctx->sreg_live|=0x00F4;
+		sctx->sreg_live|=0x00F0;
 		sctx->sfreg_live|=0x0FF0;
 		BGBCC_SHXC_EmitCallVReg(ctx, sctx,
 			op->type, op->dst, op->srca,
@@ -1606,7 +1607,7 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 
 	BGBCC_SHX_SetBeginSimPass(sctx);
 
-	BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
+//	BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
 
 	BGBCC_SHX_SetSectionName(sctx, ".text");
 //	BGBCC_SHX_EmitBAlign(sctx, 4);
@@ -1644,7 +1645,7 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 	if((obj->n_vop*6)>=2048)
 		sctx->need_farjmp=1;
 	
-	BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
+//	BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
 
 	BGBCC_SHX_SetSectionName(sctx, ".text");
 //	BGBCC_SHX_EmitBAlign(sctx, 4);
@@ -1706,7 +1707,7 @@ ccxl_status BGBCC_SHXC_BuildGlobal_EmitLitAsType(
 			asz=BGBCC_CCXL_TypeGetArrayDimSize(ctx, type);
 
 			n=litobj->decl->n_listdata;
-			if(asz<n)
+			if((asz>0) && (asz<n))
 			{
 				n=asz;
 			}
@@ -1746,17 +1747,26 @@ ccxl_status BGBCC_SHXC_BuildGlobal_EmitLitAsType(
 			s0=BGBCC_CCXL_GetRegImmStringValue(ctx, value);
 			asz=BGBCC_CCXL_TypeGetArraySize(ctx, type);
 
-			j=strlen(s0);
+//			j=strlen(s0);
+			j=BGBCP_StrlenUTF8(s0);
+			
 			if(asz<j)j=asz;
 			for(i=0; i<j; i++)
 			{
-				BGBCC_CCXL_GetRegForIntValue(ctx, &treg, s0[i]);
+				k=BGBCP_ParseChar(&s0);
+				BGBCC_CCXL_GetRegForIntValue(ctx, &treg, k);
+//				BGBCC_CCXL_GetRegForIntValue(ctx, &treg, s0[i]);
 				BGBCC_SHXC_BuildGlobal_EmitLitAsType(ctx, sctx,
 					tty, treg);
 			}
 
 			BGBCC_CCXL_GetRegForIntValue(ctx, &treg, 0);
 			for(; i<asz; i++)
+			{
+				BGBCC_SHXC_BuildGlobal_EmitLitAsType(ctx, sctx,
+					tty, treg);
+			}
+			if(asz<=0)
 			{
 				BGBCC_SHXC_BuildGlobal_EmitLitAsType(ctx, sctx,
 					tty, treg);
@@ -1775,7 +1785,14 @@ ccxl_status BGBCC_SHXC_BuildGlobal_EmitLitAsType(
 		if(BGBCC_CCXL_IsRegImmStringP(ctx, value))
 		{
 			s0=BGBCC_CCXL_GetRegImmStringValue(ctx, value);
-			k=BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
+
+			if(type.val==CCXL_VTY_PCHAR)
+				k=BGBCC_SHX_EmitGetStrtabLabelUTF2ASCII(sctx, s0);
+			if(type.val==CCXL_VTY_PWCHAR)
+				k=BGBCC_SHX_EmitGetStrtabLabelUTF2UCS2(sctx, s0);				
+			else
+				k=BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
+
 			BGBCC_SHX_EmitRelocTy(sctx, k, BGBCC_SH_RLC_ABS32);
 			BGBCC_SHX_EmitDWord(sctx, 0);
 			return(1);
@@ -2085,7 +2102,12 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 		if(BGBCC_CCXL_IsRegImmStringP(ctx, obj->value))
 		{
 			s0=BGBCC_CCXL_GetRegImmStringValue(ctx, obj->value);
-			k=BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
+			if(obj->type.val==CCXL_VTY_PCHAR)
+				k=BGBCC_SHX_EmitGetStrtabLabelUTF2ASCII(sctx, s0);
+			if(obj->type.val==CCXL_VTY_PWCHAR)
+				k=BGBCC_SHX_EmitGetStrtabLabelUTF2UCS2(sctx, s0);				
+			else
+				k=BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
 			BGBCC_SHX_EmitRelocTy(sctx, k, BGBCC_SH_RLC_ABS32);
 			BGBCC_SHX_EmitDWord(sctx, 0);
 			return(1);
@@ -2110,6 +2132,11 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 
 	if(BGBCC_CCXL_IsRegImmLiteralP(ctx, obj->value))
 	{
+		if(!strcmp(obj->name, "keynames"))
+		{
+			k=-1;
+		}
+	
 		BGBCC_SHXC_BuildGlobal_EmitLitAsType(ctx, sctx,
 			obj->type, obj->value);
 		return(1);
@@ -2130,17 +2157,25 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 				asz=(asz+3)&(~3);
 			}
 
-			j=strlen(s0);
-			if(asz<j)j=asz;
+//			j=strlen(s0);
+			j=BGBCP_StrlenUTF8(s0);
+			if((asz>0) && (asz<j))j=asz;
 			for(i=0; i<j; i++)
 			{
-				BGBCC_CCXL_GetRegForIntValue(ctx, &treg, s0[i]);
+				k=BGBCP_ParseChar(&s0);
+				BGBCC_CCXL_GetRegForIntValue(ctx, &treg, k);
+				BGBCC_SHXC_BuildGlobal_EmitLitAsType(ctx, sctx,
+					tty, treg);
+			}
+			
+			BGBCC_CCXL_GetRegForIntValue(ctx, &treg, 0);
+			for(; i<asz; i++)
+			{
 				BGBCC_SHXC_BuildGlobal_EmitLitAsType(ctx, sctx,
 					tty, treg);
 			}
 
-			BGBCC_CCXL_GetRegForIntValue(ctx, &treg, 0);
-			for(; i<asz; i++)
+			if(asz<=0)
 			{
 				BGBCC_SHXC_BuildGlobal_EmitLitAsType(ctx, sctx,
 					tty, treg);
@@ -2548,7 +2583,19 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 	for(i=0; i<ctx->n_literals; i++)
 	{
 		litobj=ctx->literals[i];
+		BGBCC_CCXL_FixupObjSize(ctx, litobj, 0);
+	}
+
+	for(i=0; i<ctx->n_literals; i++)
+	{
+		litobj=ctx->literals[i];
 		BGBCC_CCXL_FixupObjSize(ctx, litobj, 1);
+	}
+
+	for(i=0; i<ctx->n_literals; i++)
+	{
+		litobj=ctx->literals[i];
+		BGBCC_CCXL_SanityObjSize(ctx, litobj, 1);
 	}
 
 	for(i=0; i<ctx->n_reg_globals; i++)

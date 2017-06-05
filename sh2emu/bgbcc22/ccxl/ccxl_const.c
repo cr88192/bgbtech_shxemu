@@ -439,6 +439,28 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetUnion(
 	return(cur);
 }
 
+BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedef2(
+	BGBCC_TransState *ctx, char *str)
+{
+	BGBCC_CCXL_LiteralInfo *cur;
+	int i, j, k;
+	
+	cur=BGBCC_CCXL_LookupTypedef(ctx, str, NULL);
+	if(cur)return(cur);
+	
+	BGBCC_CCXL_CheckExpandLiterals(ctx);
+
+	cur=bgbcc_malloc(sizeof(BGBCC_CCXL_LiteralInfo));
+	cur->littype=CCXL_LITID_TYPEDEF;
+	cur->name=bgbcc_strdup(str);
+
+	i=ctx->n_literals++;
+	ctx->literals[i]=cur;
+	cur->litid=i;
+	
+	return(cur);
+}
+
 int BGBCC_CCXL_GetStructID(
 	BGBCC_TransState *ctx, char *str)
 {

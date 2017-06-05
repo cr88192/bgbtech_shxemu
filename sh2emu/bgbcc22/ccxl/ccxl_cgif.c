@@ -15,6 +15,9 @@ ccxl_status BGBCC_CCXL_StackFn(BGBCC_TransState *ctx, char *name)
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STKFN);
 	BGBCC_CCXLR3_EmitArgString(ctx, name);
 
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_DBGFN;
 	op->imm.str=bgbcc_strdup(name);
@@ -29,10 +32,28 @@ ccxl_status BGBCC_CCXL_StackLn(BGBCC_TransState *ctx, int line)
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STKLN);
 	BGBCC_CCXLR3_EmitArgInt(ctx, line);
 
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_DBGLN;
 	op->imm.si=line;
 	BGBCC_CCXL_AddVirtOp(ctx, op);
+	return(0);
+}
+
+ccxl_status BGBCC_CCXL_StackDisable3AC(BGBCC_TransState *ctx)
+{
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_DI_3AC);
+	ctx->cgif_no3ac++;
+	return(0);
+}
+
+ccxl_status BGBCC_CCXL_StackEnable3AC(BGBCC_TransState *ctx)
+{
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_EN_3AC);
+	if(ctx->cgif_no3ac>0)
+		ctx->cgif_no3ac--;
 	return(0);
 }
 
@@ -42,6 +63,9 @@ ccxl_status BGBCC_CCXL_EmitLabel(BGBCC_TransState *ctx, ccxl_label lbl)
 
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_LABEL);
 	BGBCC_CCXLR3_EmitArgLabel(ctx, lbl);
+
+	if(ctx->cgif_no3ac)
+		return(0);
 
 	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
@@ -54,6 +78,10 @@ ccxl_status BGBCC_CCXL_EmitLabel(BGBCC_TransState *ctx, ccxl_label lbl)
 ccxl_status BGBCC_CCXL_EmitJump(BGBCC_TransState *ctx, ccxl_label lbl)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_JMP;
 	op->imm.ui=lbl.id;
@@ -66,6 +94,10 @@ ccxl_status BGBCC_CCXL_EmitJumpRegZero(BGBCC_TransState *ctx,
 	ccxl_type type, int cmpop, ccxl_register reg, ccxl_label lbl)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_JCMP_ZERO;
 	op->opr=cmpop;
@@ -82,6 +114,10 @@ ccxl_status BGBCC_CCXL_EmitJumpRegCmp(BGBCC_TransState *ctx,
 	ccxl_label lbl)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_JCMP;
 	op->opr=cmpop;
@@ -98,6 +134,10 @@ ccxl_status BGBCC_CCXL_EmitMov(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dreg, ccxl_register sreg)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_MOV;
 	op->type=type;
@@ -112,6 +152,10 @@ ccxl_status BGBCC_CCXL_EmitCallOp(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dst, ccxl_register src, int na)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_CALL;
 	op->type=type;
@@ -129,6 +173,10 @@ ccxl_status BGBCC_CCXL_EmitCallCsrvOp(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dst, ccxl_register src)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_CSRV;
 	op->type=type;
@@ -153,6 +201,10 @@ ccxl_status BGBCC_CCXL_EmitCallArg(BGBCC_TransState *ctx,
 ccxl_status BGBCC_CCXL_EmitCallRetDefault(BGBCC_TransState *ctx)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_RETDFL;
 	BGBCC_CCXL_AddVirtOp(ctx, op);
@@ -163,6 +215,10 @@ ccxl_status BGBCC_CCXL_EmitCallRetDefault(BGBCC_TransState *ctx)
 ccxl_status BGBCC_CCXL_EmitCallRetV(BGBCC_TransState *ctx)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_RETV;
 	BGBCC_CCXL_AddVirtOp(ctx, op);
@@ -174,6 +230,10 @@ ccxl_status BGBCC_CCXL_EmitCallRetOp(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register src)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_RET;
 	op->type=type;
@@ -189,6 +249,9 @@ ccxl_status BGBCC_CCXL_EmitConv(BGBCC_TransState *ctx,
 {
 	BGBCC_CCXL_VirtOp *op;
 	
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, stype) &&
 		BGBCC_CCXL_IsRegDoubleP(ctx, src))
 			{ BGBCC_DBGBREAK }
@@ -211,6 +274,10 @@ ccxl_status BGBCC_CCXL_EmitUnaryOp(BGBCC_TransState *ctx,
 	ccxl_register dst, ccxl_register src)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_UNARY;
 	op->opr=opr;
@@ -226,6 +293,10 @@ ccxl_status BGBCC_CCXL_EmitBinaryOp(BGBCC_TransState *ctx,
 	ccxl_register srca, ccxl_register srcb)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_BINARY;
 	op->opr=opr;
@@ -242,6 +313,10 @@ ccxl_status BGBCC_CCXL_EmitCompareOp(BGBCC_TransState *ctx,
 	ccxl_register srca, ccxl_register srcb)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_COMPARE;
 	op->opr=opr;
@@ -257,6 +332,10 @@ ccxl_status BGBCC_CCXL_EmitLoadIndexImm(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dst, ccxl_register src, int idx)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LDIXIMM;
 	op->type=type;
@@ -271,6 +350,10 @@ ccxl_status BGBCC_CCXL_EmitStoreIndexImm(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dst, ccxl_register src, int idx)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_STIXIMM;
 	op->type=type;
@@ -286,6 +369,10 @@ ccxl_status BGBCC_CCXL_EmitLoadIndex(BGBCC_TransState *ctx,
 	ccxl_register srca, ccxl_register srcb)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LDIX;
 	op->type=type;
@@ -301,6 +388,10 @@ ccxl_status BGBCC_CCXL_EmitStoreIndex(BGBCC_TransState *ctx,
 	ccxl_register srca, ccxl_register srcb)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_STIX;
 	op->type=type;
@@ -319,6 +410,9 @@ ccxl_status BGBCC_CCXL_EmitLeaImm(BGBCC_TransState *ctx,
 //	if(BGBCC_CCXL_RegisterIdentEqualP(ctx, dst, src))
 //		__debugbreak();
 
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LEAIMM;
 	op->type=type;
@@ -334,6 +428,10 @@ ccxl_status BGBCC_CCXL_EmitLea(BGBCC_TransState *ctx,
 	ccxl_register srca, ccxl_register srcb)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LEA;
 	op->type=type;
@@ -348,6 +446,10 @@ ccxl_status BGBCC_CCXL_EmitLdaVar(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dst, ccxl_register src)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LDAVAR;
 	op->type=type;
@@ -361,6 +463,10 @@ ccxl_status BGBCC_CCXL_EmitSizeofVar(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dst)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_SIZEOFVAR;
 	op->type=type;
@@ -374,6 +480,10 @@ ccxl_status BGBCC_CCXL_EmitDiffPtr(BGBCC_TransState *ctx,
 	ccxl_register srca, ccxl_register srcb)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_DIFFPTR;
 	op->type=type;
@@ -391,6 +501,9 @@ ccxl_status BGBCC_CCXL_EmitOffsetOf(BGBCC_TransState *ctx,
 {
 	BGBCC_CCXL_VirtOp *op;
 	int fn;
+
+	if(ctx->cgif_no3ac)
+		return(0);
 
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_OFFSETOF;
@@ -411,6 +524,10 @@ ccxl_status BGBCC_CCXL_EmitLoadSlot(BGBCC_TransState *ctx,
 {
 	BGBCC_CCXL_VirtOp *op;
 	int fn;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LOADSLOT;
 	op->type=type;
@@ -429,6 +546,10 @@ ccxl_status BGBCC_CCXL_EmitStoreSlot(BGBCC_TransState *ctx,
 {
 	BGBCC_CCXL_VirtOp *op;
 	int fn;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_STORESLOT;
 	op->type=type;
@@ -447,6 +568,10 @@ ccxl_status BGBCC_CCXL_EmitLoadSlotAddr(BGBCC_TransState *ctx,
 {
 	BGBCC_CCXL_VirtOp *op;
 	int fn;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LOADSLOTADDR;
 	op->type=type;
@@ -464,6 +589,10 @@ ccxl_status BGBCC_CCXL_EmitLoadSlotAddrID(BGBCC_TransState *ctx,
 	BGBCC_CCXL_LiteralInfo *st, int fn)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LOADSLOTADDR;
 	op->type=type;
@@ -480,6 +609,10 @@ ccxl_status BGBCC_CCXL_EmitInitObj(BGBCC_TransState *ctx,
 	BGBCC_CCXL_LiteralInfo *st)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_INITOBJ;
 	op->type=type;
@@ -494,6 +627,10 @@ ccxl_status BGBCC_CCXL_EmitDropObj(BGBCC_TransState *ctx,
 	BGBCC_CCXL_LiteralInfo *st)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_DROPOBJ;
 	op->type=type;
@@ -507,6 +644,10 @@ ccxl_status BGBCC_CCXL_EmitInitArr(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dst, int sz)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_INITARR;
 	op->type=type;
@@ -521,6 +662,10 @@ ccxl_status BGBCC_CCXL_EmitInitObjArr(BGBCC_TransState *ctx,
 	BGBCC_CCXL_LiteralInfo *st, int sz)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_INITOBJARR;
 	op->type=type;
@@ -535,6 +680,10 @@ ccxl_status BGBCC_CCXL_EmitLoadInitArr(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dst, ccxl_register val, int sz)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LOADINITARR;
 	op->type=type;
@@ -550,6 +699,10 @@ ccxl_status BGBCC_CCXL_EmitLoadInitObjArr(BGBCC_TransState *ctx,
 	BGBCC_CCXL_LiteralInfo *st, ccxl_register val, int sz)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_LOADINITOBJARR;
 	op->type=type;
@@ -565,6 +718,10 @@ ccxl_status BGBCC_CCXL_EmitVaStart(BGBCC_TransState *ctx,
 	ccxl_register dreg, ccxl_register sreg)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_VA_START;
 //	op->type=type;
@@ -578,6 +735,10 @@ ccxl_status BGBCC_CCXL_EmitVaEnd(BGBCC_TransState *ctx,
 	ccxl_register sreg)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_VA_END;
 //	op->type=type;
@@ -591,6 +752,10 @@ ccxl_status BGBCC_CCXL_EmitVaArg(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dreg, ccxl_register sreg)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_VA_ARG;
 	op->type=type;

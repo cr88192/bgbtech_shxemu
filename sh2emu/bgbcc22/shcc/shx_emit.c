@@ -199,9 +199,20 @@ int BGBCC_SHX_EmitAscii(BGBCC_SHX_Context *ctx, char *str)
 {
 	byte *s;
 	
-	s=str;
+	s=(byte *)str;
 	while(*s)
 		BGBCC_SHX_EmitByte(ctx, *s++);
+	return(0);
+}
+
+int BGBCC_SHX_EmitStringUCS2(BGBCC_SHX_Context *ctx, u16 *str)
+{
+	u16 *s;
+	
+	s=str;
+	while(*s)
+		BGBCC_SHX_EmitWord(ctx, *s++);
+	BGBCC_SHX_EmitWord(ctx, *s++);
 	return(0);
 }
 
@@ -231,6 +242,78 @@ int BGBCC_SHX_EmitGetStrtabLabel(BGBCC_SHX_Context *ctx, char *str)
 	ctx->sec=sn0;
 	return(k);
 }
+
+int BGBCC_SHX_EmitGetStrtabLabelUTF2ASCII(
+	BGBCC_SHX_Context *ctx, char *str)
+{
+	char tb[4096];
+	char *s, *t;
+	int i, j, k;
+	
+	s=str;
+	t=tb;
+	while(*s)
+	{
+		k=BGBCP_ParseChar(&s);
+		*t++=k;
+	}
+	*t++=0;
+	
+	i=BGBCC_SHX_EmitGetStrtabLabel(ctx, tb);
+	return(i);
+}
+
+int BGBCC_SHX_EmitGetStrtabLabelUCS2(BGBCC_SHX_Context *ctx, u16 *str)
+{
+	u16 *s0;
+	int sn0;
+	int i, j, k;
+	
+	for(i=0; i<ctx->nlbl; i++)
+	{
+		if(ctx->lbl_sec[i]==BGBCC_SH_CSEG_STRTAB)
+		{
+			j=ctx->lbl_ofs[i];
+			if(j&1)continue;
+			s0=(u16 *)(ctx->sec_buf[BGBCC_SH_CSEG_STRTAB]+j);
+			if(!BGBCP_StrcmpUCS2(s0, str))
+			{
+				return(ctx->lbl_id[i]);
+			}
+		}
+	}
+	
+	sn0=ctx->sec;
+	k=BGBCC_SHX_GenLabel(ctx);
+	BGBCC_SHX_SetSectionName(ctx, ".strtab");
+	BGBCC_SHX_EmitBAlign(ctx, 2);
+	BGBCC_SHX_EmitLabel(ctx, k);
+	BGBCC_SHX_EmitStringUCS2(ctx, str);
+	ctx->sec=sn0;
+	return(k);
+}
+
+int BGBCC_SHX_EmitGetStrtabLabelUTF2UCS2(
+	BGBCC_SHX_Context *ctx, char *str)
+{
+	u16 tb[4096];
+	char *s;
+	u16 *t;
+	int i, j, k;
+	
+	s=str;
+	t=tb;
+	while(*s)
+	{
+		k=BGBCP_ParseChar(&s);
+		*t++=k;
+	}
+	*t++=0;
+	
+	i=BGBCC_SHX_EmitGetStrtabLabelUCS2(ctx, tb);
+	return(i);
+}
+
 
 int BGBCC_SHX_EmitGetStrtabSecOfs(BGBCC_SHX_Context *ctx, char *str)
 {
@@ -1299,12 +1382,10 @@ int BGBCC_SHX_TryEmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	case BGBCC_SH_NMID_MULL:	opw=0x0007|(rn<<8)|(rm<<4); break;
 
 	case BGBCC_SH_NMID_DIV0S:	opw=0x2007|(rn<<8)|(rm<<4); break;
-	case BGBCC_SH_NMID_DIV1:	opw=0x3004|(rn<<8)|(rm<<4); break;
-
 	case BGBCC_SH_NMID_TST:		opw=0x2008|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_AND:		opw=0x2009|(rn<<8)|(rm<<4); break;
-	case BGBCC_SH_NMID_OR:		opw=0x200A|(rn<<8)|(rm<<4); break;
-	case BGBCC_SH_NMID_XOR:		opw=0x200B|(rn<<8)|(rm<<4); break;
+	case BGBCC_SH_NMID_XOR:		opw=0x200A|(rn<<8)|(rm<<4); break;
+	case BGBCC_SH_NMID_OR:		opw=0x200B|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_CMPSTR:	opw=0x200C|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_XTRCT:	opw=0x200D|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_MULUW:	opw=0x200E|(rn<<8)|(rm<<4); break;
@@ -1313,7 +1394,7 @@ int BGBCC_SHX_TryEmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	/* 3001=Esc32 */
 	case BGBCC_SH_NMID_CMPHS:	opw=0x3002|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_CMPGE:	opw=0x3003|(rn<<8)|(rm<<4); break;
-
+	case BGBCC_SH_NMID_DIV1:	opw=0x3004|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_DMULU:	opw=0x3005|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_CMPHI:	opw=0x3006|(rn<<8)|(rm<<4); break;
 	case BGBCC_SH_NMID_CMPGT:	opw=0x3007|(rn<<8)|(rm<<4); break;
@@ -1355,12 +1436,24 @@ int BGBCC_SHX_TryEmitOpRegReg(BGBCC_SHX_Context *ctx, int nmid, int rm, int rn)
 	/* FooD: Single Arg Forms */
 	case BGBCC_SH_NMID_FMAC:	opw=0xF00E|((rn&15)<<8)|((rm&15)<<4); break;
 
-	case BGBCC_SH_NMID_FSTS:	opw=0xF00D|((rn&15)<<8); break;
-	case BGBCC_SH_NMID_FLDS:	opw=0xF01D|((rm&15)<<8); break;
-	case BGBCC_SH_NMID_FLOAT:	opw=0xF02D|((rn&15)<<8); break;
-	case BGBCC_SH_NMID_FTRC:	opw=0xF03D|((rm&15)<<8); break;
-	case BGBCC_SH_NMID_FCNVSD:	opw=0xF0AD|((rn&15)<<8); break;
-	case BGBCC_SH_NMID_FCNVDS:	opw=0xF0BD|((rm&15)<<8); break;
+	case BGBCC_SH_NMID_FSTS:
+		if(rm!=BGBCC_SH_REG_FPUL)break;
+		opw=0xF00D|((rn&15)<<8); break;
+	case BGBCC_SH_NMID_FLDS:
+		if(rn!=BGBCC_SH_REG_FPUL)break;
+		opw=0xF01D|((rm&15)<<8); break;
+	case BGBCC_SH_NMID_FLOAT:
+		if(rm!=BGBCC_SH_REG_FPUL)break;
+		opw=0xF02D|((rn&15)<<8); break;
+	case BGBCC_SH_NMID_FTRC:
+		if(rn!=BGBCC_SH_REG_FPUL)break;
+		opw=0xF03D|((rm&15)<<8); break;
+	case BGBCC_SH_NMID_FCNVSD:
+		if(rm!=BGBCC_SH_REG_FPUL)break;
+		opw=0xF0AD|((rn&15)<<8); break;
+	case BGBCC_SH_NMID_FCNVDS:
+		if(rn!=BGBCC_SH_REG_FPUL)break;
+		opw=0xF0BD|((rm&15)<<8); break;
 
 	default:
 		break;

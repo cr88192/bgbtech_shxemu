@@ -26,6 +26,8 @@
 #define CCXL_TY_VARARGS			0x15		//VarArgs
 #define CCXL_TY_VALIST			0x16		//va_list
 
+#define CCXL_VTY_PCHAR			0x00001008	//'char *'
+#define CCXL_VTY_PWCHAR			0x0000100B	//'wchar_t *'
 
 
 //Basic Type
@@ -163,6 +165,7 @@
 #define CCXL_CMD_STATICVARDECL			0x8010
 #define CCXL_CMD_VARDECL				0x8011
 #define CCXL_CMD_MANIFOBJ				0x8012
+#define CCXL_CMD_TYPEDEF				0x8013
 
 #define CCXL_ATTR_SIG					0x9001
 #define CCXL_ATTR_FLAGS					0x9002

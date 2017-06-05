@@ -452,6 +452,42 @@ int BGBCP_PeekChar(char **str)
 	return(i);
 }
 
+int BGBCP_StrlenUTF8(char *str)
+{
+	char *s;
+	int n;
+	
+	s=str; n=0;
+	while(*s)
+	{
+		n++;
+		BGBCP_ParseChar(&s);
+	}
+	return(n);
+}
+
+int BGBCP_StrlenUCS2(u16 *str)
+{
+	u16 *s;
+	int n;
+
+	s=str; n=0;
+	while(*s)
+		{ s++; n++; }
+	return(n);
+}
+
+int BGBCP_StrcmpUCS2(u16 *stra, u16 *strb)
+{
+	u16 *sa, *sb;
+	int n;
+
+	sa=stra; sb=strb;
+	while(*sa && (*sa==*sb))
+		{ sa++; sb++; }
+	return(*sa-*sb);
+}
+
 int BGBCP_ParseChar(char **str)
 {
 	unsigned char *s;
@@ -848,6 +884,15 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 					if((*s>='a') && (*s<='f'))j+=*s-'a'+10;
 					s++;
 				}
+				BGBCP_EmitChar(&t, j);
+				continue;
+			}
+
+			if((s[0]=='\\') && ((s[1]>='0') && (s[1]<='7')))
+			{
+				s++; j=0;
+				while((*s>='0') && (*s<='7'))
+					{ j=(j*8)+((*s++)-'0'); }
 				BGBCP_EmitChar(&t, j);
 				continue;
 			}

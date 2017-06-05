@@ -38,6 +38,7 @@ byte *bgbcc_rlcbuf=NULL;
 int bgbcc_rlcpos;
 
 int bgbcc_gsseq=1;
+int bgbcc_gsseed=1;
 
 void BGBCC_DieError()
 {
@@ -913,11 +914,16 @@ double BGBCC_ParseNumber(char *str)
 	return(l);
 }
 
+void BGBCC_SeedGenSym(u32 seed)
+{
+	bgbcc_gsseed=seed;
+}
+
 char *BGBCC_GenSym()
 {
 	char buf[32];
 
-	sprintf(buf, "GS%d", bgbcc_gsseq++);
+	sprintf(buf, "GS%08X_%d", bgbcc_gsseed, bgbcc_gsseq++);
 	return(bgbcc_strdup(buf));
 }
 

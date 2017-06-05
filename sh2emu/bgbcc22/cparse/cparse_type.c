@@ -1087,9 +1087,25 @@ BCCX_Node *BGBCP_DefTypeC(BGBCP_ParseState *ctx, char **str)
 			break;
 		}
 
-		n=BCCX_FindTag(n, "type");
+		n1=BCCX_FindTag(n, "type");
 
-		n=BCCX_Clone(n);
+		n2=BCCX_FindTag(n1, "size");
+		if(n2)
+		{
+			s1=BCCX_Get(n, "name");
+
+			n=BCCX_New("type");
+			BCCX_Set(n, "name", s1);
+			BCCX_SetInt(n, "flags", fl);
+			BCCX_SetInt(n, "ind", 0);
+
+			if(attrl)BCCX_Add(n, attrl);
+
+			*str=s;
+			return(n);
+		}
+
+		n=BCCX_Clone(n1);
 		i=BCCX_GetInt(n, "flags");
 		BCCX_SetInt(n, "flags", i|fl);
 

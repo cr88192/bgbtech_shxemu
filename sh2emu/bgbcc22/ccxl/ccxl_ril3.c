@@ -1,6 +1,6 @@
 #include <bgbccc.h>
 
-ccxl_label ril3_lbltab[4096];
+ccxl_label ril3_lbltab[65536];
 int ril3_nlbl;
 
 int BGBCC_CCXLR3_LabelToIndex(BGBCC_TransState *ctx, ccxl_label lbl)
@@ -432,7 +432,8 @@ void BGBCC_CCXLR3_EmitArgBlob(
 	ctx->ril_pslen[i]=len;
 	ctx->ril_psrov=(i+1)&63;
 
-	if(len<8)
+//	if(len<8)
+	if(1)
 	{
 		BGBCC_CCXLR3_EmitSVLI(ctx, len);
 		s=str;
@@ -1184,6 +1185,9 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		BGBCC_CCXL_StackUnaryOpName(ctx, s0, s1);
 		break;
 		
+	case BGBCC_RIL3OP_LDCONSTV:
+		BGBCC_CCXL_StackPushVoid(ctx);
+		break;
 	case BGBCC_RIL3OP_LDCONSTI:
 		li0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
 		BGBCC_CCXL_StackPushConstInt(ctx, li0);
@@ -1305,10 +1309,12 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 
 	case BGBCC_RIL3OP_STKFN:
 		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		ctx->lfn=s0;
 		BGBCC_CCXL_StackFn(ctx, s0);
 		break;
 	case BGBCC_RIL3OP_STKLN:
 		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		ctx->lln=i0;
 		BGBCC_CCXL_StackLn(ctx, i0);
 		break;
 
@@ -1324,6 +1330,13 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		break;
 	case BGBCC_RIL3OP_VA_ARG:
 		BGBCC_CCXL_StackVaArg(ctx);
+		break;
+		
+	case BGBCC_RIL3OP_DI_3AC:
+		BGBCC_CCXL_StackDisable3AC(ctx);
+		break;
+	case BGBCC_RIL3OP_EN_3AC:
+		BGBCC_CCXL_StackEnable3AC(ctx);
 		break;
 
 	case BGBCC_RIL3OP_ADD:	BGBCC_CCXL_StackBinaryOp(ctx, "+"); break;

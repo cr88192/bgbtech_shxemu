@@ -1219,37 +1219,33 @@ int BGBCC_SHXC_EmitCompareVRegVRegVRegFloat(
 	ccxl_register sreg, ccxl_register treg)
 {
 	int csreg, ctreg, cdreg;
-	int nm1, nm2, sw;
+	int nm1, nm2, swst;
 	
 	switch(cmp)
 	{
 	case CCXL_CMP_EQ:
 		nm1=BGBCC_SH_NMID_FCMPEQ;
-		nm2=BGBCC_SH_NMID_BT; sw=0;
+		nm2=BGBCC_SH_NMID_BT; swst=0;
 		break;
 	case CCXL_CMP_NE:
 		nm1=BGBCC_SH_NMID_FCMPEQ;
-		nm2=BGBCC_SH_NMID_BF; sw=0;
+		nm2=BGBCC_SH_NMID_BF; swst=0;
 		break;
 	case CCXL_CMP_LT:
-//		nm1=BGBCC_SH_NMID_FCMPGE;
 		nm1=BGBCC_SH_NMID_FCMPGT;
-//		nm2=BGBCC_SH_NMID_BF;
-		nm2=BGBCC_SH_NMID_BT; sw=1;
+		nm2=BGBCC_SH_NMID_BT; swst=1;
 		break;
 	case CCXL_CMP_GT:
 		nm1=BGBCC_SH_NMID_FCMPGT;
-		nm2=BGBCC_SH_NMID_BT; sw=0;
+		nm2=BGBCC_SH_NMID_BT; swst=0;
 		break;
 	case CCXL_CMP_LE:
 		nm1=BGBCC_SH_NMID_FCMPGT;
-		nm2=BGBCC_SH_NMID_BF; sw=0;
+		nm2=BGBCC_SH_NMID_BF; swst=0;
 		break;
 	case CCXL_CMP_GE:
-//		nm1=BGBCC_SH_NMID_FCMPGE;
 		nm1=BGBCC_SH_NMID_FCMPGT;
-//		nm2=BGBCC_SH_NMID_BT;
-		nm2=BGBCC_SH_NMID_BF; sw=1;
+		nm2=BGBCC_SH_NMID_BF; swst=1;
 		break;
 	default:
 		nm1=-1;
@@ -1274,6 +1270,8 @@ int BGBCC_SHXC_EmitCompareVRegVRegVRegFloat(
 				{ BGBCC_DBGBREAK }
 			if((ctreg&BGBCC_SH_REG_RTMASK3)!=BGBCC_SH_REG_DR0)
 				{ BGBCC_DBGBREAK }
+			if((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_R0)
+				{ BGBCC_DBGBREAK }
 		}
 		else
 		{
@@ -1281,9 +1279,11 @@ int BGBCC_SHXC_EmitCompareVRegVRegVRegFloat(
 				{ BGBCC_DBGBREAK }
 			if((ctreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0)
 				{ BGBCC_DBGBREAK }
+			if((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_R0)
+				{ BGBCC_DBGBREAK }
 		}
 
-		if(sw)
+		if(swst)
 			BGBCC_SHX_EmitOpRegReg(sctx, nm1, csreg, ctreg);
 		else
 			BGBCC_SHX_EmitOpRegReg(sctx, nm1, ctreg, csreg);

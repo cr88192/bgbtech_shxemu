@@ -163,6 +163,7 @@ ccxl_type BGBCC_CCXL_GetRegType(
 		((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_LOCAL))
 	{
 		tty.val=(reg.val&CCXL_REGID_TYPEMASK)>>CCXL_REGID_TYPESHIFT;
+		BGBCC_CCXL_TypeGetTypedefType(ctx, tty, &tty);
 		return(tty);
 	}
 
@@ -172,6 +173,7 @@ ccxl_type BGBCC_CCXL_GetRegType(
 		if(i>=ctx->n_reg_globals)
 			{ BGBCC_DBGBREAK }
 		tty=ctx->reg_globals[i]->type;
+		BGBCC_CCXL_TypeGetTypedefType(ctx, tty, &tty);
 //		BGBCC_CCXL_TypeFromSig(ctx, &tty,
 //			ctx->reg_globals[reg.val&16777215]->sig);
 //		tty.val=CCXL_TY_I;

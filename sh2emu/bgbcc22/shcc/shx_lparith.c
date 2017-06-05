@@ -519,6 +519,11 @@ int BGBCC_SHXC_EmitBinaryVRegVRegLong(
 		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
 			s0="__udivlli";
 		break;
+	case CCXL_BINOP_MOD:
+		s0="__smodlli";
+		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+			s0="__umodlli";
+		break;
 	case CCXL_BINOP_AND:	s0="__andlli"; break;
 	case CCXL_BINOP_OR:		s0="__orlli"; break;
 	case CCXL_BINOP_XOR:	s0="__xorlli"; break;

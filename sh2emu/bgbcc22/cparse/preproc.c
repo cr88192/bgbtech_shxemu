@@ -676,6 +676,9 @@ void BGBPP_SendDefines(BGBCP_ParseState *ctx)
 	char *s;
 	int i, j;
 
+	if(!BGBCC_BindIsMetaP(ctx))
+		return;
+
 	for(i=0; i<256; i++)
 	{
 		cur=ctx->ppdef[i];

@@ -110,7 +110,14 @@ ccxl_status BGBCC_CCXL_RegisterAllocTemporaryLLn(
 		
 		if(!ri->ucnt && (ri->type_zb==z))
 		{
+			if((BGBCC_CCXL_TypeValueObjectP(ctx, bty) ||
+				BGBCC_CCXL_TypeValueObjectP(ctx, ri->type)) &&
+				!BGBCC_CCXL_TypeEqualP(ctx, bty, ri->type))
+					continue;
+		
 			ri->cseq++;
+//			ri->type_zb=z;
+
 			ri->type=bty;
 			ri->regid=i|((ri->cseq&4095)<<12);
 			ri->ucnt=1;

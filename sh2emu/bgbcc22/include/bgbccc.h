@@ -441,6 +441,7 @@ byte arch_align_max;	//don't use alignments larger than this
 byte arch_align_objmin;	//minimum alignment for value-objects
 
 byte ril3_norec;
+byte cgif_no3ac;
 
 int gs_seq;
 char *lfn;
