@@ -718,14 +718,14 @@ void BGBPP_SendDefines(BGBCP_ParseState *ctx)
 char *BGBPP_LoadInclude(BGBCP_ParseState *ctx, char *name, int *rsz)
 {
 	char b[4096];
-	char *buf;
+	char *buf, *t;
 	int i, sz;
 
 	if(BGBPP_CheckIncludeCache(name, &buf, &sz)>0)
 	{
 		if(rsz)*rsz=sz;
 		return(buf);
-	}
+	}	
 
 	buf=NULL;
 	for(i=(bgbpp_ninc-1); i>=0; i--)
@@ -735,6 +735,19 @@ char *BGBPP_LoadInclude(BGBCP_ParseState *ctx, char *name, int *rsz)
 		buf=bgbcc_loadfile(b, &sz);
 //		if(buf) { if(rsz)*rsz=sz; return(buf); }
 		if(buf)break;
+	}
+
+	if(!buf && bgbpp_cfn)
+	{
+		strcpy(b, bgbpp_cfn);
+		t=b+strlen(b);
+		while((t>b) && (*t!='/') && (*t!='\\'))
+			t--;
+		if((t>b) && ((*t=='/') || (*t=='\\')))
+		{
+			strcpy(t+1, name);
+			buf=bgbcc_loadfile(b, &sz);
+		}
 	}
 
 	if(!buf)

@@ -71,9 +71,9 @@
 #define BGBCC_RIL3OP_BINOP		0x31
 #define BGBCC_RIL3OP_CMPOP		0x32
 #define BGBCC_RIL3OP_UNOP		0x33
-#define BGBCC_RIL3OP_STBINOP	0x34
+#define BGBCC_RIL3OP_STBINOP	0x34	//name=lval op rval
 #define BGBCC_RIL3OP_STCMPOP	0x35
-#define BGBCC_RIL3OP_LDUNOP		0x36
+#define BGBCC_RIL3OP_LDUNOP		0x36	//name=op name;
 
 #define BGBCC_RIL3OP_LDCONSTV	0x37	//load a void / placeholder
 #define BGBCC_RIL3OP_LDCONSTI	0x38
@@ -115,6 +115,8 @@
 
 #define BGBCC_RIL3OP_DI_3AC		0x5A	//Disable 3AC Output
 #define BGBCC_RIL3OP_EN_3AC		0x5B	//Enable 3AC Output
+
+#define BGBCC_RIL3OP_MOVLDST	0x5C	//Move value between variables.
 
 #define BGBCC_RIL3OP_ADD		0x60
 #define BGBCC_RIL3OP_SUB		0x61

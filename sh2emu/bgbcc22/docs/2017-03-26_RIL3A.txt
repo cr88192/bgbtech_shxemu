@@ -196,6 +196,7 @@ Begin/Commands
 * 0x8010, STATICVARDECL
 * 0x8011, VARDECL
 * 0x8012, MANIFOBJ
+* 0x8013, TYPEDEF
 
 Attribute/Literal
 * 0x9001, SIG
@@ -223,6 +224,7 @@ Commands/Attributes (Alt)
 * 0x10, STATICVARDECL
 * 0x11, VARDECL
 * 0x12, MANIFOBJ
+* 0x13, TYPEDEF
 * ...
 * 0x21, SIG
 * 0x22, FLAGS
@@ -408,6 +410,8 @@ Opcodes (Executable Code)
 ** STRING name;
 ** Apply a unary operator to a variable
 
+* 0x37, LDCONSTV ( -- Void )
+** Load a Void onto the stack.
 * 0x38, LDCONSTI ( -- Val )
 ** SVLI value;
 ** Load constant integer onto stack.
@@ -426,12 +430,11 @@ Opcodes (Executable Code)
 * 0x3D, LDCONSTWS ( -- Str )
 ** STRING str;
 ** Load wide string literal onto stack.
-
-* 0x39, LDCONSTXL ( -- Val )
+* 0x3E, LDCONSTXL ( -- Val )
 ** SVLI value_lo;
 ** SVLI value_hi;
 ** Load constant int128 onto stack.
-* 0x3A, LDCONSTXF ( -- Val )
+* 0x3F, LDCONSTXF ( -- Val )
 ** XFVLI value;
 ** Load constant float128 onto stack.
 
@@ -501,6 +504,38 @@ Opcodes (Executable Code)
 * 0x55, VA_START ( Arg List -- )
 * 0x56, VA_END ( List -- )
 * 0x57, VA_ARG ( Type List -- Val )
+
+* 0x58, CALLNV ( Mark * -- )
+** STRING name;
+** Call a named function.
+* 0x59, CALLPV ( Mark * Ptr -- )
+** Call a function given as a pointer on the stack.
+
+* 0x5A, DI_3AC
+** Temporarily disable 3AC output.
+** Operations following this will not generate executable code.
+** However, they will still update compile-time state as-if they were emitted.
+* 0x5B, EN_3AC
+** Enable 3AC output.
+** Note that these may nest, and output will remaine disabled until counts match.
+
+* 0x5C, MOVLDST
+** STRING dname;
+** STRING sname;
+** Move a value between a pair of named variables.
+
+* 0x5D, STUNOP ( Val -- )
+** SVLI opr;
+** STRING name;
+** Apply a unary operator and store result in a variable.
+
+* 0x5E, STCALLN ( Mark * -- )
+** STRING name;
+** STRING dstname;
+** Call a named function, storing return value in dstname.
+* 0x5F, STCALLP ( Mark * Ptr -- )
+** STRING dstname;
+** Call a function given as a pointer on the stack.
 
 
 * 0x60, ADD

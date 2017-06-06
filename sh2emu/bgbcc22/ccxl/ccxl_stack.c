@@ -448,6 +448,50 @@ ccxl_status BGBCC_CCXL_PopStore(BGBCC_TransState *ctx, char *name)
 	return(k);
 }
 
+ccxl_status BGBCC_CCXL_MovLoadStore(BGBCC_TransState *ctx,
+	char *dname, char *sname)
+{
+	ccxl_register sreg, treg, dreg;
+	ccxl_type bty, dty, sty;
+	int i, j, k;
+	
+	BGBCC_CCXL_DebugPrintStackLLn(ctx, "MovLoadStore", __FILE__, __LINE__);
+
+	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_MOVLDST);
+	BGBCC_CCXLR3_EmitArgString(ctx, dname);
+	BGBCC_CCXLR3_EmitArgString(ctx, sname);
+
+	i=BGBCC_CCXL_LookupAsRegister(ctx, sname, &sreg);
+	j=BGBCC_CCXL_LookupAsRegisterStore(ctx, dname, &dreg);
+	if((i<=0) || (j<=0))
+	{
+		if(!i || !j)
+			return(CCXL_STATUS_ERR_LOOKUPFAIL);
+		if(i<0)return(i);
+		if(j<0)return(j);
+		return(CCXL_STATUS_ERR_GENERIC);
+	}
+
+	dty=BGBCC_CCXL_GetRegType(ctx, dreg);
+	sty=BGBCC_CCXL_GetRegType(ctx, sreg);
+
+	if(!BGBCC_CCXL_TypeCompatibleP(ctx, dty, sty))
+	{
+		BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &treg);
+		BGBCC_CCXL_EmitConv(ctx, dty, sty, treg, sreg);
+		k=BGBCC_CCXL_EmitMov(ctx, dty, dreg, treg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, dreg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, treg);
+		return(k);
+	}
+
+	k=BGBCC_CCXL_EmitMov(ctx, dty, dreg, sreg);
+	BGBCC_CCXL_RegisterCheckRelease(ctx, dreg);
+	BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
+	return(k);
+}
+
 ccxl_status BGBCC_CCXL_StackTransforCallArgs(BGBCC_TransState *ctx)
 {
 	ccxl_register treg, dreg;

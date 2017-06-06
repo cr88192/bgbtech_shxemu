@@ -726,6 +726,7 @@ BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_LookupArgInfo(BGBCC_TransState *ctx, char *n
 BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_LookupGlobalInfo(BGBCC_TransState *ctx, char *name);
 ccxl_status BGBCC_CCXL_PushLoad(BGBCC_TransState *ctx, char *name);
 ccxl_status BGBCC_CCXL_PopStore(BGBCC_TransState *ctx, char *name);
+ccxl_status BGBCC_CCXL_MovLoadStore(BGBCC_TransState *ctx,char *dname, char *sname);
 ccxl_status BGBCC_CCXL_StackTransforCallArgs(BGBCC_TransState *ctx);
 int BGBCC_CCXL_StackGetCntCallArgs(BGBCC_TransState *ctx);
 int BGBCC_CCXL_StackGetConvCallArgs(BGBCC_TransState *ctx,ccxl_register fnreg);

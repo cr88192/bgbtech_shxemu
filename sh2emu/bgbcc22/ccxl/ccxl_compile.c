@@ -601,6 +601,15 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 //			}
 //		}
 
+		if(BCCX_TagIsP(ln, "ref") &&
+			BCCX_TagIsP(rn, "ref"))
+		{
+			s0=BCCX_Get(ln, "name");
+			s1=BCCX_Get(rn, "name");
+			BGBCC_CCXL_MovLoadStore(ctx, s0, s1);
+			return;
+		}
+
 		BGBCC_CCXL_CompileExpr(ctx, rn);
 		BGBCC_CCXL_CompileAssign(ctx, ln);
 		return;

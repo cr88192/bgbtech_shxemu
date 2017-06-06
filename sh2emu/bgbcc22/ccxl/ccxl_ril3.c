@@ -1033,6 +1033,12 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
 		BGBCC_CCXL_PopStore(ctx, s0);
 		break;
+	case BGBCC_RIL3OP_MOVLDST:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_MovLoadStore(ctx, s0, s1);
+		break;
+
 	case BGBCC_RIL3OP_CALLN:
 		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
 		BGBCC_CCXL_StackCallName(ctx, s0, 0);

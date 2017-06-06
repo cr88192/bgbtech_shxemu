@@ -604,7 +604,8 @@ int BGBCC_SHXC_EmitLdaVRegVReg(
 {
 	int csreg, ctreg, cdreg;
 
-	cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+//	cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+	cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 	BGBCC_SHXC_EmitLdaFrameVRegReg(ctx, sctx, sreg, cdreg);
 	BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 	return(1);
@@ -676,7 +677,8 @@ int BGBCC_SHXC_EmitDiffPtrVRegVRegVReg(
 
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
 		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
-		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+//		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 		
 //		BGBCC_SHXC_EmitLeaBRegIRegScReg(ctx, sctx,
 //			nm1, csreg, ctreg, sz, cdreg);
@@ -740,7 +742,8 @@ int BGBCC_SHXC_EmitDiffPtrVRegVRegVReg(
 
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
 		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
-		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+//		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, csreg, cdreg);
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_SUB, ctreg, cdreg);
@@ -768,7 +771,8 @@ int BGBCC_SHXC_EmitDiffPtrVRegVRegVReg(
 	{
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
 		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
-		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+//		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, csreg, cdreg);
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_SUB, ctreg, cdreg);
