@@ -235,6 +235,7 @@ ccxl_type BGBCC_CCXL_GetTypeReturnType(
 		sig=BGBCC_CCXL_SigGetReturnSig(ctx, sig);
 		BGBCC_CCXL_TypeFromSig(ctx,
 			&dty, sig);
+		BGBCC_CCXL_TypeGetTypedefType(ctx, dty, &dty);
 		return(dty);
 	}
 
@@ -266,6 +267,7 @@ ccxl_type BGBCC_CCXL_GetRegReturnType(
 		
 		BGBCC_CCXL_TypeFromSig(ctx,
 			&bty, sig);
+		BGBCC_CCXL_TypeGetTypedefType(ctx, bty, &bty);
 
 		if(BGBCC_CCXL_TypeFunctionP(ctx, bty))
 		{
@@ -276,6 +278,7 @@ ccxl_type BGBCC_CCXL_GetRegReturnType(
 			sig=BGBCC_CCXL_SigGetReturnSig(ctx, sig);
 			BGBCC_CCXL_TypeFromSig(ctx,
 				&dty, sig);
+			BGBCC_CCXL_TypeGetTypedefType(ctx, dty, &dty);
 			return(dty);
 		}
 
@@ -295,6 +298,7 @@ ccxl_type BGBCC_CCXL_GetRegReturnType(
 		sig=BGBCC_CCXL_SigGetReturnSig(ctx, sig);
 		BGBCC_CCXL_TypeFromSig(ctx,
 			&dty, sig);
+		BGBCC_CCXL_TypeGetTypedefType(ctx, dty, &dty);
 		return(dty);
 	}
 

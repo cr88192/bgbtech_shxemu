@@ -2023,6 +2023,7 @@ int BGBCC_CCXL_TypeCompatibleP(
 	ccxl_type dty, ccxl_type sty)
 {
 	ccxl_type dty2, sty2;
+	int rt;
 
 	if(dty.val==sty.val)
 		return(1);
@@ -2030,7 +2031,42 @@ int BGBCC_CCXL_TypeCompatibleP(
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, dty))
 	{
 		if(BGBCC_CCXL_TypeSmallIntP(ctx, sty))
-			return(1);
+		{
+			if(dty.val==sty.val)
+				return(1);
+		
+			rt=0;
+			switch(dty.val)
+			{
+			case CCXL_TY_SB:
+				rt=(dty.val==sty.val);	break;
+			case CCXL_TY_UB:
+				rt=(dty.val==sty.val);	break;
+			case CCXL_TY_SS:
+				switch(sty.val)
+				{
+				case CCXL_TY_SB:	case CCXL_TY_UB:
+				case CCXL_TY_SS:
+					rt=1; break;
+				default: rt=0; break;
+				}
+				break;
+			case CCXL_TY_US:
+				switch(sty.val)
+				{
+				case CCXL_TY_UB:	case CCXL_TY_US:
+					rt=1; break;
+				default: rt=0; break;
+				}
+				break;
+			case CCXL_TY_I:		case CCXL_TY_UI:
+			case CCXL_TY_NL:	case CCXL_TY_UNL:
+				rt=1; break;
+			default: rt=0; break;
+			}
+			return(rt);
+//			return(1);
+		}
 	}
 
 	if(BGBCC_CCXL_TypeSgLongP(ctx, dty))

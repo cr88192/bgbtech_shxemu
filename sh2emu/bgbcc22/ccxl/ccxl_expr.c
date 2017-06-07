@@ -121,16 +121,22 @@ void BGBCC_CCXL_CompileArgsList(BGBCC_TransState *ctx, BCCX_Node *lst)
 
 void BGBCC_CCXL_CompileFuncall(BGBCC_TransState *ctx, BCCX_Node *l)
 {
-	BGBCC_CCXL_CompileFuncallI(ctx, l, 0);
+	BGBCC_CCXL_CompileFuncallI(ctx, l, NULL, 0);
 }
 
 void BGBCC_CCXL_CompileFuncallStmt(BGBCC_TransState *ctx, BCCX_Node *l)
 {
-	BGBCC_CCXL_CompileFuncallI(ctx, l, 1);
+	BGBCC_CCXL_CompileFuncallI(ctx, l, NULL, 1);
+}
+
+void BGBCC_CCXL_CompileFuncallStore(BGBCC_TransState *ctx,
+	BCCX_Node *l, char *dname)
+{
+	BGBCC_CCXL_CompileFuncallI(ctx, l, dname, 0);
 }
 
 void BGBCC_CCXL_CompileFuncallI(BGBCC_TransState *ctx,
-	BCCX_Node *l, int flag)
+	BCCX_Node *l, char *dname, int flag)
 {
 	char *s0, *s1, *s2;
 	BCCX_Node *c, *d, *t, *u, *v;
@@ -149,7 +155,7 @@ void BGBCC_CCXL_CompileFuncallI(BGBCC_TransState *ctx,
 			BGBCC_CCXL_CompileExprListReverse(ctx,
 				BCCX_Fetch(l, "args"));
 			BGBCC_CCXL_StackVaEnd(ctx);
-			if(!(flag&1))
+			if(!(flag&1) && !dname)
 				BGBCC_CCXL_StackPushConstInt(ctx, 0);
 			return;
 		}
@@ -159,7 +165,7 @@ void BGBCC_CCXL_CompileFuncallI(BGBCC_TransState *ctx,
 			BGBCC_CCXL_CompileExprListReverse(ctx,
 				BCCX_Fetch(l, "args"));
 			BGBCC_CCXL_StackVaStart(ctx);
-			if(!(flag&1))
+			if(!(flag&1) && !dname)
 				BGBCC_CCXL_StackPushConstInt(ctx, 0);
 			return;
 		}
@@ -170,6 +176,11 @@ void BGBCC_CCXL_CompileFuncallI(BGBCC_TransState *ctx,
 				BCCX_Fetch(l, "args"));
 			BGBCC_CCXL_StackVaArg(ctx);
 
+			if(dname)
+			{
+				BGBCC_CCXL_PopStore(ctx, dname);
+			}
+
 //			BGBCC_CCXL_StackPushConstInt(ctx, 0);
 			return;
 		}
@@ -177,7 +188,8 @@ void BGBCC_CCXL_CompileFuncallI(BGBCC_TransState *ctx,
 		BGBCC_CCXL_PushMark(ctx);
 		BGBCC_CCXL_CompileExprListReverse(ctx,
 			BCCX_Fetch(l, "args"));
-		BGBCC_CCXL_StackCallName(ctx, s0, flag);
+//		BGBCC_CCXL_StackCallName(ctx, s0, flag);
+		BGBCC_CCXL_StackCallName2(ctx, s0, dname, flag);
 		return;
 	}
 
@@ -196,7 +208,8 @@ void BGBCC_CCXL_CompileFuncallI(BGBCC_TransState *ctx,
 	BGBCC_CCXL_CompileExprListReverse(ctx,
 		BCCX_Fetch(l, "args"));
 	BGBCC_CCXL_CompileExpr(ctx, c);
-	BGBCC_CCXL_StackPopCall(ctx, flag);
+//	BGBCC_CCXL_StackPopCall(ctx, flag);
+	BGBCC_CCXL_StackPopCall2(ctx, dname, flag);
 	return;
 }
 

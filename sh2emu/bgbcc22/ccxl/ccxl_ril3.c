@@ -1054,6 +1054,16 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		BGBCC_CCXL_StackPopCall(ctx, 1);
 		break;
 
+	case BGBCC_RIL3OP_STCALLN:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackCallName2(ctx, s0, s1, 0);
+		break;
+	case BGBCC_RIL3OP_STCALLP:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackPopCall2(ctx, s0, 0);
+		break;
+
 	case BGBCC_RIL3OP_LDIXC:
 		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
 		BGBCC_CCXL_StackLoadIndexConst(ctx, i0);

@@ -610,6 +610,16 @@ void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l)
 			return;
 		}
 
+#if 1
+		if(BCCX_TagIsP(ln, "ref") &&
+			BCCX_TagIsP(rn, "funcall"))
+		{
+			s0=BCCX_Get(ln, "name");
+			BGBCC_CCXL_CompileFuncallStore(ctx, rn, s0);
+			return;
+		}
+#endif
+
 		BGBCC_CCXL_CompileExpr(ctx, rn);
 		BGBCC_CCXL_CompileAssign(ctx, ln);
 		return;

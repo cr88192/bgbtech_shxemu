@@ -620,18 +620,34 @@ int BGBCC_CCXL_StackGetConvCallArgs(BGBCC_TransState *ctx,
 ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx,
 	char *name, int flag)
 {
-	ccxl_register treg, dreg;
-	ccxl_type bty;
+	return(BGBCC_CCXL_StackCallName2(ctx, name, NULL, flag));
+}
+
+ccxl_status BGBCC_CCXL_StackCallName2(BGBCC_TransState *ctx,
+	char *name, char *dname, int flag)
+{
+	ccxl_register treg, dreg, dreg2;
+	ccxl_type bty, dty;
 	BGBCC_CCXL_RegisterInfo *ri;
 	int i, j, k, n;
 
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "CallName", __FILE__, __LINE__);
 
-	if(flag&1)
+	if(dname)
+	{
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STCALLN);
+		BGBCC_CCXLR3_EmitArgString(ctx, name);
+		BGBCC_CCXLR3_EmitArgString(ctx, dname);
+	}else if(flag&1)
+	{
 		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLNV);
+		BGBCC_CCXLR3_EmitArgString(ctx, name);
+	}
 	else
+	{
 		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLN);
-	BGBCC_CCXLR3_EmitArgString(ctx, name);
+		BGBCC_CCXLR3_EmitArgString(ctx, name);
+	}
 
 	i=BGBCC_CCXL_LookupLocalIndex(ctx, name);
 	if(i<0)
@@ -657,7 +673,24 @@ ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx,
 	j=BGBCC_CCXL_LookupAsRegister(ctx, name, &treg);
 	bty=BGBCC_CCXL_GetRegReturnType(ctx, treg);
 	
-	if(!(flag&1) || BGBCC_CCXL_TypeValueObjectP(ctx, bty))
+	if(dname)
+	{
+		i=BGBCC_CCXL_LookupAsRegister(ctx, dname, &dreg);
+		if(i<0)
+		{
+			BGBCC_CCXL_Error(ctx, "Undeclared Variable %s\n", dname);
+			return(CCXL_STATUS_NO);
+		}
+
+		dty=BGBCC_CCXL_GetRegType(ctx, dreg);
+		if(!BGBCC_CCXL_TypeCompatibleP(ctx, dty, bty) || (flag&2))
+		{
+			dreg2=dreg;
+			BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
+			flag|=2;
+		}
+	}else
+		if(!(flag&1) || BGBCC_CCXL_TypeValueObjectP(ctx, bty))
 	{
 		BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
 	}else
@@ -670,7 +703,17 @@ ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx,
 
 	BGBCC_CCXL_EmitCallOp(ctx, bty, dreg, treg, n);
 	BGBCC_CCXL_StackTransforCallArgs(ctx);
-	if(!(flag&1))
+	if(dname)
+	{
+		BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
+		if(flag&2)
+		{
+			BGBCC_CCXL_EmitConv(ctx, dty, bty, dreg2, dreg);
+			BGBCC_CCXL_RegisterCheckRelease(ctx, dreg2);
+		}
+		BGBCC_CCXL_RegisterCheckRelease(ctx, dreg);
+	}
+	else if(!(flag&1))
 	{
 		BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
 		BGBCC_CCXL_PushRegister(ctx, dreg);
@@ -685,13 +728,22 @@ ccxl_status BGBCC_CCXL_StackCallName(BGBCC_TransState *ctx,
 
 ccxl_status BGBCC_CCXL_StackPopCall(BGBCC_TransState *ctx, int flag)
 {
+	return(BGBCC_CCXL_StackPopCall2(ctx, NULL, flag));
+}
+
+ccxl_status BGBCC_CCXL_StackPopCall2(BGBCC_TransState *ctx,
+	char *dname, int flag)
+{
 	ccxl_register treg, dreg;
 	ccxl_type bty;
 	int i, j, k, n;
 	
 	BGBCC_CCXL_DebugPrintStackLLn(ctx, "PopCall", __FILE__, __LINE__);
 
-	if(flag&1)
+	if(dname)
+	{
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_STCALLP);
+	}else if(flag&1)
 		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLPV);
 	else
 		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CALLP);
@@ -700,7 +752,16 @@ ccxl_status BGBCC_CCXL_StackPopCall(BGBCC_TransState *ctx, int flag)
 	i=BGBCC_CCXL_PopRegister(ctx, &treg);
 	bty=BGBCC_CCXL_GetRegReturnType(ctx, treg);
 
-	if(!(flag&1) || BGBCC_CCXL_TypeValueObjectP(ctx, bty))
+	if(dname)
+	{
+		i=BGBCC_CCXL_LookupAsRegister(ctx, dname, &dreg);
+		if(i<0)
+		{
+			BGBCC_CCXL_Error(ctx, "Undeclared Variable %s\n", dname);
+			return(CCXL_STATUS_NO);
+		}
+	}else
+		if(!(flag&1) || BGBCC_CCXL_TypeValueObjectP(ctx, bty))
 	{
 		BGBCC_CCXL_RegisterAllocTemporary(ctx, bty, &dreg);
 	}else
@@ -712,7 +773,11 @@ ccxl_status BGBCC_CCXL_StackPopCall(BGBCC_TransState *ctx, int flag)
 	BGBCC_CCXL_EmitCallOp(ctx, bty, dreg, treg, n);
 	BGBCC_CCXL_StackTransforCallArgs(ctx);
 
-	if(!(flag&1))
+	if(dname)
+	{
+		BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, dreg);
+	}else if(!(flag&1))
 	{
 		BGBCC_CCXL_EmitCallCsrvOp(ctx, bty, dreg, treg);
 		BGBCC_CCXL_PushRegister(ctx, dreg);

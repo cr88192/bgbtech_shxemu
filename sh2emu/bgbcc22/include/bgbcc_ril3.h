@@ -117,6 +117,10 @@
 #define BGBCC_RIL3OP_EN_3AC		0x5B	//Enable 3AC Output
 
 #define BGBCC_RIL3OP_MOVLDST	0x5C	//Move value between variables.
+#define BGBCC_RIL3OP_STUNOP		0x5D	//Unary op storing in name
+
+#define BGBCC_RIL3OP_STCALLN	0x5E	//Call name, store ret value in name
+#define BGBCC_RIL3OP_STCALLP	0x5F	//Call fptr, store ret value in name
 
 #define BGBCC_RIL3OP_ADD		0x60
 #define BGBCC_RIL3OP_SUB		0x61
