@@ -25,7 +25,7 @@ u32 BGBCC_Float16_ConvertMantissa(u32 i)
 	return(m|e);
 }
 
-BGBCC_API int BGBCC_Float16_Init()
+int BGBCC_Float16_Init()
 {
 	static int init=0;
 	int i, e;
@@ -100,7 +100,7 @@ BGBCC_API int BGBCC_Float16_Init()
 	return(1);
 }
 
-BGBCC_API double BGBCC_DecodeFloat16(u16 val)
+double BGBCC_DecodeFloat16(u16 val)
 {
 	u32 f, h;
 	h=val;
@@ -110,7 +110,7 @@ BGBCC_API double BGBCC_DecodeFloat16(u16 val)
 	return(*(float *)(&f));
 }
 
-BGBCC_API u16 BGBCC_EncodeFloat16(double val)
+u16 BGBCC_EncodeFloat16(double val)
 {
 	u16 t;
 	u32 f;
@@ -125,19 +125,19 @@ BGBCC_API u16 BGBCC_EncodeFloat16(double val)
 	return(t);
 }
 
-BGBCC_API double BGBCC_DecodeFloat16F(u16 val)
+double BGBCC_DecodeFloat16F(u16 val)
 {
 	u32 f;
 	f=bgbcc_float16_exponenttable[val>>10]|((val&0x3FF)<<13);
 	return(*(float *)(&f));
 }
 
-BGBCC_API double BGBCC_DecodeFloat12(u16 val)
+double BGBCC_DecodeFloat12(u16 val)
 {
 	return(BGBCC_DecodeFloat16(val<<4));
 }
 
-BGBCC_API u16 BGBCC_EncodeFloat12(double val)
+u16 BGBCC_EncodeFloat12(double val)
 {
 	int i, j;
 	
@@ -148,12 +148,12 @@ BGBCC_API u16 BGBCC_EncodeFloat12(double val)
 //	return((BGBCC_EncodeFloat16(val)+7)>>4);
 }
 
-BGBCC_API u16 BGBCC_NegFloat16(u16 x)
+u16 BGBCC_NegFloat16(u16 x)
 {
 	return(x^0x8000);
 }
 
-BGBCC_API u16 BGBCC_RcpFloat16(u16 x)
+u16 BGBCC_RcpFloat16(u16 x)
 {
 	int z;
 //	z=0x3C00-(x&0x7FFF);
@@ -163,14 +163,14 @@ BGBCC_API u16 BGBCC_RcpFloat16(u16 x)
 	return(z);
 }
 
-BGBCC_API u16 BGBCC_SqrtFloat16(u16 x)
+u16 BGBCC_SqrtFloat16(u16 x)
 {
 	int z;
 	z=((x-0x3C00)>>1)+0x3C00;
 	return(z);
 }
 
-BGBCC_API u16 BGBCC_AddFloat16(u16 x, u16 y)
+u16 BGBCC_AddFloat16(u16 x, u16 y)
 {
 	int ux, uy, z, k, d;
 	if((x^y)&0x8000)
@@ -214,7 +214,7 @@ BGBCC_API u16 BGBCC_AddFloat16(u16 x, u16 y)
 }
 
 #if 0
-BGBCC_API u16 BGBCC_AddFloat16F(u16 x, u16 y)
+u16 BGBCC_AddFloat16F(u16 x, u16 y)
 {
 	int ux, uy, z, z0, z1, z2, z3;
 	int k0, k1, k2, d0, d1;
@@ -249,7 +249,7 @@ BGBCC_API u16 BGBCC_AddFloat16F(u16 x, u16 y)
 #endif
 
 #if 1
-BGBCC_API u16 BGBCC_AddFloat16F(u16 x, u16 y)
+u16 BGBCC_AddFloat16F(u16 x, u16 y)
 {
 	int ux, uy, z, z0, z1, z2, z3;
 	int k0, k1, k2, d0, d1;
@@ -276,12 +276,12 @@ BGBCC_API u16 BGBCC_AddFloat16F(u16 x, u16 y)
 }
 #endif
 
-BGBCC_API u16 BGBCC_SubFloat16(u16 x, u16 y)
+u16 BGBCC_SubFloat16(u16 x, u16 y)
 {
 	return(BGBCC_AddFloat16(x, y^0x8000));
 }
 
-BGBCC_API u16 BGBCC_MulFloat16(u16 x, u16 y)
+u16 BGBCC_MulFloat16(u16 x, u16 y)
 {
 	int ux, uy, z, k, d;
 
@@ -299,7 +299,7 @@ BGBCC_API u16 BGBCC_MulFloat16(u16 x, u16 y)
 	return(z);
 }
 
-BGBCC_API u16 BGBCC_MulFloat16F(u16 x, u16 y)
+u16 BGBCC_MulFloat16F(u16 x, u16 y)
 {
 	int ux, uy, z;
 
@@ -311,7 +311,7 @@ BGBCC_API u16 BGBCC_MulFloat16F(u16 x, u16 y)
 	return(z);
 }
 
-BGBCC_API u32 BGBCC_MulFloat16F2P(u32 x, u32 y)
+u32 BGBCC_MulFloat16F2P(u32 x, u32 y)
 {
 	int ux, uy, z;
 
@@ -324,7 +324,7 @@ BGBCC_API u32 BGBCC_MulFloat16F2P(u32 x, u32 y)
 	return(z);
 }
 
-BGBCC_API u64 BGBCC_MulFloat16F4P(u64 x, u64 y)
+u64 BGBCC_MulFloat16F4P(u64 x, u64 y)
 {
 	s64 ux, uy, z;
 
@@ -339,7 +339,7 @@ BGBCC_API u64 BGBCC_MulFloat16F4P(u64 x, u64 y)
 	return(z);
 }
 
-BGBCC_API u16 BGBCC_DivFloat16(u16 x, u16 y)
+u16 BGBCC_DivFloat16(u16 x, u16 y)
 {
 	return(BGBCC_MulFloat16(x, BGBCC_RcpFloat16(y)));
 }

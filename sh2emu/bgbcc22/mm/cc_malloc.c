@@ -442,6 +442,13 @@ char *bgbcc_strdup(char *str)
 }
 #endif
 
+int bgbcc_strdup_strcmp(char *s1, char *s2)
+{
+	while(*s1 && (*s1==*s2))
+		{ s1++; s2++; }
+	return(*s1-*s2);
+}
+
 int bgbcc_strdup_i(char *str, char suf)
 {
 	char *s, *t;
@@ -473,7 +480,8 @@ int bgbcc_strdup_i(char *str, char suf)
 	i=bgbcc_str_hash[hi];
 	while(i)
 	{
-		if(!strcmp(bgbcc_str_varr[i], str) &&
+//		if(!strcmp(bgbcc_str_varr[i], str) &&
+		if(!bgbcc_strdup_strcmp(bgbcc_str_varr[i], str) &&
 			(bgbcc_str_sarr[i]==suf))
 				{ return(i); }
 		i=bgbcc_str_carr[i];

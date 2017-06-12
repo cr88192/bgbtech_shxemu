@@ -66,6 +66,8 @@
 // #include "mm/dytf_cons.c"
 // #include "mm/dytf_opr.c"
 
+#include "mm/cc_thread.c"
+
 
 #include "mm/inflate.c"
 #include "mm/deflate.c"

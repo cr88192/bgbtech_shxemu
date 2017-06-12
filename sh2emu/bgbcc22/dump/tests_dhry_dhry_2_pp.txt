@@ -1,7 +1,7 @@
 /*"dhry.h"379*/ typedef enum{Ident_1,Ident_2,Ident_3,Ident_4,Ident_5}
 Enumeration;
-/*"stdio.h"1*/ int printf(char*str,...);
-/*3*/ int strcpy(char*dst,char*src);
+/*"stdio.h"5*/ int printf(char*str,...);
+/*7*/ int strcpy(char*dst,char*src);
 int strcmp(char*dst,char*src);
 /*"dhry.h"394*/ typedef int One_Thirty;
 typedef int One_Fifty;

@@ -1188,7 +1188,7 @@ char *BGBCC_SHXC_DebugRegToStr(BGBCC_TransState *ctx,
 	return(bgbcc_rstrdup(tb));
 }
 
-ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
+ccxl_status BGBCC_SHXC_CompilePrintVirtOp(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
 	BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtOp *op)
 {
@@ -1316,6 +1316,15 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 		fflush(sctx->cgen_log);
 	}
 #endif
+}
+
+ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
+	BGBCC_SHX_Context *sctx,
+	BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtOp *op)
+{
+	char *s0;
+
+	BGBCC_SHXC_CompilePrintVirtOp(ctx, sctx, obj, op);
 
 	sctx->sreg_live=sctx->sreg_held;
 	sctx->sfreg_live=sctx->sfreg_held;
@@ -2206,6 +2215,10 @@ int BGBCC_SHXC_LookupLabelIndex(
 	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
 	int lblid)
 {
+
+	return(BGBCC_SHX_LookupLabelIndex(sctx, lblid));
+
+#if 0
 	int i, j, k;
 	
 	for(i=0; i<sctx->nlbl; i++)
@@ -2214,6 +2227,7 @@ int BGBCC_SHXC_LookupLabelIndex(
 			return(i);
 	}
 	return(-1);
+#endif
 }
 
 int BGBCC_SHXC_LookupLabelImgOffs(
@@ -2572,8 +2586,8 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 
 	sctx=ctx->uctx;
 
-	if(!sctx->cgen_log)
-		sctx->cgen_log=fopen("bgbcc_shxlog.txt", "wt");
+//	if(!sctx->cgen_log)
+//		sctx->cgen_log=fopen("bgbcc_shxlog.txt", "wt");
 
 	BGBCC_SHX_SetSectionName(sctx, ".bss");
 	BGBCC_SHX_EmitNamedLabel(sctx, "__bss_start");

@@ -61,6 +61,24 @@ byte bgbpp_seen_isabort=0;
 
 BGBPP_Def *bgbpp_freedef=NULL;
 
+int bgbpp_strcmp(char *s1, char *s2)
+{
+#if 1
+	if(*s1 && (*s1==*s2))	{ s1++; s2++; }
+	else					{ return(*s1-*s2); }
+	if(*s1 && (*s1==*s2))	{ s1++; s2++; }
+	else					{ return(*s1-*s2); }
+	if(*s1 && (*s1==*s2))	{ s1++; s2++; }
+	else					{ return(*s1-*s2); }
+	if(*s1 && (*s1==*s2))	{ s1++; s2++; }
+	else					{ return(*s1-*s2); }
+#endif
+
+	while(*s1 && (*s1==*s2))
+		{ s1++; s2++; }
+	return(*s1-*s2);
+}
+
 int BGBPP_CheckIncludeHashName(char *str)
 {
 	int h;
@@ -84,7 +102,7 @@ int BGBPP_CheckIncludeCache(char *str, byte **rbuf, int *rsz)
 	hi=BGBPP_CheckIncludeHashName(str); n=64;
 	while(bgbpp_cache_incname[hi] && ((n--)>0))
 	{
-		if(!strcmp(bgbpp_cache_incname[hi], str))
+		if(!bgbpp_strcmp(bgbpp_cache_incname[hi], str))
 		{
 			if(rbuf)*rbuf=bgbpp_cache_incbuf[hi];
 			if(rsz)*rsz=bgbpp_cache_incsz[hi];
@@ -105,7 +123,7 @@ int BGBPP_AddIncludeCache(char *str, byte *buf, int sz)
 	hi=BGBPP_CheckIncludeHashName(str); n=64;
 	while(bgbpp_cache_incname[hi] && ((n--)>0))
 	{
-		if(!strcmp(bgbpp_cache_incname[hi], str))
+		if(!bgbpp_strcmp(bgbpp_cache_incname[hi], str))
 		{
 			bgbpp_cache_incbuf[hi]=buf;
 			bgbpp_cache_incsz[hi]=sz;
@@ -132,7 +150,7 @@ int BGBPP_AddIncludePathFront(char *str)
 	if(!str)return(-1);
 
 	for(i=0; i<bgbpp_nsinc; i++)
-		if(!strcmp(bgbpp_sinc[i], str))
+		if(!bgbpp_strcmp(bgbpp_sinc[i], str))
 			return(i);
 	i=bgbpp_nsinc++;
 	bgbpp_sinc[i]=strdup(str);
@@ -146,7 +164,7 @@ int BGBPP_AddIncludePathBack(char *str)
 	if(!str)return(-1);
 
 	for(i=0; i<bgbpp_nsinc; i++)
-		if(!strcmp(bgbpp_sinc[i], str))
+		if(!bgbpp_strcmp(bgbpp_sinc[i], str))
 			return(i);
 
 	for(i=bgbpp_nsinc; i>0; i++)
@@ -452,7 +470,7 @@ BGBPP_Def *BGBPP_LookupDefine(BGBCP_ParseState *ctx, char *name)
 	cur=ctx->ppdef[i];
 	while(cur)
 	{
-		if(!strcmp(cur->name, name))
+		if(!bgbpp_strcmp(cur->name, name))
 			return(cur);
 		cur=cur->next;
 	}
@@ -460,7 +478,7 @@ BGBPP_Def *BGBPP_LookupDefine(BGBCP_ParseState *ctx, char *name)
 	cur=bgbpp_sdef;
 	while(cur)
 	{
-		if(!strcmp(cur->name, name))
+		if(!bgbpp_strcmp(cur->name, name))
 			return(cur);
 		cur=cur->next;
 	}
@@ -469,7 +487,7 @@ BGBPP_Def *BGBPP_LookupDefine(BGBCP_ParseState *ctx, char *name)
 		return(NULL);
 
 	s=BGBCP_LookupPPKey(ctx, name);
-	if(s && !strcmp(s, "define"))
+	if(s && !bgbpp_strcmp(s, "define"))
 	{
 		sprintf(buf, "%s:value", name);
 		s=BGBCP_LookupPPKey(ctx, buf);
@@ -480,7 +498,7 @@ BGBPP_Def *BGBPP_LookupDefine(BGBCP_ParseState *ctx, char *name)
 		return(cur);
 	}
 
-	if(s && !strcmp(s, "macro"))
+	if(s && !bgbpp_strcmp(s, "macro"))
 	{
 		sprintf(buf, "%s:value", name);
 		s=BGBCP_LookupPPKey(ctx, buf);
@@ -516,7 +534,7 @@ void BGBPP_DeleteDefine(BGBCP_ParseState *ctx, char *name)
 	cur=ctx->ppdef[i]; prv=NULL;
 	while(cur)
 	{
-		if(!strcmp(cur->name, name))
+		if(!bgbpp_strcmp(cur->name, name))
 		{
 			if(prv)
 			{
@@ -684,7 +702,7 @@ void BGBPP_SendDefines(BGBCP_ParseState *ctx)
 		cur=ctx->ppdef[i];
 		while(cur)
 		{
-//			if(!strcmp(cur->name, name))
+//			if(!bgbpp_strcmp(cur->name, name))
 //				return(cur);
 
 			if(cur->args)
@@ -805,7 +823,7 @@ void BGBPP_Include(BGBCP_ParseState *ctx, char *str)
 
 	for(i=0; i<bgbpp_seen_ninc; i++)
 	{
-		if(!strcmp(bgbpp_seen_incname[i], str))
+		if(!bgbpp_strcmp(bgbpp_seen_incname[i], str))
 			break;
 	}
 	
@@ -879,7 +897,7 @@ void BGBPP_Directive2(BGBCP_ParseState *ctx, char *str)
 	s=BGBCP_TokenCtx(ctx, s, b, &ty);
 	BGBCP_TokenCtx(ctx, s, b2, &ty2);
 
-	if(!strcmp(b, "if"))
+	if(!bgbpp_strcmp(b, "if"))
 	{
 		bgbpp_ifdname2[bgbpp_iflvl2]=bgbcc_strdup(str);
 		bgbpp_iflvl2++;
@@ -887,7 +905,7 @@ void BGBPP_Directive2(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "ifdef"))
+	if(!bgbpp_strcmp(b, "ifdef"))
 	{
 		bgbpp_ifdname2[bgbpp_iflvl2]=bgbcc_strdup(b2);
 		bgbpp_iflvl2++;
@@ -895,7 +913,7 @@ void BGBPP_Directive2(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "ifndef"))
+	if(!bgbpp_strcmp(b, "ifndef"))
 	{
 		bgbpp_ifdname2[bgbpp_iflvl2]=bgbcc_strdup(b2);
 		bgbpp_iflvl2++;
@@ -903,14 +921,14 @@ void BGBPP_Directive2(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "endif"))
+	if(!bgbpp_strcmp(b, "endif"))
 	{
 		bgbpp_iflvl2--;
 //		printf("%s: %d %d\n", str, bgbpp_iflvl, bgbpp_iflvl2);
 		return;
 	}
 
-	if(!strcmp(b, "else"))
+	if(!bgbpp_strcmp(b, "else"))
 	{
 //		if(bgbpp_iflvl2==1)
 		if((bgbpp_iflvl2==1) && !bgbpp_ifmark)
@@ -926,7 +944,7 @@ void BGBPP_Directive2(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "elif"))
+	if(!bgbpp_strcmp(b, "elif"))
 	{
 //		if(bgbpp_iflvl2==1)
 		if((bgbpp_iflvl2==1) && !bgbpp_ifmark)
@@ -999,9 +1017,9 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 	s=BGBCP_TokenCtx(ctx, s, b, &ty);
 	s1=BGBCP_TokenCtx(ctx, s, b2, &ty2);
 
-	if(!strcmp(b, "pragma"))
+	if(!bgbpp_strcmp(b, "pragma"))
 	{
-		if(!strcmp(b2, "once"))
+		if(!bgbpp_strcmp(b2, "once"))
 		{
 			if(!bgbpp_seen_isnew)
 				bgbpp_seen_isabort=1;
@@ -1010,7 +1028,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "error"))
+	if(!bgbpp_strcmp(b, "error"))
 	{
 		s=BGBCP_EatWhiteOnly(s);
 		printf("BGBPP_Directive: %s:%d: #error: %s\n",
@@ -1021,7 +1039,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "warning"))
+	if(!bgbpp_strcmp(b, "warning"))
 	{
 		s=BGBCP_EatWhiteOnly(s);
 		printf("BGBPP_Directive: %s:%d: #warning: \"%s\"\n",
@@ -1032,14 +1050,14 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "include"))
+	if(!bgbpp_strcmp(b, "include"))
 	{
 		i=1; strcpy(b, s);
 //		while(i)i=BGBPP_Line(ctx, b);
 
 		s1=BGBCP_TokenCtx(ctx, b, b2, &ty2);
 
-		if(!strcmp(b2, "<"))
+		if(!bgbpp_strcmp(b2, "<"))
 		{
 //			BGBCP_TokenCtx(ctx, s1, b2, &ty2);
 
@@ -1063,11 +1081,11 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "define"))
+	if(!bgbpp_strcmp(b, "define"))
 	{
 		if(*s1!='(')
 		{
-			if(!strcmp(b2, "_noinclude"))
+			if(!bgbpp_strcmp(b2, "_noinclude"))
 				{ bgbpp_noinclude_p=1; return; }
 
 			while(*s1 && (*s1<=' '))s1++;
@@ -1082,8 +1100,8 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		while(1)
 		{
 			s1=BGBCP_TokenCtx(ctx, s1, b, &ty);
-			if(!strcmp(b, ")"))break;
-			if(!strcmp(b, ","))continue;
+			if(!bgbpp_strcmp(b, ")"))break;
+			if(!bgbpp_strcmp(b, ","))continue;
 
 			ab[n++]=bgbcc_strdup(b);
 		}
@@ -1095,7 +1113,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "define_arch"))
+	if(!bgbpp_strcmp(b, "define_arch"))
 	{
 		if(*s1!='(')
 		{
@@ -1114,7 +1132,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "endif"))
+	if(!bgbpp_strcmp(b, "endif"))
 	{
 		if(bgbpp_ifflag[bgbpp_iflvl]&1)
 		{
@@ -1126,7 +1144,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "else"))
+	if(!bgbpp_strcmp(b, "else"))
 	{
 		if(bgbpp_ifflag[bgbpp_iflvl]&1)
 		{
@@ -1143,7 +1161,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "elif"))
+	if(!bgbpp_strcmp(b, "elif"))
 	{
 #if 0
 		strcpy(b2, s);
@@ -1170,7 +1188,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "ifdef"))
+	if(!bgbpp_strcmp(b, "ifdef"))
 	{
 		bgbpp_ifmark=0;
 		bgbpp_ifflag[bgbpp_iflvl]=0;
@@ -1194,7 +1212,7 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 //		printf("%s: %d %d\n", str, bgbpp_iflvl, bgbpp_iflvl2);
 		return;
 	}
-	if(!strcmp(b, "ifndef"))
+	if(!bgbpp_strcmp(b, "ifndef"))
 	{
 		bgbpp_ifmark=0;
 		bgbpp_ifflag[bgbpp_iflvl]=0;
@@ -1223,13 +1241,13 @@ void BGBPP_Directive(BGBCP_ParseState *ctx, char *str)
 		return;
 	}
 
-	if(!strcmp(b, "undef"))
+	if(!bgbpp_strcmp(b, "undef"))
 	{
 		BGBPP_DeleteDefine(ctx, b2);
 		return;
 	}
 
-	if(!strcmp(b, "if"))
+	if(!bgbpp_strcmp(b, "if"))
 	{
 		i=1;
 		strcpy(b2, s);
@@ -1379,10 +1397,10 @@ int BGBPP_Expand(BGBCP_ParseState *ctx,
 		return(-1);
 	}
 
-	if(!strcmp(op, "defined"))
+	if(!bgbpp_strcmp(op, "defined"))
 	{
 		s=BGBCP_TokenCtx(ctx, s, b, &ty);	//<name> | '('
-		if(!strcmp(b, "("))
+		if(!bgbpp_strcmp(b, "("))
 		{
 			s=BGBCP_TokenCtx(ctx, s, b, &ty); //<name>
 			def=BGBPP_LookupDefine(ctx, b);
@@ -1472,7 +1490,7 @@ int BGBPP_Expand(BGBCP_ParseState *ctx,
 		if(ty==BTK_NAME)
 		{
 			for(i=0; def->args[i]; i++)
-				if(!strcmp(def->args[i], b))
+				if(!bgbpp_strcmp(def->args[i], b))
 					break;
 
 			if(def->args[i])
@@ -1559,7 +1577,7 @@ int BGBPP_Line(BGBCP_ParseState *ctx, char *str)
 		BGBCP_TokenCtx(ctx, s, b2, &ty2);
 
 		if((ty2==BTK_OPERATOR) &&
-			(!strcmp(b2, "##") || !strcmp(b, "%:%:")))
+			(!bgbpp_strcmp(b2, "##") || !bgbpp_strcmp(b, "%:%:")))
 		{
 			if(ty==BTK_NAME)
 			{
@@ -1627,7 +1645,7 @@ int BGBPP_Line(BGBCP_ParseState *ctx, char *str)
 		}
 
 		if((ty==BTK_OPERATOR) && (ctx->lang!=BGBCC_LANG_ASM) &&
-			(!strcmp(b, "#") || !strcmp(b, "%:")))
+			(!bgbpp_strcmp(b, "#") || !bgbpp_strcmp(b, "%:")))
 		{
 			if(ty2==BTK_NAME)
 			{
@@ -1707,12 +1725,12 @@ int BGBPP_LineDigraph(BGBCP_ParseState *ctx, char *str)
 
 		if((ty==BTK_BRACE) || (ty==BTK_OPERATOR))
 		{
-			if(!strcmp(b, "<:"))strcpy(b, "[");
-			if(!strcmp(b, ":>"))strcpy(b, "]");
-			if(!strcmp(b, "<%"))strcpy(b, "{");
-			if(!strcmp(b, "%>"))strcpy(b, "}");
-			if(!strcmp(b, "%:"))strcpy(b, "#");
-			if(!strcmp(b, "%:%:"))strcpy(b, "##");
+			if(!bgbpp_strcmp(b, "<:"))strcpy(b, "[");
+			if(!bgbpp_strcmp(b, ":>"))strcpy(b, "]");
+			if(!bgbpp_strcmp(b, "<%"))strcpy(b, "{");
+			if(!bgbpp_strcmp(b, "%>"))strcpy(b, "}");
+			if(!bgbpp_strcmp(b, "%:"))strcpy(b, "#");
+			if(!bgbpp_strcmp(b, "%:%:"))strcpy(b, "##");
 		}
 
 		t=BGBPP_PrintToken(t, b, ty);

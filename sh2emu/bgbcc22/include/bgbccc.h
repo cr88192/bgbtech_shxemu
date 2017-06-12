@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <math.h>
 
 // #include <bgbgc.h>
 // #include <bgbdy.h>
@@ -300,6 +301,7 @@ extern "C" {
 
 
 #include <bgbcc_endian.h>
+#include <bgbcc_thread.h>
 
 #include <bgbcc_xml.h>
 
@@ -472,6 +474,8 @@ BGBCC_CCXL_RegisterInfo *usort_globals;			//unsorted globals
 BGBCC_CCXL_LiteralInfo *literals[65536];
 int idx_literals[65536];
 int n_literals, m_literals;
+
+int hash_literals[4096];
 
 // BGBCC_CCXL_TypeOverflow *tyovf[1024];
 BGBCC_CCXL_TypeOverflow *tyovf[16384];

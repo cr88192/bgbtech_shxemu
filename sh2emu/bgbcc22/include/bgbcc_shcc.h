@@ -371,15 +371,22 @@ u32 *rlc_id;		//reloc label IDs
 byte *lbl_sec;		//label section
 byte *rlc_sec;		//reloc section
 byte *rlc_ty;		//reloc type
+s32 *lbl_chn;		//label chains
 int nlbl, mlbl;
 int nrlc, mrlc;
 int nvlbl;
 u16 lblrov;			//labels (local/temp)
 
+s32 lbl_hash[1024];		//label chain hash
+
 char **lbln_name;	//named label names
 u32 *lbln_id;		//named label IDs
 int nlbln, mlbln;
 int nvlbln;
+
+u32 *lblstr_ofs;	//named label names
+u32 *lblstr_id;		//named label IDs
+int nlblstr, mlblstr;
 
 // byte reg_idx[BGBCC_SH_MAX_CACHEVAR];
 // byte reg_reg[BGBCC_SH_MAX_CACHEVAR];

@@ -183,7 +183,7 @@ ccxl_status BGBCC_CCXL_EmitCallCsrvOp(BGBCC_TransState *ctx,
 	op->dst=dst;
 	op->srca=src;
 	BGBCC_CCXL_AddVirtOp(ctx, op);
-	BGBCC_CCXL_EmitMarkEndTrace(ctx);
+//	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 	return(0);
 }
 
@@ -251,6 +251,12 @@ ccxl_status BGBCC_CCXL_EmitConv(BGBCC_TransState *ctx,
 	
 	if(ctx->cgif_no3ac)
 		return(0);
+
+	if(dtype.val==stype.val)
+	{
+		BGBCC_CCXL_EmitMov(ctx, dtype, dst, src);
+		return(0);
+	}
 
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, stype) &&
 		BGBCC_CCXL_IsRegDoubleP(ctx, src))

@@ -511,7 +511,7 @@ BCCX_Node *BGBCC_LoadCSourceAST(char *name)
 
 	if(!t)return(NULL);
 
-#if 1
+#if 0
 	if(mod)
 	{
 		sprintf(tb1, "dump/%s_ast.txt", mod);
@@ -523,6 +523,7 @@ BCCX_Node *BGBCC_LoadCSourceAST(char *name)
 		}
 	}
 #endif
+
 	return(t);
 }
 
@@ -542,12 +543,15 @@ int BGBCC_LoadCSourcesCCXL(
 {
 	char tb[256];
 	BGBCC_TransState *ctx;
+	int t0, t1, t2;
 	BCCX_Node *t, *c, *n;
 	byte *buf;
 	fourcc lang;
 	int i, sz, omsz;
 
 	omsz=*rsz;
+
+	BIPRO_ProfilerSetActive(1);
 
 	ctx=bgbcc_malloc(sizeof(BGBCC_TransState));
 	memset(ctx, 0, sizeof(BGBCC_TransState));
@@ -582,8 +586,13 @@ int BGBCC_LoadCSourcesCCXL(
 		t=BGBCC_LoadCSourceAST(names[i]);
 		if(!t)
 			break;
+
+		t0=clock();
 		BGBCC_CCXL_CompileModuleCTX(ctx, names[i], t);
 		BCCX_DeleteTree(t);
+		t1=clock();
+		t2=t1-t0;
+		printf("Compile Module %dms\n", t2);
 		
 		c=ctx->reduce_tmp;
 		ctx->reduce_tmp=NULL;
@@ -617,7 +626,16 @@ int BGBCC_LoadCSourcesCCXL(
 //	sz=BGBCC_FrBC_FlattenImage(ctx, obuf, omsz);
 
 	sz=omsz;
+
+	t0=clock();
 	i=BGBCC_CCXL_FlattenImage(ctx, obuf, &sz, imgfmt);
+	t1=clock();
+	t2=t1-t0;
+	printf("Flatten Image %dms\n", t2);
+
+	BIPRO_ProfilerSetActive(0);
+	BIPRO_ProfileDumpStats();
+
 	if(i<0)return(i);
 	if(*rsz)*rsz=sz;
 	return(0);

@@ -318,6 +318,7 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStruct(
 	BGBCC_TransState *ctx, char *str)
 {
 	BGBCC_CCXL_LiteralInfo *cur;
+	int h, c;
 	int i, j, k;
 	
 	for(i=0; i<ctx->n_literals; i++)
@@ -360,8 +361,32 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructure(
 	BGBCC_TransState *ctx, char *str)
 {
 	BGBCC_CCXL_LiteralInfo *cur;
+	int h, c;
 	int i, j, k;
-	
+
+#if 1
+	h=BGBCC_CCXL_HashName(str);
+	c=ctx->hash_literals[h];
+	while(c>0)
+	{
+		cur=ctx->literals[c];
+		c=cur->hnext_name;
+
+//		if(cur->littype!=CCXL_LITID_STRUCT)
+//			continue;
+		if((cur->littype!=CCXL_LITID_STRUCT) &&
+			(cur->littype!=CCXL_LITID_UNION) &&
+			(cur->littype!=CCXL_LITID_CLASS) &&
+			(cur->littype!=CCXL_LITID_FUNCTION))
+				continue;
+		if(!cur->name)
+			continue;
+		if(!strcmp(cur->name, str))
+			return(cur);
+	}
+#endif
+
+#if 0
 	for(i=0; i<ctx->n_literals; i++)
 	{
 		cur=ctx->literals[i];
@@ -377,6 +402,8 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructure(
 		if(!strcmp(cur->name, str))
 			return(cur);
 	}
+#endif
+
 	return(NULL);
 }
 
@@ -399,6 +426,7 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetStruct(
 	BGBCC_TransState *ctx, char *str)
 {
 	BGBCC_CCXL_LiteralInfo *cur;
+	int h;
 	int i, j, k;
 	
 	cur=BGBCC_CCXL_LookupStruct(ctx, str);
@@ -413,7 +441,11 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetStruct(
 	i=ctx->n_literals++;
 	ctx->literals[i]=cur;
 	cur->litid=i;
-	
+
+	h=BGBCC_CCXL_HashName(str);
+	cur->hnext_name=ctx->hash_literals[h];
+	ctx->hash_literals[h]=i;
+
 	return(cur);
 }
 
@@ -421,6 +453,7 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetUnion(
 	BGBCC_TransState *ctx, char *str)
 {
 	BGBCC_CCXL_LiteralInfo *cur;
+	int h;
 	int i, j, k;
 	
 	cur=BGBCC_CCXL_LookupUnion(ctx, str);
@@ -435,6 +468,10 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetUnion(
 	i=ctx->n_literals++;
 	ctx->literals[i]=cur;
 	cur->litid=i;
+
+	h=BGBCC_CCXL_HashName(str);
+	cur->hnext_name=ctx->hash_literals[h];
+	ctx->hash_literals[h]=i;
 	
 	return(cur);
 }
@@ -443,6 +480,7 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedef2(
 	BGBCC_TransState *ctx, char *str)
 {
 	BGBCC_CCXL_LiteralInfo *cur;
+	int h;
 	int i, j, k;
 	
 	cur=BGBCC_CCXL_LookupTypedef(ctx, str, NULL);
@@ -457,7 +495,11 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedef2(
 	i=ctx->n_literals++;
 	ctx->literals[i]=cur;
 	cur->litid=i;
-	
+
+	h=BGBCC_CCXL_HashName(str);
+	cur->hnext_name=ctx->hash_literals[h];
+	ctx->hash_literals[h]=i;
+
 	return(cur);
 }
 
@@ -525,6 +567,7 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedef(
 	BGBCC_TransState *ctx, char *name, char *sig)
 {
 	BGBCC_CCXL_LiteralInfo *cur;
+	int h;
 	int i, j, k;
 	
 	cur=BGBCC_CCXL_LookupTypedef(ctx, name, sig);
@@ -540,6 +583,10 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedef(
 	i=ctx->n_literals++;
 	ctx->literals[i]=cur;
 	cur->litid=i;
-	
+
+	h=BGBCC_CCXL_HashName(name);
+	cur->hnext_name=ctx->hash_literals[h];
+	ctx->hash_literals[h]=i;
+
 	return(cur);
 }

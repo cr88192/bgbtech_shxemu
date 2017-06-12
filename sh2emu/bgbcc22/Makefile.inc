@@ -15,6 +15,7 @@ SRCS=\
 	mm/ccx_parse.c \
 	mm/cc_float16.c \
 	mm/cc_malloc.c \
+	mm/cc_thread.c \
 	\
 	ccxl/ccxl_cgif.c \
 	ccxl/ccxl_compile.c \

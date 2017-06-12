@@ -357,8 +357,9 @@ int fxmalgn, fxnalgn;	//fixed min/max size
 struct BGBCC_CCXL_LiteralInfo_s {
 char *name;
 char *sig;
-int littype;	//literal type
-int litid;		//literal ID
+int littype;		//literal type
+int litid;			//literal ID
+int hnext_name;		//next by hashed name
 
 BGBCC_CCXL_LiteralInfo *parent;
 BGBCC_CCXL_RegisterInfo *decl;
@@ -385,3 +386,146 @@ struct BGBCC_CCXL_VirtTr_s {
 int b_ops;			//first opcode
 int n_ops;			//num opcodes
 };
+
+
+
+bccx_cxstate bgbcc_rcst_anytype;
+bccx_cxstate bgbcc_rcst_arch;
+bccx_cxstate bgbcc_rcst_args;
+bccx_cxstate bgbcc_rcst_argdecls;
+bccx_cxstate bgbcc_rcst_array;
+bccx_cxstate bgbcc_rcst_asm_blob;
+bccx_cxstate bgbcc_rcst_assign;
+bccx_cxstate bgbcc_rcst_attr;
+bccx_cxstate bgbcc_rcst_attribute;
+bccx_cxstate bgbcc_rcst_attributes;
+
+bccx_cxstate bgbcc_rcst_begin;
+bccx_cxstate bgbcc_rcst_binary;
+bccx_cxstate bgbcc_rcst_bits;
+bccx_cxstate bgbcc_rcst_blockcomment;
+bccx_cxstate bgbcc_rcst_body;
+bccx_cxstate bgbcc_rcst_boolify;
+bccx_cxstate bgbcc_rcst_break;
+
+bccx_cxstate bgbcc_rcst_case;
+bccx_cxstate bgbcc_rcst_case_default;
+bccx_cxstate bgbcc_rcst_cast;
+bccx_cxstate bgbcc_rcst_charstring;
+bccx_cxstate bgbcc_rcst_class;
+bccx_cxstate bgbcc_rcst_classdef;
+bccx_cxstate bgbcc_rcst_comma;
+bccx_cxstate bgbcc_rcst_complex;
+bccx_cxstate bgbcc_rcst_cond;
+bccx_cxstate bgbcc_rcst_constructor;
+bccx_cxstate bgbcc_rcst_continue;
+
+bccx_cxstate bgbcc_rcst_declspec;
+bccx_cxstate bgbcc_rcst_def;
+bccx_cxstate bgbcc_rcst_defs;
+bccx_cxstate bgbcc_rcst_default;
+bccx_cxstate bgbcc_rcst_defun;
+bccx_cxstate bgbcc_rcst_doc_comment;
+bccx_cxstate bgbcc_rcst_do_while;
+
+bccx_cxstate bgbcc_rcst_else;
+bccx_cxstate bgbcc_rcst_emptyindex;
+bccx_cxstate bgbcc_rcst_enum;
+bccx_cxstate bgbcc_rcst_enumdef;
+bccx_cxstate bgbcc_rcst_expr;
+bccx_cxstate bgbcc_rcst_extern2_lang;
+
+bccx_cxstate bgbcc_rcst_flags;
+bccx_cxstate bgbcc_rcst_float128;
+bccx_cxstate bgbcc_rcst_fn;
+bccx_cxstate bgbcc_rcst_for;
+bccx_cxstate bgbcc_rcst_fproto;
+bccx_cxstate bgbcc_rcst_func;
+bccx_cxstate bgbcc_rcst_funcall;
+
+bccx_cxstate bgbcc_rcst_gcc_asm;
+bccx_cxstate bgbcc_rcst_getindex;
+bccx_cxstate bgbcc_rcst_goto;
+
+bccx_cxstate bgbcc_rcst_if;
+bccx_cxstate bgbcc_rcst_imag;
+bccx_cxstate bgbcc_rcst_impl;
+bccx_cxstate bgbcc_rcst_import;
+bccx_cxstate bgbcc_rcst_ind;
+bccx_cxstate bgbcc_rcst_index;
+bccx_cxstate bgbcc_rcst_init;
+bccx_cxstate bgbcc_rcst_int;
+bccx_cxstate bgbcc_rcst_int128;
+bccx_cxstate bgbcc_rcst_interface;
+bccx_cxstate bgbcc_rcst_iproto;
+
+bccx_cxstate bgbcc_rcst_label;
+bccx_cxstate bgbcc_rcst_lang;
+bccx_cxstate bgbcc_rcst_left;
+bccx_cxstate bgbcc_rcst_linecomment;
+bccx_cxstate bgbcc_rcst_list;
+bccx_cxstate bgbcc_rcst_ln;
+bccx_cxstate bgbcc_rcst_loadindex;
+
+bccx_cxstate bgbcc_rcst_methodcall;
+bccx_cxstate bgbcc_rcst_module;
+bccx_cxstate bgbcc_rcst_msvc_asm;
+
+bccx_cxstate bgbcc_rcst_name;
+bccx_cxstate bgbcc_rcst_namespace;
+bccx_cxstate bgbcc_rcst_new;
+bccx_cxstate bgbcc_rcst_null_statement;
+
+bccx_cxstate bgbcc_rcst_objref;
+bccx_cxstate bgbcc_rcst_offsetof;
+bccx_cxstate bgbcc_rcst_op;
+
+bccx_cxstate bgbcc_rcst_package;
+bccx_cxstate bgbcc_rcst_postdec;
+bccx_cxstate bgbcc_rcst_postinc;
+bccx_cxstate bgbcc_rcst_pragma;
+bccx_cxstate bgbcc_rcst_predec;
+bccx_cxstate bgbcc_rcst_preinc;
+bccx_cxstate bgbcc_rcst_property;
+bccx_cxstate bgbcc_rcst_proto;
+
+bccx_cxstate bgbcc_rcst_real;
+bccx_cxstate bgbcc_rcst_ref;
+bccx_cxstate bgbcc_rcst_rest;
+bccx_cxstate bgbcc_rcst_return;
+bccx_cxstate bgbcc_rcst_right;
+
+bccx_cxstate bgbcc_rcst_sharpcall;
+bccx_cxstate bgbcc_rcst_size;
+bccx_cxstate bgbcc_rcst_sizeof;
+bccx_cxstate bgbcc_rcst_sizeof_expr;
+bccx_cxstate bgbcc_rcst_step;
+bccx_cxstate bgbcc_rcst_string;
+bccx_cxstate bgbcc_rcst_struct;
+bccx_cxstate bgbcc_rcst_structs;
+bccx_cxstate bgbcc_rcst_subarch;
+bccx_cxstate bgbcc_rcst_super;
+bccx_cxstate bgbcc_rcst_switch;
+bccx_cxstate bgbcc_rcst_s_proto;
+
+bccx_cxstate bgbcc_rcst_then;
+bccx_cxstate bgbcc_rcst_throw;
+bccx_cxstate bgbcc_rcst_tokens;
+bccx_cxstate bgbcc_rcst_try_catch;
+bccx_cxstate bgbcc_rcst_tyexpr;
+bccx_cxstate bgbcc_rcst_type;
+bccx_cxstate bgbcc_rcst_types;
+bccx_cxstate bgbcc_rcst_tysuf;
+
+bccx_cxstate bgbcc_rcst_unary;
+bccx_cxstate bgbcc_rcst_union;
+bccx_cxstate bgbcc_rcst_using;
+
+bccx_cxstate bgbcc_rcst_value;
+bccx_cxstate bgbcc_rcst_value_hi;
+bccx_cxstate bgbcc_rcst_value_lo;
+bccx_cxstate bgbcc_rcst_var;
+bccx_cxstate bgbcc_rcst_vars;
+bccx_cxstate bgbcc_rcst_vector_ref;
+
+bccx_cxstate bgbcc_rcst_while;

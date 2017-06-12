@@ -1,7 +1,7 @@
 <module lang="C" arch="SH">
   <types>
     <var name="Enumeration">
-      <type flags=0 ind=0 name="GS1"/>
+      <type flags=0 ind=0 name="GSD2BABE71_1"/>
     </var>
     <var name="One_Thirty">
       <type flags=0 ind=0 name="int"/>
@@ -45,7 +45,7 @@
     </var>
   </types>
   <structs>
-    <enum name="GS1">
+    <enum name="GSD2BABE71_1">
       <defs>
         <def name="Ident_1" value=0/>
       </defs>
@@ -72,7 +72,7 @@
       <body>
         <vars fn="dhry.h" ln=402>
           <var name="Enum_Comp">
-            <type flags=0 ind=0 name="GS1"/>
+            <type flags=0 ind=0 name="GSD2BABE71_1"/>
           </var>
         </vars>
       </body>
@@ -81,7 +81,7 @@
       <body>
         <vars fn="dhry.h" ln=402>
           <var name="E_Comp_2">
-            <type flags=0 ind=0 name="GS1"/>
+            <type flags=0 ind=0 name="GSD2BABE71_1"/>
           </var>
         </vars>
       </body>
@@ -97,7 +97,7 @@
     </struct>
   </structs>
   <body>
-    <vars fn="stdio.h" ln=1>
+    <vars fn="stdio.h" ln=5>
       <proto name="printf">
         <type flags=0 ind=0 name="int"/>
         <args>
@@ -108,7 +108,7 @@
         </args>
       </proto>
     </vars>
-    <vars fn="stdio.h" ln=3>
+    <vars fn="stdio.h" ln=7>
       <proto name="strcpy">
         <type flags=0 ind=0 name="int"/>
         <args>
@@ -121,7 +121,7 @@
         </args>
       </proto>
     </vars>
-    <vars fn="stdio.h" ln=3>
+    <vars fn="stdio.h" ln=7>
       <proto name="strcmp">
         <type flags=0 ind=0 name="int"/>
         <args>
@@ -212,12 +212,12 @@
       <argdecls>
         <vars>
           <var name="Enum_Val_Par">
-            <type flags=0 ind=0 name="GS1"/>
+            <type flags=0 ind=0 name="GSD2BABE71_1"/>
           </var>
         </vars>
         <vars>
           <var name="Enum_Ref_Par">
-            <type flags=0 ind=1 name="GS1"/>
+            <type flags=0 ind=1 name="GSD2BABE71_1"/>
           </var>
         </vars>
       </argdecls>
@@ -543,21 +543,12 @@
       <argdecls>
         <vars>
           <var name="Arr_1_Par_Ref">
-            <type flags=0 ind=0 name="int">
-              <size>
-                <int value=50/>
-              </size>
-            </type>
+            <type flags=0 ind=0 name="Arr_1_Dim"/>
           </var>
         </vars>
         <vars>
           <var name="Arr_2_Par_Ref">
-            <type flags=0 ind=0 name="int">
-              <size>
-                <int value=50/>
-                <int value=50/>
-              </size>
-            </type>
+            <type flags=0 ind=0 name="Arr_2_Dim"/>
           </var>
         </vars>
         <vars>
@@ -639,7 +630,7 @@
           </if>
         </begin>
       </body>
-      <type flags=0 ind=0 name="GS1"/>
+      <type flags=0 ind=0 name="GSD2BABE71_1"/>
       <args>
         <var name="Ch_1_Par_Val">
           <type flags=0 ind=0 name="int"/>
@@ -860,20 +851,12 @@
       <argdecls>
         <vars>
           <var name="Str_1_Par_Ref">
-            <type flags=0 ind=0 name="char">
-              <size>
-                <int value=31/>
-              </size>
-            </type>
+            <type flags=0 ind=0 name="Str_30"/>
           </var>
         </vars>
         <vars>
           <var name="Str_2_Par_Ref">
-            <type flags=0 ind=0 name="char">
-              <size>
-                <int value=31/>
-              </size>
-            </type>
+            <type flags=0 ind=0 name="Str_30"/>
           </var>
         </vars>
       </argdecls>
@@ -883,7 +866,7 @@
         <begin tokens=26>
           <vars fn="tests/dhry/dhry_2.c" ln=181>
             <var name="Enum_Loc">
-              <type flags=0 ind=0 name="GS1"/>
+              <type flags=0 ind=0 name="GSD2BABE71_1"/>
             </var>
           </vars>
           <assign fn="tests/dhry/dhry_2.c" ln=185>
@@ -931,7 +914,7 @@
       <argdecls>
         <vars>
           <var name="Enum_Par_Val">
-            <type flags=0 ind=0 name="GS1"/>
+            <type flags=0 ind=0 name="GSD2BABE71_1"/>
           </var>
         </vars>
       </argdecls>

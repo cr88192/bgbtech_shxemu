@@ -989,6 +989,7 @@ int BGBCC_SHXC_EmitLabelFlushFpRegisters(
 
 		sctx->fregalc_map[i].val=-1;
 		sctx->fregalc_utcnt[i]=0;
+		sctx->fregalc_ltcnt[i]=0;
 		sctx->fregalc_dirty&=~(1<<i);
 		sctx->fregalc_live&=~(1<<i);
 	}

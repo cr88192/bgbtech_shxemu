@@ -452,6 +452,106 @@ int BGBCP_PeekChar(char **str)
 	return(i);
 }
 
+#if 0
+int bgbcp_strcmp_chk4(char *s1, char *s2)
+{
+	u32 a, b, c;
+	a=*(u32 *)s1;
+	b=*(u32 *)s2;
+	c=a-b;
+	if(c)return(1);
+	if((a-0x01010101)&0x80808080U)
+		return(1);
+	return(0);
+
+#if 0
+	c=	((a&0x000000FFU)-1)|
+		((a&0x0000FF00U)-1)|
+		((a&0x00FF0000U)-1)|
+		((a&0xFF000000U)-1);
+	return(c>>31);
+//	return((c>>24)==0xFF);
+#endif
+}
+#endif
+
+int bgbcp_strcmp(char *s1, char *s2)
+{
+//	u32 a, b, c;
+
+#if 1
+	if(*s1 && (*s1==*s2))	{ s1++; s2++; }
+	else					{ return(*s1-*s2); }
+	if(*s1 && (*s1==*s2))	{ s1++; s2++; }
+	else					{ return(*s1-*s2); }
+	if(*s1 && (*s1==*s2))	{ s1++; s2++; }
+	else					{ return(*s1-*s2); }
+	if(*s1 && (*s1==*s2))	{ s1++; s2++; }
+	else					{ return(*s1-*s2); }
+#endif
+
+#if 0
+	while(1)
+	{
+		a=*(u32 *)s1;
+		b=*(u32 *)s2;
+		if(a-b)break;
+		if((a-0x01010101)&0x80808080U)
+			break;
+		s1+=4; s2+=4;
+	}
+#endif
+
+#if 1
+//	while(!bgbcp_strcmp_chk4(s1, s2))
+//		{ s1+=4; s2+=4; }
+	while(*s1 && (*s1==*s2))
+		{ s1++; s2++; }
+	return(*s1-*s2);
+#endif
+
+#if 0
+	while(1)
+	{
+		if(!s1[0] || (s1[0]!=s2[0]))
+			{ return(s1[0]-s2[0]); }
+		if(!s1[1] || (s1[1]!=s2[1]))
+			{ return(s1[1]-s2[1]); }
+		if(!s1[2] || (s1[2]!=s2[2]))
+			{ return(s1[2]-s2[2]); }
+		if(!s1[3] || (s1[3]!=s2[3]))
+			{ return(s1[3]-s2[3]); }
+		s1+=4; s2+=4;
+	}
+#endif
+}
+
+int bgbcp_strcmp1(char *s1, char *s2)
+{
+	return((*(s16 *)s1)-(*(s16 *)s2));
+}
+
+int bgbcp_strcmp2(char *s1, char *s2)
+{
+	int i;
+	i=(*(s16 *)s1)-(*(s16 *)s2);
+	if(i)return(i);
+	return(s1[2]-s2[2]);
+}
+
+int bgbcp_strcmp3(char *s1, char *s2)
+{
+	return((*(s32 *)s1)-(*(s32 *)s2));
+}
+
+int bgbcp_strcmp4(char *s1, char *s2)
+{
+	int i;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	return(s1[4]-s2[4]);
+}
+
 int BGBCP_StrlenUTF8(char *str)
 {
 	char *s;
@@ -666,8 +766,11 @@ int BGBCP_NameInitChar(int c, int lang)
 
 	int i;
 
-	if((c>='a') && (c<='z'))return(1);
-	if((c>='A') && (c<='Z'))return(1);
+	if(((u32)(c-'a'))<=((u32)('z'-'a')))	return(1);
+	if(((u32)(c-'A'))<=((u32)('Z'-'A')))	return(1);
+
+//	if((c>='a') && (c<='z'))return(1);
+//	if((c>='A') && (c<='Z'))return(1);
 	if(c=='_')return(1);
 	if(c=='$')return(1);
 	
@@ -693,8 +796,11 @@ int BGBCP_NameInitChar(int c, int lang)
 
 int BGBCP_NameChar(int c, int lang)
 {
-	if((c>='0') && (c<='9'))return(1);
-	if(BGBCP_NameInitChar(c, lang))return(1);
+	if(((u32)(c-'a'))<=((u32)('z'-'a')))	return(1);
+	if(((u32)(c-'A'))<=((u32)('Z'-'A')))	return(1);
+	if(((u32)(c-'0'))<=((u32)('9'-'0')))	return(1);
+	if(c=='_')return(1);
+	if(c=='$')return(1);
 
 	if(lang==BGBCC_LANG_ASM)
 	{
@@ -703,6 +809,12 @@ int BGBCP_NameChar(int c, int lang)
 		if(c=='-')return(1);
 		if(c=='@')return(1);
 	}
+
+	if(c<128)return(0);
+
+//	if((c>='0') && (c<='9'))return(1);
+	if(BGBCP_NameInitChar(c, lang))return(1);
+
 
 	return(0);
 }
@@ -721,16 +833,21 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 	}
 	t=b; te=t+sz-2;
 
-	i=BGBCP_PeekChar(&s);
+	if((i=*s)&0x80)
+		i=BGBCP_PeekChar(&s);
+//	i=BGBCP_PeekChar(&s);
 	if(BGBCP_NameInitChar(i, lang))
 	{
 		while(t<te)
 		{
 			s1=s;
-			i=BGBCP_ParseChar(&s);
+//			i=BGBCP_ParseChar(&s);
+			if((i=*s)&0x80)		{ i=BGBCP_ParseChar(&s); }
+				else			{ s++; }
 			if(!BGBCP_NameChar(i, lang))
 				{ s=s1; break; }
-			BGBCP_EmitChar(&t, i);
+			if(i>>7)	{ BGBCP_EmitChar(&t, i); }
+				else	{ *t++=i; }
 		}
 
 		*t++=0;
@@ -739,7 +856,8 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		return(s);
 	}
 
-	if((*s>='0') && (*s<='9'))
+//	if((*s>='0') && (*s<='9'))
+	if(((u32)(i-'0'))<=('9'-'0'))
 	{
 		if((s[0]=='0') && (s[1]=='x'))
 		{
@@ -956,6 +1074,16 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		return(s);
 	}
 
+	if((*s==',') || (*s==';') || ((*s=='.') && (s[1]!='.')))
+	{
+		*t++=*s++;
+		*t++=0;
+
+//		kprint("token: %p '%s'\n", s, b);
+		*ty=BTK_SEPERATOR;
+		return(s);
+	}
+
 	if(!strncmp(s, "...", 3))
 	{
 		*t++=*s++;
@@ -964,16 +1092,6 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		*t++=0;
 
 		*ty=BTK_MISC;
-		return(s);
-	}
-
-	if((*s==',') || (*s==';') || ((*s=='.') && (s[1]!='.')))
-	{
-		*t++=*s++;
-		*t++=0;
-
-//		kprint("token: %p '%s'\n", s, b);
-		*ty=BTK_SEPERATOR;
 		return(s);
 	}
 

@@ -27,6 +27,8 @@ typedef struct BCCX_ReadStream_s *BCCX_ReadStream;
 
 typedef void *BCCX_ReadPos;
 
+typedef int bccx_cxstate;
+
 union BCCX_AttrVal_u {
 char *s;
 void *p;

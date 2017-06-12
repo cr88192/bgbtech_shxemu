@@ -15,7 +15,8 @@ CC_OUTTOOL=cl /Fe
 # MACHTYPE=$(shell echo $MACHTYPE)
 # MACHTYPE=$(shell ./getmachine.sh)
 
-CFLAGS=/Iinclude /I../include /Z7
+CFLAGS=/Iinclude /I../include /Zi
+# CFLAGS=/Iinclude /I../include /Zi /O2 /link /INCREMENTAL:NO
 DLL_CFLAGS=$(CFLAGS) /DBGBCC_DLL
 # /DMACHTYPE="\"$(MACHTYPE)\""
 CFLAGS_META=/DBGBCC_BGBMETA $(DLL_CFLAGS)

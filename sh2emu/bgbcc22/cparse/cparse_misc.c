@@ -22,14 +22,14 @@ BCCX_Node *BGBCP_FunArgs(BGBCP_ParseState *ctx, char **str)
 		BGBCP_Token(s, b, &ty);
 		if(ty==BTK_NULL)break;		
 		if((ty==BTK_BRACE) &&
-			(!strcmp(b, ")") || !strcmp(b, "]") ||
-			!strcmp(b, "}")))
+			(!bgbcp_strcmp1(b, ")") || !bgbcp_strcmp1(b, "]") ||
+			!bgbcp_strcmp1(b, "}")))
 		{
 			s=BGBCP_Token(s, b, &ty);
 			break;
 		}
 
-		if((ty==BTK_SEPERATOR) && !strcmp(b, ","))
+		if((ty==BTK_SEPERATOR) && !bgbcp_strcmp1(b, ","))
 		{
 			s=BGBCP_Token(s, b, &ty);
 			continue;
@@ -53,14 +53,14 @@ BCCX_Node *BGBCP_FunArgs(BGBCP_ParseState *ctx, char **str)
 
 		BGBCP_Token(s, b, &ty);
 		if((ty==BTK_BRACE) &&
-			(!strcmp(b, ")") || !strcmp(b, "]") ||
-			!strcmp(b, "}")))
+			(!bgbcp_strcmp1(b, ")") || !bgbcp_strcmp1(b, "]") ||
+			!bgbcp_strcmp1(b, "}")))
 		{
 			s=BGBCP_Token(s, b, &ty);
 			break;
 		}
 
-		if(strcmp(b, ","))
+		if(bgbcp_strcmp1(b, ","))
 		{
 			BGBCP_Error(s, "BGBCP_FunArgs: "
 				"Invalid Token '%s'\n", b);
@@ -87,7 +87,7 @@ BCCX_Node *BGBCP_GenArgs(BGBCP_ParseState *ctx, char **str)
 		b[0]=0;
 		BGBCP_TokenGen(s, b, &ty);
 		if(ty==BTK_NULL)break;
-		if((ty==BTK_BRACE) && !strcmp(b, ">"))
+		if((ty==BTK_BRACE) && !bgbcp_strcmp1(b, ">"))
 		{
 			s=BGBCP_Token(s, b, &ty);
 			break;
@@ -98,13 +98,13 @@ BCCX_Node *BGBCP_GenArgs(BGBCP_ParseState *ctx, char **str)
 		lst=BCCX_AddEnd2(lst, &lste, n);
 
 		BGBCP_TokenGen(s, b, &ty);
-		if((ty==BTK_BRACE) && !strcmp(b, ">"))
+		if((ty==BTK_BRACE) && !bgbcp_strcmp1(b, ">"))
 		{
 			s=BGBCP_Token(s, b, &ty);
 			break;
 		}
 
-		if(strcmp(b, ","))
+		if(bgbcp_strcmp1(b, ","))
 		{
 			BGBCP_Error(s, "BGBCP_FunArgs: "
 				"Invalid Token '%s'\n", b);
@@ -143,7 +143,7 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 	dt=(1000.0*(t1-t0))/CLOCKS_PER_SEC;
 	printf("PreProc took %dms\n", dt);
 
-#if 1
+#if 0
 	if(bgbpp_err)
 	{
 		sprintf(b, "dump/%s_pp_err.txt", modname);
@@ -178,7 +178,7 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 	dt=(1000.0*(t1-t0))/CLOCKS_PER_SEC;
 	printf("Parse took %dms\n", dt);
 
-#if 1
+#if 0
 	memset(tbuf, 0, 1<<24);
 
 //	BS1_TY_PrintLN(t);
@@ -215,69 +215,69 @@ fourcc BGBCP_LangForName(char *name)
 
 	if(name)
 	{
-		if(!strcmp(name, "C"))lang=BGBCC_LANG_C;
-		if(!strcmp(name, "CPP"))lang=BGBCC_LANG_CPP;
-		if(!strcmp(name, "C++"))lang=BGBCC_LANG_CPP;
-		if(!strcmp(name, "C#"))lang=BGBCC_LANG_CS;
-		if(!strcmp(name, "CS"))lang=BGBCC_LANG_CS;
-		if(!strcmp(name, "BS"))lang=BGBCC_LANG_BS;
-		if(!strcmp(name, "BS2"))lang=BGBCC_LANG_BS2;
-		if(!strcmp(name, "Java"))lang=BGBCC_LANG_JAVA;
-		if(!strcmp(name, "S"))lang=BGBCC_LANG_ASM;
-		if(!strcmp(name, "ASM"))lang=BGBCC_LANG_ASM;
+		if(!bgbcp_strcmp(name, "C"))lang=BGBCC_LANG_C;
+		if(!bgbcp_strcmp(name, "CPP"))lang=BGBCC_LANG_CPP;
+		if(!bgbcp_strcmp(name, "C++"))lang=BGBCC_LANG_CPP;
+		if(!bgbcp_strcmp(name, "C#"))lang=BGBCC_LANG_CS;
+		if(!bgbcp_strcmp(name, "CS"))lang=BGBCC_LANG_CS;
+		if(!bgbcp_strcmp(name, "BS"))lang=BGBCC_LANG_BS;
+		if(!bgbcp_strcmp(name, "BS2"))lang=BGBCC_LANG_BS2;
+		if(!bgbcp_strcmp(name, "Java"))lang=BGBCC_LANG_JAVA;
+		if(!bgbcp_strcmp(name, "S"))lang=BGBCC_LANG_ASM;
+		if(!bgbcp_strcmp(name, "ASM"))lang=BGBCC_LANG_ASM;
 		if(lang)return(lang);
 
-		if(!strcmp(name, "c"))lang=BGBCC_LANG_C;
-		if(!strcmp(name, "cpp"))lang=BGBCC_LANG_CPP;
-		if(!strcmp(name, "c++"))lang=BGBCC_LANG_CPP;
-		if(!strcmp(name, "c#"))lang=BGBCC_LANG_CS;
-		if(!strcmp(name, "cs"))lang=BGBCC_LANG_CS;
-		if(!strcmp(name, "bs"))lang=BGBCC_LANG_BS;
-		if(!strcmp(name, "bs2"))lang=BGBCC_LANG_BS2;
-		if(!strcmp(name, "java"))lang=BGBCC_LANG_JAVA;
-		if(!strcmp(name, "s"))lang=BGBCC_LANG_ASM;
-		if(!strcmp(name, "asm"))lang=BGBCC_LANG_ASM;
+		if(!bgbcp_strcmp(name, "c"))lang=BGBCC_LANG_C;
+		if(!bgbcp_strcmp(name, "cpp"))lang=BGBCC_LANG_CPP;
+		if(!bgbcp_strcmp(name, "c++"))lang=BGBCC_LANG_CPP;
+		if(!bgbcp_strcmp(name, "c#"))lang=BGBCC_LANG_CS;
+		if(!bgbcp_strcmp(name, "cs"))lang=BGBCC_LANG_CS;
+		if(!bgbcp_strcmp(name, "bs"))lang=BGBCC_LANG_BS;
+		if(!bgbcp_strcmp(name, "bs2"))lang=BGBCC_LANG_BS2;
+		if(!bgbcp_strcmp(name, "java"))lang=BGBCC_LANG_JAVA;
+		if(!bgbcp_strcmp(name, "s"))lang=BGBCC_LANG_ASM;
+		if(!bgbcp_strcmp(name, "asm"))lang=BGBCC_LANG_ASM;
 		if(lang)return(lang);
 
 		s=name+strlen(name);
 		while((s>name) && (*s!='.'))s--;
 
-		if(!strcmp(s, ".c"))lang=BGBCC_LANG_C;
-		if(!strcmp(s, ".h"))lang=BGBCC_LANG_C;
+		if(!bgbcp_strcmp(s, ".c"))lang=BGBCC_LANG_C;
+		if(!bgbcp_strcmp(s, ".h"))lang=BGBCC_LANG_C;
 
-		if(!strcmp(s, ".cpp"))lang=BGBCC_LANG_CPP;
-		if(!strcmp(s, ".hpp"))lang=BGBCC_LANG_CPP;
-		if(!strcmp(s, ".cs"))lang=BGBCC_LANG_CS;
-		if(!strcmp(s, ".java"))lang=BGBCC_LANG_JAVA;
+		if(!bgbcp_strcmp(s, ".cpp"))lang=BGBCC_LANG_CPP;
+		if(!bgbcp_strcmp(s, ".hpp"))lang=BGBCC_LANG_CPP;
+		if(!bgbcp_strcmp(s, ".cs"))lang=BGBCC_LANG_CS;
+		if(!bgbcp_strcmp(s, ".java"))lang=BGBCC_LANG_JAVA;
 
-		if(!strcmp(s, ".bs"))lang=BGBCC_LANG_BS;
-		if(!strcmp(s, ".js"))lang=BGBCC_LANG_BS;
-		if(!strcmp(s, ".es"))lang=BGBCC_LANG_BS;
-		if(!strcmp(s, ".bs2"))lang=BGBCC_LANG_BS2;
+		if(!bgbcp_strcmp(s, ".bs"))lang=BGBCC_LANG_BS;
+		if(!bgbcp_strcmp(s, ".js"))lang=BGBCC_LANG_BS;
+		if(!bgbcp_strcmp(s, ".es"))lang=BGBCC_LANG_BS;
+		if(!bgbcp_strcmp(s, ".bs2"))lang=BGBCC_LANG_BS2;
 
-		if(!strcmp(s, ".s"))lang=BGBCC_LANG_ASM;
-		if(!strcmp(s, ".asm"))lang=BGBCC_LANG_ASM;
+		if(!bgbcp_strcmp(s, ".s"))lang=BGBCC_LANG_ASM;
+		if(!bgbcp_strcmp(s, ".asm"))lang=BGBCC_LANG_ASM;
 
-		if(!strcmp(s, ".C"))lang=BGBCC_LANG_C;
-		if(!strcmp(s, ".H"))lang=BGBCC_LANG_C;
+		if(!bgbcp_strcmp(s, ".C"))lang=BGBCC_LANG_C;
+		if(!bgbcp_strcmp(s, ".H"))lang=BGBCC_LANG_C;
 
-		if(!strcmp(s, ".CPP"))lang=BGBCC_LANG_CPP;
-		if(!strcmp(s, ".HPP"))lang=BGBCC_LANG_CPP;
-		if(!strcmp(s, ".CS"))lang=BGBCC_LANG_CS;
-		if(!strcmp(s, ".JAVA"))lang=BGBCC_LANG_JAVA;
+		if(!bgbcp_strcmp(s, ".CPP"))lang=BGBCC_LANG_CPP;
+		if(!bgbcp_strcmp(s, ".HPP"))lang=BGBCC_LANG_CPP;
+		if(!bgbcp_strcmp(s, ".CS"))lang=BGBCC_LANG_CS;
+		if(!bgbcp_strcmp(s, ".JAVA"))lang=BGBCC_LANG_JAVA;
 
-		if(!strcmp(s, ".BS"))lang=BGBCC_LANG_BS;
-		if(!strcmp(s, ".JS"))lang=BGBCC_LANG_BS;
-		if(!strcmp(s, ".ES"))lang=BGBCC_LANG_BS;
-		if(!strcmp(s, ".BS2"))lang=BGBCC_LANG_BS2;
+		if(!bgbcp_strcmp(s, ".BS"))lang=BGBCC_LANG_BS;
+		if(!bgbcp_strcmp(s, ".JS"))lang=BGBCC_LANG_BS;
+		if(!bgbcp_strcmp(s, ".ES"))lang=BGBCC_LANG_BS;
+		if(!bgbcp_strcmp(s, ".BS2"))lang=BGBCC_LANG_BS2;
 
-		if(!strcmp(s, ".S"))lang=BGBCC_LANG_ASM;
-		if(!strcmp(s, ".ASM"))lang=BGBCC_LANG_ASM;
+		if(!bgbcp_strcmp(s, ".S"))lang=BGBCC_LANG_ASM;
+		if(!bgbcp_strcmp(s, ".ASM"))lang=BGBCC_LANG_ASM;
 
-		if(!strcmp(s, ".ril"))lang=BGBCC_IMGFMT_RIL3;
-		if(!strcmp(s, ".RIL"))lang=BGBCC_IMGFMT_RIL3;
-		if(!strcmp(s, ".ril3"))lang=BGBCC_IMGFMT_RIL3;
-		if(!strcmp(s, ".RIL3"))lang=BGBCC_IMGFMT_RIL3;
+		if(!bgbcp_strcmp(s, ".ril"))lang=BGBCC_IMGFMT_RIL3;
+		if(!bgbcp_strcmp(s, ".RIL"))lang=BGBCC_IMGFMT_RIL3;
+		if(!bgbcp_strcmp(s, ".ril3"))lang=BGBCC_IMGFMT_RIL3;
+		if(!bgbcp_strcmp(s, ".RIL3"))lang=BGBCC_IMGFMT_RIL3;
 	}
 	
 	return(lang);
@@ -311,25 +311,25 @@ fourcc BGBCP_ArchForName(char *name)
 	
 	i=0;
 
-	if(!strcmp(name, "any"))		i=BGBCC_ARCH_DEFAULT;
-	if(!strcmp(name, "default"))	i=BGBCC_ARCH_DEFAULT;
+	if(!bgbcp_strcmp(name, "any"))		i=BGBCC_ARCH_DEFAULT;
+	if(!bgbcp_strcmp(name, "default"))	i=BGBCC_ARCH_DEFAULT;
 
-	if(!strcmp(name, "x86"))	i=BGBCC_ARCH_X86;
-	if(!strcmp(name, "X86"))	i=BGBCC_ARCH_X86;
+	if(!bgbcp_strcmp(name, "x86"))	i=BGBCC_ARCH_X86;
+	if(!bgbcp_strcmp(name, "X86"))	i=BGBCC_ARCH_X86;
 
-	if(!strcmp(name, "x64"))	i=BGBCC_ARCH_X64;
-	if(!strcmp(name, "x86-64"))	i=BGBCC_ARCH_X64;
-	if(!strcmp(name, "x86_64"))	i=BGBCC_ARCH_X64;
-	if(!strcmp(name, "X64"))	i=BGBCC_ARCH_X64;
-	if(!strcmp(name, "AMD64"))	i=BGBCC_ARCH_X64;
+	if(!bgbcp_strcmp(name, "x64"))	i=BGBCC_ARCH_X64;
+	if(!bgbcp_strcmp(name, "x86-64"))	i=BGBCC_ARCH_X64;
+	if(!bgbcp_strcmp(name, "x86_64"))	i=BGBCC_ARCH_X64;
+	if(!bgbcp_strcmp(name, "X64"))	i=BGBCC_ARCH_X64;
+	if(!bgbcp_strcmp(name, "AMD64"))	i=BGBCC_ARCH_X64;
 
-	if(!strcmp(name, "ARM"))	i=BGBCC_ARCH_ARM;
-	if(!strcmp(name, "PPC"))	i=BGBCC_ARCH_PPC;
-	if(!strcmp(name, "PPC64"))	i=BGBCC_ARCH_PPC64;
+	if(!bgbcp_strcmp(name, "ARM"))	i=BGBCC_ARCH_ARM;
+	if(!bgbcp_strcmp(name, "PPC"))	i=BGBCC_ARCH_PPC;
+	if(!bgbcp_strcmp(name, "PPC64"))	i=BGBCC_ARCH_PPC64;
 
-	if(!strcmp(name, "SH2"))	i=BGBCC_ARCH_SH;
-	if(!strcmp(name, "SH4"))	i=BGBCC_ARCH_SH;
-	if(!strcmp(name, "SH"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "SH2"))	i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "SH4"))	i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "SH"))		i=BGBCC_ARCH_SH;
 
 	return(i);
 }
@@ -340,8 +340,8 @@ fourcc BGBCP_SubArchForName(int arch, char *name)
 
 	i=0;
 
-	if(!strcmp(name, "SH2"))	i=BGBCC_ARCH_SH_SH2;
-	if(!strcmp(name, "SH4"))	i=BGBCC_ARCH_SH_SH4;
+	if(!bgbcp_strcmp(name, "SH2"))	i=BGBCC_ARCH_SH_SH2;
+	if(!bgbcp_strcmp(name, "SH4"))	i=BGBCC_ARCH_SH_SH4;
 
 	return(i);
 }
@@ -533,8 +533,8 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 
 //	printf("PP\n%s\n\n", tbuf);
 
-	sprintf(b, "dump/%s_pp.txt", modname);
-	BGBCC_StoreTextFile(b, tbuf);
+//	sprintf(b, "dump/%s_pp.txt", modname);
+//	BGBCC_StoreTextFile(b, tbuf);
 
 	if(pprs<0)
 	{
@@ -575,20 +575,20 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 		return(NULL);
 	}
 
-	n=BCCX_New3("module",
-		BCCX_New1("types", ctx->types),
-		BCCX_New1("structs", ctx->structs),
-		BCCX_New1("body", n1));
+	n=BCCX_NewCst3(&bgbcc_rcst_module, "module",
+		BCCX_NewCst1(&bgbcc_rcst_types, "types", ctx->types),
+		BCCX_NewCst1(&bgbcc_rcst_structs, "structs", ctx->structs),
+		BCCX_NewCst1(&bgbcc_rcst_body, "body", n1));
 
 	s=BGBCP_NameForLang(ctx->lang);
-	BCCX_Set(n, "lang", s);
+	BCCX_SetCst(n, &bgbcc_rcst_lang, "lang", s);
 
 	s=BGBCP_NameForArch(ctx->arch);
-	BCCX_Set(n, "arch", s);
+	BCCX_SetCst(n, &bgbcc_rcst_arch, "arch", s);
 
 	s=BGBCP_NameForSubArch(ctx->arch, ctx->subarch);
 	if(s)
-		BCCX_Set(n, "subarch", s);
+		BCCX_SetCst(n, &bgbcc_rcst_subarch, "subarch", s);
 
 	free(tbuf);
 

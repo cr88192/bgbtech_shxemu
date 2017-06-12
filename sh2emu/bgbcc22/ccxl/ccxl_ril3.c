@@ -6,6 +6,9 @@ int ril3_nlbl;
 int BGBCC_CCXLR3_LabelToIndex(BGBCC_TransState *ctx, ccxl_label lbl)
 {
 	int i;
+
+//	if(!(ctx->ril_ip))
+
 	
 	for(i=0; i<ril3_nlbl; i++)
 	{
@@ -159,6 +162,37 @@ void BGBCC_CCXLR3_EmitSVLI(
 	BGBCC_CCXLR3_EmitUVLI(ctx, val2);
 }
 
+void BGBCC_CCXLR3_EmitOpVLI(
+	BGBCC_TransState *ctx, u32 val)
+{
+	if(val<0xE0)
+	{
+		BGBCC_CCXLR3_EmitByte(ctx, val);
+	}else if(val<0x1000)
+	{
+		BGBCC_CCXLR3_EmitByte(ctx, 0xE0|(val>>8));
+		BGBCC_CCXLR3_EmitByte(ctx, val&255);
+	}else if(val<0x80000)
+	{
+		BGBCC_CCXLR3_EmitByte(ctx, 0xF0|(val>>16));
+		BGBCC_CCXLR3_EmitByte(ctx, (val>>8)&255);
+		BGBCC_CCXLR3_EmitByte(ctx, (val   )&255);
+	}else if(val<0x4000000)
+	{
+		BGBCC_CCXLR3_EmitByte(ctx, 0xF8|(val>>24));
+		BGBCC_CCXLR3_EmitByte(ctx, (val>>16)&255);
+		BGBCC_CCXLR3_EmitByte(ctx, (val>> 8)&255);
+		BGBCC_CCXLR3_EmitByte(ctx, (val    )&255);
+	}else
+	{
+		BGBCC_CCXLR3_EmitByte(ctx, 0xFC);
+		BGBCC_CCXLR3_EmitByte(ctx, (val>>24)&255);
+		BGBCC_CCXLR3_EmitByte(ctx, (val>>16)&255);
+		BGBCC_CCXLR3_EmitByte(ctx, (val>> 8)&255);
+		BGBCC_CCXLR3_EmitByte(ctx, (val    )&255);
+	}
+}
+
 void BGBCC_CCXLR3_UpdateTextByte(
 	BGBCC_TransState *ctx, int val)
 {
@@ -270,7 +304,8 @@ void BGBCC_CCXLR3_EmitOp(
 	if(!(ctx->ril_ip))
 		return;
 
-	BGBCC_CCXLR3_EmitUVLI(ctx, op);
+//	BGBCC_CCXLR3_EmitUVLI(ctx, op);
+	BGBCC_CCXLR3_EmitOpVLI(ctx, op);
 }
 
 void BGBCC_CCXLR3_EmitArgInt(
@@ -567,6 +602,10 @@ void BGBCC_CCXLR3_EmitArgLabel(
 	BGBCC_TransState *ctx, ccxl_label lbl)
 {
 	int i;
+
+	if(!(ctx->ril_ip))
+		return;
+
 	i=BGBCC_CCXLR3_LabelToIndex(ctx, lbl);
 	BGBCC_CCXLR3_EmitArgInt(ctx, i);
 }
@@ -751,6 +790,45 @@ int BGBCC_CCXLR3_ReadXFVLI(BGBCC_TransState *ctx, byte **rcs,
 //	return(v);
 #endif
 
+}
+
+u32 BGBCC_CCXLR3_ReadOpVLI(BGBCC_TransState *ctx, byte **rcs)
+{
+	byte *cs;
+	u32 tv;
+	int i, j, k;
+	
+	cs=*rcs;
+	i=*cs++;
+	if((i&0xE0)!=0xE0)
+		{ *rcs=cs; return(i); }
+	if(!(i&0x10))
+	{
+		tv=((i&15)<<8)|(*cs++);
+		*rcs=cs; return(tv);
+	}
+	if(!(i&0x08))
+	{
+		tv=((i&7)<<8)|(*cs++);
+		tv=(tv<<8)|(*cs++);
+		*rcs=cs; return(tv);
+	}
+	if(!(i&0x04))
+	{
+		tv=((i&3)<<8)|(*cs++);
+		tv=(tv<<8)|(*cs++);
+		tv=(tv<<8)|(*cs++);
+		*rcs=cs; return(tv);
+	}
+	if(!(i&0x02))
+	{
+		tv=*cs++;
+		tv=(tv<<8)|(*cs++);
+		tv=(tv<<8)|(*cs++);
+		tv=(tv<<8)|(*cs++);
+		*rcs=cs; return(tv);
+	}
+	BGBCC_DBGBREAK
 }
 
 int BGBCC_CCXLR3_ReadTag(BGBCC_TransState *ctx, byte **rcs)
@@ -941,7 +1019,8 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 	int op, tsz;
 	
 	cs=*rcs;
-	op=*cs++;
+//	op=*cs++;
+	op=BGBCC_CCXLR3_ReadOpVLI(ctx, &cs);
 	switch(op)
 	{
 	case BGBCC_RIL3OP_END:
@@ -1200,7 +1279,21 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		}
 		BGBCC_CCXL_StackUnaryOpName(ctx, s0, s1);
 		break;
-		
+	case BGBCC_RIL3OP_STUNOP:
+		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		switch(i0)
+		{
+		case CCXL_UNOP_MOV: s0="+"; break;
+		case CCXL_UNOP_NEG: s0="-"; break;
+		case CCXL_UNOP_NOT: s0="~"; break;
+		case CCXL_UNOP_LNOT: s0="!"; break;
+		case CCXL_UNOP_INC: s0="++"; break;
+		case CCXL_UNOP_DEC: s0="--"; break;
+		}
+		BGBCC_CCXL_StackUnaryOpStore(ctx, s0, s1);
+		break;
+
 	case BGBCC_RIL3OP_LDCONSTV:
 		BGBCC_CCXL_StackPushVoid(ctx);
 		break;

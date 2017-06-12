@@ -1,7 +1,7 @@
 <module lang="C" arch="SH">
   <types>
     <var name="Enumeration">
-      <type flags=0 ind=0 name="GS2"/>
+      <type flags=0 ind=0 name="GSD2BABE71_2"/>
     </var>
     <var name="One_Thirty">
       <type flags=0 ind=0 name="int"/>
@@ -45,7 +45,7 @@
     </var>
   </types>
   <structs>
-    <enum name="GS2">
+    <enum name="GSD2BABE71_2">
       <defs>
         <def name="Ident_1" value=0/>
       </defs>
@@ -72,7 +72,7 @@
       <body>
         <vars fn="dhry.h" ln=402>
           <var name="Enum_Comp">
-            <type flags=0 ind=0 name="GS2"/>
+            <type flags=0 ind=0 name="GSD2BABE71_2"/>
           </var>
         </vars>
       </body>
@@ -81,7 +81,7 @@
       <body>
         <vars fn="dhry.h" ln=402>
           <var name="E_Comp_2">
-            <type flags=0 ind=0 name="GS2"/>
+            <type flags=0 ind=0 name="GSD2BABE71_2"/>
           </var>
         </vars>
       </body>
@@ -97,7 +97,7 @@
     </struct>
   </structs>
   <body>
-    <vars fn="stdio.h" ln=1>
+    <vars fn="stdio.h" ln=5>
       <proto name="printf">
         <type flags=0 ind=0 name="int"/>
         <args>
@@ -108,7 +108,7 @@
         </args>
       </proto>
     </vars>
-    <vars fn="stdio.h" ln=3>
+    <vars fn="stdio.h" ln=7>
       <proto name="strcpy">
         <type flags=0 ind=0 name="int"/>
         <args>
@@ -121,7 +121,7 @@
         </args>
       </proto>
     </vars>
-    <vars fn="stdio.h" ln=3>
+    <vars fn="stdio.h" ln=7>
       <proto name="strcmp">
         <type flags=0 ind=0 name="int"/>
         <args>
@@ -187,7 +187,7 @@
     </vars>
     <vars fn="tests/dhry/dhry_1.c" ln=31>
       <proto name="Func_1">
-        <type flags=0 ind=0 name="GS2"/>
+        <type flags=0 ind=0 name="GSD2BABE71_2"/>
         <args/>
       </proto>
     </vars>
@@ -269,25 +269,17 @@
           </vars>
           <vars fn="tests/dhry/dhry_1.c" ln=77>
             <var name="Enum_Loc">
-              <type flags=0 ind=0 name="GS2"/>
+              <type flags=0 ind=0 name="GSD2BABE71_2"/>
             </var>
           </vars>
           <vars fn="tests/dhry/dhry_1.c" ln=77>
             <var name="Str_1_Loc">
-              <type flags=0 ind=0 name="char">
-                <size>
-                  <int value=31/>
-                </size>
-              </type>
+              <type flags=0 ind=0 name="Str_30"/>
             </var>
           </vars>
           <vars fn="tests/dhry/dhry_1.c" ln=77>
             <var name="Str_2_Loc">
-              <type flags=0 ind=0 name="char">
-                <size>
-                  <int value=31/>
-                </size>
-              </type>
+              <type flags=0 ind=0 name="Str_30"/>
             </var>
           </vars>
           <vars fn="tests/dhry/dhry_1.c" ln=77>
@@ -1537,7 +1529,7 @@
           </vars>
           <vars fn="tests/dhry/dhry_1.c" ln=354>
             <var name="Enum_Loc">
-              <type flags=0 ind=0 name="GS2"/>
+              <type flags=0 ind=0 name="GSD2BABE71_2"/>
             </var>
           </vars>
           <assign fn="tests/dhry/dhry_1.c" ln=359>

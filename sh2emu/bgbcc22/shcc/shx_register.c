@@ -2218,6 +2218,7 @@ int BGBCC_SHXC_EmitReleaseRegister(
 		}
 	}
 
+	BGBCC_DBGBREAK
 	return(0);
 }
 
@@ -2294,6 +2295,7 @@ int BGBCC_SHXC_EmitLabelFlushRegisters(
 
 		sctx->regalc_map[i].val=-1;
 		sctx->regalc_utcnt[i]=0;
+		sctx->regalc_ltcnt[i]=0;
 		sctx->regalc_dirty&=~(1<<i);
 		sctx->regalc_live&=~(1<<i);
 	}
