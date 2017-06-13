@@ -377,7 +377,7 @@ static int bgbcp_chktoklst(char *str, char **lst)
 
 int BGBCP_DefTypeFlag(BGBCP_ParseState *ctx, char *tag)
 {
-	int i, n;
+	int i, n, c0;
 
 	i=0;
 
@@ -448,9 +448,9 @@ int BGBCP_DefTypeFlag(BGBCP_ParseState *ctx, char *tag)
 	return(0);
 #endif
 
-	if(!bgbcp_strcmp(tag, "static"))i=BGBCC_TYFL_STATIC;
+	c0=*tag;
+
 //	if(!bgbcp_strcmp(tag, "const"))i=BGBCC_TYFL_STATIC;
-	if(!bgbcp_strcmp(tag, "volatile"))i=BGBCC_TYFL_VOLATILE;
 
 //	if(n==BOTK_STATIC)i=BGBCC_TYFL_STATIC;
 //	if(n==BOTK_VOLATILE)i=BGBCC_TYFL_VOLATILE;
@@ -459,67 +459,101 @@ int BGBCP_DefTypeFlag(BGBCP_ParseState *ctx, char *tag)
 		(ctx->lang==BGBCC_LANG_CPP))
 	{
 #if 1
-		if(!bgbcp_strcmp(tag, "signed"))i=BGBCC_TYFL_SIGNED;
-		if(!bgbcp_strcmp(tag, "unsigned"))i=BGBCC_TYFL_UNSIGNED;
+		if(c0=='s')
+		{
+			if(!bgbcp_strcmp(tag, "static"))i=BGBCC_TYFL_STATIC;
+			if(!bgbcp_strcmp(tag, "signed"))i=BGBCC_TYFL_SIGNED;
+		}else if(c0=='v')
+		{
+			if(!bgbcp_strcmp(tag, "volatile"))i=BGBCC_TYFL_VOLATILE;
+		}else if(c0=='u')
+		{
+			if(!bgbcp_strcmp(tag, "unsigned"))i=BGBCC_TYFL_UNSIGNED;
+		}else if(c0=='e')
+		{
+			if(!bgbcp_strcmp(tag, "extern"))i=BGBCC_TYFL_EXTERN;
+		}else if(c0=='c')
+		{
+			if(!bgbcp_strcmp(tag, "const"))i=BGBCC_TYFL_CONST;
+		}else if(c0=='i')
+		{
+			if(!bgbcp_strcmp(tag, "inline"))i=BGBCC_TYFL_INLINE;
+		}else if(c0=='r')
+		{
+			if(!bgbcp_strcmp(tag, "register"))i=BGBCC_TYFL_INLINE;
+		}else if(c0=='_')
+		{
+			if(tag[1]=='_')
+			{
+				if(!bgbcp_strcmp(tag, "__const"))i=BGBCC_TYFL_CONST;
 
-		if(!bgbcp_strcmp(tag, "extern"))i=BGBCC_TYFL_EXTERN;
-		if(!bgbcp_strcmp(tag, "const"))i=BGBCC_TYFL_CONST;
-		if(!bgbcp_strcmp(tag, "inline"))i=BGBCC_TYFL_INLINE;
+				if(!bgbcp_strcmp(tag, "__inline"))i=BGBCC_TYFL_INLINE;
+				if(!bgbcp_strcmp(tag, "__forceinline"))i=BGBCC_TYFL_INLINE;
 
-		if(!bgbcp_strcmp(tag, "register"))i=BGBCC_TYFL_INLINE;
+				if(!bgbcp_strcmp(tag, "__stdcall"))i=BGBCC_TYFL_STDCALL;
+				if(!bgbcp_strcmp(tag, "__cdecl"))i=BGBCC_TYFL_CDECL;
+				if(!bgbcp_strcmp(tag, "__proxy"))i=BGBCC_TYFL_PROXY;
 
-		if(!bgbcp_strcmp(tag, "__const"))i=BGBCC_TYFL_CONST;
+				if(!bgbcp_strcmp(tag, "__w64"))i=BGBCC_TYFL_INLINE;
+				if(!bgbcp_strcmp(tag, "__ptr64"))i=BGBCC_TYFL_INLINE;
+				if(!bgbcp_strcmp(tag, "__ptr32"))i=BGBCC_TYFL_INLINE;
 
-		if(!bgbcp_strcmp(tag, "__inline"))i=BGBCC_TYFL_INLINE;
-		if(!bgbcp_strcmp(tag, "__forceinline"))i=BGBCC_TYFL_INLINE;
+				if(!bgbcp_strcmp(tag, "__win64"))i=BGBCC_TYFL_WIN64;
+				if(!bgbcp_strcmp(tag, "__amd64"))i=BGBCC_TYFL_AMD64;
+				if(!bgbcp_strcmp(tag, "__xcall"))i=BGBCC_TYFL_XCALL;
 
-		if(!bgbcp_strcmp(tag, "__stdcall"))i=BGBCC_TYFL_STDCALL;
-		if(!bgbcp_strcmp(tag, "__cdecl"))i=BGBCC_TYFL_CDECL;
-		if(!bgbcp_strcmp(tag, "__proxy"))i=BGBCC_TYFL_PROXY;
+				if(!bgbcp_strcmp(tag, "__packed"))i=BGBCC_TYFL_PACKED;
+				if(!bgbcp_strcmp(tag, "__gc"))i=BGBCC_TYFL_GC;
+				if(!bgbcp_strcmp(tag, "__nogc"))i=BGBCC_TYFL_NOGC;
 
-		if(!bgbcp_strcmp(tag, "__w64"))i=BGBCC_TYFL_INLINE;
-		if(!bgbcp_strcmp(tag, "__ptr64"))i=BGBCC_TYFL_INLINE;
-		if(!bgbcp_strcmp(tag, "__ptr32"))i=BGBCC_TYFL_INLINE;
+				if(!bgbcp_strcmp(tag, "__wide"))i=BGBCC_TYFL_WIDE;
 
-		if(!bgbcp_strcmp(tag, "__win64"))i=BGBCC_TYFL_WIN64;
-		if(!bgbcp_strcmp(tag, "__amd64"))i=BGBCC_TYFL_AMD64;
-		if(!bgbcp_strcmp(tag, "__xcall"))i=BGBCC_TYFL_XCALL;
+				if(!bgbcp_strcmp(tag, "__ltlendian"))i=BGBCC_TYFL_LTLENDIAN;
+				if(!bgbcp_strcmp(tag, "__bigendian"))i=BGBCC_TYFL_BIGENDIAN;
 
-		if(!bgbcp_strcmp(tag, "__packed"))i=BGBCC_TYFL_PACKED;
-		if(!bgbcp_strcmp(tag, "__gc"))i=BGBCC_TYFL_GC;
-		if(!bgbcp_strcmp(tag, "__nogc"))i=BGBCC_TYFL_NOGC;
+				if(!bgbcp_strcmp(tag, "__transient"))i=BGBCC_TYFL_ABSTRACT;
+				if(!bgbcp_strcmp(tag, "__thread"))i=BGBCC_TYFL_THREAD;
+				if(!bgbcp_strcmp(tag, "__dynamic"))i=BGBCC_TYFL_DYNAMIC;
 
-		if(!bgbcp_strcmp(tag, "_Complex"))i=BGBCC_TYFL_UNSIGNED;
-		if(!bgbcp_strcmp(tag, "_Imaginary"))i=BGBCC_TYFL_UNSIGNED;
-		if(!bgbcp_strcmp(tag, "__wide"))i=BGBCC_TYFL_WIDE;
-
-		if(!bgbcp_strcmp(tag, "__ltlendian"))i=BGBCC_TYFL_LTLENDIAN;
-		if(!bgbcp_strcmp(tag, "__bigendian"))i=BGBCC_TYFL_BIGENDIAN;
-
-		if(!bgbcp_strcmp(tag, "__transient"))i=BGBCC_TYFL_ABSTRACT;
-		if(!bgbcp_strcmp(tag, "__thread"))i=BGBCC_TYFL_THREAD;
-		if(!bgbcp_strcmp(tag, "__dynamic"))i=BGBCC_TYFL_DYNAMIC;
-
-		if(!bgbcp_strcmp(tag, "__getter"))i=BGBCC_TYFL_GETTER;
-		if(!bgbcp_strcmp(tag, "__setter"))i=BGBCC_TYFL_SETTER;
+				if(!bgbcp_strcmp(tag, "__getter"))i=BGBCC_TYFL_GETTER;
+				if(!bgbcp_strcmp(tag, "__setter"))i=BGBCC_TYFL_SETTER;
+			}else
+			{
+				if(!bgbcp_strcmp(tag, "_Complex"))i=BGBCC_TYFL_UNSIGNED;
+				if(!bgbcp_strcmp(tag, "_Imaginary"))i=BGBCC_TYFL_UNSIGNED;
+			}
+		}
 #endif
+	}else
+	{
+		if((c0=='s') && !bgbcp_strcmp(tag, "static"))
+			i=BGBCC_TYFL_STATIC;
+	//	if(!bgbcp_strcmp(tag, "const"))i=BGBCC_TYFL_STATIC;
+		if((c0=='v') && !bgbcp_strcmp(tag, "volatile"))
+			i=BGBCC_TYFL_VOLATILE;
 	}
 
 	if(ctx->lang==BGBCC_LANG_C)
 	{
-		if(!bgbcp_strcmp(tag, "__public"))i=BGBCC_TYFL_PUBLIC;
-		if(!bgbcp_strcmp(tag, "__private"))i=BGBCC_TYFL_PRIVATE;
-		if(!bgbcp_strcmp(tag, "__protected"))i=BGBCC_TYFL_PROTECTED;
-		if(!bgbcp_strcmp(tag, "__final"))i=BGBCC_TYFL_FINAL;
+		if(c0=='_')
+		{
+			if(!bgbcp_strcmp(tag, "__public"))i=BGBCC_TYFL_PUBLIC;
+			if(!bgbcp_strcmp(tag, "__private"))i=BGBCC_TYFL_PRIVATE;
+			if(!bgbcp_strcmp(tag, "__protected"))i=BGBCC_TYFL_PROTECTED;
+			if(!bgbcp_strcmp(tag, "__final"))i=BGBCC_TYFL_FINAL;
 
-		if(!bgbcp_strcmp(tag, "__virtual"))i=BGBCC_TYFL_VIRTUAL;
-		if(!bgbcp_strcmp(tag, "__native"))i=BGBCC_TYFL_NATIVE;
-		if(!bgbcp_strcmp(tag, "__abstract"))i=BGBCC_TYFL_ABSTRACT;
+			if(!bgbcp_strcmp(tag, "__virtual"))i=BGBCC_TYFL_VIRTUAL;
+			if(!bgbcp_strcmp(tag, "__native"))i=BGBCC_TYFL_NATIVE;
+			if(!bgbcp_strcmp(tag, "__abstract"))i=BGBCC_TYFL_ABSTRACT;
+		}
+
+		return(i);
 	}
 
 	if(ctx->lang==BGBCC_LANG_CPP)
 	{
-		if(!bgbcp_strcmp(tag, "virtual"))i=BGBCC_TYFL_VIRTUAL;
+		if((c0=='v') && !bgbcp_strcmp(tag, "virtual"))
+			i=BGBCC_TYFL_VIRTUAL;
 	}
 
 	if(	(ctx->lang==BGBCC_LANG_CPP) ||
@@ -588,17 +622,20 @@ BCCX_Node *BGBCP_DefClassC(BGBCP_ParseState *ctx, char **str)
 		break;
 	}
 
-	if(!bgbcp_strcmp(b, "struct") || !bgbcp_strcmp(b, "union") ||
-		!bgbcp_strcmp(b, "class") || !bgbcp_strcmp(b, "interface") ||
-		!bgbcp_strcmp(b, "__class") || !bgbcp_strcmp(b, "__interface"))
+	if(	!bgbcp_strcmp6(b, "struct") ||
+		!bgbcp_strcmp5(b, "union") ||
+		!bgbcp_strcmp5(b, "class") ||
+		!bgbcp_strcmp9(b, "interface") ||
+		!bgbcp_strcmp7(b, "__class") ||
+		!bgbcp_strcmp11(b, "__interface"))
 	{
 //		j=!bgbcp_strcmp(b, "struct");
 
 		s=BGBCP_Token(s, b, &ty);	//struct
 
 		cty=0;
-		if(!bgbcp_strcmp(b, "struct"))cty=1;
-		if(!bgbcp_strcmp(b, "union"))cty=2;
+		if(!bgbcp_strcmp6(b, "struct"))cty=1;
+		if(!bgbcp_strcmp5(b, "union"))cty=2;
 
 		if(!bgbcp_strcmp(b, "class"))
 		{

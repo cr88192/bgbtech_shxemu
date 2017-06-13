@@ -131,7 +131,7 @@ BCCX_Node *BGBCP_ExpressionLit(BGBCP_ParseState *ctx, char **str)
 	{
 		BGBCP_Token(s, b2, &ty2);
 
-		if(!bgbcp_strcmp(b, "__offsetof"))
+		if((b[0]=='_') && !bgbcp_strcmp10(b, "__offsetof"))
 		{
 			s=BGBCP_Token(s, b2, &ty2);
 			if(bgbcp_strcmp1(b2, "("))

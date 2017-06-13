@@ -424,7 +424,8 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 	if(ty==BTK_NAME)
 	{
 
-		if(!bgbcp_strcmp(b, "typedef") && (ctx->lang==BGBCC_LANG_C))
+		if((b[0]=='t') && !bgbcp_strcmp7(b, "typedef") &&
+			(ctx->lang==BGBCC_LANG_C))
 		{
 			n=BGBCP_ForceDefinition(ctx, &s);
 			BGBCP_HandleTypedef(ctx, n);
@@ -433,7 +434,7 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 			return(NULL);
 		}
 
-		if(!bgbcp_strcmp4(b, "case"))
+		if((b[0]=='c') && !bgbcp_strcmp4(b, "case"))
 		{
 			n1=BGBCP_Expression(ctx, &s);
 			s=BGBCP_Token(s, b2, &ty2);	//:
@@ -444,7 +445,7 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 			return(n);
 		}
 
-		if(!bgbcp_strcmp2(b, "if"))
+		if((b[0]=='i') && !bgbcp_strcmp2(b, "if"))
 		{
 			s=BGBCP_Token(s, b, &ty);	//(
 			n1=BGBCP_Expression(ctx, &s);
@@ -472,7 +473,7 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 			return(n);
 		}
 
-		if(!bgbcp_strcmp(b, "while"))
+		if((b[0]=='w') && !bgbcp_strcmp5(b, "while"))
 		{
 			s=BGBCP_Token(s, b, &ty);	//'('
 			n1=BGBCP_Expression(ctx, &s);
@@ -487,7 +488,7 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 			return(n);
 		}
 
-		if(!bgbcp_strcmp3(b, "for"))
+		if((b[0]=='f') && !bgbcp_strcmp3(b, "for"))
 		{
 			s=BGBCP_Token(s, b, &ty);		//(
 			s2=BGBCP_Token(s, b, &ty);		//
@@ -525,7 +526,7 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 			return(n);
 		}
 
-		if(!bgbcp_strcmp2(b, "do"))
+		if((b[0]=='d') && !bgbcp_strcmp2(b, "do"))
 		{
 			n2=BGBCP_BlockStatement3(ctx, &s);
 
@@ -550,7 +551,7 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 			return(n);
 		}
 
-		if(!bgbcp_strcmp(b, "switch"))
+		if((b[0]=='s') && !bgbcp_strcmp6(b, "switch"))
 		{
 			s=BGBCP_Token(s, b, &ty);	//(
 			n1=BGBCP_Expression(ctx, &s);
@@ -567,67 +568,81 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 			return(n);
 		}
 
-		if(!bgbcp_strcmp(b, "__asm__"))
+		if(b[0]=='_')
 		{
-//			s=BGBCP_Token(s, b, &ty);	//(
-//			n1=BGBCP_Expression(ctx, &s);
-//			s=BGBCP_Token(s, b, &ty);	//)
-
-//			s=BGBCP_Token(s, b, &ty);	//(
-
-			i=0;
-			while(1)
+			if(!bgbcp_strcmp(b, "__asm__"))
 			{
-				s=BGBCP_Token(s, b, &ty);
-				if(!bgbcp_strcmp1(b, "("))i++;
-				if(!bgbcp_strcmp1(b, ")"))
+	//			s=BGBCP_Token(s, b, &ty);	//(
+	//			n1=BGBCP_Expression(ctx, &s);
+	//			s=BGBCP_Token(s, b, &ty);	//)
+
+	//			s=BGBCP_Token(s, b, &ty);	//(
+
+				i=0;
+				while(1)
 				{
-					i--;
-					if(!i)break;
+					s=BGBCP_Token(s, b, &ty);
+					if(!bgbcp_strcmp1(b, "("))i++;
+					if(!bgbcp_strcmp1(b, ")"))
+					{
+						i--;
+						if(!i)break;
+					}
 				}
+
+				n=BCCX_NewCst(&bgbcc_rcst_gcc_asm, "gcc_asm");
+
+				*str=s;
+				return(n);
 			}
 
-			n=BCCX_NewCst(&bgbcc_rcst_gcc_asm, "gcc_asm");
-
-			*str=s;
-			return(n);
-		}
-
-		if(!bgbcp_strcmp(b, "__asm"))
-		{
-			i=0;
-			while(1)
+			if(!bgbcp_strcmp(b, "__asm"))
 			{
-				s=BGBCP_Token(s, b, &ty);
-				if(!bgbcp_strcmp1(b, "{"))i++;
-				if(!bgbcp_strcmp1(b, "}"))
+				i=0;
+				while(1)
 				{
-					i--;
-					if(!i)break;
+					s=BGBCP_Token(s, b, &ty);
+					if(!bgbcp_strcmp1(b, "{"))i++;
+					if(!bgbcp_strcmp1(b, "}"))
+					{
+						i--;
+						if(!i)break;
+					}
 				}
+
+				n=BCCX_NewCst(&bgbcc_rcst_msvc_asm, "msvc_asm");
+
+				*str=s;
+				return(n);
 			}
 
-			n=BCCX_NewCst(&bgbcc_rcst_msvc_asm, "msvc_asm");
+			if(	!bgbcp_strcmp(b, "__extern_c") ||
+				!bgbcp_strcmp(b, "__extern_cpp") ||
+				!bgbcp_strcmp(b, "__extern_java") ||
+				!bgbcp_strcmp(b, "__extern_cs") ||
+				!bgbcp_strcmp(b, "__extern_bs") ||
+				!bgbcp_strcmp(b, "__extern_bs2"))
+			{
+				i=ctx->lang;
+				ctx->lang=BGBCP_LangForName(b+strlen("__extern_"));
+				n1=BGBCP_BlockStatement2(ctx, &s);
+				n=BCCX_NewCst1(&bgbcc_rcst_extern2_lang,
+					"extern2_lang", n1);
+				BCCX_SetCst(n, &bgbcc_rcst_lang, "lang",
+					BGBCP_NameForLang(ctx->lang));
 
-			*str=s;
-			return(n);
-		}
+				ctx->lang=i;
+				return(n);
+			}
 
-		if(	!bgbcp_strcmp(b, "__extern_c") ||
-			!bgbcp_strcmp(b, "__extern_cpp") ||
-			!bgbcp_strcmp(b, "__extern_java") ||
-			!bgbcp_strcmp(b, "__extern_cs") ||
-			!bgbcp_strcmp(b, "__extern_bs") ||
-			!bgbcp_strcmp(b, "__extern_bs2"))
-		{
-			i=ctx->lang;
-			ctx->lang=BGBCP_LangForName(b+strlen("__extern_"));
-			n1=BGBCP_BlockStatement2(ctx, &s);
-			n=BCCX_NewCst1(&bgbcc_rcst_extern2_lang, "extern2_lang", n1);
-			BCCX_SetCst(n, &bgbcc_rcst_lang, "lang", BGBCP_NameForLang(ctx->lang));
-
-			ctx->lang=i;
-			return(n);
+			if(!bgbcp_strcmp(b, "__pragma"))
+			{
+				s=*str;
+				n1=BGBCP_Expression(ctx, &s);
+				n=BCCX_NewCst1(&bgbcc_rcst_pragma, "pragma", n1);
+				*str=s;
+				return(n);
+			}
 		}
 
 		if((ctx->lang==BGBCC_LANG_CPP) ||
@@ -704,7 +719,7 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 		if(	(ctx->lang==BGBCC_LANG_JAVA) ||
 			(ctx->lang==BGBCC_LANG_CX))
 		{
-			if(!bgbcp_strcmp(b, "import"))
+			if(!bgbcp_strcmp6(b, "import"))
 			{
 				s=BGBCP_Token(s, b, &ty);	//'name'
 				BGBCP_Token(s, b2, &ty2);
@@ -734,15 +749,6 @@ BCCX_Node *BGBCP_BlockStatementInner(BGBCP_ParseState *ctx, char **str)
 				*str=s;
 				return(n);
 			}
-		}
-
-		if(!bgbcp_strcmp(b, "__pragma"))
-		{
-			s=*str;
-			n1=BGBCP_Expression(ctx, &s);
-			n=BCCX_NewCst1(&bgbcc_rcst_pragma, "pragma", n1);
-			*str=s;
-			return(n);
 		}
 	}
 

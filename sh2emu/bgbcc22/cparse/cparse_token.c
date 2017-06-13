@@ -552,6 +552,86 @@ int bgbcp_strcmp4(char *s1, char *s2)
 	return(s1[4]-s2[4]);
 }
 
+int bgbcp_strcmp5(char *s1, char *s2)
+{
+	int i;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	return((*(s16 *)s1)-(*(s16 *)s2));
+}
+
+int bgbcp_strcmp6(char *s1, char *s2)
+{
+	int i;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	i=(*(s16 *)s1)-(*(s16 *)s2);
+	if(i)return(i);
+	return(s1[2]-s2[2]);
+}
+
+int bgbcp_strcmp7(char *s1, char *s2)
+{
+	int i;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	return((*(s32 *)s1)-(*(s32 *)s2));
+}
+
+
+int bgbcp_strcmp8(char *s1, char *s2)
+{
+	int i;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	return(s1[4]-s2[4]);
+}
+
+int bgbcp_strcmp9(char *s1, char *s2)
+{
+	int i;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	return((*(s16 *)s1)-(*(s16 *)s2));
+}
+
+int bgbcp_strcmp10(char *s1, char *s2)
+{
+	int i;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	i=(*(s16 *)s1)-(*(s16 *)s2);
+	if(i)return(i);
+	return(s1[2]-s2[2]);
+}
+
+int bgbcp_strcmp11(char *s1, char *s2)
+{
+	int i;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	i=(*(s32 *)s1)-(*(s32 *)s2);
+	if(i)return(i);
+	s1+=4; s2+=4;
+	return((*(s32 *)s1)-(*(s32 *)s2));
+}
+
+
 int BGBCP_StrlenUTF8(char *str)
 {
 	char *s;
@@ -821,8 +901,8 @@ int BGBCP_NameChar(int c, int lang)
 
 char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 {
-	char *t, *s1, *te;
-	int i, j, k, sti;
+	char *t, *s0, *s1, *te;
+	int i, j, k, sti, ch;
 
 	*b=0;
 	s=BGBCP_EatWhite(s);
@@ -831,12 +911,13 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		*ty=BTK_NULL;
 		return(s);
 	}
-	t=b; te=t+sz-2;
+//	t=b; te=t+sz-2;
+	t=b; te=t+sz-4;
 
-	if((i=*s)&0x80)
-		i=BGBCP_PeekChar(&s);
+	if((ch=*s)&0x80)
+		ch=BGBCP_PeekChar(&s);
 //	i=BGBCP_PeekChar(&s);
-	if(BGBCP_NameInitChar(i, lang))
+	if(BGBCP_NameInitChar(ch, lang))
 	{
 		while(t<te)
 		{
@@ -857,7 +938,7 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 	}
 
 //	if((*s>='0') && (*s<='9'))
-	if(((u32)(i-'0'))<=('9'-'0'))
+	if(((u32)(ch-'0'))<=('9'-'0'))
 	{
 		if((s[0]=='0') && (s[1]=='x'))
 		{
@@ -921,7 +1002,8 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		return(s);
 	}
 
-	if((s[0]=='.') && (s[1]>='0') && (s[1]<='9'))
+//	if((s[0]=='.') && (s[1]>='0') && (s[1]<='9'))
+	if((ch=='.') && (s[1]>='0') && (s[1]<='9'))
 	{
 		*t++='0';
 		*t++='.';
@@ -942,10 +1024,12 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		return(s);
 	}
 
-	if((*s=='"') || (*s=='\'')) /* quoted string */
+//	if((*s=='"') || (*s=='\'')) /* quoted string */
+	if((ch=='"') || (ch=='\'')) /* quoted string */
 	{
 		if(*s=='\'')sti=1;
 			else sti=0;
+		s0=s;
 		s++;
 		while(*s && (t<te))
 		{
@@ -1069,12 +1153,21 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		*t++=0;
 		if(*s)s++;
 
+		if(t>=te)
+		{
+			s=s0+1;
+			*ty=BTK_STRING_OVF;
+			return(s);
+		}
+
 		*ty=BTK_STRING;
 		if(sti)*ty=BTK_CHARSTRING;
 		return(s);
 	}
 
-	if((*s==',') || (*s==';') || ((*s=='.') && (s[1]!='.')))
+//	if((*s==',') || (*s==';') || ((*s=='.') && (s[1]!='.')))
+//	if((ch==',') || (ch==';') || ((ch=='.') && (s[1]!='.')))
+	if((ch==',') || (ch==';'))
 	{
 		*t++=*s++;
 		*t++=0;
@@ -1084,52 +1177,123 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 		return(s);
 	}
 
-	if(!strncmp(s, "...", 3))
+	if(ch=='.') 
 	{
-		*t++=*s++;
-		*t++=*s++;
-		*t++=*s++;
-		*t++=0;
-
-		*ty=BTK_MISC;
+		if(!strncmp(s, "...", 3))
+		{
+			*t++=*s++;	*t++=*s++;
+			*t++=*s++;	*t++=0;
+			*ty=BTK_MISC;
+			return(s);
+		}
+		*t++=*s++;	*t++=0;
+		*ty=BTK_SEPERATOR;
 		return(s);
 	}
-
-	if(	!strncmp(s, "#<`", 3) || !strncmp(s, "#{`", 3) ||
-		!strncmp(s, "#[`", 3) || !strncmp(s, "#(`", 3)
-		)
-	{
-		*t++=*s++; *t++=*s++; *t++=*s++; *t++=0;
-		*ty=BTK_BRACE;
-		return(s);
-	}
-
-	if(	!strncmp(s, "<:", 2) || !strncmp(s, ":>", 2) ||
-		!strncmp(s, "<%", 2) || !strncmp(s, "%>", 2) ||
-		!strncmp(s, "<`", 2) || !strncmp(s, "`>", 2) ||
-		!strncmp(s, "{`", 2) || !strncmp(s, "`}", 2) ||
-		!strncmp(s, "[`", 2) || !strncmp(s, "`]", 2) ||
-		!strncmp(s, "(`", 2) || !strncmp(s, "`)", 2) ||
-		!strncmp(s, "#<", 2) || !strncmp(s, "#{", 2) ||
-		!strncmp(s, "#[", 2) || !strncmp(s, "#(", 2)
-		)
-	{
-		*t++=*s++; *t++=*s++; *t++=0;
-		*ty=BTK_BRACE;
-		return(s);
-	}
-		
 
 	if(	(*s=='{') || (*s=='}') ||
 		(*s=='[') || (*s==']') ||
 		(*s=='(') || (*s==')'))
 	{
-		*t++=*s++;
-		*t++=0;
+		if(s[1]=='`')
+		{
+			*t++=*s++; *t++=*s++; *t++=0;
+			*ty=BTK_BRACE;
+			return(s);
+		}
 
-//		kprint("token: %p '%s'\n", s, b);
+		*t++=*s++;	*t++=0;
 		*ty=BTK_BRACE;
 		return(s);
+	}
+
+	if(ch=='#')
+	{
+		if(	!strncmp(s, "#<`", 3) || !strncmp(s, "#{`", 3) ||
+			!strncmp(s, "#[`", 3) || !strncmp(s, "#(`", 3)
+			)
+		{
+			*t++=*s++; *t++=*s++; *t++=*s++; *t++=0;
+			*ty=BTK_BRACE;
+			return(s);
+		}
+		
+		if(
+			!strncmp(s, "#<", 2) || !strncmp(s, "#{", 2) ||
+			!strncmp(s, "#[", 2) || !strncmp(s, "#(", 2)
+			)
+		{
+			*t++=*s++; *t++=*s++; *t++=0;
+			*ty=BTK_BRACE;
+			return(s);
+		}
+	}
+
+	if(ch=='`')
+	{
+		if(	!strncmp(s, "`>", 2) ||
+			!strncmp(s, "`}", 2) ||
+			!strncmp(s, "`]", 2) ||
+			!strncmp(s, "`)", 2))
+		{
+			*t++=*s++; *t++=*s++; *t++=0;
+			*ty=BTK_BRACE;
+			return(s);
+		}
+
+		if(	!strncmp(s, "`+", 2) ||
+			!strncmp(s, "`-", 2) ||
+			!strncmp(s, "`*", 2) ||
+			!strncmp(s, "`/", 2) ||
+			!strncmp(s, "`%", 2) ||
+			!strncmp(s, "`&", 2) ||
+			!strncmp(s, "`|", 2) ||
+			!strncmp(s, "`^", 2) ||
+			!strncmp(s, "`!", 2) ||
+			!strncmp(s, "`~", 2) ||
+			!strncmp(s, "``", 2))
+		{
+			*t++=*s++; *t++=*s++; *t++=0;
+			*ty=BTK_OPERATOR;
+			return(s);
+		}
+
+	}else if(ch=='<')
+	{
+		if(	!strncmp(s, "<:", 2) ||
+			!strncmp(s, "<%", 2) ||
+			!strncmp(s, "<`", 2))
+		{
+			*t++=*s++; *t++=*s++; *t++=0;
+			*ty=BTK_BRACE;
+			return(s);
+		}
+	}else if(s[1]=='`')
+	{
+		if(	!strncmp(s, "+`", 2) ||
+			!strncmp(s, "-`", 2) ||
+			!strncmp(s, "*`", 2) ||
+			!strncmp(s, "/`", 2) ||
+			!strncmp(s, "%`", 2) ||
+			!strncmp(s, "&`", 2) ||
+			!strncmp(s, "|`", 2) ||
+			!strncmp(s, "^`", 2) ||
+			!strncmp(s, "!`", 2) ||
+			!strncmp(s, "~`", 2))
+		{
+			*t++=*s++; *t++=*s++; *t++=0;
+			*ty=BTK_OPERATOR;
+			return(s);
+		}
+	}else if(s[1]=='>')
+	{
+		if(	!strncmp(s, ":>", 2) ||
+			!strncmp(s, "%>", 2))
+		{
+			*t++=*s++; *t++=*s++; *t++=0;
+			*ty=BTK_BRACE;
+			return(s);
+		}
 	}
 
 	if(BGBCP_OpChar(*s))
@@ -1174,7 +1338,8 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 			*t++=*s++;
 			*t++=*s++;
 			*t++=0;
-		}else if(	!strncmp(s, "<<=", 3) ||
+		}else if(
+			!strncmp(s, "<<=", 3) ||
 			!strncmp(s, ">>=", 3)
 			)
 		{
@@ -1182,58 +1347,44 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 			*t++=*s++;
 			*t++=*s++;
 			*t++=0;
+		}else if(s[1]=='=')
+		{
+#if 0
+			if(
+				!strncmp(s, "==", 2) ||
+				!strncmp(s, "<=", 2) ||
+				!strncmp(s, ">=", 2) ||
+				!strncmp(s, "!=", 2) ||
+				!strncmp(s, "+=", 2) ||
+				!strncmp(s, "-=", 2) ||
+				!strncmp(s, "*=", 2) ||
+				!strncmp(s, "/=", 2) ||
+				!strncmp(s, "%=", 2) ||
+				!strncmp(s, "&=", 2) ||
+				!strncmp(s, "|=", 2) ||
+				!strncmp(s, "^=", 2))
+#endif
+			if(	(s[0]=='=') || (s[0]=='<') ||
+				(s[0]=='>') || (s[0]=='!') ||
+				(s[0]=='+') || (s[0]=='-') ||
+				(s[0]=='*') || (s[0]=='/') ||
+				(s[0]=='%') || (s[0]=='&') ||
+				(s[0]=='|') || (s[0]=='^'))
+			{
+				*t++=*s++;
+				*t++=*s++;
+				*t++=0;
+			}
 		}else if(
-			!strncmp(s, "==", 2) ||
-			!strncmp(s, "<=", 2) ||
-			!strncmp(s, ">=", 2) ||
-			!strncmp(s, "!=", 2) ||
 			!strncmp(s, "<<", 2) ||
 			!strncmp(s, ">>", 2) ||
 			!strncmp(s, "&&", 2) ||
 			!strncmp(s, "||", 2) ||
-
 			!strncmp(s, "++", 2) ||
 			!strncmp(s, "--", 2) ||
-
-			!strncmp(s, "+=", 2) ||
-			!strncmp(s, "-=", 2) ||
-			!strncmp(s, "*=", 2) ||
-			!strncmp(s, "/=", 2) ||
-			!strncmp(s, "%=", 2) ||
-			!strncmp(s, "&=", 2) ||
-			!strncmp(s, "|=", 2) ||
-			!strncmp(s, "^=", 2) ||
-
 			!strncmp(s, "%:", 2) ||
-
-			!strncmp(s, "+`", 2) ||
-			!strncmp(s, "-`", 2) ||
-			!strncmp(s, "*`", 2) ||
-			!strncmp(s, "/`", 2) ||
-			!strncmp(s, "%`", 2) ||
-			!strncmp(s, "&`", 2) ||
-			!strncmp(s, "|`", 2) ||
-			!strncmp(s, "^`", 2) ||
-
-			!strncmp(s, "`+", 2) ||
-			!strncmp(s, "`-", 2) ||
-			!strncmp(s, "`*", 2) ||
-			!strncmp(s, "`/", 2) ||
-			!strncmp(s, "`%", 2) ||
-			!strncmp(s, "`&", 2) ||
-			!strncmp(s, "`|", 2) ||
-			!strncmp(s, "`^", 2) ||
-
-			!strncmp(s, "!`", 2) ||
-			!strncmp(s, "`!", 2) ||
-			!strncmp(s, "~`", 2) ||
-			!strncmp(s, "`~", 2) ||
-
-			!strncmp(s, "``", 2) ||
-
 			!strncmp(s, "##", 2) ||
-			!strncmp(s, "->", 2)
-			)
+			!strncmp(s, "->", 2))
 		{
 			*t++=*s++;
 			*t++=*s++;
@@ -1246,10 +1397,6 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 			if(*b==':')*ty=BTK_SEPERATOR;
 		}
 
-//		kprint("token: %p '%s'\n", s, b);
-//		*ty=BTK_OPERATOR;
-//		if(!strcmp(b, ":"))*ty=BTK_SEPERATOR;
-
 		return(s);
 	}
 
@@ -1260,6 +1407,17 @@ char *BGBCP_TokenI(char *s, char *b, int *ty, int lang, int sz)
 
 #if 1
 
+int bgbcp_strcpy(char *dst, char *src)
+{
+	char *cs, *ct;
+	
+	ct=dst; cs=src;
+	while(*cs)
+		{ *ct++=*cs++; }
+	*ct++=0;
+	return(cs-src);
+}
+
 int bgbcp_token_cnt;
 
 #define BGBCP_TKHASHSZ 256
@@ -1269,9 +1427,10 @@ char *BGBCP_TokenLang2(char *s, char *b, int *ty, int lang)
 	static char *ls[BGBCP_TKHASHSZ];
 	static char *ls1[BGBCP_TKHASHSZ];
 	static int lty[BGBCP_TKHASHSZ];
+	static s16 llen[BGBCP_TKHASHSZ];
 	static int flush=0;
 	char *tb;
-	int i;
+	int i, j, k;
 	
 	if(!s)
 	{
@@ -1307,15 +1466,19 @@ char *BGBCP_TokenLang2(char *s, char *b, int *ty, int lang)
 	{
 		tb[255]=0;
 
-		strcpy(b, tb);
+		memcpy(b, tb, llen[i]+1);
+//		strcpy(b, tb);
 		*ty=lty[i];
 		return(ls1[i]);
 	}
 	
 	bgbcp_token_cnt++;
 	ls[i]=s;
-	ls1[i]=BGBCP_TokenI(s, tb, &(lty[i]), lang, 256);
-	strcpy(b, tb);
+	ls1[i]=BGBCP_TokenI(s, tb, &j, lang, 256);
+	lty[i]=j;
+//	strcpy(b, tb);
+	k=bgbcp_strcpy(b, tb);
+	llen[i]=k;
 	*ty=lty[i];
 	return(ls1[i]);
 }
