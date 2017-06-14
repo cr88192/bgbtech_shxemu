@@ -344,6 +344,14 @@ void BGBCC_CCXLR3_EmitArgFloat(
 		return;
 
 	fv=*(u64 *)(&val);
+	
+	if(!fv)
+	{
+		BGBCC_CCXLR3_EmitSVLI(ctx, 0);
+		BGBCC_CCXLR3_EmitSVLI(ctx, 0);
+		return;
+	}
+	
 	fm=(fv&0x000FFFFFFFFFFFFFULL)|0x0010000000000000ULL;
 	fe=(fv>>52)&2047;
 	fs=(fv>>63)&1;
@@ -731,6 +739,15 @@ f64 BGBCC_CCXLR3_ReadFVLI(BGBCC_TransState *ctx, byte **rcs)
 	
 	fe=BGBCC_CCXLR3_ReadSVLI(ctx, rcs);
 	fm=BGBCC_CCXLR3_ReadSVLI(ctx, rcs);
+	
+	if(!fm)
+	{
+		if(!fe)
+		{
+			return(0);
+		}
+	}
+	
 	v=fm*pow(2.0, fe);
 	return(v);
 }

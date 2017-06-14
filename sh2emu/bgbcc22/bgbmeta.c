@@ -634,7 +634,7 @@ int BGBCC_LoadCSourcesCCXL(
 	printf("Flatten Image %dms\n", t2);
 
 	BIPRO_ProfilerSetActive(0);
-	BIPRO_ProfileDumpStats();
+//	BIPRO_ProfileDumpStats();
 
 	if(i<0)return(i);
 	if(*rsz)*rsz=sz;

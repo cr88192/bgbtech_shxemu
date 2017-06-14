@@ -206,6 +206,7 @@ int BGBPP_Filter(BGBCP_ParseState *ctx, char *ibuf, char *obuf, int osz);
 //AHSRC:mm/cc_tokord.c
 //AHSRC:mm/ccx_node.c
 int bccx_strcmp(char *s1, char *s2);
+int bccx_memset(void *buf, int val, int sz);
 int BCCX_StringToStridx(char *str);
 char *BCCX_StridxToString(int idx);
 int BCCX_Init();
@@ -334,6 +335,7 @@ u16 BGBCC_DivFloat16(u16 x, u16 y);
 void BGBCC_DieError();
 void BGBCC_DieFatal();
 void BGBCC_CleanupAll();
+int bgbcc_malloc_memset(void *buf, int val, int sz);
 void *bgbcc_tmalloc(char *ty, int sz);
 void *bgbcc_stralloc(int sz);
 void *bgbcc_malloc(int sz);
@@ -347,7 +349,9 @@ void *bgbcc_malloc_getbase(void *obj);
 char *bgbcc_malloc_gettype(void *obj);
 int bgbcc_malloc_getsize(void *obj);
 char *bgbcc_strdup(char *str);
+int bgbcc_strdup_strlen(char *str);
 int bgbcc_strdup_strcmp(char *s1, char *s2);
+int bgbcc_strdup_strcpy(char *dst, char *src);
 int bgbcc_strdup_i(char *str, char suf);
 char *bgbcc_strtab_i(int i);
 char *bgbcc_strdup(char *str);

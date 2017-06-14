@@ -99,6 +99,28 @@ void BGBCC_CleanupAll()
 //	bgbcc_str_carr=NULL;
 }
 
+int bgbcc_malloc_memset(void *buf, int val, int sz)
+{
+	byte *t, *te;
+	u32 v;
+	
+	t=buf; te=t+sz;
+	v=(byte)val; v=v|(v<<8); v=v|(v<<16);
+#if 1
+	while((t+16)<=te)
+	{
+		((u32 *)t)[0]=v; ((u32 *)t)[1]=v;
+		((u32 *)t)[2]=v; ((u32 *)t)[3]=v;
+		t+=16;
+	}
+#endif
+	while((t+4)<=te)
+		{ *((u32 *)t)=v; t+=4; }
+	while(t<te)
+		*t++=val;
+	return(0);
+}
+
 void *bgbcc_tmalloc(char *ty, int sz)
 {
 	void *p;
@@ -117,6 +139,7 @@ void *bgbcc_tmalloc(char *ty, int sz)
 			*(int *)-1=-1;
 		}
 
+//		bgbcc_malloc_memset(p, 0, sz);
 		memset(p, 0, sz);
 		*(void **)p=bgbcc_alloc_list;
 		bgbcc_alloc_list=p;
@@ -177,6 +200,7 @@ void *bgbcc_tmalloc(char *ty, int sz)
 	p=bgbcc_alloc_rov;
 	bgbcc_alloc_rov+=(sz+15)&(~15);
 
+//	bgbcc_malloc_memset(p, 0, sz);
 	memset(p, 0, sz);
 
 	*(void **)p=bgbcc_alloc_blklst[bgbcc_alloc_curblock];
@@ -442,11 +466,30 @@ char *bgbcc_strdup(char *str)
 }
 #endif
 
+int bgbcc_strdup_strlen(char *str)
+{
+	char *s;
+	s=str;
+	while(*s)s++;
+	return(s-str);
+}
+
 int bgbcc_strdup_strcmp(char *s1, char *s2)
 {
 	while(*s1 && (*s1==*s2))
 		{ s1++; s2++; }
 	return(*s1-*s2);
+}
+
+int bgbcc_strdup_strcpy(char *dst, char *src)
+{
+	char *cs, *ct;
+	
+	ct=dst; cs=src;
+	while(*cs)
+		{ *ct++=*cs++; }
+	*ct++=0;
+	return(cs-src);
 }
 
 int bgbcc_strdup_i(char *str, char suf)
@@ -496,11 +539,11 @@ int bgbcc_strdup_i(char *str, char suf)
 		bgbcc_str_max=i;
 	}
 
-	l=strlen(str);
+	l=bgbcc_strdup_strlen(str);
 //	t=bgbcc_malloc(strlen(str)+1);
 //	t=malloc(l+3);
 	t=bgbcc_stralloc(l+3);
-	strcpy(t, str);
+	bgbcc_strdup_strcpy(t, str);
 	t[l+1]=suf;
 
 	i=bgbcc_str_num++;
@@ -561,7 +604,7 @@ int bgbcc_strdup_lookup(char *str, char suf)
 	i=bgbcc_str_hash[hi];
 	while(i)
 	{
-		if(!strcmp(bgbcc_str_varr[i], str) &&
+		if(!bgbcc_strdup_strcmp(bgbcc_str_varr[i], str) &&
 			(bgbcc_str_sarr[i]==suf))
 				{ return(i); }
 		i=bgbcc_str_carr[i];

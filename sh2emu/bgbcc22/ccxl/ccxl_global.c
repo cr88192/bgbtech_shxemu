@@ -51,6 +51,7 @@ BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_TryManifestLoadGlobal(
 	BGBCC_CCXL_RegisterInfo *gbl;
 	int i;
 
+#if 0
 	gbl=NULL;
 	for(i=0; i<ctx->n_literals; i++)
 	{
@@ -67,6 +68,29 @@ BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_TryManifestLoadGlobal(
 			gbl=BGBCC_CCXL_GetGlobal2I(ctx, name);
 			break;
 		}
+	}
+#endif
+	
+	gbl=NULL;
+	i=ctx->manif_literal;
+	while(i>0)
+	{
+		obj=ctx->literals[i];
+		if(!obj)
+			break;
+
+		if(obj->littype!=CCXL_LITID_MANIFOBJ)
+			{ i=obj->hnext_name; continue; }
+		if(!BGBCC_CCXL_CheckNameNamesList(name, obj->decl->sig))
+			{ i=obj->hnext_name; continue; }
+		if(!(obj->decl->regflags&BGBCC_REGFL_LOADED))
+		{
+			obj->decl->regflags|=BGBCC_REGFL_DEMANDLOAD;
+			gbl=BGBCC_CCXL_GetGlobal2I(ctx, name);
+			break;
+		}
+	
+		i=obj->hnext_name;
 	}
 	
 	if(gbl)
@@ -327,6 +351,10 @@ void BGBCC_CCXL_AddLiteral(BGBCC_TransState *ctx,
 		h=BGBCC_CCXL_HashName(obj->name);
 		obj->hnext_name=ctx->hash_literals[h];
 		ctx->hash_literals[h]=i;
+	}else if(obj->littype==CCXL_LITID_MANIFOBJ)
+	{
+		obj->hnext_name=ctx->manif_literal;
+		ctx->manif_literal=i;
 	}else
 	{
 		obj->hnext_name=-1;

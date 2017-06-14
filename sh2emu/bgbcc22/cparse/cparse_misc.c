@@ -485,10 +485,12 @@ fourcc BGBCP_ImageFormatForName(char *name)
 
 BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 {
+	static char *tbuf=NULL;
 	char b[256];
 //	VFILE *fd;
 	BGBCP_ParseState *ctx;
-	char *tbuf, *s;
+//	char *tbuf;
+	char *s;
 	BCCX_Node *n, *n1, *n2, *c;
 	int t0, t1, dt, lang, pprs;
 	int i, j, k;
@@ -506,8 +508,14 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 //		return(n);
 //	}
 
-	tbuf=malloc(1<<24);
-	memset(tbuf, 0, 1<<24);
+	if(!tbuf)
+	{
+		tbuf=malloc(1<<24);
+//		memset(tbuf, 0, 1<<24);
+	}
+
+	*tbuf=0;
+//	memset(tbuf, 0, 1<<16);
 
 	ctx=bgbcc_malloc(sizeof(BGBCP_ParseState));
 	memset(ctx, 0, sizeof(BGBCP_ParseState));
@@ -590,7 +598,7 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 	if(s)
 		BCCX_SetCst(n, &bgbcc_rcst_subarch, "subarch", s);
 
-	free(tbuf);
+//	free(tbuf);
 
 	c=ctx->reduce_tmp;
 	ctx->reduce_tmp=NULL;

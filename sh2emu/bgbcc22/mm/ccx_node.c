@@ -28,6 +28,27 @@ int bccx_strcmp(char *s1, char *s2)
 	return(*s1-*s2);
 }
 
+int bccx_memset(void *buf, int val, int sz)
+{
+	byte *t, *te;
+	u32 v;
+	
+	t=buf; te=t+sz;
+	v=(byte)val; v=v|(v<<8); v=v|(v<<16);
+#if 1
+	while((t+16)<=te)
+	{	((u32 *)t)[0]=v; ((u32 *)t)[1]=v;
+		((u32 *)t)[2]=v; ((u32 *)t)[3]=v;
+		t+=16;	}
+#endif
+	while((t+4)<=te)
+		{ *((u32 *)t)=v; t+=4; }
+	while(t<te)
+		*t++=val;
+	return(0);
+}
+
+
 int BCCX_StringToStridx(char *str)
 {
 	char *s;
@@ -87,7 +108,8 @@ BCCX_Node *BCCX_AllocNode(void)
 	{
 		cur=bccx_free_node;
 		bccx_free_node=cur->next;
-		memset(cur, 0, sizeof(BCCX_Node));
+		cur->next=NULL;
+//		bccx_memset(cur, 0, sizeof(BCCX_Node));
 		return(cur);
 	}
 
@@ -102,7 +124,9 @@ BCCX_Node *BCCX_AllocNode(void)
 
 	cur=bccx_free_node;
 	bccx_free_node=cur->next;
-	memset(cur, 0, sizeof(BCCX_Node));
+	cur->next=NULL;
+
+//	bccx_memset(cur, 0, sizeof(BCCX_Node));
 //	cur=bgbcc_tmalloc("_bccx_node_t", sizeof(BCCX_Node));
 	return(cur);
 }
@@ -117,7 +141,7 @@ BCCX_Node *BCCX_AllocNode(void)
 	{
 		cur=bccx_free_attr;
 		bccx_free_attr=cur->next;
-		memset(cur, 0, sizeof(BCCX_Attr));
+		bccx_memset(cur, 0, sizeof(BCCX_Attr));
 		return(cur);
 	}
 
@@ -133,7 +157,7 @@ BCCX_Node *BCCX_AllocNode(void)
 //	cur=bgbcc_tmalloc("_bccx_attr_t", sizeof(BCCX_Attr));
 	cur=bccx_free_attr;
 	bccx_free_attr=cur->next;
-	memset(cur, 0, sizeof(BCCX_Attr));
+	bccx_memset(cur, 0, sizeof(BCCX_Attr));
 	return(cur);
 }
 #endif
@@ -141,6 +165,8 @@ BCCX_Node *BCCX_AllocNode(void)
 void BCCX_FreeNode(BCCX_Node *n)
 {
 	if(!n)return;
+
+	bccx_memset(n, 0, sizeof(BCCX_Node));
 
 //	if(n->tag==BGBCC_UNDEFINED)
 //		{ *(int *)-1=-1; }

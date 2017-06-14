@@ -476,6 +476,7 @@ int idx_literals[65536];
 int n_literals, m_literals;
 
 int hash_literals[4096];
+int manif_literal;
 
 // BGBCC_CCXL_TypeOverflow *tyovf[1024];
 BGBCC_CCXL_TypeOverflow *tyovf[16384];

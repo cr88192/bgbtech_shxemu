@@ -1427,7 +1427,7 @@ char *BGBCP_TokenLang2(char *s, char *b, int *ty, int lang)
 	static char *ls[BGBCP_TKHASHSZ];
 	static char *ls1[BGBCP_TKHASHSZ];
 	static int lty[BGBCP_TKHASHSZ];
-	static s16 llen[BGBCP_TKHASHSZ];
+	static int llen[BGBCP_TKHASHSZ];
 	static int flush=0;
 	char *tb;
 	int i, j, k;
@@ -1464,7 +1464,7 @@ char *BGBCP_TokenLang2(char *s, char *b, int *ty, int lang)
 
 	if(ls[i]==s)
 	{
-		tb[255]=0;
+//		tb[255]=0;
 
 		memcpy(b, tb, llen[i]+1);
 //		strcpy(b, tb);
