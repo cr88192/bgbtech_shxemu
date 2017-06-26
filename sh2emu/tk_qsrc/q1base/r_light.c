@@ -73,7 +73,8 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node)
 	msurface_t	*surf;
 	int			i;
 	
-	if (node->contents < 0)
+//	if (node->contents < 0)
+	if (node->contents)
 		return;
 
 	splitplane = node->plane;
@@ -92,7 +93,8 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node)
 		
 // mark the polygons
 	surf = cl.worldmodel->surfaces + node->firstsurface;
-	for (i=0 ; i<node->numsurfaces ; i++, surf++)
+//	for (i=0 ; i<node->numsurfaces ; i++, surf++)
+	for (i=0 ; i<node->numsurfaces ; i++)
 	{
 		if (surf->dlightframe != r_dlightframecount)
 		{
@@ -100,6 +102,7 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node)
 			surf->dlightframe = r_dlightframecount;
 		}
 		surf->dlightbits |= bit;
+		surf=surf+1;
 	}
 
 	R_MarkLights (light, bit, node->children[0]);
@@ -153,7 +156,8 @@ int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 	unsigned	scale;
 	int			maps;
 
-	if (node->contents < 0)
+//	if (node->contents < 0)
+	if (node->contents)
 		return -1;		// didn't hit anything
 	
 // calculate mid point
@@ -239,7 +243,11 @@ int R_LightPoint (vec3_t p)
 {
 	vec3_t		end;
 	int			r;
-	
+
+#ifdef _BGBCC
+	return 255;
+#endif
+
 	if (!cl.worldmodel->lightdata)
 		return 255;
 	

@@ -284,6 +284,8 @@ char *PR_ValueString (etype_t type, eval_t *val)
 	dfunction_t	*f;
 	
 	type &= ~DEF_SAVEGLOBAL;
+	
+	tk_printf("PR_ValueString: %d\n", type);
 
 	switch (type)
 	{
@@ -291,9 +293,16 @@ char *PR_ValueString (etype_t type, eval_t *val)
 		sprintf (line, "%s", pr_strings + val->string);
 		break;
 	case ev_entity:	
-		sprintf (line, "entity %i", NUM_FOR_EDICT(PROG_TO_EDICT(val->edict)) );
+//		sprintf (line, "entity %i", NUM_FOR_EDICT(PROG_TO_EDICT(val->edict)) );
+		sprintf (line, "entity %i", val->edict );
 		break;
 	case ev_function:
+		if((val->function<0) || (val->function>=progs->numfunctions))
+		{
+			sprintf (line, "bad function %d", val->function);
+			break;
+		}
+
 		f = pr_functions + val->function;
 		sprintf (line, "%s()", pr_strings + f->s_name);
 		break;
@@ -823,19 +832,19 @@ char *ED_ParseEdict (char *data, edict_t *ent)
 		if (!data)
 			Sys_Error ("ED_ParseEntity: EOF without closing brace");
 		
-// anglehack is to allow QuakeEd to write single scalar angles
-// and allow them to be turned into vectors. (FIXME...)
-if (!strcmp(com_token, "angle"))
-{
-	strcpy (com_token, "angles");
-	anglehack = true;
-}
-else
-	anglehack = false;
+		// anglehack is to allow QuakeEd to write single scalar angles
+		// and allow them to be turned into vectors. (FIXME...)
+		if (!strcmp(com_token, "angle"))
+		{
+			strcpy (com_token, "angles");
+			anglehack = true;
+		}
+		else
+			anglehack = false;
 
-// FIXME: change light to _light to get rid of this hack
-if (!strcmp(com_token, "light"))
-	strcpy (com_token, "light_lev");	// hack for single light def
+		// FIXME: change light to _light to get rid of this hack
+		if (!strcmp(com_token, "light"))
+			strcpy (com_token, "light_lev");	// hack for single light def
 
 		strcpy (keyname, com_token);
 
@@ -869,12 +878,12 @@ if (!strcmp(com_token, "light"))
 			continue;
 		}
 
-if (anglehack)
-{
-char	temp[32];
-strcpy (temp, com_token);
-sprintf (com_token, "0 %s 0", temp);
-}
+		if (anglehack)
+		{
+		char	temp[32];
+		strcpy (temp, com_token);
+		sprintf (com_token, "0 %s 0", temp);
+		}
 
 		if (!ED_ParseEpair ((void *)&ent->v, key, com_token))
 			Host_Error ("ED_ParseEdict: parse error");
@@ -1019,6 +1028,30 @@ void PR_LoadProgs (void)
 	pr_globals = (float *)pr_global_struct;
 	
 	pr_edict_size = progs->entityfields * 4 + sizeof (edict_t) - sizeof(entvars_t);
+
+#if 1
+	printf("PR_LoadProgs progs=%p\n", progs);
+
+	printf("PR_LoadProgs pr_functions=%p,%d\n",
+		pr_functions, progs->ofs_functions);
+	printf("PR_LoadProgs pr_strings=%p,%d\n",
+		pr_strings, progs->ofs_strings);
+	printf("PR_LoadProgs pr_globaldefs=%p,%d\n",
+		pr_globaldefs, progs->ofs_globaldefs);
+	printf("PR_LoadProgs pr_fielddefs=%p,%d\n",
+		pr_fielddefs, progs->ofs_fielddefs);
+	printf("PR_LoadProgs pr_statements=%p,%d\n",
+		pr_statements, progs->ofs_statements);
+	printf("PR_LoadProgs pr_globals=%p,%d\n",
+		pr_globals, progs->ofs_globals);
+
+	printf("PR_LoadProgs pr_edict_size=%d\n", pr_edict_size);
+
+	printf("PR_LoadProgs nStrings=%d\n", progs->numstrings);
+
+
+	printf("PR_LoadProgs nStatements=%d\n", progs->numstatements);
+#endif
 	
 // byte swap the lumps
 	for (i=0 ; i<progs->numstatements ; i++)
@@ -1028,6 +1061,8 @@ void PR_LoadProgs (void)
 		pr_statements[i].b = LittleShort(pr_statements[i].b);
 		pr_statements[i].c = LittleShort(pr_statements[i].c);
 	}
+
+	printf("PR_LoadProgs nFuncs=%d\n", progs->numfunctions);
 
 	for (i=0 ; i<progs->numfunctions; i++)
 	{
@@ -1039,12 +1074,16 @@ void PR_LoadProgs (void)
 	pr_functions[i].locals = LittleLong (pr_functions[i].locals);
 	}	
 
+	printf("PR_LoadProgs nGbdDefs=%d\n", progs->numglobaldefs);
+
 	for (i=0 ; i<progs->numglobaldefs ; i++)
 	{
 		pr_globaldefs[i].type = LittleShort (pr_globaldefs[i].type);
 		pr_globaldefs[i].ofs = LittleShort (pr_globaldefs[i].ofs);
 		pr_globaldefs[i].s_name = LittleLong (pr_globaldefs[i].s_name);
 	}
+
+	printf("PR_LoadProgs nFieldDefs=%d\n", progs->numfielddefs);
 
 	for (i=0 ; i<progs->numfielddefs ; i++)
 	{
@@ -1054,6 +1093,8 @@ void PR_LoadProgs (void)
 		pr_fielddefs[i].ofs = LittleShort (pr_fielddefs[i].ofs);
 		pr_fielddefs[i].s_name = LittleLong (pr_fielddefs[i].s_name);
 	}
+
+	printf("PR_LoadProgs nGlobals=%d\n", progs->numglobals);
 
 	for (i=0 ; i<progs->numglobals ; i++)
 		((int *)pr_globals)[i] = LittleLong (((int *)pr_globals)[i]);

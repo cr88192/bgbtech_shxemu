@@ -31,7 +31,8 @@ viddef_t	vid;				// global video state
 // #define	BASEWIDTH	480
 // #define	BASEHEIGHT	360
 
-#ifndef CONGFX
+//#ifndef CONGFX
+#if !defined(CONGFX) && !defined(_BGBCC)
 
 #define	BASEWIDTH	640
 #define	BASEHEIGHT	480

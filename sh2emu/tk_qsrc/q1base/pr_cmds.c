@@ -223,6 +223,23 @@ void PF_setsize (void)
 	SetMinMaxSize (e, min, max, false);
 }
 
+int PR_CheckBadString(char *s)
+{
+	u32 addr;
+	
+	addr=(u32)s;
+	addr&=0x1FFFFFFF;
+	
+	if((addr<0x0C000000))
+		return(1);
+	if((addr>=0x18000000))
+		return(1);
+	
+//	tk_printf("Bad Str: ofs=%d\n", s-pr_strings);
+//	PR_RunError ("Bad string Address");
+//	__debugbreak();
+	return(0);
+}
 
 /*
 =================
@@ -240,6 +257,9 @@ void PF_setmodel (void)
 
 	e = G_EDICT(OFS_PARM0);
 	m = G_STRING(OFS_PARM1);
+
+	if(PR_CheckBadString(m))
+		return;
 
 // check to see if model was properly precached
 	for (i=0, check = sv.model_precache ; *check ; i++, check++)
@@ -515,7 +535,10 @@ void PF_ambientsound (void)
 	samp = G_STRING(OFS_PARM1);
 	vol = G_FLOAT(OFS_PARM2);
 	attenuation = G_FLOAT(OFS_PARM3);
-	
+
+	if(PR_CheckBadString(samp))
+		return;
+
 // check to see if samp was properly precached
 	for (soundnum=0, check = sv.sound_precache ; *check ; check++, soundnum++)
 		if (!strcmp(*check,samp))
@@ -568,7 +591,10 @@ void PF_sound (void)
 	sample = G_STRING(OFS_PARM2);
 	volume = G_FLOAT(OFS_PARM3) * 255;
 	attenuation = G_FLOAT(OFS_PARM4);
-	
+
+	if(PR_CheckBadString(sample))
+		return;
+
 	if (volume < 0 || volume > 255)
 		Sys_Error ("SV_StartSound: volume = %i", volume);
 
@@ -811,6 +837,9 @@ void PF_stuffcmd (void)
 	if (entnum < 1 || entnum > svs.maxclients)
 		PR_RunError ("Parm 0 not a client");
 	str = G_STRING(OFS_PARM1);	
+
+	if(PR_CheckBadString(str))
+		return;
 	
 	old = host_client;
 	host_client = &svs.clients[entnum-1];
@@ -832,6 +861,10 @@ void PF_localcmd (void)
 	char	*str;
 	
 	str = G_STRING(OFS_PARM0);	
+
+	if(PR_CheckBadString(str))
+		return;
+
 	Cbuf_AddText (str);
 }
 
@@ -847,7 +880,10 @@ void PF_cvar (void)
 	char	*str;
 	
 	str = G_STRING(OFS_PARM0);
-	
+
+	if(PR_CheckBadString(str))
+		return;
+
 	G_FLOAT(OFS_RETURN) = Cvar_VariableValue (str);
 }
 
@@ -864,7 +900,13 @@ void PF_cvar_set (void)
 	
 	var = G_STRING(OFS_PARM0);
 	val = G_STRING(OFS_PARM1);
-	
+
+	if(PR_CheckBadString(var))
+		return;
+
+	if(PR_CheckBadString(val))
+		return;
+
 	Cvar_Set (var, val);
 }
 
@@ -989,6 +1031,9 @@ void PF_Find (void)
 	s = G_STRING(OFS_PARM2);
 	if (!s)
 		PR_RunError ("PF_Find: bad search string");
+
+	if(PR_CheckBadString(s))
+		return;
 		
 	for (e++ ; e < sv.num_edicts ; e++)
 	{
@@ -1033,7 +1078,10 @@ void PF_Find (void)
 	s = G_STRING(OFS_PARM2);
 	if (!s)
 		PR_RunError ("PF_Find: bad search string");
-		
+
+	if(PR_CheckBadString(s))
+		return;
+
 	for (e++ ; e < sv.num_edicts ; e++)
 	{
 		ed = EDICT_NUM(e);
@@ -1053,10 +1101,14 @@ void PF_Find (void)
 }
 #endif
 
-void PR_CheckEmptyString (char *s)
+int PR_CheckEmptyString (char *s)
 {
 	if (s[0] <= ' ')
-		PR_RunError ("Bad string");
+		return(1);
+
+//	if (s[0] <= ' ')
+//		PR_RunError ("Bad string");
+	return(0);
 }
 
 void PF_precache_file (void)
@@ -1073,8 +1125,13 @@ void PF_precache_sound (void)
 		PR_RunError ("PF_Precache_*: Precache can only be done in spawn functions");
 		
 	s = G_STRING(OFS_PARM0);
+
+	if(PR_CheckBadString(s))
+		return;
+
 	G_INT(OFS_RETURN) = G_INT(OFS_PARM0);
-	PR_CheckEmptyString (s);
+	if (PR_CheckEmptyString (s))
+		return;
 	
 	for (i=0 ; i<MAX_SOUNDS ; i++)
 	{
@@ -1098,8 +1155,13 @@ void PF_precache_model (void)
 		PR_RunError ("PF_Precache_*: Precache can only be done in spawn functions");
 		
 	s = G_STRING(OFS_PARM0);
+
+	if(PR_CheckBadString(s))
+		return;
+
 	G_INT(OFS_RETURN) = G_INT(OFS_PARM0);
-	PR_CheckEmptyString (s);
+	if (PR_CheckEmptyString (s))
+		return;
 
 	for (i=0 ; i<MAX_MODELS ; i++)
 	{
@@ -1227,6 +1289,9 @@ void PF_lightstyle (void)
 	
 	style = G_FLOAT(OFS_PARM0);
 	val = G_STRING(OFS_PARM1);
+
+	if(PR_CheckBadString(val))
+		return;
 
 // change the string in sv
 	sv.lightstyles[style] = val;
@@ -1568,7 +1633,14 @@ void PF_WriteCoord (void)
 
 void PF_WriteString (void)
 {
-	MSG_WriteString (WriteDest(), G_STRING(OFS_PARM1));
+	char *str;
+	
+	str=G_STRING(OFS_PARM1);
+
+	if(PR_CheckBadString(str))
+		return;
+
+	MSG_WriteString (WriteDest(), str);
 }
 
 
@@ -1660,6 +1732,10 @@ void PF_changelevel (void)
 	svs.changelevel_issued = true;
 	
 	s = G_STRING(OFS_PARM0);
+
+	if(PR_CheckBadString(s))
+		return;
+
 	Cbuf_AddText (va("changelevel %s\n",s));
 #endif
 }
@@ -1834,72 +1910,72 @@ PF_Fixme,
 PF_makevectors,	// void(entity e)	makevectors 		= #1;
 PF_setorigin,	// void(entity e, vector o) setorigin	= #2;
 PF_setmodel,	// void(entity e, string m) setmodel	= #3;
-PF_setsize,	// void(entity e, vector min, vector max) setsize = #4;
-PF_Fixme,	// void(entity e, vector min, vector max) setabssize = #5;
-PF_break,	// void() break						= #6;
-PF_random,	// float() random						= #7;
-PF_sound,	// void(entity e, float chan, string samp) sound = #8;
+PF_setsize,		// void(entity e, vector min, vector max) setsize = #4;
+PF_Fixme,		// void(entity e, vector min, vector max) setabssize = #5;
+PF_break,		// void() break						= #6;
+PF_random,		// float() random						= #7;
+PF_sound,		// void(entity e, float chan, string samp) sound = #8;
 PF_normalize,	// vector(vector v) normalize			= #9;
-PF_error,	// void(string e) error				= #10;
+PF_error,		// void(string e) error				= #10;
 PF_objerror,	// void(string e) objerror				= #11;
-PF_vlen,	// float(vector v) vlen				= #12;
+PF_vlen,		// float(vector v) vlen				= #12;
 PF_vectoyaw,	// float(vector v) vectoyaw		= #13;
-PF_Spawn,	// entity() spawn						= #14;
-PF_Remove,	// void(entity e) remove				= #15;
+PF_Spawn,		// entity() spawn						= #14;
+PF_Remove,		// void(entity e) remove				= #15;
 PF_traceline,	// float(vector v1, vector v2, float tryents) traceline = #16;
 PF_checkclient,	// entity() clientlist					= #17;
-PF_Find,	// entity(entity start, .string fld, string match) find = #18;
+PF_Find,		// entity(entity start, .string fld, string match) find = #18;
 PF_precache_sound,	// void(string s) precache_sound		= #19;
 PF_precache_model,	// void(string s) precache_model		= #20;
 PF_stuffcmd,	// void(entity client, string s)stuffcmd = #21;
 PF_findradius,	// entity(vector org, float rad) findradius = #22;
-PF_bprint,	// void(string s) bprint				= #23;
-PF_sprint,	// void(entity client, string s) sprint = #24;
-PF_dprint,	// void(string s) dprint				= #25;
-PF_ftos,	// void(string s) ftos				= #26;
-PF_vtos,	// void(string s) vtos				= #27;
-PF_coredump,
-PF_traceon,
-PF_traceoff,
-PF_eprint,	// void(entity e) debug print an entire entity
-PF_walkmove, // float(float yaw, float dist) walkmove
-PF_Fixme, // float(float yaw, float dist) walkmove
-PF_droptofloor,
-PF_lightstyle,
-PF_rint,
-PF_floor,
-PF_ceil,
-PF_Fixme,
-PF_checkbottom,
-PF_pointcontents,
-PF_Fixme,
-PF_fabs,
-PF_aim,
-PF_cvar,
-PF_localcmd,
-PF_nextent,
-PF_particle,
-PF_changeyaw,
-PF_Fixme,
-PF_vectoangles,
+PF_bprint,		// void(string s) bprint				= #23;
+PF_sprint,		// void(entity client, string s) sprint = #24;
+PF_dprint,		// void(string s) dprint				= #25;
+PF_ftos,		// void(string s) ftos				= #26;
+PF_vtos,		// void(string s) vtos				= #27;
+PF_coredump,	//28
+PF_traceon,		//29
+PF_traceoff,	//30
+PF_eprint,		//31 void(entity e) debug print an entire entity
+PF_walkmove,	//32 float(float yaw, float dist) walkmove
+PF_Fixme,		//33 float(float yaw, float dist) walkmove
+PF_droptofloor,	//34
+PF_lightstyle,	//35
+PF_rint,		//36
+PF_floor,		//37
+PF_ceil,		//38
+PF_Fixme,		//39
+PF_checkbottom,		//40
+PF_pointcontents,	//41
+PF_Fixme,		//42
+PF_fabs,		//43
+PF_aim,			//44
+PF_cvar,		//45
+PF_localcmd,	//46
+PF_nextent,		//47
+PF_particle,	//48
+PF_changeyaw,	//49
+PF_Fixme,		//50
+PF_vectoangles,	//51
 
-PF_WriteByte,
-PF_WriteChar,
-PF_WriteShort,
-PF_WriteLong,
-PF_WriteCoord,
-PF_WriteAngle,
-PF_WriteString,
-PF_WriteEntity,
+PF_WriteByte,	//52
+PF_WriteChar,	//53
+PF_WriteShort,	//54
+PF_WriteLong,	//55
+PF_WriteCoord,	//56
+PF_WriteAngle,	//57
+PF_WriteString,	//58
+PF_WriteEntity,	//59
 
 #ifdef QUAKE2
-PF_sin,
-PF_cos,
-PF_sqrt,
-PF_changepitch,
-PF_TraceToss,
-PF_etos,
-PF_WaterMove,
+PF_sin,			//60
+PF_cos,			//61
+PF_sqrt,		//62
+PF_changepitch,	//63
+PF_TraceToss,	//64
+PF_etos,		//65
+PF_WaterMove,	//66
 #else
 PF_Fixme,
 PF_Fixme,
@@ -1910,25 +1986,25 @@ PF_Fixme,
 PF_Fixme,
 #endif
 
-SV_MoveToGoal,
-PF_precache_file,
-PF_makestatic,
+SV_MoveToGoal,		//67
+PF_precache_file,	//68
+PF_makestatic,		//69
 
-PF_changelevel,
-PF_Fixme,
+PF_changelevel,		//70
+PF_Fixme,			//71
 
-PF_cvar_set,
-PF_centerprint,
+PF_cvar_set,		//72
+PF_centerprint,		//73
 
-PF_ambientsound,
+PF_ambientsound,	//74
 
-PF_precache_model,
-PF_precache_sound,		// precache_sound2 is different only for qcc
-PF_precache_file,
+PF_precache_model,	//75
+PF_precache_sound,	//76 precache_sound2 is different only for qcc
+PF_precache_file,	//77
 
-PF_setspawnparms
+PF_setspawnparms	//78
 };
 
 builtin_t *pr_builtins = pr_builtin;
-int pr_numbuiltins = sizeof(pr_builtin)/sizeof(pr_builtin[0]);
-
+//int pr_numbuiltins = sizeof(pr_builtin)/sizeof(pr_builtin[0]);
+int pr_numbuiltins = 79;

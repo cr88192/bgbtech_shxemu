@@ -29,7 +29,7 @@ vec3_t		viewlightvec;
 alight_t	r_viewlighting = {128, 192, viewlightvec};
 float		r_time1;
 int			r_numallocatededges;
-qboolean	r_drawpolys;
+qboolean	r_drawpolys = true;
 qboolean	r_drawculledpolys;
 qboolean	r_worldpolysbacktofront;
 qboolean	r_recursiveaffinetriangles = true;
@@ -187,6 +187,8 @@ void R_Init (void)
 {
 	int		dummy;
 	
+	printf("R_Init: A0\n");
+	
 // get stack position so we can guess if we are going to overflow
 	r_stack_start = (byte *)&dummy;
 	
@@ -220,8 +222,12 @@ void R_Init (void)
 	Cvar_RegisterVariable (&r_novis);
 	Cvar_RegisterVariable (&r_wateralpha);
 
+	printf("R_Init: A1\n");
+
 	Cvar_SetValue ("r_maxedges", (float)NUMSTACKEDGES);
 	Cvar_SetValue ("r_maxsurfs", (float)NUMSTACKSURFACES);
+
+	printf("R_Init: A2\n");
 
 	view_clipplanes[0].leftedge = true;
 	view_clipplanes[1].rightedge = true;
@@ -233,6 +239,8 @@ void R_Init (void)
 	r_refdef.xOrigin = XCENTERING;
 	r_refdef.yOrigin = YCENTERING;
 
+	printf("R_Init: A3\n");
+
 	R_InitParticles ();
 
 // TODO: collect 386-specific code in one place
@@ -241,7 +249,11 @@ void R_Init (void)
 					     (long)R_EdgeCodeEnd - (long)R_EdgeCodeStart);
 #endif	// id386
 
+	printf("R_Init: A4\n");
+
 	D_Init ();
+
+	printf("R_Init: A5\n");
 }
 
 /*
@@ -766,6 +778,10 @@ void R_DrawBEntitiesOnList (void)
 	if (!r_drawentities.value)
 		return;
 
+#ifdef _BGBCC
+//	return; //BGBCC Debug
+#endif
+
 	VectorCopy (modelorg, oldorigin);
 	insubmodel = true;
 	r_dlightframecount = r_framecount;
@@ -814,6 +830,11 @@ void R_DrawBEntitiesOnList (void)
 							(!cl_dlights[k].radius))
 						{
 							continue;
+						}
+
+						if(!clmodel->nodes)
+						{
+							continue;	//BGBCC Debug
 						}
 
 						R_MarkLights (&cl_dlights[k], 1<<k,
@@ -1067,7 +1088,8 @@ void R_RenderView (void)
 	int		delta;
 	
 	delta = (byte *)&dummy - r_stack_start;
-	if (delta < -10000 || delta > 10000)
+//	if (delta < -10000 || delta > 10000)
+	if (delta < -64000 || delta > 64000)
 		Sys_Error ("R_RenderView: called without enough stack");
 
 	if ( Hunk_LowMark() & 3 )

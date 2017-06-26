@@ -306,9 +306,14 @@ void CL_ParseServerInfo (void)
 
 
 // local state
-	cl_entities[0].model = cl.worldmodel = cl.model_precache[1];
+	cl.worldmodel = cl.model_precache[1];
+	cl_entities[0].model = cl.model_precache[1];
+	
+	tk_printf("A cl.worldmodel=%p\n", cl.worldmodel);
 	
 	R_NewMap ();
+
+	tk_printf("B cl.worldmodel=%p\n", cl.worldmodel);
 
 	Hunk_Check ();		// make sure nothing is hurt
 	
@@ -758,6 +763,8 @@ void CL_ParseServerMessage (void)
 		}
 
 		SHOWNET(svc_strings[cmd]);
+
+//		Con_Printf ("CL_ParseServerMessage: %d\n", cmd);
 	
 	// other commands
 		switch (cmd)

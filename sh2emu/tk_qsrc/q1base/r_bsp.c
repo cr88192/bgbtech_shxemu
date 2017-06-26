@@ -338,11 +338,26 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel)
 
 // FIXME: use bounding-box-based frustum clipping info?
 
-	psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
+	if(!pmodel->surfaces)
+	{
+//		printf("R_DrawSubmodelPolygons: No Surfaces\n");
+		return;
+	}
+
+	psurf = pmodel->surfaces;
+//	tk_printf("R_DrawSolidClippedSubmodelPolygons: A0 %p\n", psurf);
+	psurf += pmodel->firstmodelsurface;
+//	tk_printf("R_DrawSolidClippedSubmodelPolygons: A0 %p\n", psurf);
+
+//	psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
 	numsurfaces = pmodel->nummodelsurfaces;
 	pedges = pmodel->edges;
 
-	for (i=0 ; i<numsurfaces ; i++, psurf++)
+//	tk_printf("R_DrawSolidClippedSubmodelPolygons: %p %d %d %p\n",
+//		psurf, pmodel->firstmodelsurface, numsurfaces, pedges);
+
+//	for (i=0 ; i<numsurfaces ; i++, psurf++)
+	for (i=0 ; i<numsurfaces ; i++)
 	{
 	// find which side of the node we are on
 		pplane = psurf->plane;
@@ -398,6 +413,7 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel)
 				Sys_Error ("no edges in bmodel");
 			}
 		}
+		psurf++;
 	}
 }
 
@@ -417,10 +433,17 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags)
 
 // FIXME: use bounding-box-based frustum clipping info?
 
+	if(!pmodel->surfaces)
+	{
+//		printf("R_DrawSubmodelPolygons: No Surfaces\n");
+		return;
+	}
+
 	psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
 	numsurfaces = pmodel->nummodelsurfaces;
 
-	for (i=0 ; i<numsurfaces ; i++, psurf++)
+//	for (i=0 ; i<numsurfaces ; i++, psurf++)
+	for (i=0 ; i<numsurfaces ; i++)
 	{
 	// find which side of the node we are on
 		pplane = psurf->plane;
@@ -436,6 +459,7 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags)
 		// FIXME: use bounding-box-based frustum clipping info?
 			R_RenderFace (psurf, clipflags);
 		}
+		psurf++;
 	}
 }
 

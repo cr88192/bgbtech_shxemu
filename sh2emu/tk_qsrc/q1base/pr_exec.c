@@ -81,12 +81,23 @@ char *pr_opnames[] =
 "LT",
 "GT", 
 
+#if 0
 "INDIRECT",
 "INDIRECT",
 "INDIRECT", 
 "INDIRECT", 
 "INDIRECT",
 "INDIRECT", 
+#endif
+
+#if 1
+"LOAD_F",
+"LOAD_V",
+"LOAD_S", 
+"LOAD_ENT", 
+"LOAD_FLD",
+"LOAD_FNC", 
+#endif
 
 "ADDRESS", 
 
@@ -208,7 +219,10 @@ void PR_StackTrace (void)
 			Con_Printf ("<NO FUNCTION>\n");
 		}
 		else
-			Con_Printf ("%12s : %s\n", pr_strings + f->s_file, pr_strings + f->s_name);		
+		{
+			Con_Printf ("%12s : %s\n", pr_strings + f->s_file,
+				pr_strings + f->s_name);
+		}
 	}
 }
 
@@ -360,7 +374,7 @@ PR_ExecuteProgram
 */
 void PR_ExecuteProgram (func_t fnum)
 {
-	eval_t	*a, *b, *c;
+	eval_t	*a, *b, *c, *a2;
 	int			s;
 	dstatement_t	*st;
 	dfunction_t	*f, *newf;
@@ -370,12 +384,16 @@ void PR_ExecuteProgram (func_t fnum)
 	int		exitdepth;
 	eval_t	*ptr;
 
+//	tk_puts("PR_ExecuteProgram: A0\n");
+
 	if (!fnum || fnum >= progs->numfunctions)
 	{
 		if (pr_global_struct->self)
 			ED_Print (PROG_TO_EDICT(pr_global_struct->self));
 		Host_Error ("PR_ExecuteProgram: NULL function");
 	}
+
+//	tk_puts("PR_ExecuteProgram: A1\n");
 	
 	f = &pr_functions[fnum];
 
@@ -385,149 +403,217 @@ void PR_ExecuteProgram (func_t fnum)
 // make a stack frame
 	exitdepth = pr_depth;
 
+//	tk_puts("PR_ExecuteProgram: A2\n");
+
 	s = PR_EnterFunction (f);
-	
+
+//	tk_puts("PR_ExecuteProgram: A3\n");
+
 while (1)
 {
+//	tk_puts("PR_ExecuteProgram: B0\n");
+
 	s++;	// next statement
+
+	if(s >= progs->numstatements)
+		__debugbreak();
 
 	st = &pr_statements[s];
 	a = (eval_t *)&pr_globals[st->a];
 	b = (eval_t *)&pr_globals[st->b];
 	c = (eval_t *)&pr_globals[st->c];
-	
+//	a = (eval_t *)(pr_globals+st->a);
+//	b = (eval_t *)(pr_globals+st->b);
+//	c = (eval_t *)(pr_globals+st->c);
+
+	if(st->a >= progs->numglobals)
+		__debugbreak();
+	if(st->b >= progs->numglobals)
+		__debugbreak();
+	if(st->c >= progs->numglobals)
+		__debugbreak();
+
+//	tk_printf("PR_ExecuteProgram: stmt=%d op=%d(%s)"
+//		" a=%d b=%d c=%d\n", s, st->op, pr_opnames[st->op],
+//		st->a, st->b, st->c);
+
+//	tk_printf("PR_ExecuteProgram: a=%d b=%d c=%d\n", st->a, st->b, st->c);
+//	tk_printf("PR_ExecuteProgram: gbls=%p a=%p b=%p c=%p\n",
+//		pr_globals, a, b, c);
+
+//	tk_puts("PR_ExecuteProgram: B1\n");
+
 	if (!--runaway)
 		PR_RunError ("runaway loop error");
 		
 	pr_xfunction->profile++;
 	pr_xstatement = s;
-	
+
+//	tk_puts("PR_ExecuteProgram: B2\n");
+
 	if (pr_trace)
 		PR_PrintStatement (st);
-		
+
+//	tk_puts("PR_ExecuteProgram: B3\n");
+//	tk_printf("PR_ExecuteProgram: B3 stmt=%d op=%d %s\n", s, st->op,
+//		pr_opnames[st->op]);
+
 	switch (st->op)
 	{
 	case OP_ADD_F:
+//		tk_puts("PR_ExecuteProgram: OP_ADD_F\n");
 		c->_float = a->_float + b->_float;
 		break;
 	case OP_ADD_V:
+//		tk_puts("PR_ExecuteProgram: OP_ADD_V\n");
 		c->vector[0] = a->vector[0] + b->vector[0];
 		c->vector[1] = a->vector[1] + b->vector[1];
 		c->vector[2] = a->vector[2] + b->vector[2];
 		break;
 		
 	case OP_SUB_F:
+//		tk_puts("PR_ExecuteProgram: OP_SUB_F\n");
 		c->_float = a->_float - b->_float;
 		break;
 	case OP_SUB_V:
+//		tk_puts("PR_ExecuteProgram: OP_SUB_V\n");
 		c->vector[0] = a->vector[0] - b->vector[0];
 		c->vector[1] = a->vector[1] - b->vector[1];
 		c->vector[2] = a->vector[2] - b->vector[2];
 		break;
 
 	case OP_MUL_F:
+//		tk_puts("PR_ExecuteProgram: OP_MUL_F\n");
 		c->_float = a->_float * b->_float;
 		break;
 	case OP_MUL_V:
+//		tk_puts("PR_ExecuteProgram: OP_MUL_V\n");
 		c->_float = a->vector[0]*b->vector[0]
 				+ a->vector[1]*b->vector[1]
 				+ a->vector[2]*b->vector[2];
 		break;
 	case OP_MUL_FV:
+//		tk_puts("PR_ExecuteProgram: OP_MUL_FV\n");
 		c->vector[0] = a->_float * b->vector[0];
 		c->vector[1] = a->_float * b->vector[1];
 		c->vector[2] = a->_float * b->vector[2];
 		break;
 	case OP_MUL_VF:
+//		tk_puts("PR_ExecuteProgram: OP_MUL_VF\n");
 		c->vector[0] = b->_float * a->vector[0];
 		c->vector[1] = b->_float * a->vector[1];
 		c->vector[2] = b->_float * a->vector[2];
 		break;
 
 	case OP_DIV_F:
+//		tk_puts("PR_ExecuteProgram: OP_DIV_F\n");
 		c->_float = a->_float / b->_float;
 		break;
 	
 	case OP_BITAND:
+//		tk_puts("PR_ExecuteProgram: OP_BITAND_F\n");
 		c->_float = (int)a->_float & (int)b->_float;
 		break;
 	
 	case OP_BITOR:
+//		tk_puts("PR_ExecuteProgram: OP_BITOR_F\n");
 		c->_float = (int)a->_float | (int)b->_float;
 		break;
 	
 		
 	case OP_GE:
+//		tk_puts("PR_ExecuteProgram: OP_GE\n");
 		c->_float = a->_float >= b->_float;
 		break;
 	case OP_LE:
+//		tk_puts("PR_ExecuteProgram: OP_LE\n");
 		c->_float = a->_float <= b->_float;
 		break;
 	case OP_GT:
+//		tk_puts("PR_ExecuteProgram: OP_GT\n");
 		c->_float = a->_float > b->_float;
 		break;
 	case OP_LT:
+//		tk_puts("PR_ExecuteProgram: OP_LT\n");
 		c->_float = a->_float < b->_float;
 		break;
 	case OP_AND:
+//		tk_puts("PR_ExecuteProgram: OP_AND\n");
 		c->_float = a->_float && b->_float;
 		break;
 	case OP_OR:
+//		tk_puts("PR_ExecuteProgram: OP_OR\n");
 		c->_float = a->_float || b->_float;
 		break;
 		
 	case OP_NOT_F:
+//		tk_puts("PR_ExecuteProgram: OP_NOT_F\n");
 		c->_float = !a->_float;
 		break;
 	case OP_NOT_V:
+//		tk_puts("PR_ExecuteProgram: OP_NOT_V\n");
 		c->_float = !a->vector[0] && !a->vector[1] && !a->vector[2];
 		break;
 	case OP_NOT_S:
+//		tk_puts("PR_ExecuteProgram: OP_NOT_S\n");
 		c->_float = !a->string || !pr_strings[a->string];
 		break;
 	case OP_NOT_FNC:
+//		tk_puts("PR_ExecuteProgram: OP_FNC\n");
 		c->_float = !a->function;
 		break;
 	case OP_NOT_ENT:
+//		tk_puts("PR_ExecuteProgram: OP_ENT\n");
 		c->_float = (PROG_TO_EDICT(a->edict) == sv.edicts);
 		break;
 
 	case OP_EQ_F:
+//		tk_puts("PR_ExecuteProgram: OP_EQ_F\n");
 		c->_float = a->_float == b->_float;
 		break;
 	case OP_EQ_V:
+//		tk_puts("PR_ExecuteProgram: OP_EQ_V\n");
 		c->_float = (a->vector[0] == b->vector[0]) &&
 					(a->vector[1] == b->vector[1]) &&
 					(a->vector[2] == b->vector[2]);
 		break;
 	case OP_EQ_S:
+//		tk_puts("PR_ExecuteProgram: OP_EQ_S\n");
 //		if((a->string>>16) || (b->string>>16))
 //			{ c->_float=-1; break; }
 		c->_float = !strcmp(pr_strings+a->string,pr_strings+b->string);
 		break;
 	case OP_EQ_E:
+//		tk_puts("PR_ExecuteProgram: OP_EQ_E\n");
 		c->_float = a->_int == b->_int;
+//		__debugbreak();
 		break;
 	case OP_EQ_FNC:
+//		tk_puts("PR_ExecuteProgram: OP_EQ_FNC\n");
 		c->_float = a->function == b->function;
 		break;
 
 
 	case OP_NE_F:
+//		tk_puts("PR_ExecuteProgram: OP_NE_F\n");
 		c->_float = a->_float != b->_float;
 		break;
 	case OP_NE_V:
+//		tk_puts("PR_ExecuteProgram: OP_NE_V\n");
 		c->_float = (a->vector[0] != b->vector[0]) ||
 					(a->vector[1] != b->vector[1]) ||
 					(a->vector[2] != b->vector[2]);
 		break;
 	case OP_NE_S:
+//		tk_puts("PR_ExecuteProgram: OP_NE_S\n");
 		c->_float = strcmp(pr_strings+a->string,pr_strings+b->string);
 		break;
 	case OP_NE_E:
+//		tk_puts("PR_ExecuteProgram: OP_NE_E\n");
 		c->_float = a->_int != b->_int;
 		break;
 	case OP_NE_FNC:
+//		tk_puts("PR_ExecuteProgram: OP_NE_FNC\n");
 		c->_float = a->function != b->function;
 		break;
 
@@ -537,9 +623,11 @@ while (1)
 	case OP_STORE_FLD:		// integers
 	case OP_STORE_S:
 	case OP_STORE_FNC:		// pointers
+//		tk_puts("PR_ExecuteProgram: OP_STORE_F\n");
 		b->_int = a->_int;
 		break;
 	case OP_STORE_V:
+//		tk_puts("PR_ExecuteProgram: OP_STORE_V\n");
 		b->vector[0] = a->vector[0];
 		b->vector[1] = a->vector[1];
 		b->vector[2] = a->vector[2];
@@ -550,10 +638,12 @@ while (1)
 	case OP_STOREP_FLD:		// integers
 	case OP_STOREP_S:
 	case OP_STOREP_FNC:		// pointers
+//		tk_puts("PR_ExecuteProgram: OP_STOREP_F\n");
 		ptr = (eval_t *)((byte *)sv.edicts + b->_int);
 		ptr->_int = a->_int;
 		break;
 	case OP_STOREP_V:
+//		tk_puts("PR_ExecuteProgram: OP_STOREP_V\n");
 		ptr = (eval_t *)((byte *)sv.edicts + b->_int);
 		ptr->vector[0] = a->vector[0];
 		ptr->vector[1] = a->vector[1];
@@ -561,6 +651,7 @@ while (1)
 		break;
 		
 	case OP_ADDRESS:
+//		tk_puts("PR_ExecuteProgram: OP_ADDRESS\n");
 		ed = PROG_TO_EDICT(a->edict);
 #ifdef PARANOID
 		NUM_FOR_EDICT(ed);		// make sure it's in range
@@ -575,15 +666,23 @@ while (1)
 	case OP_LOAD_ENT:
 	case OP_LOAD_S:
 	case OP_LOAD_FNC:
+//		tk_puts("PR_ExecuteProgram: OP_LOAD_F\n");
 		ed = PROG_TO_EDICT(a->edict);
 #ifdef PARANOID
 		NUM_FOR_EDICT(ed);		// make sure it's in range
 #endif
-		a = (eval_t *)((int *)&ed->v + b->_int);
-		c->_int = a->_int;
+
+//		a = (eval_t *)((int *)&ed->v + b->_int);
+		a2 = (eval_t *)(((int *)(&ed->v)) + b->_int);
+
+//		printf("ed=%d key=%d val=%d\n", a->edict, b->_int, a2->_int);
+
+//		c->_int = a->_int;
+		c->_int = a2->_int;
 		break;
 
 	case OP_LOAD_V:
+//		tk_puts("PR_ExecuteProgram: OP_LOAD_V\n");
 		ed = PROG_TO_EDICT(a->edict);
 #ifdef PARANOID
 		NUM_FOR_EDICT(ed);		// make sure it's in range
@@ -597,16 +696,19 @@ while (1)
 //==================
 
 	case OP_IFNOT:
+//		tk_puts("PR_ExecuteProgram: OP_IFNOT\n");
 		if (!a->_int)
 			s += st->b - 1;	// offset the s++
 		break;
 		
 	case OP_IF:
+//		tk_puts("PR_ExecuteProgram: OP_IF\n");
 		if (a->_int)
 			s += st->b - 1;	// offset the s++
 		break;
 		
 	case OP_GOTO:
+//		tk_puts("PR_ExecuteProgram: OP_GOTO\n");
 		s += st->a - 1;	// offset the s++
 		break;
 		
@@ -619,26 +721,62 @@ while (1)
 	case OP_CALL6:
 	case OP_CALL7:
 	case OP_CALL8:
+//		tk_puts("PR_ExecuteProgram: OP_CALLn\n");
+
 		pr_argc = st->op - OP_CALL0;
 		if (!a->function)
 			PR_RunError ("NULL function");
 
-		newf = &pr_functions[a->function];
+//		tk_printf("PR_ExecuteProgram: OP_CALLn %d\n", pr_argc);
 
-		if (newf->first_statement < 0)
-		{	// negative statements are built in functions
-			i = -newf->first_statement;
-			if (i >= pr_numbuiltins)
-				PR_RunError ("Bad builtin call number");
-			pr_builtins[i] ();
+#if 0
+		tk_printf("PR_ExecuteProgram: OP_CALLn %d (%X %X %X) (%X %X %X)\n",
+			pr_argc,
+			((u32 *)pr_globals)[OFS_PARM0+0],
+			((u32 *)pr_globals)[OFS_PARM0+1],
+			((u32 *)pr_globals)[OFS_PARM0+2],
+			((u32 *)pr_globals)[OFS_PARM1+0],
+			((u32 *)pr_globals)[OFS_PARM1+1],
+			((u32 *)pr_globals)[OFS_PARM1+2]);
+#endif
+
+		if((a->function<0) || (a->function>=progs->numfunctions))
+		{
+			tk_printf("Bad Function %d\n", a->function);
 			break;
 		}
 
+		newf = &pr_functions[a->function];
+//		newf = pr_functions + a->function;
+
+//		if((a->function<0) || (a->function!=((short)a->function)))
+//			__debugbreak();
+
+//		tk_puts("PR_ExecuteProgram: OP_CALLn: A1\n");
+
+//		tk_printf("PR_ExecuteProgram: %d %p %p\n",
+//			a->function, pr_functions, newf);
+
+		if (newf->first_statement < 0)
+		{
+//			tk_puts("PR_ExecuteProgram: OP_CALLn: B1\n");
+			// negative statements are built in functions
+			i = -newf->first_statement;
+			if (i >= pr_numbuiltins)
+				PR_RunError ("Bad builtin call number");
+//			tk_puts("PR_ExecuteProgram: OP_CALLn: B2\n");
+			pr_builtins[i] ();
+//			tk_puts("PR_ExecuteProgram: OP_CALLn: B3\n");
+			break;
+		}
+
+//		tk_puts("PR_ExecuteProgram: OP_CALLn: A2\n");
 		s = PR_EnterFunction (newf);
 		break;
 
 	case OP_DONE:
 	case OP_RETURN:
+//		tk_puts("PR_ExecuteProgram: OP_RETURN\n");
 		pr_globals[OFS_RETURN] = pr_globals[st->a];
 		pr_globals[OFS_RETURN+1] = pr_globals[st->a+1];
 		pr_globals[OFS_RETURN+2] = pr_globals[st->a+2];
@@ -649,6 +787,8 @@ while (1)
 		break;
 		
 	case OP_STATE:
+//		tk_puts("PR_ExecuteProgram: OP_STATE\n");
+
 		ed = PROG_TO_EDICT(pr_global_struct->self);
 #ifdef FPS_20
 		ed->v.nextthink = pr_global_struct->time + 0.05;
@@ -663,6 +803,7 @@ while (1)
 		break;
 		
 	default:
+//		tk_puts("PR_ExecuteProgram: OP: default\n");
 		PR_RunError ("Bad opcode %i", st->op);
 	}
 }

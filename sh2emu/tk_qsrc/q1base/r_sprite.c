@@ -59,7 +59,7 @@ int R_ClipSpriteFace (int nump, clipplane_t *pclipplane)
 {
 	int		i, outcount;
 	float	dists[MAXWORKINGVERTS+1];
-	float	frac, clipdist, *pclipnormal;
+	float	frac, fsc0, fsc1, clipdist, *pclipnormal;
 	float	*in, *instep, *outstep, *vert2;
 
 	clipdist = pclipplane->dist;
@@ -80,9 +80,11 @@ int R_ClipSpriteFace (int nump, clipplane_t *pclipplane)
 	}
 	
 	instep = in;
-	for (i=0 ; i<nump ; i++, instep += sizeof (vec5_t) / sizeof (float))
+//	for (i=0 ; i<nump ; i++, instep += sizeof (vec5_t) / sizeof (float))
+	for (i=0 ; i<nump ; i++)
 	{
 		dists[i] = DotProduct (instep, pclipnormal) - clipdist;
+		instep += sizeof (vec5_t) / sizeof (float);
 	}
 	
 // handle wraparound case
@@ -94,25 +96,72 @@ int R_ClipSpriteFace (int nump, clipplane_t *pclipplane)
 	instep = in;
 	outcount = 0;
 
-	for (i=0 ; i<nump ; i++, instep += sizeof (vec5_t) / sizeof (float))
+//	for (i=0 ; i<nump ; i++, instep += sizeof (vec5_t) / sizeof (float))
+	for (i=0 ; i<nump ; i++)
 	{
+//		tk_printf("R_ClipSpriteFace: vert=%d dist=%f\n", i, dists[i]);
+
 		if (dists[i] >= 0)
 		{
 			Q_memcpy (outstep, instep, sizeof (vec5_t));
+			
+//			tk_printf("R_ClipSpriteFace: A outstep=( %f %f %f ) dist=%f\n",
+//				outstep[0], outstep[1], outstep[2], dists[i]);
+
 			outstep += sizeof (vec5_t) / sizeof (float);
 			outcount++;
 		}
 
-		if (dists[i] == 0 || dists[i+1] == 0)
+//		if (dists[i] == 0 || dists[i+1] == 0)
+		if ((dists[i] == 0) || (dists[i+1] == 0))
+		{
+			instep += sizeof (vec5_t) / sizeof (float);
 			continue;
+		}
 
 		if ( (dists[i] > 0) == (dists[i+1] > 0) )
+		{
+			instep += sizeof (vec5_t) / sizeof (float);
 			continue;
+		}
+
+#if 0
+//		if ( (dists[i] > 0) == (dists[i+1] > 0) )
+		if ( (dists[i] > 0) && (dists[i+1] > 0) )
+		{
+			instep += sizeof (vec5_t) / sizeof (float);
+			continue;
+		}
+
+		if ( (dists[i] <= 0) && (dists[i+1] <= 0) )
+		{
+			instep += sizeof (vec5_t) / sizeof (float);
+			continue;
+		}
+#endif
 			
 	// split it into a new vertex
-		frac = dists[i] / (dists[i] - dists[i+1]);
-			
-		vert2 = instep + sizeof (vec5_t) / sizeof (float);
+//		frac = dists[i] / (dists[i] - dists[i+1]);
+
+		fsc0=(dists[i] - dists[i+1]);
+		if(fsc0 != 0.0)
+			fsc1=1.0/fsc0;
+		else
+			fsc1=0.0;
+		frac = dists[i] * fsc1;
+
+//		tk_printf("R_ClipSpriteFace: B-0 frac=%f d0=%f d1=%f fsc0=%f fsc1=%f\n",
+//			frac, dists[i], dists[i+1], fsc0, fsc1);
+		
+//		if(frac<0.0)frac=0.0;
+//		if(frac>1.0)frac=1.0;
+		
+//		vert2 = instep + sizeof (vec5_t) / sizeof (float);
+		vert2 = instep + (sizeof (vec5_t) / sizeof (float));
+
+//		tk_printf("R_ClipSpriteFace: B vert2=( %f %f %f )\n",
+//			vert2[0], vert2[1], vert2[2]);
+//		tk_printf("R_ClipSpriteFace: B frac=%f\n", frac);
 		
 		outstep[0] = instep[0] + frac*(vert2[0] - instep[0]);
 		outstep[1] = instep[1] + frac*(vert2[1] - instep[1]);
@@ -120,8 +169,13 @@ int R_ClipSpriteFace (int nump, clipplane_t *pclipplane)
 		outstep[3] = instep[3] + frac*(vert2[3] - instep[3]);
 		outstep[4] = instep[4] + frac*(vert2[4] - instep[4]);
 
+//		tk_printf("R_ClipSpriteFace: B outstep=( %f %f %f )\n",
+//			outstep[0], outstep[1], outstep[2]);
+
 		outstep += sizeof (vec5_t) / sizeof (float);
 		outcount++;
+		
+		instep += sizeof (vec5_t) / sizeof (float);
 	}	
 	
 	return outcount;
@@ -135,11 +189,16 @@ R_SetupAndDrawSprite
 */
 void R_SetupAndDrawSprite ()
 {
-	int			i, nump;
+	int			i, j, nump;
 	float		dot, scale, *pv;
-	vec5_t		*pverts;
+	float		*pverts;
+//	vec5_t		*pverts;
 	vec3_t		left, up, right, down, transformed, local;
 	emitpoint_t	outverts[MAXWORKINGVERTS+1], *pout;
+
+#ifdef _BGBCC
+//	return; //BGBCC Debug
+#endif
 
 	dot = DotProduct (r_spritedesc.vpn, modelorg);
 
@@ -153,8 +212,8 @@ void R_SetupAndDrawSprite ()
 	VectorScale (r_spritedesc.vright, r_spritedesc.pspriteframe->left, left);
 	VectorScale (r_spritedesc.vup, r_spritedesc.pspriteframe->down, down);
 
-	pverts = clip_verts[0];
-
+#if 0
+//	pverts = clip_verts[0];
 	pverts[0][0] = r_entorigin[0] + up[0] + left[0];
 	pverts[0][1] = r_entorigin[1] + up[1] + left[1];
 	pverts[0][2] = r_entorigin[2] + up[2] + left[2];
@@ -178,6 +237,36 @@ void R_SetupAndDrawSprite ()
 	pverts[3][2] = r_entorigin[2] + down[2] + left[2];
 	pverts[3][3] = 0;
 	pverts[3][4] = sprite_height;
+#endif
+
+
+#if 1
+	pverts = (float *)(clip_verts[0]);
+
+	pverts[0*5+0] = r_entorigin[0] + up[0] + left[0];
+	pverts[0*5+1] = r_entorigin[1] + up[1] + left[1];
+	pverts[0*5+2] = r_entorigin[2] + up[2] + left[2];
+	pverts[0*5+3] = 0;
+	pverts[0*5+4] = 0;
+
+	pverts[1*5+0] = r_entorigin[0] + up[0] + right[0];
+	pverts[1*5+1] = r_entorigin[1] + up[1] + right[1];
+	pverts[1*5+2] = r_entorigin[2] + up[2] + right[2];
+	pverts[1*5+3] = sprite_width;
+	pverts[1*5+4] = 0;
+
+	pverts[2*5+0] = r_entorigin[0] + down[0] + right[0];
+	pverts[2*5+1] = r_entorigin[1] + down[1] + right[1];
+	pverts[2*5+2] = r_entorigin[2] + down[2] + right[2];
+	pverts[2*5+3] = sprite_width;
+	pverts[2*5+4] = sprite_height;
+
+	pverts[3*5+0] = r_entorigin[0] + down[0] + left[0];
+	pverts[3*5+1] = r_entorigin[1] + down[1] + left[1];
+	pverts[3*5+2] = r_entorigin[2] + down[2] + left[2];
+	pverts[3*5+3] = 0;
+	pverts[3*5+4] = sprite_height;
+#endif
 
 // clip to the frustum in worldspace
 	nump = 4;
@@ -185,40 +274,67 @@ void R_SetupAndDrawSprite ()
 
 	for (i=0 ; i<4 ; i++)
 	{
-		nump = R_ClipSpriteFace (nump, &view_clipplanes[i]);
+//		nump = R_ClipSpriteFace (nump, &view_clipplanes[i]);
+		nump = R_ClipSpriteFace (nump, view_clipplanes+i);
 		if (nump < 3)
 			return;
 		if (nump >= MAXWORKINGVERTS)
-			Sys_Error("R_SetupAndDrawSprite: too many points");
+		{
+//			Sys_Error("R_SetupAndDrawSprite: too many points");
+			return;
+		}
 	}
 
 // transform vertices into viewspace and project
-	pv = &clip_verts[clip_current][0][0];
+//	pv = &clip_verts[clip_current][0][0];
+	pv = clip_verts[clip_current][0];
 	r_spritedesc.nearzi = -999999;
 
 	for (i=0 ; i<nump ; i++)
 	{
+//		tk_printf("R_SetupAndDrawSprite: vert=%d\n", i);
+
 		VectorSubtract (pv, r_origin, local);
 		TransformVector (local, transformed);
+
+//		tk_printf("R_SetupAndDrawSprite: local=( %f %f %f )\n",
+//			local[0], local[1], local[2]);
+
+//		tk_printf("R_SetupAndDrawSprite: transformed=( %f %f %f )\n",
+//			transformed[0], transformed[1], transformed[2]);
 
 		if (transformed[2] < NEAR_CLIP)
 			transformed[2] = NEAR_CLIP;
 
-		pout = &outverts[i];
+//		pout = &outverts[i];
+		pout = outverts+i;
 		pout->zi = 1.0 / transformed[2];
 		if (pout->zi > r_spritedesc.nearzi)
 			r_spritedesc.nearzi = pout->zi;
 
 		pout->s = pv[3];
 		pout->t = pv[4];
+
+//		tk_printf("R_SetupAndDrawSprite: transformed=( %f %f %f )\n",
+//			transformed[0], transformed[1], transformed[2]);
 		
 		scale = xscale * pout->zi;
 		pout->u = (xcenter + scale * transformed[0]);
 
+//		tk_printf("R_SetupAndDrawSprite: A sc=%f xc=%f trans=%f\n",
+//			scale, xcenter, transformed[0]);
+
 		scale = yscale * pout->zi;
 		pout->v = (ycenter - scale * transformed[1]);
+		
+//		tk_printf("R_SetupAndDrawSprite: B sc=%f yc=%f trans=%f\n",
+//			scale, ycenter, transformed[1]);
 
-		pv += sizeof (vec5_t) / sizeof (*pv);
+		j=sizeof (vec5_t) / sizeof (*pv);
+//		tk_printf("R_SetupAndDrawSprite: step=%d\n", j);
+		pv += j;
+
+//		pv += sizeof (vec5_t) / sizeof (*pv);
 	}
 
 // draw it
@@ -397,5 +513,10 @@ void R_DrawSprite (void)
 	R_RotateSprite (psprite->beamlength);
 
 	R_SetupAndDrawSprite ();
+
+	if(sprite_width != r_spritedesc.pspriteframe->width)
+		__debugbreak();
+	if(sprite_height != r_spritedesc.pspriteframe->height)
+		__debugbreak();
 }
 

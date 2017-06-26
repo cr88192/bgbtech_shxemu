@@ -155,11 +155,12 @@ void Q_memcpy (void *dest, void *src, int count)
 {
 	int             i;
 	
-	if (( ( (nlint)dest | (nlint)src | count) & 3) == 0 )
+	if (( ( ((nlint)dest) | ((nlint)src) | count) & 3) == 0 )
+//	if(0)
 	{
 		count>>=2;
 
-		for (i=0 ; (i+3)<count ; i+=4)
+		for (i=0; (i+4)<=count; i+=4)
 		{
 			((int *)dest)[i+0] = ((int *)src)[i+0];
 			((int *)dest)[i+1] = ((int *)src)[i+1];
@@ -172,8 +173,10 @@ void Q_memcpy (void *dest, void *src, int count)
 			((int *)dest)[i] = ((int *)src)[i];
 	}
 	else
+	{
 		for (i=0 ; i<count ; i++)
 			((byte *)dest)[i] = ((byte *)src)[i];
+	}
 }
 
 int Q_memcmp (void *m1, void *m2, int count)
@@ -234,6 +237,13 @@ void Q_strcat (char *dest, char *src)
 
 int Q_strcmp (char *s1, char *s2)
 {
+	if(!s1 || !s2)
+	{
+		if(!s1 && !s2)
+			return(0);
+		return(-1);
+	}
+
 	while (1)
 	{
 		if (*s1 != *s2)
@@ -249,6 +259,13 @@ int Q_strcmp (char *s1, char *s2)
 
 int Q_strncmp (char *s1, char *s2, int count)
 {
+	if(!s1 || !s2)
+	{
+		if(!s1 && !s2)
+			return(0);
+		return(-1);
+	}
+
 	while (1)
 	{
 		if (!count--)
@@ -414,9 +431,9 @@ double Q_atof (char *str)
 	
 //	__tk_trapdebug();
 
-	return(atof(str0));
+//	return(atof(str0));
 
-#if 0
+#if 1
 //
 // assume decimal
 //
@@ -459,7 +476,7 @@ double Q_atof (char *str)
 //		*(int *)-1=-1;
 
 //		val1=atoi(str0);
-		printf("Q_atof: A %s -> %d,%d %f\n", str0, (int)val1, ival, val1);
+//		tk_printf("Q_atof: A %s -> %d,%d %f\n", str0, (int)val1, ival, val1);
 
 		return val1;
 	}
@@ -467,15 +484,16 @@ double Q_atof (char *str)
 	while (total > decimal)
 	{
 //		val /= 10;
-		val *= 0.1;
+//		val *= 0.1;
+		val = val * 0.1;
 		total--;
 	}
 	
 //	val=atof(str);
-//	val1=val*sign;
+	val1=val*sign;
 //	val1=atof(str0);
 //	printf("Q_atof: B %s -> %f\n", str0, val1);
-	printf("Q_atof: B %s -> %d,%d %f\n", str0, (int)val1, ival, val1);
+//	tk_printf("Q_atof: B %s -> %d,%d %f\n", str0, (int)val1, ival, val1);
 	
 	return val1;
 #endif
@@ -680,6 +698,7 @@ int MSG_ReadChar (void)
 
 int MSG_ReadByte (void)
 {
+	byte *p;
 	int     c;
 	
 	if (msg_readcount+1 > net_message.cursize)
@@ -688,7 +707,11 @@ int MSG_ReadByte (void)
 		return -1;
 	}
 		
-	c = (unsigned char)net_message.data[msg_readcount];
+//	c = (unsigned char)net_message.data[msg_readcount];
+	p=net_message.data;
+	p=p+msg_readcount;
+	c = *p;
+
 	msg_readcount++;
 	
 	return c;
@@ -704,11 +727,14 @@ int MSG_ReadShort (void)
 		return -1;
 	}
 		
-	c = (short)(net_message.data[msg_readcount]
-	+ (net_message.data[msg_readcount+1]<<8));
+//	c = (short)(net_message.data[msg_readcount]
+//	+ (net_message.data[msg_readcount+1]<<8));
+//	msg_readcount += 2;
 	
-	msg_readcount += 2;
-	
+	c=MSG_ReadByte();
+	c=c|(MSG_ReadByte()<<8);
+	c=(short)c;
+
 	return c;
 }
 
@@ -774,12 +800,28 @@ char *MSG_ReadString (void)
 
 float MSG_ReadCoord (void)
 {
+//	int i;
+	short i;
+	float f;
+	
+//	i=MSG_ReadShort();
+//	f=i*0.125;
+
+//	tk_printf("MSG_ReadCoord: %d %f\n", i, f);
+
+//	f=MSG_ReadShort() * (1.0/8);
+//	return(f);
+
 	return MSG_ReadShort() * (1.0/8);
 }
 
 float MSG_ReadAngle (void)
 {
-	return MSG_ReadChar() * (360.0/256);
+	float f;
+	f=MSG_ReadChar() * (360.0/256);
+	return(f);
+
+//	return MSG_ReadChar() * (360.0/256);
 }
 
 
@@ -1609,7 +1651,7 @@ byte *COM_LoadFile (char *path, int usehunk)
 // extract the filename base name for hunk tag
 	COM_FileBase (path, base);
 	
-//	printf("COM_LoadFile: %s hdl=%d uh=%d\n", path, h, usehunk);
+	printf("COM_LoadFile: %s hdl=%d uh=%d\n", path, h, usehunk);
 	
 	if (usehunk == 1)
 		buf = Hunk_AllocName (len+1, base);
@@ -1621,6 +1663,9 @@ byte *COM_LoadFile (char *path, int usehunk)
 		buf = Cache_Alloc (loadcache, len+1, base);
 	else if (usehunk == 4)
 	{
+		printf("COM_LoadFile: loadbuf=%p loadsz=%d len=%d\n",
+			loadbuf, loadsize, len);
+
 		if (len+1 > loadsize)
 			buf = Hunk_TempAlloc (len+1);
 		else
@@ -1631,7 +1676,9 @@ byte *COM_LoadFile (char *path, int usehunk)
 
 	if (!buf)
 		Sys_Error ("COM_LoadFile: not enough space for %s", path);
-		
+	
+	printf("COM_LoadFile: buf=%p\n", buf);
+	
 	((byte *)buf)[len] = 0;
 
 	Draw_BeginDisc ();
@@ -1774,6 +1821,9 @@ void COM_AddGameDirectory (char *dir)
 
 	strcpy (com_gamedir, dir);
 
+//	tk_puts("COM_AddGameDirectory: A0\n");
+	tk_printf("COM_AddGameDirectory: %s\n", dir);
+
 //
 // add the directory to the search path
 //
@@ -1782,23 +1832,37 @@ void COM_AddGameDirectory (char *dir)
 	search->next = com_searchpaths;
 	com_searchpaths = search;
 
+	tk_puts("COM_AddGameDirectory: A1\n");
+
 //
 // add any pak files in the format pak0.pak pak1.pak, ...
 //
-	for (i=0 ; ; i++)
+	for(i=0; i<10; i++)
 	{
 		sprintf (pakfile, "%s/pak%i.pak", dir, i);
+//		tk_sprintf (pakfile, "%s/pak%i.pak", dir, i);
+
+		tk_printf("COM_AddGameDirectory: Try %s\n", pakfile);
+
 		pak = COM_LoadPackFile (pakfile);
+		
+//		*(int *)-1=-1;
+		
 		if (!pak)
 		{
 			printf("COM_AddGameDirectory: Fail %s\n", pakfile);
 			break;
 		}
+
+		printf("COM_AddGameDirectory: Got PAK %s %p\n", pakfile, pak);
+
 		search = Hunk_Alloc (sizeof(searchpath_t));
 		search->pack = pak;
 		search->next = com_searchpaths;
 		com_searchpaths = search;               
 	}
+
+	tk_puts("COM_AddGameDirectory: A2\n");
 
 //
 // add the contents of the parms.txt file to the end of the command line
@@ -1817,6 +1881,7 @@ void COM_InitFilesystem (void)
 	char    basedir[MAX_OSPATH];
 	searchpath_t    *search;
 
+	tk_puts("COM_InitFilesystem: A0\n");
 //
 // -basedir <path>
 // Overrides the system supplied base directory (under GAMENAME)
@@ -1834,6 +1899,8 @@ void COM_InitFilesystem (void)
 		if ((basedir[j-1] == '\\') || (basedir[j-1] == '/'))
 			basedir[j-1] = 0;
 	}
+
+	tk_puts("COM_InitFilesystem: A1\n");
 
 //
 // -cachedir <path>
@@ -1853,6 +1920,8 @@ void COM_InitFilesystem (void)
 	else
 		com_cachedir[0] = 0;
 
+	tk_puts("COM_InitFilesystem: A2\n");
+
 //
 // start up with GAMENAME by default (id1)
 //
@@ -1862,6 +1931,8 @@ void COM_InitFilesystem (void)
 		COM_AddGameDirectory (va("%s/rogue", basedir) );
 	if (COM_CheckParm ("-hipnotic"))
 		COM_AddGameDirectory (va("%s/hipnotic", basedir) );
+
+	tk_puts("COM_InitFilesystem: A3\n");
 
 //
 // -game <gamedir>
@@ -1873,6 +1944,8 @@ void COM_InitFilesystem (void)
 		com_modified = true;
 		COM_AddGameDirectory (va("%s/%s", basedir, com_argv[i+1]));
 	}
+
+	tk_puts("COM_InitFilesystem: A4\n");
 
 //
 // -path <dir or packfile> [<dir or packfile>] ...
@@ -1902,8 +1975,12 @@ void COM_InitFilesystem (void)
 		}
 	}
 
+	tk_puts("COM_InitFilesystem: A5\n");
+
 	if (COM_CheckParm ("-proghack"))
 		proghack = true;
+
+	tk_puts("COM_InitFilesystem: A6\n");
 }
 
 

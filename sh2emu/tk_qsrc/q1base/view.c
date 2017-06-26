@@ -788,6 +788,9 @@ void V_BoundOffsets (void)
 	
 	ent = &cl_entities[cl.viewentity];
 
+//	tk_printf("V_BoundOffsets: viewent=%d org=( %f %f %f )\n",
+//		cl.viewentity, ent->origin[0], ent->origin[1], ent->origin[2]);
+
 // absolutely bound refresh reletive to entity clipping hull
 // so the view can never be inside a solid wall
 

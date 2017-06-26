@@ -177,7 +177,8 @@ void BOPS_Error (void)
 }
 
 
-#if	!id386
+//#if	!id386
+#if 1
 
 /*
 ==================
@@ -561,7 +562,8 @@ int GreatestCommonDivisor (int i1, int i2)
 }
 
 
-#if	!id386
+//#if	!id386
+#if 1
 
 // TODO: move to nonintel.c
 

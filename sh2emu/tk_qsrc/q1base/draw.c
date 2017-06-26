@@ -292,6 +292,11 @@ void Draw_Pic (int x, int y, qpic_t *pic)
 	unsigned short	*pusdest;
 	int				v, u;
 
+	if(!pic)
+	{
+		return;
+	}
+
 	if ((x < 0) ||
 		(x + pic->width > vid.width) ||
 		(y < 0) ||
@@ -317,6 +322,9 @@ void Draw_Pic (int x, int y, qpic_t *pic)
 	{
 	// FIXME: pretranslate at load time?
 		pusdest = (unsigned short *)vid.buffer + y * (vid.rowbytes >> 1) + x;
+
+//		u = y * (vid.rowbytes >> 1) + x;
+//		pusdest = (unsigned short *)vid.buffer + u;
 
 		for (v=0 ; v<pic->height ; v++)
 		{
@@ -401,6 +409,11 @@ void Draw_TransPic (int x, int y, qpic_t *pic)
 	{
 	// FIXME: pretranslate at load time?
 		pusdest = (unsigned short *)vid.buffer + y * (vid.rowbytes >> 1) + x;
+
+//		u = y * (vid.rowbytes >> 1) + x;
+//		pusdest = (unsigned short *)vid.buffer + u;
+
+//		*(int *)-1=-1;
 
 		for (v=0 ; v<pic->height ; v++)
 		{
@@ -487,7 +500,10 @@ void Draw_TransPicTranslate (int x, int y, qpic_t *pic, byte *translation)
 	else
 	{
 	// FIXME: pretranslate at load time?
-		pusdest = (unsigned short *)vid.buffer + y * (vid.rowbytes >> 1) + x;
+//		pusdest = (unsigned short *)vid.buffer + y * (vid.rowbytes >> 1) + x;
+
+		u = y * (vid.rowbytes >> 1) + x;
+		pusdest = (unsigned short *)vid.buffer + u;
 
 		for (v=0 ; v<pic->height ; v++)
 		{

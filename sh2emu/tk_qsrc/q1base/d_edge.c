@@ -170,14 +170,24 @@ void D_CalcGradients (msurface_t *pface)
 	float		mipscale;
 	vec3_t		p_temp1;
 	vec3_t		p_saxis, p_taxis;
+	float f0, f1, f2, f3;
 	float		t;
+	int j0, j1, j2, j3;
+	int i;
 
 	pplane = pface->plane;
 
-	mipscale = 1.0 / (float)(1 << miplevel);
+	i = 1 << miplevel;
+	mipscale = 1.0 / ((float)i);
+//	mipscale = 1.0 / (float)(1 << miplevel);
+
+//	tk_printf("mipscape = %f\n", mipscale);
 
 	TransformVector (pface->texinfo->vecs[0], p_saxis);
 	TransformVector (pface->texinfo->vecs[1], p_taxis);
+
+//	tk_printf("p_saxis = ( %f %f %f )\n", p_saxis[0], p_saxis[1], p_saxis[2]);
+//	tk_printf("p_taxis = ( %f %f %f )\n", p_taxis[0], p_taxis[1], p_taxis[2]);
 
 	t = xscaleinv * mipscale;
 	d_sdivzstepu = p_saxis[0] * t;
@@ -192,21 +202,70 @@ void D_CalcGradients (msurface_t *pface)
 	d_tdivzorigin = p_taxis[2] * mipscale - xcenter * d_tdivzstepu -
 			ycenter * d_tdivzstepv;
 
-	VectorScale (transformed_modelorg, mipscale, p_temp1);
+//	tk_printf("%f %f   %f %f   %f %f\n",
+//		d_sdivzstepu, d_tdivzstepu,
+//		d_sdivzstepv, d_tdivzstepv,
+//		d_sdivzorigin, d_tdivzorigin);
 
-	t = 0x10000*mipscale;
+	VectorScale (transformed_modelorg, mipscale, p_temp1);
+//	p_temp1[0]=0;
+//	p_temp1[1]=0;
+//	p_temp1[2]=0;
+
+#if 0
+	tk_printf("transformed_modelorg = ( %f %f %f )\n",
+		transformed_modelorg[0],
+		transformed_modelorg[1],
+		transformed_modelorg[2]);
+	tk_printf("p_temp1 = ( %f %f %f )\n", p_temp1[0], p_temp1[1], p_temp1[2]);
+#endif
+
+#if 0
+//	t = 0x10000*mipscale;
+	t = mipscale * 65536.0;
+
+	f2 = DotProduct (p_temp1, p_saxis);
+	f0 = f2 * 0x10000 + 0.5;
+	f1 = pface->texinfo->vecs[0][3]*t;
+	j0 = (pface->texturemins[0] << 16) >> miplevel;
+	
+	sadjust = ((fixed16_t)f0) - j0 + ((fixed16_t)f1);
+#endif
+
 	sadjust = ((fixed16_t)(DotProduct (p_temp1, p_saxis) * 0x10000 + 0.5)) -
 			((pface->texturemins[0] << 16) >> miplevel)
 			+ pface->texinfo->vecs[0][3]*t;
+
 	tadjust = ((fixed16_t)(DotProduct (p_temp1, p_taxis) * 0x10000 + 0.5)) -
 			((pface->texturemins[1] << 16) >> miplevel)
 			+ pface->texinfo->vecs[1][3]*t;
+
+//	f0 = ((fixed16_t)(DotProduct (p_temp1, p_saxis) * 0x10000 + 0.5)) -
+//			((pface->texturemins[0] << 16) >> miplevel)
+//			+ pface->texinfo->vecs[0][3]*t;
+
+//	f1 = ((fixed16_t)(DotProduct (p_temp1, p_taxis) * 0x10000 + 0.5)) -
+//			((pface->texturemins[1] << 16) >> miplevel)
+//			+ pface->texinfo->vecs[1][3]*t;
+//	sadjust = (int)f0;
+//	tadjust = (int)f1;
+
+//	sadjust = 0;
+
+//	tk_printf("sadjust = %d\n", sadjust>>16);
+//	tk_printf("tadjust = %d\n", tadjust>>16);
+
+//	tk_printf("sadjust = %f\n", sadjust);
+//	tk_printf("tadjust = %f\n", tadjust);
 
 //
 // -1 (-epsilon) so we never wander off the edge of the texture
 //
 	bbextents = ((pface->extents[0] << 16) >> miplevel) - 1;
 	bbextentt = ((pface->extents[1] << 16) >> miplevel) - 1;
+	
+//	tk_printf("bbextents = %d\n", bbextents>>16);
+//	tk_printf("bbextentt = %d\n", bbextentt>>16);
 }
 
 

@@ -96,6 +96,7 @@ void Cbuf_AddText (char *text)
 	}
 
 	SZ_Write (&cmd_text, text, Q_strlen (text));
+//	*(int *)-1=-1;
 }
 
 

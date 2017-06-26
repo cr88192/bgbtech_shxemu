@@ -42,6 +42,9 @@ int tk_ird_init()
 		tk_puts("tk_ird_init: no initrd\n");
 		tk_ird_imgbuf=NULL;
 		return(-1);
+	}else
+	{
+		tk_printf("tk_ird_init: OK %08X\n", reladdr);
 	}
 	
 	tk_vf_register(&tk_vfile_ird_vt);
@@ -55,6 +58,7 @@ int tk_ird_init()
 	ird=(byte *)(0x10000000+reladdr);
 #endif
 	tk_ird_imgbuf=ird;
+	tk_printf("tk_ird_init: IRD=%p\n", tk_ird_imgbuf);
 	return(1);
 }
 
@@ -109,7 +113,7 @@ TK_FILE *tk_ird_fopen(TK_MOUNT *mnt, char *name, char *mode)
 			fd->ram_end=fd->ram_base+sz;
 			fd->ram_ofs=fd->ram_base;
 			
-			printf("tk_ird_fopen: %s %08X %08X\n", name,
+			tk_printf("tk_ird_fopen: %s %08X %08X\n", name,
 				fd->ram_base, fd->ram_end);
 			return(fd);
 		}
@@ -118,7 +122,7 @@ TK_FILE *tk_ird_fopen(TK_MOUNT *mnt, char *name, char *mode)
 		cs+=512+sz;
 	}
 	
-	printf("tk_ird_fopen: can't find %s\n", name);
+	tk_printf("tk_ird_fopen: can't find %s\n", name);
 	return(NULL);
 }
 

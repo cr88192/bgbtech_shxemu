@@ -134,72 +134,73 @@ void __close(int handle);
 void __remove(const char*filename);
 void __rename(const char*old,const char*new);
 long __tell(int handle);
-/*116*/ static FILE permFiles[3];
-/*140*/ FILE*__stdin= &permFiles[0];
+/*78*/ static FILE permFiles[3];
+/*95*/ void tk_printf(char*str,...);
+/*98*/ FILE*__stdin= &permFiles[0];
 FILE*__stdout= &permFiles[1];
 FILE*__stderr= &permFiles[2];
-/*144*/ FILE*__userFiles[(256-3)];
+/*102*/ FILE*__userFiles[(256-3)];
 static FILE*myfile;
 static int spareSpot;
 static int err;
 static int inreopen=0;
-/*150*/ static const char*fnm;
+/*108*/ static const char*fnm;
 static const char*modus;
 static int modeType;
-/*154*/ void __init_stdin(void)
+/*112*/ void __init_stdin(void)
 {
 __stdin= &permFiles[0];
 __stdout= &permFiles[1];
 __stderr= &permFiles[2];
 }
-/*161*/ FILE* *__get_stdin()
+/*119*/ FILE* *__get_stdin()
 {return(&__stdin);}
 FILE* *__get_stdout()
 {return(&__stdout);}
 FILE* *__get_stderr()
 {return(&__stderr);}
-/*168*/ static void dblcvt(double num,char cnvtype,size_t nwidth,int nprecision,char*result);
-/*170*/ static int vvprintf(const char*format,va_list arg,FILE*fq,char*s);
+/*126*/ static void dblcvt(double num,char cnvtype,size_t nwidth,int nprecision,char*result);
+/*128*/ static int vvprintf(const char*format,va_list arg,FILE*fq,char*s);
 static int vvscanf(const char*format,va_list arg,FILE*fp,const char*s);
 static void fopen2(void);
 static void fopen3(void);
 static void findSpareSpot(void);
 static void checkMode(void);
 static void osfopen(void);
-/*179*/ static void fwriteSlow(const void*ptr,size_t size,size_t nmemb,FILE*stream,size_t towrite,size_t*elemWritten);
-/*185*/ static void fwriteSlowT(const void*ptr,FILE*stream,size_t towrite,size_t*actualWritten);
-/*189*/ static void fwriteSlowB(const void*ptr,FILE*stream,size_t towrite,size_t*actualWritten);
-/*193*/ static void freadSlowT(void*ptr,FILE*stream,size_t toread,size_t*actualRead);
-/*197*/ static void freadSlowB(void*ptr,FILE*stream,size_t toread,size_t*actualRead);
-/*203*/ static int examine(const char* *formt,FILE*fq,char*s,va_list*arg,int chcount);
-/*217*/ int printf(const char*format,...)
+/*137*/ static void fwriteSlow(const void*ptr,size_t size,size_t nmemb,FILE*stream,size_t towrite,size_t*elemWritten);
+/*143*/ static void fwriteSlowT(const void*ptr,FILE*stream,size_t towrite,size_t*actualWritten);
+/*147*/ static void fwriteSlowB(const void*ptr,FILE*stream,size_t towrite,size_t*actualWritten);
+/*151*/ static void freadSlowT(void*ptr,FILE*stream,size_t toread,size_t*actualRead);
+/*155*/ static void freadSlowB(void*ptr,FILE*stream,size_t toread,size_t*actualRead);
+/*161*/ static int examine(const char* *formt,FILE*fq,char*s,va_list*arg,int chcount);
+/*165*/ int printf(const char*format,...)
 {
 char tbuf[1024];
 va_list arg;
 int ret;
-/*223*/ __builtin_va_start(arg,format);
-/*225*/ ret=vsprintf(tbuf,format,arg);
+/*171*/ __builtin_va_start(arg,format);
+/*173*/ ret=vsprintf(tbuf,format,arg);
 __builtin_va_end(arg);
-/*228*/ tk_puts(tbuf);
-/*230*/ return(ret);
+/*176*/ tk_puts(tbuf);
+/*178*/ return(ret);
 }
-/*233*/ int fprintf(FILE*stream,const char*format,...)
+/*181*/ int fprintf(FILE*stream,const char*format,...)
 {
 va_list arg;
 int ret;
-/*238*/ __builtin_va_start(arg,format);
+/*186*/ __builtin_va_start(arg,format);
 ret=vfprintf(stream,format,arg);
 __builtin_va_end(arg);
 return(ret);
 }
-/*244*/ int vfprintf(FILE*stream,const char*format,va_list arg)
+/*192*/ int vfprintf(FILE*stream,const char*format,va_list arg)
 {
 int ret;
-/*248*/ stream->quickText=0;
+/*196*/ stream->quickText=0;
 ret=vvprintf(format,arg,stream,((void*)0));
 return(ret);
 }
-/*253*/ FILE*fopen(const char*filename,const char*mode)
+/*201*/ FILE*fopen(const char*filename,const char*mode)
 {
 fnm=filename;
 modus=mode;
@@ -210,6 +211,7 @@ if(!err)
 myfile=malloc(sizeof(FILE));
 if(myfile==((void*)0))
 {
+tk_puts("fopen: malloc fail\n");
 err=1;
 }
 else
@@ -227,7 +229,7 @@ myfile=((void*)0);
 }
 return(myfile);
 }
-/*282*/ static void fopen2(void)
+/*231*/ static void fopen2(void)
 {
 checkMode();
 if(!err)
@@ -239,29 +241,36 @@ if(!err)
 __userFiles[spareSpot]=myfile;
 myfile->intFno=spareSpot;
 fopen3();
+}else
+{
+tk_puts("fopen2: error status B\n");
 }
+}else
+{
+tk_puts("fopen2: error status A\n");
 }
 return;
 }
-/*299*/ static void fopen3(void)
+/*254*/ static void fopen3(void)
 {
 myfile->intBuffer=malloc(6144+8);
 if(myfile->intBuffer==((void*)0))
 {
+tk_puts("fopen3: intBuffer malloc fail\n");
 err=1;
 }
 else
 {
 myfile->theirBuffer=0;
 myfile->fbuf=myfile->intBuffer+2;
-*myfile->fbuf++ ='';
-*myfile->fbuf++ ='';
+*myfile->fbuf++ ='\x00';
+*myfile->fbuf++ ='\x00';
 myfile->szfbuf=6144;
 myfile->quickText=0;
 myfile->noNl=0;
 myfile->endbuf=myfile->fbuf+myfile->szfbuf;
 *myfile->endbuf='\n';
-/*318*/ myfile->upto=myfile->endbuf;
+/*274*/ myfile->upto=myfile->endbuf;
 myfile->bufStartR= -(long)myfile->szfbuf;
 myfile->errorInd=0;
 myfile->eofInd=0;
@@ -272,7 +281,7 @@ if(!inreopen)
 myfile->permfile=0;
 }
 myfile->isopen=1;
-/*330*/ if(!myfile->textMode)
+/*286*/ if(!myfile->textMode)
 {
 myfile->quickBin=1;
 }
@@ -280,7 +289,7 @@ else
 {
 myfile->quickBin=0;
 }
-/*339*/ myfile->mode=2;
+/*295*/ myfile->mode=2;
 switch(modeType)
 {
 case 2:
@@ -309,10 +318,10 @@ break;
 }
 return;
 }
-/*369*/ static void findSpareSpot(void)
+/*325*/ static void findSpareSpot(void)
 {
 int x;
-/*373*/ for(x=0;x<(256-3);x++)
+/*329*/ for(x=0;x<(256-3);x++)
 {
 if(__userFiles[x]==((void*)0))
 {
@@ -322,6 +331,7 @@ break;
 if(x==(256-3))
 {
 err=1;
+tk_puts("findSpareSpot: find spot fail\n");
 }
 else
 {
@@ -329,7 +339,7 @@ spareSpot=x;
 }
 return;
 }
-/*405*/ static void checkMode(void)
+/*362*/ static void checkMode(void)
 {
 if(strncmp(modus,"r+b",3)==0)
 {
@@ -397,20 +407,24 @@ err=1;
 return;
 }
 if((modeType==4)||(modeType==5)||(modeType==6)||(modeType==10)||(modeType==11)||(modeType==12))
-/*478*/ {
+/*435*/ {
 myfile->textMode=0;
 }
 else
 {
 myfile->textMode=1;
 }
-return;
+/*445*/ return;
 }
-/*488*/ static void osfopen(void)
+/*448*/ static void osfopen(void)
 {
 int mode;
 int errind;
-/*493*/ if((modeType==1)||(modeType==4))
+/*457*/ if(modeType==1)
+{
+mode=0;
+}
+else if(modeType==4)
 {
 mode=0;
 }
@@ -421,23 +435,25 @@ mode=1;
 else
 {
 mode=2;
-/*507*/ err=1;
+/*475*/ err=1;
 (*(__get_errno()))=2;
+/*478*/ tk_printf("osfopen: bad mode %d\n",modeType);
 return;
 }
-/*512*/ myfile->hfile=__open(fnm,mode,(int)&errind);
+/*482*/ myfile->hfile=__open(fnm,mode,(int)&errind);
 if(errind)
 {
 err=1;
 (*(__get_errno()))=myfile->hfile;
+tk_puts("osfopen: got error status\n");
 }
 return;
 }
-/*521*/ int fclose(FILE*stream)
+/*492*/ int fclose(FILE*stream)
 {
 if(!stream)
 return(-1);
-/*526*/ if(!stream->isopen)
+/*497*/ if(!stream->isopen)
 {
 return(-1);
 }
@@ -445,16 +461,16 @@ fflush(stream);
 __close(stream->hfile);
 return(0);
 }
-/*535*/ size_t fread(void*ptr,size_t size,size_t nmemb,FILE*stream)
-/*539*/ {
+/*506*/ size_t fread(void*ptr,size_t size,size_t nmemb,FILE*stream)
+/*510*/ {
 size_t toread;
 size_t elemRead;
 size_t actualRead;
 int errind;
 size_t tempRead;
-/*546*/ if(!stream)
+/*517*/ if(!stream)
 return(-1);
-/*549*/ if(nmemb==1)
+/*520*/ if(nmemb==1)
 {
 toread=size;
 }
@@ -470,8 +486,8 @@ if(toread<stream->szfbuf)
 {
 stream->quickBin=0;
 }
-/*567*/ stream->quickBin=1;
-/*569*/ if(stream->ungetCh!= -1)
+/*538*/ stream->quickBin=1;
+/*540*/ if(stream->ungetCh!= -1)
 {
 * --stream->upto=(char)stream->ungetCh;
 stream->ungetCh= -1;
@@ -536,7 +552,7 @@ else
 {
 actualRead=tempRead;
 }
-/*635*/ if(nmemb==1)
+/*606*/ if(nmemb==1)
 {
 if(actualRead==size)
 {
@@ -575,8 +591,8 @@ stream->bufStartR+=actualRead;
 return(elemRead);
 }
 }
-/*683*/ static void freadSlowT(void*ptr,FILE*stream,size_t toread,size_t*actualRead)
-/*687*/ {
+/*654*/ static void freadSlowT(void*ptr,FILE*stream,size_t toread,size_t*actualRead)
+/*658*/ {
 int finReading=0;
 size_t avail;
 size_t need;
@@ -584,19 +600,19 @@ char*p;
 size_t got;
 size_t tempRead;
 int errind;
-/*696*/ *actualRead=0;
+/*667*/ *actualRead=0;
 while(!finReading)
 {
 if(stream->upto==stream->endbuf)
 {
 tempRead=__read(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
-/*705*/ if(errind)
+/*676*/ if(errind)
 {
 (*(__get_errno()))=tempRead;
 tempRead=0;
 stream->errorInd=1;
 }
-/*712*/ if(tempRead==0)
+/*683*/ if(tempRead==0)
 {
 stream->eofInd=1;
 break;
@@ -650,12 +666,12 @@ finReading=1;
 }
 return;
 }
-/*767*/ static void freadSlowB(void*ptr,FILE*stream,size_t toread,size_t*actualRead)
-/*771*/ {
+/*738*/ static void freadSlowB(void*ptr,FILE*stream,size_t toread,size_t*actualRead)
+/*742*/ {
 size_t avail;
 size_t tempRead;
 int errind;
-/*776*/ avail=(size_t)(stream->endbuf-stream->upto);
+/*747*/ avail=(size_t)(stream->endbuf-stream->upto);
 memcpy(ptr,stream->upto,avail);
 *actualRead=avail;
 stream->bufStartR+=(stream->endbuf-stream->fbuf);
@@ -663,8 +679,8 @@ if(toread>=stream->szfbuf)
 {
 stream->upto=stream->endbuf;
 stream->quickBin=1;
-/*785*/ tempRead=__read(stream->hfile,(char*)ptr+ *actualRead,toread- *actualRead,&errind);
-/*789*/ if(errind)
+/*756*/ tempRead=__read(stream->hfile,(char*)ptr+ *actualRead,toread- *actualRead,&errind);
+/*760*/ if(errind)
 {
 (*(__get_errno()))=tempRead;
 tempRead=0;
@@ -680,9 +696,9 @@ stream->bufStartR+=tempRead;
 else
 {
 size_t left;
-/*806*/ stream->upto=stream->fbuf;
-/*808*/ tempRead=__read(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
-/*812*/ left=toread- *actualRead;
+/*777*/ stream->upto=stream->fbuf;
+/*779*/ tempRead=__read(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
+/*783*/ left=toread- *actualRead;
 if(errind)
 {
 (*(__get_errno()))=tempRead;
@@ -701,20 +717,20 @@ if(avail>left)
 avail=left;
 }
 memcpy((char*)ptr+ *actualRead,stream->upto,avail);
-/*833*/ stream->upto+=avail;
+/*804*/ stream->upto+=avail;
 *actualRead+=avail;
 }
 return;
 }
-/*839*/ size_t fwrite(const void*ptr,size_t size,size_t nmemb,FILE*stream)
-/*843*/ {
+/*810*/ size_t fwrite(const void*ptr,size_t size,size_t nmemb,FILE*stream)
+/*814*/ {
 size_t towrite;
 size_t elemWritten;
 size_t actualWritten;
 int errind;
-/*849*/ if(!stream)
+/*820*/ if(!stream)
 return(-1);
-/*852*/ if(nmemb==1)
+/*823*/ if(nmemb==1)
 {
 towrite=size;
 }
@@ -742,13 +758,13 @@ return(elemWritten);
 else
 {
 actualWritten=__write(stream->hfile,ptr,towrite,&errind);
-/*883*/ if(errind)
+/*854*/ if(errind)
 {
 stream->errorInd=1;
 actualWritten=0;
 (*(__get_errno()))=actualWritten;
 }
-/*890*/ if(nmemb==1)
+/*861*/ if(nmemb==1)
 {
 if(actualWritten==size)
 {
@@ -771,10 +787,10 @@ stream->bufStartR+=actualWritten;
 return(elemWritten);
 }
 }
-/*914*/ static void fwriteSlow(const void*ptr,size_t size,size_t nmemb,FILE*stream,size_t towrite,size_t*elemWritten)
-/*920*/ {
+/*885*/ static void fwriteSlow(const void*ptr,size_t size,size_t nmemb,FILE*stream,size_t towrite,size_t*elemWritten)
+/*891*/ {
 size_t actualWritten;
-/*931*/ if(stream->upto==stream->endbuf)
+/*902*/ if(stream->upto==stream->endbuf)
 {
 stream->bufStartR+=(stream->endbuf-stream->fbuf);
 stream->upto=stream->fbuf;
@@ -809,8 +825,8 @@ else
 }
 return;
 }
-/*971*/ static void fwriteSlowT(const void*ptr,FILE*stream,size_t towrite,size_t*actualWritten)
-/*975*/ {
+/*942*/ static void fwriteSlowT(const void*ptr,FILE*stream,size_t towrite,size_t*actualWritten)
+/*946*/ {
 char*p;
 char*tptr;
 char*oldp;
@@ -819,7 +835,7 @@ size_t rem;
 int fin;
 size_t tempWritten;
 int errind;
-/*985*/ *actualWritten=0;
+/*956*/ *actualWritten=0;
 tptr=(char*)ptr;
 p=tptr;
 oldp=p;
@@ -843,8 +859,8 @@ else
 memcpy(stream->upto,oldp,rem);
 oldp+=rem;
 diffp-=rem;
-/*1010*/ tempWritten=__write(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
-/*1014*/ if(errind)
+/*981*/ tempWritten=__write(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
+/*985*/ if(errind)
 {
 stream->errorInd=1;
 return;
@@ -861,36 +877,34 @@ rem=(size_t)(stream->endbuf-stream->upto);
 if(rem<3)
 {
 tempWritten=__write(stream->hfile,stream->fbuf,(size_t)(stream->upto-stream->fbuf),&errind);
-/*1034*/ if(errind)
+/*1005*/ if(errind)
 {
 stream->errorInd=1;
 (*(__get_errno()))=tempWritten;
 return;
 }
-/*1041*/ stream->upto=stream->fbuf;
+/*1012*/ stream->upto=stream->fbuf;
 stream->bufStartR+=tempWritten;
 }
-/*1053*/ {
-memcpy(stream->upto,"\n",1);
+/*1016*/ memcpy(stream->upto,"\n",1);
 stream->upto+=1;
-}
-*actualWritten+=1;
+/*1019*/ *actualWritten+=1;
 oldp=p+1;
 p=(char*)memchr(oldp,'\n',towrite-(size_t)(oldp-tptr));
 }
-/*1062*/ if((stream->bufTech==2)&&(stream->upto!=stream->fbuf)&&(oldp!=tptr))
-/*1065*/ {
+/*1024*/ if((stream->bufTech==2)&&(stream->upto!=stream->fbuf)&&(oldp!=tptr))
+/*1027*/ {
 tempWritten=__write(stream->hfile,stream->fbuf,(size_t)(stream->upto-stream->fbuf),&errind);
-/*1070*/ if(errind)
+/*1032*/ if(errind)
 {
 stream->errorInd=1;
 (*(__get_errno()))=tempWritten;
 return;
 }
-/*1077*/ stream->upto=stream->fbuf;
+/*1039*/ stream->upto=stream->fbuf;
 stream->bufStartR+=tempWritten;
 }
-/*1081*/ diffp=towrite- *actualWritten;
+/*1043*/ diffp=towrite- *actualWritten;
 while(diffp!=0)
 {
 rem=(size_t)(stream->endbuf-stream->upto);
@@ -903,8 +917,8 @@ stream->upto+=diffp;
 else
 {
 memcpy(stream->upto,oldp,rem);
-/*1095*/ tempWritten=__write(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
-/*1099*/ if(errind)
+/*1057*/ tempWritten=__write(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
+/*1061*/ if(errind)
 {
 stream->errorInd=1;
 (*(__get_errno()))=tempWritten;
@@ -921,25 +935,25 @@ oldp+=rem;
 diffp=towrite- *actualWritten;
 }
 if((stream->bufTech==3)&&(stream->upto!=stream->fbuf))
-/*1117*/ {
+/*1079*/ {
 tempWritten=__write(stream->hfile,stream->fbuf,(size_t)(stream->upto-stream->fbuf),&errind);
-/*1122*/ if(errind)
+/*1084*/ if(errind)
 {
 stream->errorInd=1;
 (*(__get_errno()))=tempWritten;
 return;
 }
-/*1129*/ stream->upto=stream->fbuf;
+/*1091*/ stream->upto=stream->fbuf;
 stream->bufStartR+=tempWritten;
 }
 return;
 }
-/*1138*/ static void fwriteSlowB(const void*ptr,FILE*stream,size_t towrite,size_t*actualWritten)
-/*1142*/ {
+/*1100*/ static void fwriteSlowB(const void*ptr,FILE*stream,size_t towrite,size_t*actualWritten)
+/*1104*/ {
 size_t spare;
 size_t tempWritten;
 int errind;
-/*1147*/ spare=(size_t)(stream->endbuf-stream->upto);
+/*1109*/ spare=(size_t)(stream->endbuf-stream->upto);
 if(towrite<spare)
 {
 memcpy(stream->upto,ptr,towrite);
@@ -948,111 +962,91 @@ stream->upto+=towrite;
 return;
 }
 memcpy(stream->upto,ptr,spare);
-/*1157*/ tempWritten=__write(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
-/*1161*/ if(errind)
+/*1119*/ tempWritten=__write(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
+/*1123*/ if(errind)
 {
 stream->errorInd=1;
 (*(__get_errno()))=tempWritten;
 return;
 }
-/*1168*/ *actualWritten=spare;
+/*1130*/ *actualWritten=spare;
 stream->upto=stream->fbuf;
 stream->bufStartR+=tempWritten;
 if(towrite>stream->szfbuf)
 {
 stream->quickBin=1;
-/*1175*/ tempWritten=__write(stream->hfile,(char*)ptr+ *actualWritten,towrite- *actualWritten,&errind);
-/*1179*/ if(errind)
+/*1137*/ tempWritten=__write(stream->hfile,(char*)ptr+ *actualWritten,towrite- *actualWritten,&errind);
+/*1141*/ if(errind)
 {
 stream->errorInd=1;
 (*(__get_errno()))=tempWritten;
 return;
 }
-/*1186*/ *actualWritten+=tempWritten;
+/*1148*/ *actualWritten+=tempWritten;
 stream->bufStartR+=tempWritten;
 }
 else
 {
 memcpy(stream->fbuf,(char*)ptr+ *actualWritten,towrite- *actualWritten);
-/*1194*/ stream->upto+=(towrite- *actualWritten);
+/*1156*/ stream->upto+=(towrite- *actualWritten);
 *actualWritten=towrite;
 }
 stream->bufStartR+= *actualWritten;
 return;
 }
-/*1201*/ static int vvprintf(const char*format,va_list arg,FILE*fq,char*s)
+/*1163*/ static int vvprintf(const char*format,va_list arg,FILE*fq,char*s)
 {
-int fin=0;
+int fin;
 int vint;
 double vdbl;
 unsigned int uvint;
 const char*vcptr;
-int chcount=0;
+int chcount;
 size_t len;
 char numbuf[50];
 char*nptr;
 int*viptr;
-/*1214*/ while(!fin)
+/*1176*/ fin=0;
+chcount=0;
+/*1179*/ while(!fin)
 {
-if(*format=='')
+if(*format=='\x00')
 {
 fin=1;
 }
-/*1221*/ else if(*format=='%')
+else if(*format=='%')
 {
 format++;
 if(*format=='d')
 {
 vint=__builtin_va_arg(arg,int);
-/*1228*/ if(vint<0)
-{
-uvint= -vint;
-}
+/*1192*/ if(vint<0)
+{uvint= -vint;}
 else
-{
-uvint=vint;
-}
-/*1237*/ nptr=numbuf;
+{uvint=vint;}
+/*1197*/ nptr=numbuf;
 do
 {
 *nptr++ =(char)('0'+uvint%10);
 uvint/=10;
 }while(uvint>0);
-/*1244*/ if(vint<0)
-{
-*nptr++ ='-';
-}
+/*1204*/ if(vint<0)
+{*nptr++ ='-';}
 do
 {
 nptr--;
 ((fq==((void*)0))? *s++ =(char)*nptr:(fputc((*nptr),(fq))));
 chcount++;
 }while(nptr!=numbuf);
-/*1255*/ }
-else if(strchr("eEgGfF",*format)!=((void*)0)&& *format!=0)
-{
-/*1259*/ vdbl=__builtin_va_arg(arg,double);
-dblcvt(vdbl,*format,0,6,numbuf);
-len=strlen(numbuf);
-/*1263*/ if(fq==((void*)0))
-{
-memcpy(s,numbuf,len);
-s+=len;
-}
-else
-{
-fputs(numbuf,fq);
-}
-chcount+=len;
-}
+/*1213*/ }
 else if(*format=='s')
 {
 vcptr=__builtin_va_arg(arg,const char*);
-if(vcptr==((void*)0))
+/*1218*/ if(!vcptr)
 {
 vcptr="(null)";
 }
-/*1282*/ if(fq==((void*)0))
+/*1224*/ if(!fq)
 {
 len=strlen(vcptr);
 memcpy(s,vcptr,len);
@@ -1081,10 +1075,26 @@ else if(*format=='%')
 ((fq==((void*)0))? *s++ =(char)'%':(fputc(('%'),(fq))));
 chcount++;
 }
+else if(strchr("eEgGfF",*format)!=((void*)0)&& *format!=0)
+{
+/*1256*/ vdbl=__builtin_va_arg(arg,double);
+dblcvt(vdbl,*format,0,6,numbuf);
+len=strlen(numbuf);
+/*1260*/ if(fq==((void*)0))
+{
+memcpy(s,numbuf,len);
+s+=len;
+}
+else
+{
+fputs(numbuf,fq);
+}
+chcount+=len;
+}
 else
 {
 int extraCh;
-/*1315*/ extraCh=examine(&format,fq,s,&arg,chcount);
+/*1275*/ extraCh=examine(&format,fq,s,&arg,chcount);
 chcount+=extraCh;
 if(s!=((void*)0))
 {
@@ -1099,10 +1109,10 @@ chcount++;
 }
 format++;
 }
-/*1331*/ return(chcount);
+/*1291*/ return(chcount);
 }
-/*1334*/ static int examine(const char* *formt,FILE*fq,char*s,va_list*arg,int chcount)
-/*1336*/ {
+/*1294*/ static int examine(const char* *formt,FILE*fq,char*s,va_list*arg,int chcount)
+/*1296*/ {
 int extraCh=0;
 int flagMinus=0;
 int flagPlus=0;
@@ -1131,9 +1141,9 @@ int fillCh;
 int neg;
 int length;
 size_t slen;
-/*1366*/ ((void)(chcount));
+/*1326*/ ((void)(chcount));
 format= *formt;
-/*1369*/ fin=0;
+/*1329*/ fin=0;
 while(!fin)
 {
 switch(*format)
@@ -1174,7 +1184,7 @@ flagZero=0;
 }
 }
 }
-/*1412*/ if(isdigit((unsigned char)*format))
+/*1372*/ if(isdigit((unsigned char)*format))
 {
 while(isdigit((unsigned char)*format))
 {
@@ -1182,7 +1192,7 @@ width=width*10+(*format-'0');
 format++;
 }
 }
-/*1422*/ if(*format=='.')
+/*1382*/ if(*format=='.')
 {
 format++;
 if(*format=='*')
@@ -1200,9 +1210,9 @@ format++;
 }
 }
 }
-/*1442*/ if(*format=='h')
+/*1402*/ if(*format=='h')
 {
-/*1448*/ }
+/*1408*/ }
 else if(*format=='l')
 {
 lng=1;
@@ -1216,20 +1226,20 @@ else
 format--;
 }
 format++;
-/*1464*/ specifier= *format;
-/*1466*/ if(strchr("dxXuiop",specifier)!=((void*)0)&&specifier!=0)
+/*1424*/ specifier= *format;
+/*1426*/ if(strchr("dxXuiop",specifier)!=((void*)0)&&specifier!=0)
 {
 if(precision<0)
 {
 precision=1;
 }
-/*1478*/ if(lng)
+/*1438*/ if(lng)
 {
 lvalue=__builtin_va_arg(*arg,long);
 }
 else if(half)
 {
-/*1485*/ hvalue=__builtin_va_arg(*arg,int);
+/*1445*/ hvalue=__builtin_va_arg(*arg,int);
 if(specifier=='u')lvalue=(unsigned short)hvalue;
 else lvalue=hvalue;
 }
@@ -1249,7 +1259,7 @@ else
 {
 neg=0;
 }
-/*1511*/ if((specifier=='X')||(specifier=='x')||(specifier=='p'))
+/*1471*/ if((specifier=='X')||(specifier=='x')||(specifier=='p'))
 {
 base=16;
 }
@@ -1263,8 +1273,8 @@ base=10;
 }
 if(specifier=='p')
 {
-/*1528*/ precision=8;
-/*1530*/ }
+/*1488*/ precision=8;
+/*1490*/ }
 x=0;
 while(ulvalue>0)
 {
@@ -1285,9 +1295,9 @@ work[x]=(char)('a'+(rem-10));
 }
 }
 x++;
-/*1558*/ ulvalue=ulvalue/base;
+/*1518*/ ulvalue=ulvalue/base;
 }
-/*1570*/ while(x<precision)
+/*1530*/ while(x<precision)
 {
 work[x]='0';
 x++;
@@ -1372,7 +1382,7 @@ fillCh=' ';
 if(precision>1)
 {
 char*p;
-/*1656*/ p=memchr(svalue,'',precision);
+/*1616*/ p=memchr(svalue,'\x00',precision);
 if(p!=((void*)0))
 {
 length=(int)(p-svalue);
@@ -1417,12 +1427,12 @@ for(x=0;x<(width-length);x++)
 *formt=format;
 return(extraCh);
 }
-/*1702*/ int fputc(int c,FILE*stream)
+/*1662*/ int fputc(int c,FILE*stream)
 {
 char buf[1];
-/*1707*/ stream->quickBin=0;
+/*1667*/ stream->quickBin=0;
 if((stream->upto<(stream->endbuf-2))&&(stream->bufTech!=3))
-/*1710*/ {
+/*1670*/ {
 if(stream->textMode)
 {
 if(c=='\n')
@@ -1452,7 +1462,7 @@ else
 }
 }
 else
-/*1741*/ {
+/*1701*/ {
 buf[0]=(char)c;
 if(fwrite(buf,1,1,stream)!=1)
 {
@@ -1461,49 +1471,49 @@ return(-1);
 }
 return(c);
 }
-/*1752*/ int fputs(const char*s,FILE*stream)
+/*1712*/ int fputs(const char*s,FILE*stream)
 {
 size_t len;
 size_t ret;
-/*1757*/ len=strlen(s);
+/*1717*/ len=strlen(s);
 ret=fwrite(s,len,1,stream);
 if(ret!=1)return(-1);
 else return(0);
 }
-/*1764*/ int remove(const char*filename)
+/*1724*/ int remove(const char*filename)
 {
 int ret;
 __remove(filename);
 ret=0;
 return(ret);
 }
-/*1772*/ int rename(const char*old,const char*new)
+/*1732*/ int rename(const char*old,const char*new)
 {
 int ret;
 __rename(old,new);
 ret=0;
 return(ret);
 }
-/*1780*/ int sprintf(char*s,const char*format,...)
+/*1740*/ int sprintf(char*s,const char*format,...)
 {
 va_list arg;
 int ret;
-/*1785*/ __builtin_va_start(arg,format);
+/*1745*/ __builtin_va_start(arg,format);
 ret=vsprintf(s,format,arg);
 __builtin_va_end(arg);
 return(ret);
 }
-/*1791*/ int vsprintf(char*s,const char*format,va_list arg)
+/*1751*/ int vsprintf(char*s,const char*format,va_list arg)
 {
 int ret;
-/*1795*/ ret=vvprintf(format,arg,((void*)0),s);
+/*1755*/ ret=vvprintf(format,arg,((void*)0),s);
 if(ret>=0)
 {
-*(s+ret)='';
+*(s+ret)='\x00';
 }
 return(ret);
 }
-/*1813*/ char*fgets(char*s,int n,FILE*stream)
+/*1773*/ char*fgets(char*s,int n,FILE*stream)
 {
 char*p;
 register char*t;
@@ -1512,7 +1522,7 @@ int c;
 int processed;
 size_t actualRead;
 int errind;
-/*1823*/ if(stream->quickText)
+/*1783*/ if(stream->quickText)
 {
 p=stream->upto+n-1;
 t=stream->upto;
@@ -1521,17 +1531,17 @@ if(p<stream->endbuf)
 c= *p;
 *p='\n';
 while((*u++ = *t++)!='\n');
-/*1833*/ *p=(char)c;
+/*1793*/ *p=(char)c;
 if(t<=p)
 {
 if(*(t-2)=='\r')
 {
 *(u-2)='\n';
-*(u-1)='';
+*(u-1)='\x00';
 }
 else
 {
-*u='';
+*u='\x00';
 }
 stream->upto=t;
 return(s);
@@ -1551,11 +1561,11 @@ if(t<=stream->endbuf)
 if(*(t-2)=='\r')
 {
 *(u-2)='\n';
-*(u-1)='';
+*(u-1)='\x00';
 }
 else
 {
-*u='';
+*u='\x00';
 }
 stream->upto=t;
 return(s);
@@ -1572,13 +1582,13 @@ else
 {
 processed=0;
 }
-/*1885*/ if(n<1)
+/*1845*/ if(n<1)
 {
 return(((void*)0));
 }
 if(n<2)
 {
-*u='';
+*u='\x00';
 return(s);
 }
 if(stream->ungetCh!= -1)
@@ -1618,28 +1628,28 @@ if(p<stream->endbuf)
 *p=(char)c;
 }
 if(((t<=p)&&(p<stream->endbuf))||((t<=stream->endbuf)&&(p>=stream->endbuf)))
-/*1932*/ {
+/*1892*/ {
 if(stream->textMode)
 {
 if(stream->noNl)
 {
 if((*(t-1)=='\r')||(*(t-1)=='\n'))
 {
-*(u-1)='';
+*(u-1)='\x00';
 }
 else
 {
-*u='';
+*u='\x00';
 }
 }
 else if(*(t-2)=='\r')
 {
 *(u-2)='\n';
-*(u-1)='';
+*(u-1)='\x00';
 }
 else
 {
-*u='';
+*u='\x00';
 }
 }
 stream->upto=t;
@@ -1650,9 +1660,9 @@ stream->quickText=1;
 return(s);
 }
 else if(((t>p)&&(p<stream->endbuf))||((t>stream->endbuf)&&(p>=stream->endbuf)))
-/*1965*/ {
+/*1925*/ {
 int leave=1;
-/*1968*/ if(stream->textMode)
+/*1928*/ if(stream->textMode)
 {
 if(t>stream->endbuf)
 {
@@ -1670,12 +1680,12 @@ else
 if((*(t-2)=='\r')&&(*(t-1)=='\n'))
 {
 *(u-2)='\n';
-*(u-1)='';
+*(u-1)='\x00';
 }
 else
 {
 t--;
-*(u-1)='';
+*(u-1)='\x00';
 }
 }
 }
@@ -1685,7 +1695,7 @@ leave=0;
 }
 else
 {
-*u='';
+*u='\x00';
 }
 if(leave)
 {
@@ -1700,18 +1710,18 @@ return(s);
 processed+=(int)(t-stream->upto)-1;
 u--;
 stream->bufStartR+=(stream->endbuf-stream->fbuf);
-/*2017*/ actualRead=__read(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
-/*2021*/ if(errind)
+/*1977*/ actualRead=__read(stream->hfile,stream->fbuf,stream->szfbuf,&errind);
+/*1981*/ if(errind)
 {
 (*(__get_errno()))=actualRead;
 actualRead=0;
 stream->errorInd=1;
 }
-/*2028*/ stream->endbuf=stream->fbuf+actualRead;
+/*1988*/ stream->endbuf=stream->fbuf+actualRead;
 *stream->endbuf='\n';
 if(actualRead==0)
 {
-*u='';
+*u='\x00';
 if((u-s)<=1)
 {
 stream->eofInd=1;
@@ -1725,7 +1735,7 @@ return(s);
 stream->upto=stream->fbuf;
 }
 }
-/*2048*/ int ungetc(int c,FILE*stream)
+/*2008*/ int ungetc(int c,FILE*stream)
 {
 if((stream->ungetCh!= -1)||(c== -1))
 {
@@ -1736,22 +1746,22 @@ stream->quickText=0;
 stream->quickBin=0;
 return((unsigned char)c);
 }
-/*2060*/ int fgetc(FILE*stream)
+/*2020*/ int fgetc(FILE*stream)
 {
 unsigned char x[1];
 size_t ret;
-/*2065*/ ret=fread(x,1,1,stream);
+/*2025*/ ret=fread(x,1,1,stream);
 if(ret==0)
 {
 return(-1);
 }
 return((int)(x[0]));
 }
-/*2073*/ int fseek(FILE*stream,long int offset,int whence)
+/*2033*/ int fseek(FILE*stream,long int offset,int whence)
 {
 long oldpos;
 long newpos;
-/*2078*/ oldpos=stream->bufStartR+(stream->upto-stream->fbuf);
+/*2038*/ oldpos=stream->bufStartR+(stream->upto-stream->fbuf);
 if(stream->mode==1)
 {
 fflush(stream);
@@ -1764,16 +1774,16 @@ else if(whence==1)
 {
 newpos=oldpos+offset;
 }
-/*2092*/ if(whence==2)
+/*2052*/ if(whence==2)
 {
 __seek(stream->hfile,offset,2);
 newpos=__tell(stream->hfile);
-/*2097*/ stream->endbuf=stream->fbuf+stream->szfbuf;
+/*2057*/ stream->endbuf=stream->fbuf+stream->szfbuf;
 stream->upto=stream->endbuf;
 stream->bufStartR=newpos-stream->szfbuf;
-/*2106*/ }
+/*2066*/ }
 else if((newpos>=stream->bufStartR)&&(newpos<(stream->bufStartR+(stream->endbuf-stream->fbuf)))&&(stream->update||(stream->mode==2)))
-/*2110*/ {
+/*2070*/ {
 stream->upto=stream->fbuf+(size_t)(newpos-stream->bufStartR);
 }
 else
@@ -1783,51 +1793,51 @@ stream->endbuf=stream->fbuf+stream->szfbuf;
 stream->upto=stream->endbuf;
 stream->bufStartR=newpos-stream->szfbuf;
 }
-/*2121*/ stream->quickBin=0;
+/*2081*/ stream->quickBin=0;
 stream->quickText=0;
 stream->ungetCh= -1;
 return(0);
 }
-/*2127*/ long int ftell(FILE*stream)
+/*2087*/ long int ftell(FILE*stream)
 {
 return(stream->bufStartR+(stream->upto-stream->fbuf));
 }
-/*2132*/ int fsetpos(FILE*stream,const fpos_t*pos)
+/*2092*/ int fsetpos(FILE*stream,const fpos_t*pos)
 {
 fseek(stream,*pos,0);
 return(0);
 }
-/*2138*/ int fgetpos(FILE*stream,fpos_t*pos)
+/*2098*/ int fgetpos(FILE*stream,fpos_t*pos)
 {
 *pos=ftell(stream);
 return(0);
 }
-/*2144*/ void rewind(FILE*stream)
+/*2104*/ void rewind(FILE*stream)
 {
 fseek(stream,0 L,0);
 return;
 }
-/*2150*/ void clearerr(FILE*stream)
+/*2110*/ void clearerr(FILE*stream)
 {
 stream->errorInd=0;
 stream->eofInd=0;
 return;
 }
-/*2157*/ void perror(const char*s)
+/*2117*/ void perror(const char*s)
 {
-if((s!=((void*)0))&&(*s!=''))
+if((s!=((void*)0))&&(*s!='\x00'))
 {
 printf("%s: %s\n",s,strerror((*(__get_errno()))));
 }else
 {
 printf("%s\n",strerror((*(__get_errno()))));
 }
-/*2167*/ return;
+/*2127*/ return;
 }
-/*2179*/ int setvbuf(FILE*stream,char*buf,int mode,size_t size)
+/*2139*/ int setvbuf(FILE*stream,char*buf,int mode,size_t size)
 {
 char*mybuf;
-/*2183*/ if(mode==3)
+/*2143*/ if(mode==3)
 {
 stream->bufTech=mode;
 return(0);
@@ -1860,8 +1870,8 @@ free(stream->intBuffer);
 }
 stream->intBuffer=mybuf;
 stream->fbuf=stream->intBuffer+2;
-*stream->fbuf++ ='';
-*stream->fbuf++ ='';
+*stream->fbuf++ ='\x00';
+*stream->fbuf++ ='\x00';
 stream->szfbuf=size;
 stream->endbuf=stream->fbuf+stream->szfbuf;
 *stream->endbuf='\n';
@@ -1880,10 +1890,10 @@ stream->quickBin=0;
 }
 return(0);
 }
-/*2237*/ int setbuf(FILE*stream,char*buf)
+/*2197*/ int setbuf(FILE*stream,char*buf)
 {
 int ret;
-/*2241*/ if(buf==((void*)0))
+/*2201*/ if(buf==((void*)0))
 {
 ret=setvbuf(stream,((void*)0),3,0);
 }
@@ -1893,11 +1903,11 @@ ret=setvbuf(stream,buf,1,6144);
 }
 return(ret);
 }
-/*2252*/ FILE*freopen(const char*filename,const char*mode,FILE*stream)
-/*2254*/ {
+/*2212*/ FILE*freopen(const char*filename,const char*mode,FILE*stream)
+/*2214*/ {
 inreopen=1;
 fclose(stream);
-/*2258*/ myfile=stream;
+/*2218*/ myfile=stream;
 fnm=filename;
 modus=mode;
 err=0;
@@ -1908,74 +1918,74 @@ if(err&& !stream->permfile)
 __userFiles[stream->intFno]=((void*)0);
 free(stream);
 }
-/*2270*/ inreopen=0;
+/*2230*/ inreopen=0;
 if(err)
 {
 return(((void*)0));
 }
 return(stream);
 }
-/*2278*/ int fflush(FILE*stream)
+/*2238*/ int fflush(FILE*stream)
 {
 int errind;
 size_t actualWritten;
-/*2283*/ if((stream->upto!=stream->fbuf)&&(stream->mode==1))
+/*2243*/ if((stream->upto!=stream->fbuf)&&(stream->mode==1))
 {
 actualWritten=__write(stream->hfile,stream->fbuf,(size_t)(stream->upto-stream->fbuf),&errind);
-/*2289*/ if(errind)
+/*2249*/ if(errind)
 {
 stream->errorInd=1;
 (*(__get_errno()))=actualWritten;
 return(-1);
 }
-/*2296*/ stream->bufStartR+=actualWritten;
+/*2256*/ stream->bufStartR+=actualWritten;
 stream->upto=stream->fbuf;
 }
 return(0);
 }
-/*2302*/ char*tmpnam(char*s)
+/*2262*/ char*tmpnam(char*s)
 {
 static char buf[]="ZZZZZZZA.$$$";
 buf[7]++;
-/*2307*/ if(s==((void*)0))
+/*2267*/ if(s==((void*)0))
 {
 return(buf);
 }
 strcpy(s,buf);
 return(s);
 }
-/*2315*/ FILE*tmpfile(void)
+/*2275*/ FILE*tmpfile(void)
 {
 return(fopen("ZZZZZZZA.$$$","wb+"));
 }
-/*2320*/ int fscanf(FILE*stream,const char*format,...)
+/*2280*/ int fscanf(FILE*stream,const char*format,...)
 {
 va_list arg;
 int ret;
-/*2325*/ __builtin_va_start(arg,format);
+/*2285*/ __builtin_va_start(arg,format);
 ret=vvscanf(format,arg,stream,((void*)0));
 __builtin_va_end(arg);
 return(ret);
 }
-/*2331*/ int scanf(const char*format,...)
+/*2291*/ int scanf(const char*format,...)
 {
 va_list arg;
 int ret;
-/*2336*/ __builtin_va_start(arg,format);
+/*2296*/ __builtin_va_start(arg,format);
 ret=vvscanf(format,arg,(*(__get_stdin())),((void*)0));
 __builtin_va_end(arg);
 return(ret);
 }
-/*2342*/ int sscanf(const char*s,const char*format,...)
+/*2302*/ int sscanf(const char*s,const char*format,...)
 {
 va_list arg;
 int ret;
-/*2347*/ __builtin_va_start(arg,format);
+/*2307*/ __builtin_va_start(arg,format);
 ret=vvscanf(format,arg,((void*)0),s);
 __builtin_va_end(arg);
 return(ret);
 }
-/*2355*/ static int vvscanf(const char*format,va_list arg,FILE*fp,const char*s)
+/*2315*/ static int vvscanf(const char*format,va_list arg,FILE*fp,const char*s)
 {
 int ch;
 int fin=0;
@@ -1995,7 +2005,7 @@ int skipvar;
 int modlong;
 int modshort;
 int informatitem;
-/*2378*/ if(fp!=((void*)0))
+/*2338*/ if(fp!=((void*)0))
 {
 startpos=ftell(fp);
 }
@@ -2006,9 +2016,9 @@ startp=s;
 ((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 informatitem=0;
 if((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0))return-1;
-/*2390*/ while(!fin)
+/*2350*/ while(!fin)
 {
-if(*format=='')
+if(*format=='\x00')
 {
 fin=1;
 }
@@ -2034,12 +2044,12 @@ informatitem=0;
 }
 else if(*format=='l')
 {
-/*2419*/ modlong=1;
+/*2379*/ modlong=1;
 informatitem=1;
 }
 else if(*format=='h')
 {
-/*2425*/ modshort=1;
+/*2385*/ modshort=1;
 informatitem=1;
 }
 else
@@ -2051,9 +2061,9 @@ if(!skipvar)
 {
 cptr=__builtin_va_arg(arg,char*);
 }
-/*2438*/ while(ch>=0&&isspace(ch))((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
+/*2398*/ while(ch>=0&&isspace(ch))((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 if((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0))
-/*2441*/ {
+/*2401*/ {
 fin=1;
 if(!skipvar)
 {
@@ -2066,7 +2076,7 @@ for(;;)
 {
 if(isspace(ch))break;
 if((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0))
-/*2455*/ {
+/*2415*/ {
 fin=1;
 break;
 }
@@ -2078,7 +2088,7 @@ if(!skipvar)
 }
 if(!skipvar)
 {
-*cptr='';
+*cptr='\x00';
 }
 cnt++;
 }
@@ -2091,7 +2101,7 @@ const char*first;
 const char*last;
 size_t size;
 size_t mcnt=0;
-/*2481*/ if(!skipvar)
+/*2441*/ if(!skipvar)
 {
 cptr=__builtin_va_arg(arg,char*);
 }
@@ -2101,7 +2111,7 @@ if(*format=='^')
 reverse=1;
 format++;
 }
-if(*format=='')break;
+if(*format=='\x00')break;
 first=format;
 format++;
 last=strchr(format,']');
@@ -2109,7 +2119,7 @@ if(last==((void*)0))return(cnt);
 size=(size_t)(last-first);
 while(1)
 {
-/*2502*/ found=(memchr(first,ch,size)!=((void*)0));
+/*2462*/ found=(memchr(first,ch,size)!=((void*)0));
 if(found&&reverse)break;
 if(!found&& !reverse)break;
 if(!skipvar)
@@ -2118,8 +2128,8 @@ if(!skipvar)
 }
 mcnt++;
 ((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
-/*2512*/ if((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0))
-/*2514*/ {
+/*2472*/ if((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0))
+/*2474*/ {
 break;
 }
 }
@@ -2127,7 +2137,7 @@ if(mcnt>0)
 {
 if(!skipvar)
 {
-*cptr++ ='';
+*cptr++ ='\x00';
 }
 cnt++;
 }
@@ -2144,7 +2154,7 @@ if(!skipvar)
 cptr=__builtin_va_arg(arg,char*);
 }
 if((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0))fin=1;
-/*2541*/ else
+/*2501*/ else
 {
 if(!skipvar)
 {
@@ -2167,13 +2177,13 @@ else
 }
 }
 else if(*format=='d'|| *format=='u'|| *format=='x'|| *format=='o'|| *format=='p'|| *format=='i')
-/*2567*/ {
+/*2527*/ {
 int neg=0;
 unsigned long x=0;
 int undecided=0;
 int base=10;
 int mcnt=0;
-/*2574*/ if(*format=='x')base=16;
+/*2534*/ if(*format=='x')base=16;
 else if(*format=='p')base=16;
 else if(*format=='o')base=8;
 else if(*format=='i')base=0;
@@ -2193,19 +2203,19 @@ __builtin_va_arg(arg,unsigned short*);
 else uptr=__builtin_va_arg(arg,unsigned int*);
 }
 }
-/*2595*/ while(ch>=0&&isspace(ch))((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
+/*2555*/ while(ch>=0&&isspace(ch))((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 if(ch=='-')
 {
 neg=1;
 ((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 }
 else if(ch=='+')((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
-/*2606*/ if(base==0)
+/*2566*/ if(base==0)
 {
 undecided=1;
 }
 while(!((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0)))
-/*2612*/ {
+/*2572*/ {
 if(isdigit((unsigned char)ch))
 {
 if(base==0)
@@ -2223,7 +2233,7 @@ undecided=0;
 x=x*base+(ch-'0');
 ((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 }
-/*2637*/ else if(isalpha((unsigned char)ch))
+/*2597*/ else if(isalpha((unsigned char)ch))
 {
 if((ch=='X')||(ch=='x'))
 {
@@ -2235,7 +2245,7 @@ undecided=0;
 }
 else if(base==16)
 {
-/*2651*/ ((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
+/*2611*/ ((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 }
 else
 {
@@ -2259,16 +2269,16 @@ break;
 }
 mcnt++;
 }
-/*2680*/ if(mcnt==0)
+/*2640*/ if(mcnt==0)
 {
 break;
 }
-/*2686*/ if(!skipvar)
+/*2646*/ if(!skipvar)
 {
 if((*format=='d')||(*format=='i'))
 {
 long lval;
-/*2692*/ if(neg)
+/*2652*/ if(neg)
 {
 lval=(long)-x;
 }
@@ -2277,8 +2287,8 @@ else
 lval=(long)x;
 }
 if(modlong)*lptr=lval;
-/*2702*/ else if(modshort)*hptr=(short)lval;
-/*2704*/ else*iptr=(int)lval;
+/*2662*/ else if(modshort)*hptr=(short)lval;
+/*2664*/ else*iptr=(int)lval;
 }
 else
 {
@@ -2290,11 +2300,11 @@ else*uptr=(unsigned int)x;
 cnt++;
 }
 else if(*format=='e'|| *format=='f'|| *format=='g'|| *format=='E'|| *format=='G')
-/*2717*/ {
-/*2719*/ int negsw1,negsw2,dotsw,expsw,ndigs1,ndigs2,nfdigs;
+/*2677*/ {
+/*2679*/ int negsw1,negsw2,dotsw,expsw,ndigs1,ndigs2,nfdigs;
 int ntrailzer,expnum,expsignsw;
 double fpval,pow10;
-/*2723*/ if(!skipvar)
+/*2683*/ if(!skipvar)
 {
 if(modlong)dptr=__builtin_va_arg(arg,double*);
 else fptr=__builtin_va_arg(arg,float*);
@@ -2310,7 +2320,7 @@ ntrailzer=0;
 expnum=0;
 expsignsw=0;
 fpval=0.0;
-/*2740*/ while(ch>=0&&isspace(ch))((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
+/*2700*/ while(ch>=0&&isspace(ch))((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 if(ch=='-')
 {
 negsw1=1;
@@ -2329,15 +2339,15 @@ expnum=expnum*10+(ch-'0');
 }
 else
 {
-/*2763*/ ndigs1++;
+/*2723*/ ndigs1++;
 if(dotsw)nfdigs++;
 if(ch=='0'&&fpval!=0.)
 {
-/*2768*/ ntrailzer++;
+/*2728*/ ntrailzer++;
 }
 else
 {
-/*2773*/ while(ntrailzer>0)
+/*2733*/ while(ntrailzer>0)
 {
 fpval*=10.;
 ntrailzer--;
@@ -2348,7 +2358,7 @@ fpval=fpval*10.0+(ch-'0');
 }
 else if((ch=='e'||ch=='E')&&expsw==0)expsw=1;
 else if((ch=='+'||ch=='-')&&expsw==1&&ndigs2==0&&expsignsw==0)
-/*2785*/ {
+/*2745*/ {
 expsignsw=1;
 if(ch=='-')negsw2=1;
 }
@@ -2356,8 +2366,8 @@ else break;
 ((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 }
 if((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0))fin=1;
-/*2795*/ if(ndigs1==0||(expsw&&ndigs2==0))return(cnt);
-/*2797*/ if(negsw2)expnum= -expnum;
+/*2755*/ if(ndigs1==0||(expsw&&ndigs2==0))return(cnt);
+/*2757*/ if(negsw2)expnum= -expnum;
 expnum+=ntrailzer-nfdigs;
 if(expnum!=0&&fpval!=0.0)
 {
@@ -2367,7 +2377,7 @@ if(expnum<0)
 expnum= -expnum;
 negsw2=1;
 }
-/*2809*/ pow10=10.0;
+/*2769*/ pow10=10.0;
 for(;;)
 {
 if(expnum&1)
@@ -2383,7 +2393,7 @@ pow10*=pow10;
 if(negsw1)fpval= -fpval;
 if(!skipvar)
 {
-/*2826*/ if(modlong)*dptr=fpval;
+/*2786*/ if(modlong)*dptr=fpval;
 else*fptr=(float)fpval;
 }
 cnt++;
@@ -2392,7 +2402,7 @@ cnt++;
 }
 else if(isspace((unsigned char)(*format)))
 {
-/*2838*/ while(ch>=0&&isspace(ch))
+/*2798*/ while(ch>=0&&isspace(ch))
 {
 ((fp==((void*)0))?(ch=(unsigned char)*s++):(ch=(fgetc((fp)))));
 }
@@ -2404,60 +2414,60 @@ if(ch!= *format)return(cnt);
 }
 format++;
 if((fp!=((void*)0)&&ch== -1)||(fp==((void*)0)&&ch==0))fin=1;
-/*2851*/ }
+/*2811*/ }
 if(fp!=((void*)0))ungetc(ch,fp);
 return(cnt);
 }
-/*2856*/ char*gets(char*s)
+/*2816*/ char*gets(char*s)
 {
 char*ret;
-/*2860*/ (*(__get_stdin()))->quickText=0;
+/*2820*/ (*(__get_stdin()))->quickText=0;
 (*(__get_stdin()))->noNl=1;
 ret=fgets(s,2147483647,(*(__get_stdin())));
 (*(__get_stdin()))->noNl=0;
 (*(__get_stdin()))->quickText=1;
 return(ret);
 }
-/*2868*/ int puts(const char*s)
+/*2828*/ int puts(const char*s)
 {
 int ret;
-/*2872*/ ret=fputs(s,(*(__get_stdout())));
+/*2832*/ ret=fputs(s,(*(__get_stdout())));
 if(ret== -1)
 {
 return(ret);
 }
 return((fputc(('\n'),((*(__get_stdout()))))));
 }
-/*2889*/ int getc(FILE*stream)
+/*2849*/ int getc(FILE*stream)
 {
 return(fgetc(stream));
 }
-/*2894*/ int putc(int c,FILE*stream)
+/*2854*/ int putc(int c,FILE*stream)
 {
 return(fputc(c,stream));
 }
-/*2899*/ int getchar(void)
+/*2859*/ int getchar(void)
 {
 return(getc((*(__get_stdin()))));
 }
-/*2904*/ int putchar(int c)
+/*2864*/ int putchar(int c)
 {
 return(putc(c,(*(__get_stdout()))));
 }
-/*2909*/ int feof(FILE*stream)
+/*2869*/ int feof(FILE*stream)
 {
 return(stream->eofInd);
 }
-/*2914*/ int ferror(FILE*stream)
+/*2874*/ int ferror(FILE*stream)
 {
 return(stream->errorInd);
 }
-/*2931*/ static void dblcvt(double num,char cnvtype,size_t nwidth,int nprecision,char*result)
-/*2933*/ {
+/*2891*/ static void dblcvt(double num,char cnvtype,size_t nwidth,int nprecision,char*result)
+/*2893*/ {
 double b,round;
 int i,j,exp,pdigits,format;
 char sign,work[45];
-/*2940*/ if(num<0)
+/*2900*/ if(num<0)
 {
 b= -num;
 sign='-';
@@ -2467,20 +2477,20 @@ else
 b=num;
 sign=' ';
 }
-/*2955*/ exp=0;
+/*2915*/ exp=0;
 if(b>1.0)
 {
 while((b>=10.0)&&(exp<35))
 {
 ++exp;
-/*2962*/ b=b*0.1;
+/*2922*/ b=b*0.1;
 }
 }
 else if(b==0.0)
 {
 exp=0;
 }
-/*2970*/ else if(b<1.0)
+/*2930*/ else if(b<1.0)
 {
 while((b<1.0)&&(exp> -35))
 {
@@ -2493,7 +2503,7 @@ if((exp<= -35)||(exp>=35))
 exp=0;
 b=0.0;
 }
-/*2991*/ switch(cnvtype)
+/*2951*/ switch(cnvtype)
 {
 case'E':
 case'e':
@@ -2511,7 +2521,7 @@ format= -1;
 }
 break;
 default:
-/*3013*/ if(exp>=0)
+/*2973*/ if(exp>=0)
 {
 if(nprecision>exp)
 {
@@ -2524,7 +2534,7 @@ format=0;
 }
 else
 {
-/*3027*/ if(exp>= -4)
+/*2987*/ if(exp>= -4)
 {
 format= -1;
 }
@@ -2535,7 +2545,7 @@ format=0;
 }
 break;
 }
-/*3041*/ switch(format)
+/*3001*/ switch(format)
 {
 case 0:
 if(nprecision<53)
@@ -2550,17 +2560,17 @@ round=1.0/2.0;
 i=0;
 while(++i<=j)
 {
-/*3057*/ round=round*0.1;
-/*3059*/ }
+/*3017*/ round=round*0.1;
+/*3019*/ }
 b=b+round;
 if(b>=10.0)
 {
-/*3064*/ b=b*0.1;
+/*3024*/ b=b*0.1;
 exp=exp+1;
 }
 break;
-/*3069*/ case 1:
-/*3071*/ if(exp+nprecision<53)
+/*3029*/ case 1:
+/*3031*/ if(exp+nprecision<53)
 {
 j=exp+nprecision;
 }
@@ -2572,16 +2582,16 @@ round=0.5;
 i=0;
 while(i++ <j)
 {
-/*3084*/ round=round*0.1;
+/*3044*/ round=round*0.1;
 }
 b=b+round;
 if(b>=10.0)
 {
-/*3090*/ b=b*0.1;
+/*3050*/ b=b*0.1;
 exp=exp+1;
 }
 break;
-/*3095*/ case-1:
+/*3055*/ case-1:
 if(nprecision<53)
 {
 j=nprecision+exp+1;
@@ -2594,7 +2604,7 @@ round=5.0;
 i=0;
 while(i++ <j)
 {
-/*3109*/ round=round*0.1;
+/*3069*/ round=round*0.1;
 }
 if(j>=0)
 {
@@ -2602,7 +2612,7 @@ b=b+round;
 }
 if(b>=10.0)
 {
-/*3118*/ b=b*0.1;
+/*3078*/ b=b*0.1;
 exp=exp+1;
 }
 if(exp>=0)
@@ -2611,9 +2621,9 @@ format=1;
 }
 break;
 }
-/*3131*/ if(format== -1)
+/*3091*/ if(format== -1)
 {
-/*3137*/ result[0]=sign;
+/*3097*/ result[0]=sign;
 result[1]='0';
 result[2]='.';
 result[3]=0x00;
@@ -2627,8 +2637,8 @@ i=b;
 work[0]=(char)('0'+i%10);
 work[1]=0x00;
 strcat(result,work);
-/*3152*/ pdigits=nprecision;
-/*3154*/ while(pdigits-- >0)
+/*3112*/ pdigits=nprecision;
+/*3114*/ while(pdigits-- >0)
 {
 b=b-i;
 b=b*10.0;
@@ -2638,17 +2648,17 @@ work[1]=0x00;
 strcat(result,work);
 }
 }
-/*3167*/ else if(format== +1)
+/*3127*/ else if(format== +1)
 {
 i=b;
 result[0]=sign;
-result[1]='';
+result[1]='\x00';
 work[0]=(char)('0'+i%10);
 work[1]=0x00;
 strcat(result,work);
 nprecision=nprecision+exp;
 pdigits=nprecision;
-/*3178*/ while(pdigits-- >0)
+/*3138*/ while(pdigits-- >0)
 {
 if(((nprecision-pdigits-1)==exp))
 {
@@ -2662,17 +2672,17 @@ work[1]=0x00;
 strcat(result,work);
 }
 }
-/*3195*/ else
+/*3155*/ else
 {
 i=b;
 result[0]=sign;
-result[1]='';
+result[1]='\x00';
 work[0]=(char)('0'+i%10);
 work[1]=0x00;
 strcat(result,work);
 strcat(result,".");
-/*3205*/ pdigits=nprecision;
-/*3207*/ while(pdigits-- >0)
+/*3165*/ pdigits=nprecision;
+/*3167*/ while(pdigits-- >0)
 {
 b=b-i;
 b=b*10.0;
@@ -2682,7 +2692,7 @@ work[1]=0x00;
 strcat(result,work);
 }
 }
-/*3218*/ if(format==0)
+/*3178*/ if(format==0)
 {
 work[0]='E';
 if(exp<0)
@@ -2701,27 +2711,27 @@ strcat(result,work);
 }
 else
 {
-/*3238*/ if(cnvtype=='G'||cnvtype=='g')
+/*3198*/ if(cnvtype=='G'||cnvtype=='g')
 {
 char*p;
-/*3242*/ p=strchr(result,'.');
+/*3202*/ p=strchr(result,'.');
 if(p!=((void*)0))
 {
 p++;
 p=p+strlen(p)-1;
 while(*p!='.'&& *p=='0')
 {
-*p='';
+*p='\x00';
 p--;
 }
 if(*p=='.')
 {
-*p='';
+*p='\x00';
 }
 }
 }
 }
-/*3264*/ if(result[0]==' ')strcpy(work,result+1);else strcpy(work,result);
+/*3224*/ if(result[0]==' ')strcpy(work,result+1);else strcpy(work,result);
 pdigits=nwidth-strlen(work);
 result[0]=0x00;
 while(pdigits>0)
@@ -2762,7 +2772,7 @@ return(s1);
 /*53*/ char*strcpy(char*s1,const char*s2)
 {
 char*p=s1;
-/*57*/ while((*p++ = *s2++)!='');
+/*57*/ while((*p++ = *s2++)!='\x00');
 return(s1);
 }
 /*64*/ char*strncpy(char*s1,const char*s2,size_t n)
@@ -2772,21 +2782,21 @@ size_t x;
 /*69*/ for(x=0;x<n;x++)
 {
 *p= *s2;
-if(*s2=='')break;
+if(*s2=='\x00')break;
 p++;
 s2++;
 }
 for(;x<n;x++)
 {
-*p++ ='';
+*p++ ='\x00';
 }
 return(s1);
 }
 /*86*/ char*strcat(char*s1,const char*s2)
 {
 char*p=s1;
-/*90*/ while(*p!='')p++;
-while((*p= *s2)!='')
+/*90*/ while(*p!='\x00')p++;
+while((*p= *s2)!='\x00')
 {
 p++;
 s2++;
@@ -2797,15 +2807,15 @@ return(s1);
 {
 char*p=s1;
 size_t x=0;
-/*107*/ while(*p!='')p++;
-while((*s2!='')&&(x<n))
+/*107*/ while(*p!='\x00')p++;
+while((*s2!='\x00')&&(x<n))
 {
 *p= *s2;
 p++;
 s2++;
 x++;
 }
-*p='';
+*p='\x00';
 return(s1);
 }
 /*122*/ int memcmp(const void*s1,const void*s2,size_t n)
@@ -2829,14 +2839,14 @@ const unsigned char*p1;
 const unsigned char*p2;
 /*147*/ p1=(const unsigned char*)s1;
 p2=(const unsigned char*)s2;
-while(*p1!='')
+while(*p1!='\x00')
 {
 if(*p1< *p2)return(-1);
 else if(*p1> *p2)return(1);
 p1++;
 p2++;
 }
-if(*p2=='')return(0);
+if(*p2=='\x00')return(0);
 else return(-1);
 }
 /*163*/ int strcoll(const char*s1,const char*s2)
@@ -2854,7 +2864,7 @@ while(x<n)
 {
 if(p1[x]<p2[x])return(-1);
 else if(p1[x]>p2[x])return(1);
-else if(p1[x]=='')return(0);
+else if(p1[x]=='\x00')return(0);
 x++;
 }
 return(0);
@@ -2866,7 +2876,7 @@ size_t oldlen;
 if(oldlen<n)
 {
 memcpy(s1,s2,oldlen);
-s1[oldlen]='';
+s1[oldlen]='\x00';
 }
 return(oldlen);
 }
@@ -2885,12 +2895,12 @@ return(((void*)0));
 }
 /*226*/ char*strchr(const char*s,int c)
 {
-while(*s!='')
+while(*s!='\x00')
 {
 if(*s==(char)c)return((char*)s);
 s++;
 }
-if(c=='')return((char*)s);
+if(c=='\x00')return((char*)s);
 return(((void*)0));
 }
 /*240*/ size_t strcspn(const char*s1,const char*s2)
@@ -2898,10 +2908,10 @@ return(((void*)0));
 const char*p1;
 const char*p2;
 /*245*/ p1=s1;
-while(*p1!='')
+while(*p1!='\x00')
 {
 p2=s2;
-while(*p2!='')
+while(*p2!='\x00')
 {
 if(*p1== *p2)return((size_t)(p1-s1));
 p2++;
@@ -2915,10 +2925,10 @@ return((size_t)(p1-s1));
 const char*p1;
 const char*p2;
 /*267*/ p1=s1;
-while(*p1!='')
+while(*p1!='\x00')
 {
 p2=s2;
-while(*p2!='')
+while(*p2!='\x00')
 {
 if(*p1== *p2)return((char*)p1);
 p2++;
@@ -2943,15 +2953,15 @@ return(((void*)0));
 const char*p1;
 const char*p2;
 /*305*/ p1=s1;
-while(*p1!='')
+while(*p1!='\x00')
 {
 p2=s2;
-while(*p2!='')
+while(*p2!='\x00')
 {
 if(*p1== *p2)break;
 p2++;
 }
-if(*p2=='')return((size_t)(p1-s1));
+if(*p2=='\x00')return((size_t)(p1-s1));
 p1++;
 }
 return((size_t)(p1-s1));
@@ -2965,12 +2975,12 @@ if(*p== *s2)
 {
 p1=p;
 p2=s2;
-while((*p2!='')&&(*p1== *p2))
+while((*p2!='\x00')&&(*p1== *p2))
 {
 p1++;
 p2++;
 }
-if(*p2=='')
+if(*p2=='\x00')
 {
 return(char*)p;
 }
@@ -2995,7 +3005,7 @@ p+=len;
 len=strcspn(p,s2);
 remain=strlen(p);
 if(remain<=len){old=((void*)0);return(p);}
-*(p+len)='';
+*(p+len)='\x00';
 old=p+len+1;
 return(p);
 }
@@ -3016,19 +3026,20 @@ else return("An error has occurred\n");
 /*455*/ size_t strlen(const char*s)
 {
 const char*p;
-/*459*/ p=s;
-while(*p!='')p++;
-return((size_t)(p-s));
-}
-/*471*/ void*memcpy(void*s1,const void*s2,size_t n)
+/*459*/ int n;
+/*461*/ p=s;
+n=0;
+/*465*/ while(*p){p++;n++;}
+/*467*/ return(n);
+/*469*/ }
+/*478*/ void*memcpy(void*s1,const void*s2,size_t n)
 {
-/*476*/ char*f,*fe,*t;
-/*478*/ f=s2;t=s1;
+/*483*/ const char*f,*fe;
+char*t;
+/*486*/ f=s2;t=s1;
 fe=f+n;
-while(f!=fe)
-{
-*t++ = *f++;
-}
+/*489*/ while(f<fe)
+{*t++ = *f++;}
 return(s1);
 }
 /*"signal.h"16*/ typedef int sig_atomic_t;
@@ -3068,7 +3079,7 @@ total=nmemb*size;
 ptr=malloc(total);
 if(ptr!=((void*)0))
 {
-memset(ptr,'',total);
+memset(ptr,'\x00',total);
 }
 return(ptr);
 }
@@ -3563,8 +3574,8 @@ penv=__get_cmdenv();
 (*(__get_stdin()))->bufTech=2;
 (*(__get_stdin()))->intBuffer=buffer1;
 (*(__get_stdin()))->fbuf=(*(__get_stdin()))->intBuffer+2;
-*(*(__get_stdin()))->fbuf++ ='';
-*(*(__get_stdin()))->fbuf++ ='';
+*(*(__get_stdin()))->fbuf++ ='\x00';
+*(*(__get_stdin()))->fbuf++ ='\x00';
 (*(__get_stdin()))->szfbuf=6144;
 (*(__get_stdin()))->endbuf=(*(__get_stdin()))->fbuf+(*(__get_stdin()))->szfbuf;
 *(*(__get_stdin()))->endbuf='\n';
@@ -3583,8 +3594,8 @@ penv=__get_cmdenv();
 (*(__get_stdout()))->bufTech=2;
 (*(__get_stdout()))->intBuffer=buffer2;
 (*(__get_stdout()))->fbuf=(*(__get_stdout()))->intBuffer;
-*(*(__get_stdout()))->fbuf++ ='';
-*(*(__get_stdout()))->fbuf++ ='';
+*(*(__get_stdout()))->fbuf++ ='\x00';
+*(*(__get_stdout()))->fbuf++ ='\x00';
 (*(__get_stdout()))->szfbuf=6144;
 (*(__get_stdout()))->endbuf=(*(__get_stdout()))->fbuf+(*(__get_stdout()))->szfbuf;
 *(*(__get_stdout()))->endbuf='\n';
@@ -3602,8 +3613,8 @@ penv=__get_cmdenv();
 (*(__get_stderr()))->bufTech=2;
 (*(__get_stderr()))->intBuffer=buffer3;
 (*(__get_stderr()))->fbuf=(*(__get_stderr()))->intBuffer;
-*(*(__get_stderr()))->fbuf++ ='';
-*(*(__get_stderr()))->fbuf++ ='';
+*(*(__get_stderr()))->fbuf++ ='\x00';
+*(*(__get_stderr()))->fbuf++ ='\x00';
 (*(__get_stderr()))->szfbuf=6144;
 (*(__get_stderr()))->endbuf=(*(__get_stderr()))->fbuf+(*(__get_stderr()))->szfbuf;
 *(*(__get_stderr()))->endbuf='\n';
@@ -3625,7 +3636,7 @@ __userFiles[x]=((void*)0);
 p++;
 argv[0]=p;
 while(p&&((*p)!='\"'))p++;
-*p++ ='';
+*p++ ='\x00';
 }else
 {
 argv[0]=p;
@@ -3636,7 +3647,7 @@ p="";
 }
 else
 {
-*p='';
+*p='\x00';
 p++;
 }
 }
@@ -3645,7 +3656,7 @@ p++;
 {
 p++;
 }
-if(*p=='')
+if(*p=='\x00')
 {
 argv[1]=((void*)0);
 argc=1;
@@ -3671,10 +3682,10 @@ break;
 }
 else
 {
-*p='';
+*p='\x00';
 p++;
 while(*p==' ')p++;
-if(*p=='')break;
+if(*p=='\x00')break;
 }
 }
 argv[x]=((void*)0);
@@ -3882,7 +3893,7 @@ int w;
 char*p,*q,*r;
 /*322*/ p=s;
 q=s+maxs-1;
-while((*f!=''))
+while((*f!='\x00'))
 {
 if(*f++ =='%')
 {
@@ -3964,7 +3975,7 @@ break;
 /*430*/ default:
 buf[0]='%';
 buf[1]=f[-1];
-buf[2]='';
+buf[2]='\x00';
 if(buf[1]==0)
 f--;
 }
@@ -3972,7 +3983,7 @@ while(*r)
 {
 if(p==q)
 {
-*q='';
+*q='\x00';
 return 0;
 }
 *p++ = *r++;
@@ -3982,13 +3993,13 @@ else
 {
 if(p==q)
 {
-*q='';
+*q='\x00';
 return 0;
 }
 *p++ =f[-1];
 }
 }
-*p='';
+*p='\x00';
 return(size_t)(p-s);
 }
 /*461*/ static int pow10z[5]={1,10,100,1000,10000};
@@ -4021,7 +4032,7 @@ ival%=pow10z[ilen--];
 }
 else*str++ =fmt[-1];
 }
-*str='';
+*str='\x00';
 __builtin_va_end(vp);
 }
 /*"pdpc201/errno.c"15*/ int __errno=0;
@@ -4995,15 +5006,14 @@ return(__toup[c]);
 }jmp_buf[1];
 /*46*/ int __setj(jmp_buf env);
 /*48*/ void longjmp(jmp_buf env,int val);
-/*"pdpc201/setjmp.c"17*/ int __longj(void*);
+/*"pdpc201/setjmp.c"17*/ int __longj(void*,int val);
 /*19*/ void longjmp(jmp_buf env,int val)
 {
 if(val==0)
 {
 val=1;
 }
-env[0].retval=val;
-/*27*/ __longj(env);
+/*27*/ __longj(env,val);
 return;
 }
 /*"math.h"31*/ double ceil(double x);
@@ -5301,26 +5311,26 @@ int i,n;
 (*(__get_errno()))=33;
 return(0.0);
 }
-if(x==0.0)return(0.0);
-/*617*/ if(x!=x)
+/*616*/ if(x==0.0)
 return(0.0);
-/*620*/ return(__sqrt_d(x));
-/*628*/ xs=x;
+/*619*/ if(x!=x)
+return(0.0);
+/*630*/ xs=x;
 pow1=1;
 n=256;
-/*632*/ while((xs<1.0)&&((n--)>0))
+/*634*/ while((xs<1.0)&&((n--)>0))
 {xs=xs*4.0;pow1=pow1/2.0;}
 while((xs>=4.0)&&((n--)>0))
 {xs=xs/4.0;pow1=pow1*2.0;}
-/*637*/ if(n<=0)
+/*639*/ if(n<=0)
 {
 tk_puts("sqrt fail\n");
 return(0);
 }
-/*648*/ i=0;
+/*650*/ i=0;
 yn=xs/2.0;
 ynn=0;
-/*652*/ while((n--)>0)
+/*654*/ while((n--)>0)
 {
 ynn=(yn+xs/yn)*0.5;
 if(fabs(ynn-yn)<=10.0*1E-37)break;else yn=ynn;
@@ -5328,58 +5338,58 @@ if(i>10)break;else i++;
 }
 return(ynn*pow1);
 }
-/*662*/ double frexp(double x,int*exp)
+/*664*/ double frexp(double x,int*exp)
 {
-/*668*/ union dblhex
+/*670*/ union dblhex
 {
 double d;
 unsigned short s[4];
 };
 union dblhex split;
-/*675*/ if(x==0.0)
+/*677*/ if(x==0.0)
 {
 exp=0;
 return(0.0);
 }
-/*681*/ split.d=x;
+/*683*/ split.d=x;
 *exp=(((split.s[0]>>8)&0x007f)-64)*4;
 split.s[0]=split.s[0]&0x80ff;
 split.s[0]=split.s[0]|0x4000;
-/*686*/ while((fabs(split.d)<0.5)&&(split.d!=0))
+/*688*/ while((fabs(split.d)<0.5)&&(split.d!=0))
 {
 split.d=split.d*2;
 *exp=(*exp)-1;
 }
-/*692*/ return(split.d);
+/*694*/ return(split.d);
 }
-/*695*/ double ldexp(double x,int exp)
+/*697*/ double ldexp(double x,int exp)
 {
-/*700*/ int bin_exp,hex_exp,adj_exp;
+/*702*/ int bin_exp,hex_exp,adj_exp;
 union dblhex
 {
 double d;
 unsigned short s[4];
 };
 union dblhex split;
-/*710*/ split.d=frexp(x,&bin_exp);
+/*712*/ split.d=frexp(x,&bin_exp);
 bin_exp=bin_exp+exp;
-/*713*/ hex_exp=(bin_exp/4);
+/*715*/ hex_exp=(bin_exp/4);
 adj_exp=bin_exp-(hex_exp*4);
 if(adj_exp<0){hex_exp=hex_exp-1;adj_exp=4+adj_exp;}
 split.s[0]=split.s[0]&0x80ff;
 split.s[0]=split.s[0]|(((hex_exp+64)<<8)&0x7f00);
-/*720*/ while(adj_exp>0)
+/*722*/ while(adj_exp>0)
 {
 split.d=split.d*2;
 --adj_exp;
 }
-/*726*/ return(split.d);
+/*728*/ return(split.d);
 }
-/*729*/ double modf(double value,double*iptr)
+/*731*/ double modf(double value,double*iptr)
 {
 int neg=0;
 long i;
-/*734*/ if(value<0)
+/*736*/ if(value<0)
 {
 neg=1;
 value= -value;
@@ -8306,65 +8316,69 @@ if(!reladdr)
 tk_puts("tk_ird_init: no initrd\n");
 tk_ird_imgbuf=((void*)0);
 return(-1);
+}else
+{
+tk_printf("tk_ird_init: OK %08X\n",reladdr);
 }
-/*47*/ tk_vf_register(&tk_vfile_ird_vt);
-/*49*/ strcpy(kerninit,((char*)0x1003F100));
-/*53*/ ird=(byte*)(0x8C000000+reladdr);
-/*57*/ tk_ird_imgbuf=ird;
+/*50*/ tk_vf_register(&tk_vfile_ird_vt);
+/*52*/ strcpy(kerninit,((char*)0x1003F100));
+/*56*/ ird=(byte*)(0x8C000000+reladdr);
+/*60*/ tk_ird_imgbuf=ird;
+tk_printf("tk_ird_init: IRD=%p\n",tk_ird_imgbuf);
 return(1);
 }
-/*61*/ TK_MOUNT*tk_ird_mount(char*devfn,char*mntfn,char*fsty,char*mode,char* *opts)
-/*63*/ {
+/*65*/ TK_MOUNT*tk_ird_mount(char*devfn,char*mntfn,char*fsty,char*mode,char* *opts)
+/*67*/ {
 }
-/*66*/ int tk_ird_decoctal_n(byte*cs,int n)
+/*70*/ int tk_ird_decoctal_n(byte*cs,int n)
 {
 int i,v;
-/*70*/ v=0;
+/*74*/ v=0;
 for(i=0;i<n;i++)
 {
 v=(v*8)+(cs[i]-'0');
 }
 return(v);
 }
-/*78*/ TK_FILE*tk_ird_fopen(TK_MOUNT*mnt,char*name,char*mode)
+/*82*/ TK_FILE*tk_ird_fopen(TK_MOUNT*mnt,char*name,char*mode)
 {
 TK_FILE*fd;
 u32 reladdr;
 byte*ird;
 byte*cs;
 int sz;
-/*86*/ if((mode[0]!='r')||(mode[1]=='+'))
+/*90*/ if((mode[0]!='r')||(mode[1]=='+'))
 {
 tk_puts("tk_ird_fopen: bad mode\n");
 return(((void*)0));
 }
-/*92*/ ird=tk_ird_imgbuf;
+/*96*/ ird=tk_ird_imgbuf;
 if(!ird)
 {
 tk_puts("tk_ird_fopen: no initrd\n");
 return(((void*)0));
 }
-/*99*/ cs=ird;
+/*103*/ cs=ird;
 while(cs[0])
 {
 sz=tk_ird_decoctal_n(cs+124,11);
-/*104*/ if(!strcmp(cs,name))
+/*108*/ if(!strcmp(cs,name))
 {
 fd=tk_alloc_file();
 fd->vt= &tk_vfile_ird_vt;
 fd->ram_base=cs+0x200;
 fd->ram_end=fd->ram_base+sz;
 fd->ram_ofs=fd->ram_base;
-/*112*/ printf("tk_ird_fopen: %s %08X %08X\n",name,fd->ram_base,fd->ram_end);
-/*114*/ return(fd);
+/*116*/ tk_printf("tk_ird_fopen: %s %08X %08X\n",name,fd->ram_base,fd->ram_end);
+/*118*/ return(fd);
 }
-/*117*/ sz=(sz+511)&(~511);
+/*121*/ sz=(sz+511)&(~511);
 cs+=512+sz;
 }
-/*121*/ printf("tk_ird_fopen: can\'t find %s\n",name);
+/*125*/ tk_printf("tk_ird_fopen: can\'t find %s\n",name);
 return(((void*)0));
 }
-/*125*/ int tk_ird_fseek(TK_FILE*fd,int ofs,int rel)
+/*129*/ int tk_ird_fseek(TK_FILE*fd,int ofs,int rel)
 {
 if(fd->ram_base)
 {
@@ -8377,7 +8391,7 @@ return(-1);
 fd->ram_ofs=fd->ram_base+ofs;
 return(0);
 }
-/*139*/ if(rel==1)
+/*143*/ if(rel==1)
 {
 fd->ram_ofs=fd->ram_ofs+ofs;
 if(fd->ram_ofs>fd->ram_end)
@@ -8386,7 +8400,7 @@ if(fd->ram_ofs<fd->ram_base)
 fd->ram_ofs=fd->ram_base;
 return(0);
 }
-/*149*/ if(rel==2)
+/*153*/ if(rel==2)
 {
 if(ofs>0)
 return(-1);
@@ -8395,14 +8409,14 @@ return(-1);
 fd->ram_ofs=fd->ram_end+ofs;
 return(0);
 }
-/*159*/ return(-1);
+/*163*/ return(-1);
 }
-/*162*/ return(-1);
+/*166*/ return(-1);
 }
-/*165*/ int tk_ird_fread(void*buf,int sz1,int sz2,TK_FILE*fd)
+/*169*/ int tk_ird_fread(void*buf,int sz1,int sz2,TK_FILE*fd)
 {
 int sz;
-/*169*/ if(fd->ram_base)
+/*173*/ if(fd->ram_base)
 {
 sz=sz1*sz2;
 if((fd->ram_ofs+sz)>fd->ram_end)
@@ -8412,21 +8426,21 @@ memcpy(buf,fd->ram_ofs,sz);
 fd->ram_ofs+=sz;
 return(sz);
 }
-/*180*/ return(-1);
+/*184*/ return(-1);
 }
-/*183*/ int tk_ird_fgetc(TK_FILE*fd)
+/*187*/ int tk_ird_fgetc(TK_FILE*fd)
 {
 int i;
-/*187*/ if(fd->ram_base)
+/*191*/ if(fd->ram_base)
 {
 if(fd->ram_ofs>=fd->ram_end)
 {fd->ram_ofs=fd->ram_end;return(-1);}
-/*192*/ i= *fd->ram_ofs++;
+/*196*/ i= *fd->ram_ofs++;
 return(i);
 }
-/*196*/ return(-1);
+/*200*/ return(-1);
 }
-/*199*/ int tk_ird_ftell(TK_FILE*fd)
+/*203*/ int tk_ird_ftell(TK_FILE*fd)
 {
 int i;
 if(fd->ram_base)
@@ -8434,9 +8448,9 @@ if(fd->ram_base)
 i=fd->ram_ofs-fd->ram_base;
 return(i);
 }
-/*208*/ return(-1);
+/*212*/ return(-1);
 }
-/*211*/ int tk_ird_fclose(TK_FILE*fd)
+/*215*/ int tk_ird_fclose(TK_FILE*fd)
 {
 return(-1);
 }
@@ -8647,25 +8661,36 @@ while(!((*(vol_u32*)(0xABCD0100+0x08))&1))
 sleep_0();
 return((*(vol_u32*)(0xABCD0100+0x00)));
 }
-/*33*/ int tk_puts(char*msg)
+/*33*/ int tk_ptrIsRam(void*ptr)
+{
+u32 a;
+a=(u32)ptr;
+a&=0x1FFFFFFF;
+if(a<0x0C000000)
+return(0);
+if(a>=0x18000000)
+return(0);
+return(1);
+}
+/*45*/ int tk_puts(char*msg)
 {
 char*s;
-/*37*/ s=msg;
+/*49*/ s=msg;
 while(*s)
 {tk_putc(*s++);}
 }
-/*42*/ void tk_puts_n(char*msg,int n)
+/*54*/ void tk_puts_n(char*msg,int n)
 {
 char*s;
-/*46*/ s=msg;
+/*58*/ s=msg;
 while(n--)
 {tk_putc(*s++);}
 }
-/*51*/ void tk_gets(char*buf)
+/*63*/ void tk_gets(char*buf)
 {
 char*t;
 int i;
-/*56*/ t=buf;
+/*68*/ t=buf;
 while(1)
 {
 i=tk_getch();
@@ -8688,29 +8713,43 @@ tk_putc(i);
 }
 *t=0;
 }
-/*80*/ void tk_gets_n(char*msg,int n)
+/*92*/ void tk_gets_n(char*msg,int n)
 {
 char*s;
-/*84*/ s=msg;
+/*96*/ s=msg;
 while(n--)
 {*s++ =tk_getch();}
 }
-/*89*/ u32 __moddi3(u32 a,u32 b)
+/*101*/ u32 __moddi3(u32 a,u32 b)
 {
 u32 q,r;
-/*93*/ q=a/b;
+/*105*/ q=a/b;
 r=a-(q*b);
 return(r);
 }
-/*99*/ typedef struct u64_obj_s u64_obj_t;
+/*110*/ u32 __umodsi3(u32 a,u32 b)
+{
+u32 q,r;
+/*114*/ q=a/b;
+r=a-(q*b);
+/*122*/ return(r);
+}
+/*125*/ s32 __smodsi3(s32 a,s32 b)
+{
+s32 q,r;
+/*129*/ q=a/b;
+r=a-(q*b);
+return(r);
+}
+/*135*/ typedef struct u64_obj_s u64_obj_t;
 struct u64_obj_s{
 u32 lo;
 u32 hi;
 };
-/*105*/ u64_obj_t __shllli(u64_obj_t ival,int shl)
+/*141*/ u64_obj_t __shllli(u64_obj_t ival,int shl)
 {
 u64_obj_t oval;
-/*109*/ if(!(shl&31))
+/*145*/ if(!(shl&31))
 {
 if(!shl)
 return(ival);
@@ -8720,18 +8759,18 @@ oval.lo=0;
 oval.hi=ival.lo;
 return(oval);
 }
-/*120*/ oval.lo=0;
+/*156*/ oval.lo=0;
 oval.hi=0;
 return(oval);
 }
-/*125*/ oval.lo=ival.lo<<shl;
+/*161*/ oval.lo=ival.lo<<shl;
 oval.hi=(ival.hi<<shl)|(ival.lo<<(32-shl));
 return(oval);
 }
-/*130*/ u64_obj_t __shrlli(u64_obj_t ival,int shl)
+/*166*/ u64_obj_t __shrlli(u64_obj_t ival,int shl)
 {
 u64_obj_t oval;
-/*134*/ if(!(shl&31))
+/*170*/ if(!(shl&31))
 {
 if(!shl)
 return(ival);
@@ -8741,22 +8780,22 @@ oval.lo=ival.hi;
 oval.hi=0;
 return(oval);
 }
-/*145*/ oval.lo=0;
+/*181*/ oval.lo=0;
 oval.hi=0;
 return(oval);
 }
-/*150*/ oval.hi=ival.hi>>shl;
+/*186*/ oval.hi=ival.hi>>shl;
 oval.lo=(ival.lo>>shl)|(ival.hi<<(32-shl));
 return(oval);
 }
-/*155*/ u64_obj_t __sarlli(u64_obj_t ival,int shl)
+/*191*/ u64_obj_t __sarlli(u64_obj_t ival,int shl)
 {
 u64_obj_t oval;
 u32 m;
-/*160*/ m=0;
+/*196*/ m=0;
 if(ival.hi&0x80000000)
 m=(u32)(-1);
-/*164*/ if(!(shl&31))
+/*200*/ if(!(shl&31))
 {
 if(!shl)
 return(ival);
@@ -8767,15 +8806,15 @@ if(m>0)
 oval.lo=0;oval.hi=0;
 return(oval);
 }
-/*176*/ oval.hi=(ival.hi>>shl)|(m<<(32-shl));
+/*212*/ oval.hi=(ival.hi>>shl)|(m<<(32-shl));
 oval.lo=(ival.lo>>shl)|(ival.hi<<(32-shl));
 return(oval);
 }
-/*181*/ u64_obj_t __udivlli(u64_obj_t a,u64_obj_t b)
+/*217*/ u64_obj_t __udivlli(u64_obj_t a,u64_obj_t b)
 {
 u64 lc,ld;
 u64_obj_t c,d,e;
-/*186*/ if(!b.hi)
+/*222*/ if(!b.hi)
 {
 if(!a.hi)
 {
@@ -8783,28 +8822,28 @@ c.lo=a.lo/b.lo;
 c.hi=0;
 return(c);
 }
-/*195*/ c.hi=a.hi/b.lo;
+/*231*/ c.hi=a.hi/b.lo;
 c.lo=a.lo/b.lo;
 d.hi=a.hi%b.lo;
 d.lo=a.lo%b.lo;
-/*200*/ lc=((u64)d.hi)*((u64)b.lo);
+/*236*/ lc=((u64)d.hi)*((u64)b.lo);
 *(u64*)(&c)+=lc;
 return(c);
 }
-/*205*/ if(!a.hi)
+/*241*/ if(!a.hi)
 {c.lo=0;c.hi=0;return(c);}
 if(b.hi>a.hi)
 {c.lo=0;c.hi=0;return(c);}
-/*210*/ c.lo=a.hi/b.hi;
+/*246*/ c.lo=a.hi/b.hi;
 c.hi=0;
 return(c);
-/*217*/ }
-/*223*/ s64 __sdivlli(s64 a,s64 b)
+/*253*/ }
+/*259*/ s64 __sdivlli(s64 a,s64 b)
 {
 u64 ua,ub,uc;
 int sg;
-/*228*/ sg=0;
-/*230*/ ua=(u64)a;
+/*264*/ sg=0;
+/*266*/ ua=(u64)a;
 if(ua&0x8000000000000000 ULL)
 {ua= -ua;sg=1;}
 ub=(u64)a;
@@ -8815,58 +8854,58 @@ if(sg)
 {uc= -uc;}
 return((s64)uc);
 }
-/*243*/ int __read(int handle,void*buf,size_t len,int*errind)
+/*279*/ int __read(int handle,void*buf,size_t len,int*errind)
 {
 int i;
-/*247*/ if(handle<3)
+/*283*/ if(handle<3)
 {
-/*250*/ return(0);
+/*286*/ return(0);
 }
-/*253*/ if(errind)*errind=0;
+/*289*/ if(errind)*errind=0;
 i=tk_fread(buf,1,len,btshx_tk_handles[handle]);
 if(i<0)
 *errind=1;
-/*258*/ return(i);
+/*294*/ return(i);
 }
-/*261*/ int __write(int handle,const void*buf,size_t len,int*errind)
+/*297*/ int __write(int handle,const void*buf,size_t len,int*errind)
 {
 void*ptr1;
 int i;
-/*266*/ if(handle<3)
+/*302*/ if(handle<3)
 {
 ptr1=(void*)buf;
 tk_puts_n(ptr1,len);
 return(0);
 }
-/*273*/ if(errind)*errind=0;
+/*309*/ if(errind)*errind=0;
 ptr1=(void*)buf;
 i=tk_fwrite(ptr1,1,len,btshx_tk_handles[handle]);
 if(i<0)
 *errind=1;
-/*279*/ return(i);
+/*315*/ return(i);
 }
-/*282*/ void __seek(int handle,long offset,int whence)
+/*318*/ void __seek(int handle,long offset,int whence)
 {
 tk_fseek(btshx_tk_handles[handle],offset,whence);
-/*286*/ }
-/*288*/ long __tell(int handle)
+/*322*/ }
+/*324*/ long __tell(int handle)
 {
 return(tk_ftell(btshx_tk_handles[handle]));
 }
-/*293*/ int __open(const char*a,int b,int c)
+/*329*/ int __open(const char*a,int b,int c)
 {
 TK_FILE*fd;
 char*s;
 int i;
-/*299*/ s=(char*)a;
+/*335*/ s=(char*)a;
 fd=tk_fopen(s,"rb");
 if(!fd)
 {
 *(int*)c= -1;
 return(-1);
 }
-/*307*/ *(int*)c=0;
-/*309*/ for(i=3;i<btshx_tk_nhandles;i++)
+/*343*/ *(int*)c=0;
+/*345*/ for(i=3;i<btshx_tk_nhandles;i++)
 {
 if(!btshx_tk_handles[i])
 {
@@ -8874,43 +8913,43 @@ btshx_tk_handles[i]=fd;
 return(i);
 }
 }
-/*318*/ if(btshx_tk_nhandles>=256)
+/*354*/ if(btshx_tk_nhandles>=256)
 {
 *(int*)c= -1;
 return(-1);
 }
-/*324*/ i=btshx_tk_nhandles++;
+/*360*/ i=btshx_tk_nhandles++;
 btshx_tk_handles[i]=fd;
 return(i);
-/*329*/ }
-/*331*/ void __close(int handle)
+/*365*/ }
+/*367*/ void __close(int handle)
 {
 TK_FILE*fd;
-/*335*/ if(handle<3)
+/*371*/ if(handle<3)
 return;
-/*338*/ fd=btshx_tk_handles[handle];
+/*374*/ fd=btshx_tk_handles[handle];
 btshx_tk_handles[handle]=((void*)0);
 tk_fclose(fd);
-/*342*/ }
-/*344*/ void __remove(const char*filename)
+/*378*/ }
+/*380*/ void __remove(const char*filename)
 {
-/*347*/ }
-/*349*/ void __rename(const char*oldfn,const char*newfn)
+/*383*/ }
+/*385*/ void __rename(const char*oldfn,const char*newfn)
 {
-/*352*/ }
-/*354*/ void __exita(int status)
+/*388*/ }
+/*390*/ void __exita(int status)
 {
 *(int*)-1= -1;
-/*358*/ }
-/*360*/ u32 TK_GetTimeMs(void)
+/*394*/ }
+/*396*/ u32 TK_GetTimeMs(void)
 {
 u32*sreg;
 int ms;
-/*365*/ sreg=(int*)0x007F8000;
-/*367*/ ms=sreg[4];
+/*401*/ sreg=(int*)0x007F8000;
+/*403*/ ms=sreg[4];
 return(ms);
 }
-/*371*/ void __datetime(void*ptr)
+/*407*/ void __datetime(void*ptr)
 {
 struct dt_s{
 int year;
@@ -8921,9 +8960,9 @@ int minutes;
 int seconds;
 int hundredths;
 }dt,*pdt;
-/*383*/ int ms;
-/*385*/ ms=TK_GetTimeMs();
-/*387*/ pdt=ptr;
+/*419*/ int ms;
+/*421*/ ms=TK_GetTimeMs();
+/*423*/ pdt=ptr;
 pdt->hundredths=(ms/10)%100;
 pdt->seconds=(ms/1000)%60;
 pdt->minutes=(ms/60000)%60;
@@ -8931,41 +8970,44 @@ pdt->hours=0;
 pdt->day=0;
 pdt->month=0;
 pdt->year=0;
-/*397*/ }
-/*399*/ void*_alloca(int sz)
+/*433*/ }
+/*435*/ void*_alloca(int sz)
 {
-/*402*/ return(TKMM_Malloc(sz));
+/*438*/ return(TKMM_Malloc(sz));
 }
-/*405*/ void __allocmem(size_t size,void* *ptr)
+/*441*/ void __allocmem(size_t size,void* *rptr)
 {
-/*408*/ *ptr=TKMM_Malloc(size);
-}
-/*411*/ void __freemem(void*ptr)
+void*ptr;
+/*445*/ ptr=TKMM_Malloc(size);
+tk_printf("__allocmem: %p..%p %d\n",ptr,ptr+size,size);
+*rptr=ptr;
+/*449*/ }
+/*451*/ void __freemem(void*ptr)
 {
-/*415*/ }
-/*417*/ unsigned char*__envptr;
-/*419*/ void __exec(char*cmd,void*env)
+/*455*/ }
+/*457*/ unsigned char*__envptr;
+/*459*/ void __exec(char*cmd,void*env)
 {
-/*422*/ }
-/*424*/ int __start_early()
+/*462*/ }
+/*464*/ int __start_early()
 {
 TKMM_Init();
 }
-/*429*/ int __start_late()
+/*469*/ int __start_late()
 {
 }
-/*433*/ char*__get_cmdline()
+/*473*/ char*__get_cmdline()
 {
 return("");
 }
-/*438*/ char* *__get_cmdenv()
+/*478*/ char* *__get_cmdenv()
 {
 return(((void*)0));
 }
-/*450*/ void tk_print_hex(u32 v)
+/*490*/ void tk_print_hex(u32 v)
 {
 static char*chrs="0123456789ABCDEF";
-/*454*/ tk_putc(chrs[(v>>28)&15]);
+/*494*/ tk_putc(chrs[(v>>28)&15]);
 tk_putc(chrs[(v>>24)&15]);
 tk_putc(chrs[(v>>20)&15]);
 tk_putc(chrs[(v>>16)&15]);
@@ -8974,10 +9016,10 @@ tk_putc(chrs[(v>>8)&15]);
 tk_putc(chrs[(v>>4)&15]);
 tk_putc(chrs[(v)&15]);
 }
-/*464*/ void tk_print_hex_n(u32 v,int n)
+/*504*/ void tk_print_hex_n(u32 v,int n)
 {
 static char*chrs="0123456789ABCDEF";
-/*468*/ if(n>7)tk_putc(chrs[(v>>28)&15]);
+/*508*/ if(n>7)tk_putc(chrs[(v>>28)&15]);
 if(n>6)tk_putc(chrs[(v>>24)&15]);
 if(n>5)tk_putc(chrs[(v>>20)&15]);
 if(n>4)tk_putc(chrs[(v>>16)&15]);
@@ -8986,24 +9028,34 @@ if(n>2)tk_putc(chrs[(v>>8)&15]);
 if(n>1)tk_putc(chrs[(v>>4)&15]);
 if(n>0)tk_putc(chrs[(v)&15]);
 }
-/*478*/ int tk_print_hex_genw(u32 v)
+/*518*/ int tk_print_hex_genw(u32 v)
 {
 u32 w;
 int i;
-/*483*/ i=1;
+/*523*/ i=1;
 while(v>=16)
 {v=v>>4;i++;}
-/*498*/ return(i);
+/*538*/ return(i);
 }
-/*501*/ void tk_print_decimal(int val)
+/*541*/ void tk_print_decimal(int val)
 {
 char tb[256];
 char*t;
 int i,k,s;
-/*507*/ k=val;s=0;
+/*547*/ if(val==0)
+{
+tk_putc('0');
+return;
+}
+/*554*/ if(val==(1<<31))
+{
+tk_puts("-2147483648");
+return;
+}
+/*560*/ k=val;s=0;
 if(k<0)
 {k= -k;s=1;}
-/*511*/ t=tb;
+/*564*/ t=tb;
 if(!k)*t++ ='0';
 while(k>0)
 {
@@ -9012,71 +9064,78 @@ i=k%10;
 k=k/10;
 }
 if(s)*t++ ='-';
-/*521*/ while(t>tb)
+/*574*/ if(tb[0]=='-')
+*(int*)-1= -1;
+/*577*/ while(t>tb)
 {t--;tk_putc(*t);}
 }
-/*525*/ void tk_print_decimal_n(int val,int num)
+/*581*/ void tk_print_decimal_n(int val,int num)
 {
 char tb[256];
 char*t;
 int i,k,n,s;
-/*531*/ k=val;s=0;
+/*587*/ k=val;s=0;
 if(k<0)
 {k= -k;s=1;}
-/*535*/ t=tb;n=num;
-/*537*/ while(n>0)
+/*591*/ t=tb;n=num;
+/*593*/ while(n>0)
 {
 i=k%10;
 *t++ ='0'+i;
 k=k/10;
 n--;
 }
-/*547*/ while(t>tb)
+/*603*/ while(t>tb)
 {t--;tk_putc(*t);}
 }
-/*552*/ void tk_print_float(double val)
+/*608*/ void tk_print_float(double val)
 {
 int ip,fp,sg;
-/*556*/ sg=0;
+/*612*/ sg=0;
 if(val<0)
 {val= -val;sg=1;}
-/*560*/ ip=(int)val;
+/*616*/ ip=(int)val;
 fp=(int)((val-ip)*1000000);
-/*565*/ if(sg)tk_putc('-');
+/*620*/ if(ip==(1<<31))
+{
+/*623*/ tk_puts("#OVF");
+return;
+}
+/*629*/ if(sg)tk_putc('-');
 tk_print_decimal(ip);
 tk_putc('.');
 tk_print_decimal_n(fp,6);
 }
-/*571*/ void tk_print_float_ss(float val)
+/*635*/ void tk_print_float_ss(float val)
 {
 int ip,fp,sg;
-/*575*/ sg=0;
+/*639*/ sg=0;
 if(val<0.0 f)
 {val= -val;sg=1;}
-/*579*/ ip=(int)val;
+/*643*/ ip=(int)val;
 fp=(int)((val-ip)*1000000);
-/*584*/ if(sg)tk_putc('-');
+/*648*/ if(sg)tk_putc('-');
 tk_print_decimal(ip);
 tk_putc('.');
 tk_print_decimal_n(fp,6);
 }
-/*591*/ void tk_printf(char*str,...)
+/*655*/ void tk_printf(char*str,...)
 {
 va_list lst;
 double f;
 char pcfill;
 char*s,*s1;
 int v,w,wf;
-/*599*/ __builtin_va_start(lst,str);
-/*601*/ s=str;
+/*663*/ __builtin_va_start(lst,str);
+/*665*/ s=str;
 while(*s)
 {
 if(*s!='%')
 {tk_putc(*s++);continue;}
-/*607*/ if(s[1]=='%')
+/*671*/ if(s[1]=='%')
 {s+=2;tk_putc('%');continue;}
 s++;
-/*612*/ if(*s=='0')
+/*676*/ if(*s=='0')
 {
 pcfill='0';
 s++;
@@ -9084,13 +9143,13 @@ s++;
 {
 pcfill=' ';
 }
-/*621*/ w=0;
+/*685*/ w=0;
 if((*s>='0')&&(*s<='9'))
 {
 while((*s>='0')&&(*s<='9'))
 w=(w*10)+((*s++)-'0');
 }
-/*628*/ wf=0;
+/*692*/ wf=0;
 if(*s=='.')
 {
 s++;
@@ -9100,58 +9159,58 @@ while((*s>='0')&&(*s<='9'))
 wf=(wf*10)+((*s++)-'0');
 }
 }
-/*641*/ switch(*s++)
+/*705*/ switch(*s++)
 {
 case'c':
 v=__builtin_va_arg(lst,int);
 tk_putc(v);
 break;
-/*648*/ case'd':
-/*650*/ v=__builtin_va_arg(lst,int);
-/*654*/ if(w)
+/*712*/ case'd':
+/*714*/ v=__builtin_va_arg(lst,int);
+/*718*/ if(w)
 {tk_print_decimal_n(v,w);}
 else
 {tk_print_decimal(v);}
 break;
 case'X':
 v=__builtin_va_arg(lst,int);
-/*662*/ if(!w)w=tk_print_hex_genw(v);
+/*726*/ if(!w)w=tk_print_hex_genw(v);
 tk_print_hex_n(v,w);
 break;
 case's':
 s1=__builtin_va_arg(lst,char*);
 tk_puts(s1);
 break;
-/*670*/ case'p':
+/*734*/ case'p':
 s1=__builtin_va_arg(lst,char*);
 tk_print_hex((u32)s1);
 break;
-/*676*/ case'f':
+/*740*/ case'f':
 f=6969.6969;
 f=__builtin_va_arg(lst,double);
 tk_print_float(f);
 break;
-/*683*/ default:
+/*747*/ default:
 break;
 }
-/*687*/ }
+/*751*/ }
 __builtin_va_end(lst);
 }
-/*692*/ void tk_vprintf(char*str,va_list lst)
+/*756*/ void tk_vprintf(char*str,va_list lst)
 {
 double f;
 char pcfill;
 char*s,*s1;
 int v,w,wf;
-/*699*/ s=str;
+/*763*/ s=str;
 while(*s)
 {
 if(*s!='%')
 {tk_putc(*s++);continue;}
-/*705*/ if(s[1]=='%')
+/*769*/ if(s[1]=='%')
 {s+=2;tk_putc('%');continue;}
 s++;
-/*710*/ if(*s=='0')
+/*774*/ if(*s=='0')
 {
 pcfill='0';
 s++;
@@ -9159,13 +9218,13 @@ s++;
 {
 pcfill=' ';
 }
-/*719*/ w=0;
+/*783*/ w=0;
 if((*s>='0')&&(*s<='9'))
 {
 while((*s>='0')&&(*s<='9'))
 w=(w*10)+((*s++)-'0');
 }
-/*726*/ wf=0;
+/*790*/ wf=0;
 if(*s=='.')
 {
 s++;
@@ -9175,39 +9234,191 @@ while((*s>='0')&&(*s<='9'))
 wf=(wf*10)+((*s++)-'0');
 }
 }
-/*739*/ switch(*s++)
+/*803*/ switch(*s++)
 {
 case'c':
 v=__builtin_va_arg(lst,int);
 tk_putc(v);
 break;
-/*746*/ case'd':
-/*748*/ v=__builtin_va_arg(lst,int);
-/*752*/ if(w)
+/*810*/ case'd':
+/*812*/ v=__builtin_va_arg(lst,int);
+/*816*/ if(w)
 {tk_print_decimal_n(v,w);}
 else
 {tk_print_decimal(v);}
 break;
 case'X':
 v=__builtin_va_arg(lst,int);
-/*760*/ if(!w)w=tk_print_hex_genw(v);
+/*824*/ if(!w)w=tk_print_hex_genw(v);
 tk_print_hex_n(v,w);
 break;
 case's':
 s1=__builtin_va_arg(lst,char*);
 tk_puts(s1);
 break;
-/*768*/ case'p':
+/*832*/ case'p':
 s1=__builtin_va_arg(lst,char*);
 tk_print_hex((u32)s1);
 break;
-/*774*/ case'f':
+/*838*/ case'f':
 f=6969.6969;
 f=__builtin_va_arg(lst,double);
 tk_print_float(f);
 break;
-/*781*/ default:
+/*845*/ default:
 break;
 }
-/*785*/ }
+/*849*/ }
+}
+/*855*/ char*tk_sprint_hex(char*ct,u32 v)
+{
+static char*chrs="0123456789ABCDEF";
+/*859*/ *ct++ =(chrs[(v>>28)&15]);
+*ct++ =(chrs[(v>>24)&15]);
+*ct++ =(chrs[(v>>20)&15]);
+*ct++ =(chrs[(v>>16)&15]);
+*ct++ =(chrs[(v>>12)&15]);
+*ct++ =(chrs[(v>>8)&15]);
+*ct++ =(chrs[(v>>4)&15]);
+*ct++ =(chrs[(v)&15]);
+return(ct);
+}
+/*870*/ char*tk_sprint_hex_n(char*ct,u32 v,int n)
+{
+static char*chrs="0123456789ABCDEF";
+/*874*/ if(n>7)*ct++ =(chrs[(v>>28)&15]);
+if(n>6)*ct++ =(chrs[(v>>24)&15]);
+if(n>5)*ct++ =(chrs[(v>>20)&15]);
+if(n>4)*ct++ =(chrs[(v>>16)&15]);
+if(n>3)*ct++ =(chrs[(v>>12)&15]);
+if(n>2)*ct++ =(chrs[(v>>8)&15]);
+if(n>1)*ct++ =(chrs[(v>>4)&15]);
+if(n>0)*ct++ =(chrs[(v)&15]);
+return(ct);
+}
+/*885*/ char*tk_sprint_decimal(char*ct,int val)
+{
+char tb[256];
+char*t;
+int i,k,s;
+/*891*/ if(val==0)
+{
+*ct++ ='0';
+return(ct);
+}
+/*897*/ k=val;s=0;
+if(k<0)
+{k= -k;s=1;}
+/*901*/ t=tb;
+/*904*/ while(k>0)
+{
+i=k%10;
+*t++ ='0'+i;
+k=k/10;
+}
+if(s)*t++ ='-';
+/*912*/ while(t>tb)
+{t--;*ct++ = *t;}
+return(ct);
+}
+/*917*/ char*tk_sprint_decimal_n(char*ct,int val,int num)
+{
+char tb[256];
+char*t;
+int i,k,n,s;
+/*923*/ k=val;s=0;
+if(k<0)
+{k= -k;s=1;}
+/*927*/ t=tb;n=num;
+while(n>0)
+{
+i=k%10;
+*t++ ='0'+i;
+k=k/10;
+n--;
+}
+/*938*/ while(t>tb)
+{t--;*ct++ = *t;}
+return(ct);
+}
+/*943*/ void tk_vsprintf(char*dst,char*str,va_list lst)
+{
+double f;
+char pcfill;
+char*s,*s1;
+char*ct;
+int v,w,wf;
+/*951*/ ct=dst;
+s=str;
+while(*s)
+{
+if(*s!='%')
+{*ct++ = *s++;continue;}
+/*958*/ if(s[1]=='%')
+{s+=2;*ct++ ='%';continue;}
+s++;
+/*963*/ if(*s=='0')
+{
+pcfill='0';
+s++;
+}else
+{
+pcfill=' ';
+}
+/*972*/ w=0;
+if((*s>='0')&&(*s<='9'))
+{
+while((*s>='0')&&(*s<='9'))
+w=(w*10)+((*s++)-'0');
+}
+/*979*/ wf=0;
+if(*s=='.')
+{
+s++;
+if((*s>='0')&&(*s<='9'))
+{
+while((*s>='0')&&(*s<='9'))
+wf=(wf*10)+((*s++)-'0');
+}
+}
+/*992*/ switch(*s++)
+{
+case'c':
+v=__builtin_va_arg(lst,int);
+*ct++ =v;
+break;
+/*999*/ case'd':
+case'i':
+v=__builtin_va_arg(lst,int);
+if(w)
+{ct=tk_sprint_decimal_n(ct,v,w);}
+else
+{ct=tk_sprint_decimal(ct,v);}
+break;
+case'X':
+v=__builtin_va_arg(lst,int);
+/*1010*/ if(!w)w=tk_print_hex_genw(v);
+ct=tk_sprint_hex_n(ct,v,w);
+break;
+case's':
+s1=__builtin_va_arg(lst,char*);
+while(*s1)
+{*ct++ = *s1++;}
+break;
+/*1019*/ case'p':
+s1=__builtin_va_arg(lst,char*);
+ct=tk_sprint_hex(ct,(u32)s1);
+break;
+/*1033*/ default:
+break;
+}
+/*1037*/ }
+/*1039*/ *ct++ =0;
+}
+/*1042*/ void tk_sprintf(char*dst,char*str,...)
+{
+va_list lst;
+/*1046*/ __builtin_va_start(lst,str);
+tk_vsprintf(dst,str,lst);
+__builtin_va_end(lst);
 }

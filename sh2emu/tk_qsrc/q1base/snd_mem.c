@@ -109,6 +109,8 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 	if (sc)
 		return sc;
 
+//	printf("S_LoadSound: A0\n");
+
 //Con_Printf ("S_LoadSound: %x\n", (int)stackbuf);
 // load it in
     Q_strcpy(namebuffer, "sound/");
@@ -117,6 +119,8 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 //	Con_Printf ("loading %s\n",namebuffer);
 
 	data = COM_LoadStackFile(namebuffer, stackbuf, sizeof(stackbuf));
+
+//	printf("S_LoadSound: A1\n");
 
 	if (!data)
 	{
@@ -131,14 +135,20 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 		return NULL;
 	}
 
+//	printf("S_LoadSound: A2\n");
+
 	stepscale = (float)info.rate / shm->speed;	
 	len = info.samples / stepscale;
 
 	len = len * info.width * info.channels;
 
+//	printf("S_LoadSound: A3\n");
+
 	sc = Cache_Alloc ( &s->cache, len + sizeof(sfxcache_t), s->name);
 	if (!sc)
 		return NULL;
+
+//	printf("S_LoadSound: A4\n");
 	
 	sc->length = info.samples;
 	sc->loopstart = info.loopstart;
@@ -146,7 +156,11 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 	sc->width = info.width;
 	sc->stereo = info.channels;
 
+//	printf("S_LoadSound: A5\n");
+
 	ResampleSfx (s, sc->speed, sc->width, data + info.dataofs);
+
+//	printf("S_LoadSound: A6\n");
 
 	return sc;
 }

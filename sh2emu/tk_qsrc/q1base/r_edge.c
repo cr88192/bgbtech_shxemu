@@ -173,6 +173,9 @@ edge_head.next).
 void R_InsertNewEdges (edge_t *edgestoadd, edge_t *edgelist)
 {
 	edge_t	*next_edge;
+	int n;
+
+	n=1024;
 
 	do
 	{
@@ -190,6 +193,9 @@ edgesearch:
 		if (edgelist->u >= edgestoadd->u)
 			goto addedge;
 		edgelist=edgelist->next;
+
+		if((n--)<=0)	//BGB
+			break;
 		goto edgesearch;
 
 	// insert edgestoadd before edgelist
@@ -198,7 +204,10 @@ addedge:
 		edgestoadd->prev = edgelist->prev;
 		edgelist->prev->next = edgestoadd;
 		edgelist->prev = edgestoadd;
-	} while ((edgestoadd = next_edge) != NULL);
+		edgestoadd = next_edge;
+//	} while ((edgestoadd = next_edge) != NULL);
+//	} while ((edgestoadd = next_edge) != NULL && ((n--)>0));
+	} while (edgestoadd && ((n--)>0));
 }
 
 #endif	// !id386
@@ -213,18 +222,29 @@ R_RemoveEdges
 */
 void R_RemoveEdges (edge_t *pedge)
 {
-
+	edge_t *ppedge, *pnedge;
 	do
 	{
-		pedge->next->prev = pedge->prev;
-		pedge->prev->next = pedge->next;
-	} while ((pedge = pedge->nextremove) != NULL);
+		ppedge = pedge->prev;
+		pnedge = pedge->next;
+		if(!ppedge)	break;	//BGB
+		if(!pnedge)	break;	//BGB
+		pnedge->prev = ppedge;
+		ppedge->next = pnedge;
+	
+//		pedge->next->prev = pedge->prev;
+//		pedge->prev->next = pedge->next;
+		
+		pedge = pedge->nextremove;
+//	} while ((pedge = pedge->nextremove) != NULL);
+	} while (pedge);
 }
 
 #endif	// !id386
 
 
 #if	!id386
+// #if 0
 
 /*
 ==============
@@ -234,38 +254,77 @@ R_StepActiveU
 void R_StepActiveU (edge_t *pedge)
 {
 	edge_t		*pnext_edge, *pwedge;
+	int n, n1;
+
+#ifdef _BGBCC
+//	return;
+#endif
+
+	if(!pedge)
+		return;
+
+	n=256;
 
 	while (1)
+//	while ((n--)>0)
 	{
 nextedge:
+		if((n--)<=0)	//BGB
+			return;
+
+		if(!pedge || !pedge->prev) //BGB
+			return;
+
 		pedge->u += pedge->u_step;
 		if (pedge->u < pedge->prev->u)
 			goto pushback;
 		pedge = pedge->next;
 			
+		if(!pedge || !pedge->prev) //BGB
+			return;
+
 		pedge->u += pedge->u_step;
 		if (pedge->u < pedge->prev->u)
 			goto pushback;
 		pedge = pedge->next;
+
+		if(!pedge || !pedge->prev) //BGB
+			return;
 			
 		pedge->u += pedge->u_step;
 		if (pedge->u < pedge->prev->u)
 			goto pushback;
 		pedge = pedge->next;
+
+		if(!pedge || !pedge->prev) //BGB
+			return;
 			
 		pedge->u += pedge->u_step;
 		if (pedge->u < pedge->prev->u)
 			goto pushback;
 		pedge = pedge->next;
+
+		if(!pedge || !pedge->prev) //BGB
+			return;
+
+//		if(!pedge)	//BGB
+//			return;
 			
 		goto nextedge;		
 		
 pushback:
 		if (pedge == &edge_aftertail)
 			return;
+
+		if(!pedge->next)	//BGB
+			return;
+		if(!pedge->prev)	//BGB
+			return;
 			
 	// push it back to keep it sorted		
 		pnext_edge = pedge->next;
+//		if(!pnext_edge)
+//			return;
 
 	// pull the edge out of the edge list
 		pedge->next->prev = pedge->prev;
@@ -273,11 +332,16 @@ pushback:
 
 	// find out where the edge goes in the edge list
 		pwedge = pedge->prev->prev;
-
-		while (pwedge->u > pedge->u)
+		
+		n1=256;
+//		while (pwedge->u > pedge->u)
+		while ( pwedge && (pwedge->u > pedge->u) && ((n1--)>0))		//BGB
 		{
 			pwedge = pwedge->prev;
 		}
+		
+		if(!pwedge) //BGB
+			return;
 
 	// put the edge back into the edge list
 		pedge->next = pwedge->next;
@@ -293,6 +357,84 @@ pushback:
 
 #endif	// !id386
 
+
+//#if	!id386
+#if 0
+
+/*
+==============
+R_StepActiveU
+==============
+*/
+void R_StepActiveU (edge_t *pedge)
+{
+	edge_t		*pnext_edge, *pwedge;
+	int n, n1;
+
+	if(!pedge)
+		return;
+
+	n=256;
+
+	while(1)
+	{
+		if(!pedge) //BGB
+			break;
+		if(!pedge->prev)
+			break;
+
+		pedge->u += pedge->u_step;
+		if (pedge->u >= pedge->prev->u)
+		{
+			pedge = pedge->next;
+			continue;
+		}
+
+		if (pedge == &edge_aftertail)
+			break;
+
+		pnext_edge = pedge->next;
+
+		if(!pedge->next)
+			break;
+		if(!pedge->prev)
+			break;
+
+		pedge->next->prev = pedge->prev;
+		pedge->prev->next = pedge->next;
+
+		pwedge = pedge->prev->prev;
+
+		if(!pwedge) //BGB
+			break;
+		
+		n1=256;
+		while (pwedge->u > pedge->u)
+		{
+			pwedge = pwedge->prev;
+			if(!pwedge)break;
+			if((n1--)<=0)break;
+		}
+		
+		if(!pwedge) //BGB
+			break;
+		if(!pwedge->next)
+			break;
+		if(!pwedge->prev)
+			break;
+
+		pedge->next = pwedge->next;
+		pedge->prev = pwedge;
+		pedge->next->prev = pedge;
+		pwedge->next = pedge;
+
+		pedge = pnext_edge;
+		if (pedge == &edge_tail)
+			break;
+	}
+}
+
+#endif	// !id386
 
 /*
 ==============
@@ -589,6 +731,7 @@ void R_GenerateSpans (void)
 {
 	edge_t			*edge;
 	surf_t			*surf;
+	int n;
 
 	r_bmodelactive = 0;
 
@@ -596,9 +739,16 @@ void R_GenerateSpans (void)
 	surfaces[1].next = surfaces[1].prev = &surfaces[1];
 	surfaces[1].last_u = edge_head_u_shift20;
 
+	n=256;
+
 // generate spans
 	for (edge=edge_head.next ; edge != &edge_tail; edge=edge->next)
-	{			
+	{
+		if((n--)<=0)
+			break;
+		if(!edge)
+			break;
+	
 		if (edge->surfs[0])
 		{
 		// it has a left surface, so a surface is going away for this span
@@ -667,6 +817,10 @@ void R_ScanEdges (void)
 	espan_t	*basespan_p;
 	surf_t	*s;
 
+#ifdef _BGBCC
+//	return; //BGBCC Debug
+#endif
+
 	basespan_p = (espan_t *)
 			((nlint)(basespans + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
 	max_span_p = &basespan_p[MAXSPANS - r_refdef.vrect.width];
@@ -697,8 +851,11 @@ void R_ScanEdges (void)
 	edge_aftertail.prev = &edge_tail;
 
 // FIXME: do we need this now that we clamp x in r_draw.c?
-	edge_sentinel.u = 2000 << 24;		// make sure nothing sorts past this
+//	edge_sentinel.u = 2000 << 24;		// make sure nothing sorts past this
+	edge_sentinel.u = 2000 << 20;		// make sure nothing sorts past this
+//	edge_sentinel.u = 0x7D << 24;		// make sure nothing sorts past this
 	edge_sentinel.prev = &edge_aftertail;
+	edge_sentinel.next = NULL;
 
 //	
 // process all scan lines

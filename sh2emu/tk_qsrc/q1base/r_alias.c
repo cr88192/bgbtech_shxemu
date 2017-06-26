@@ -535,6 +535,8 @@ void R_AliasPrepareUnclippedPoints (void)
 	stvert_t	*pstverts;
 	finalvert_t	*fv;
 
+//	return;	//BGB Debug
+
 	pstverts = (stvert_t *)((byte *)paliashdr + paliashdr->stverts);
 	r_anumverts = pmdl->numverts;
 // FIXME: just use pfinalverts directly?
@@ -727,7 +729,8 @@ void R_AliasDrawModel (alight_t *plighting)
 	r_affinetridesc.drawtype = (currententity->trivial_accept == 3) &&
 			r_recursiveaffinetriangles;
 
-	if (r_affinetridesc.drawtype)
+//	if (r_affinetridesc.drawtype)
+	if(1)	//BGB Debug
 	{
 		D_PolysetUpdateTables ();		// FIXME: precalc...
 	}

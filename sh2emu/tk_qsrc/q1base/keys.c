@@ -342,16 +342,26 @@ int Key_StringToKeynum (char *str)
 {
 	keyname_t	*kn;
 	
+//	tk_printf("Key_StringToKeynum: A0\n");
+	
 	if (!str || !str[0])
 		return -1;
 	if (!str[1])
 		return str[0];
 
+//	tk_printf("Key_StringToKeynum: A1\n");
+
+//	kn=keynames;
+//	tk_printf("Key_StringToKeynum: A %p %p\n", kn, kn->name);
+
 	for (kn=keynames ; kn->name ; kn++)
 	{
+//		tk_printf("Key_StringToKeynum: B %p %p\n", kn, kn->name);
 		if (!Q_strcasecmp(str,kn->name))
 			return kn->keynum;
 	}
+
+//	tk_printf("Key_StringToKeynum: A2\n");
 	return -1;
 }
 

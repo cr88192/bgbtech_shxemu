@@ -510,6 +510,8 @@ void Con_DrawInput (void)
 }
 
 
+extern char chat_buffer[];
+
 /*
 ================
 Con_DrawNotify
@@ -523,7 +525,7 @@ void Con_DrawNotify (void)
 	char	*text;
 	int		i;
 	float	time;
-	extern char chat_buffer[];
+//	extern char chat_buffer[];
 
 	v = 0;
 	for (i= con_current-NUM_CON_TIMES+1 ; i<=con_current ; i++)

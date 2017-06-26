@@ -95,6 +95,11 @@ void R_SplitEntityOnNode (mnode_t *node)
 	mleaf_t		*leaf;
 	int			sides;
 	
+//	if(!node)
+//		return;
+//	if(!tk_ptrIsRam(node))
+//		return;
+	
 	if (node->contents == CONTENTS_SOLID)
 	{
 		return;
@@ -102,7 +107,8 @@ void R_SplitEntityOnNode (mnode_t *node)
 	
 // add an efrag if the node is a leaf
 
-	if ( node->contents < 0)
+//	if ( node->contents < 0)
+	if ( node->contents )
 	{
 		if (!r_pefragtopnode)
 			r_pefragtopnode = node;
@@ -136,7 +142,8 @@ void R_SplitEntityOnNode (mnode_t *node)
 // NODE_MIXED
 
 	splitplane = node->plane;
-	sides = BOX_ON_PLANE_SIDE(r_emins, r_emaxs, splitplane);
+//	sides = BOX_ON_PLANE_SIDE(r_emins, r_emaxs, splitplane);
+	sides = BoxOnPlaneSide(r_emins, r_emaxs, splitplane);
 	
 	if (sides == 3)
 	{
@@ -177,7 +184,8 @@ void R_SplitEntityOnNode2 (mnode_t *node)
 	}
 	
 	splitplane = node->plane;
-	sides = BOX_ON_PLANE_SIDE(r_emins, r_emaxs, splitplane);
+//	sides = BOX_ON_PLANE_SIDE(r_emins, r_emaxs, splitplane);
+	sides = BoxOnPlaneSide(r_emins, r_emaxs, splitplane);
 	
 	if (sides == 3)
 	{
@@ -209,6 +217,8 @@ void R_AddEfrags (entity_t *ent)
 
 	if (ent == cl_entities)
 		return;		// never add the world
+
+	return;
 
 	r_addent = ent;
 			

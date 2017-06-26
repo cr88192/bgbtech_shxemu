@@ -149,7 +149,8 @@ void D_WarpScreen16 (void)
 }
 
 
-#if	!id386
+// #if	!id386
+#if 1
 
 /*
 =============
@@ -465,7 +466,8 @@ void Turbulent16 (espan_t *pspan)
 }
 
 
-#if	!id386
+// #if	!id386
+#if 1
 
 /*
 =============
@@ -624,9 +626,25 @@ void D_DrawSpans16 (espan_t *pspan)
 //	pbase = (unsigned char *)cacheblock;
 	pbase = (unsigned short *)cacheblock;
 
-	sdivz8stepu = d_sdivzstepu * 8;
-	tdivz8stepu = d_tdivzstepu * 8;
-	zi8stepu = d_zistepu * 8;
+//	sdivz8stepu = d_sdivzstepu * 8;
+//	tdivz8stepu = d_tdivzstepu * 8;
+//	zi8stepu = d_zistepu * 8;
+
+//	z=1.0;
+
+	sdivz8stepu = d_sdivzstepu * 8.0f;
+
+//	__debugbreak();
+
+	tdivz8stepu = d_tdivzstepu * 8.0f;
+	zi8stepu = d_zistepu * 8.0f;
+
+//	__debugbreak();
+
+//	printf("d_sdivzstepu %f %f\n", d_sdivzstepu, sdivz8stepu);
+//	printf("d_tdivzstepu %f %f\n", d_tdivzstepu, tdivz8stepu);
+
+//	__debugbreak();
 
 	do
 	{
@@ -642,7 +660,10 @@ void D_DrawSpans16 (espan_t *pspan)
 		sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
 		tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
 		zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-		z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+//		z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+		z = 65536.0 / zi;	// prescale to 16.16 fixed-point
+
+//		tk_printf("zio=%f %f %f\n", d_ziorigin, d_zistepv, d_zistepu);
 
 		s = (int)(sdivz * z) + sadjust;
 		if (s > bbextents)
@@ -673,9 +694,11 @@ void D_DrawSpans16 (espan_t *pspan)
 				sdivz += sdivz8stepu;
 				tdivz += tdivz8stepu;
 				zi += zi8stepu;
-				z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+//				z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+				z = 65536.0 / zi;	// prescale to 16.16 fixed-point
 
-				snext = (int)(sdivz * z) + sadjust;
+//				snext = (int)(sdivz * z) + sadjust;
+				snext = (sdivz * z) + sadjust;
 				if (snext > bbextents)
 					snext = bbextents;
 				else if (snext < 8)
@@ -702,8 +725,10 @@ void D_DrawSpans16 (espan_t *pspan)
 				sdivz += d_sdivzstepu * spancountminus1;
 				tdivz += d_tdivzstepu * spancountminus1;
 				zi += d_zistepu * spancountminus1;
-				z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
-				snext = (int)(sdivz * z) + sadjust;
+//				z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+				z = 65536.0 / zi;	// prescale to 16.16 fixed-point
+//				snext = (int)(sdivz * z) + sadjust;
+				snext = (sdivz * z) + sadjust;
 				if (snext > bbextents)
 					snext = bbextents;
 				else if (snext < 8)
@@ -726,6 +751,21 @@ void D_DrawSpans16 (espan_t *pspan)
 					tstep = D_SoftDiv((tnext - t), (spancount - 1));
 				}
 			}
+
+#if 0
+			if(!sstep)
+			{
+				tk_printf("sstep %d %d\n", sstep, tstep);
+				tk_printf("s snext %d %d %d\n", s, snext, bbextents);
+				tk_printf("sdivz=%f z=%f zi=%f zi8step=%f\n",
+					sdivz, z, zi, zi8stepu);
+				tk_printf("sdstep=%f %f sdi8st=%f\n", d_sdivzstepu,
+					d_sdivzstepu * spancountminus1,
+					sdivz8stepu);
+			}
+#endif
+			
+//			tk_printf("%d %d\n", sstep, tstep);
 
 			do
 			{
@@ -750,7 +790,8 @@ void D_DrawSpans16 (espan_t *pspan)
 #endif
 
 
-#if	!id386
+// #if	!id386
+#if 1
 
 /*
 =============

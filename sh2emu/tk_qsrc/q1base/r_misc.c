@@ -429,6 +429,9 @@ r_refdef.viewangles[2]=    0;
 	VectorCopy (r_refdef.vieworg, modelorg);
 	VectorCopy (r_refdef.vieworg, r_origin);
 
+//	tk_printf("R_SetupFrame: vieworg=( %f %f %f )\n",
+//		modelorg[0], modelorg[1], modelorg[2]);
+
 	AngleVectors (r_refdef.viewangles, vpn, vright, vup);
 
 // current viewleaf
@@ -436,7 +439,9 @@ r_refdef.viewangles[2]=    0;
 	r_viewleaf = Mod_PointInLeaf (r_origin, cl.worldmodel);
 
 	r_dowarpold = r_dowarp;
-	r_dowarp = r_waterwarp.value && (r_viewleaf->contents <= CONTENTS_WATER);
+//	r_dowarp = r_waterwarp.value && (r_viewleaf->contents <= CONTENTS_WATER);
+	r_dowarp = r_waterwarp.value && r_viewleaf &&
+		(r_viewleaf->contents <= CONTENTS_WATER);
 
 	if ((r_dowarp != r_dowarpold) || r_viewchanged || lcd_x.value)
 	{

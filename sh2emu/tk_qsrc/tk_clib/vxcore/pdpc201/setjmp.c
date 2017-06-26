@@ -14,7 +14,7 @@
 #include "setjmp.h"
 #include "stddef.h"
 
-int __longj(void *);
+int __longj(void *, int val);
 
 __PDPCLIB_API__ void longjmp(jmp_buf env, int val)
 {
@@ -22,8 +22,8 @@ __PDPCLIB_API__ void longjmp(jmp_buf env, int val)
     {
         val = 1;
     }
-    env[0].retval = val;
+//    env[0].retval = val;
     /* load regs */
-    __longj(env);
+    __longj(env, val);
     return;
 }

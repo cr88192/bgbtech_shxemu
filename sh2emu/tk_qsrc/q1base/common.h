@@ -45,6 +45,8 @@ typedef long long nlint;
 typedef long nlint;
 #endif
 
+// #define LittleFloat(x)	x
+
 
 //============================================================================
 

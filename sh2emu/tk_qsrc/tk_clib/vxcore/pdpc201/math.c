@@ -75,11 +75,9 @@ __PDPCLIB_API__ double ceil(double x)
 #endif
 __PDPCLIB_API__ double fabs(double x)
 {
-    if (x < 0.0)
-    {
-        x = -x;
-    }
-    return (x);
+	if (x < 0.0)
+		{ x = -x; }
+	return (x);
 }
 
 __PDPCLIB_API__ double floor(double x)
@@ -603,7 +601,7 @@ extern double __sqrt_d(double x);
 
 __PDPCLIB_API__ double sqrt(double x)
 {
-    double xs,yn,ynn;
+    double xs, yn, ynn;
     double pow1;
     int i, n;
 
@@ -612,12 +610,16 @@ __PDPCLIB_API__ double sqrt(double x)
         errno=EDOM;
         return(0.0);
     }
-    if (x == 0.0) return (0.0);
+
+    if (x == 0.0)
+		return (0.0);
 
     if (x != x)
 		return (0.0);
 
-	return(__sqrt_d(x));
+	xs=__sqrt_d(x);
+//	*(int *)-1=-1;
+	return(xs);
 
 /*
 
@@ -636,7 +638,8 @@ __PDPCLIB_API__ double sqrt(double x)
 
 	if(n<=0)
 	{
-		tk_puts("sqrt fail\n");
+//		tk_puts("sqrt fail\n");
+		tk_printf("sqrt fail %f\n", x);
 		return(0);
 	}
 
@@ -648,12 +651,15 @@ __PDPCLIB_API__ double sqrt(double x)
     i=0;
     yn = xs/2.0;
     ynn = 0;
-//    while(1)
-	while((n--)>0)
+    while(1)
+//	while((n--)>0)
     {
         ynn = (yn + xs/yn)*0.5;
-        if ( fabs(ynn-yn) <= 10.0 * DBL_MIN ) break; else yn=ynn;
-        if ( i > 10  ) break; else i++ ;
+        if ( fabs(ynn-yn) <= (10.0 * DBL_MIN) ) break;
+			else yn=ynn;
+        if ( i > 10  )
+			break;
+        i++;
     }
     return (ynn*pow1);
 }

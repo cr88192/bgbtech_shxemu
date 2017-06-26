@@ -420,6 +420,7 @@ Hunk_AllocName
 void *Hunk_AllocName (int size, char *name)
 {
 	hunk_t	*h;
+	void *ptr;
 	
 #ifdef PARANOID
 	Hunk_Check ();
@@ -440,11 +441,18 @@ void *Hunk_AllocName (int size, char *name)
 
 	memset (h, 0, size);
 	
+	if(!name)name="?";
+	
 	h->size = size;
 	h->sentinal = HUNK_SENTINAL;
 	Q_strncpy (h->name, name, 8);
+
+	ptr=(void *)(h+1);
+//	tk_printf("Hunk_AllocName %p\n", ptr);
+
+	return ptr;
 	
-	return (void *)(h+1);
+//	return (void *)(h+1);
 }
 
 /*
@@ -490,7 +498,8 @@ void Hunk_FreeToHighMark (int mark)
 	}
 	if (mark < 0 || mark > hunk_high_used)
 		Sys_Error ("Hunk_FreeToHighMark: bad mark %i", mark);
-	memset (hunk_base + hunk_size - hunk_high_used, 0, hunk_high_used - mark);
+//	memset (hunk_base + hunk_size - hunk_high_used, 0, hunk_high_used - mark);
+	memset (hunk_base + (hunk_size - hunk_high_used), 0, hunk_high_used - mark);
 	hunk_high_used = mark;
 }
 
@@ -502,7 +511,8 @@ Hunk_HighAllocName
 */
 void *Hunk_HighAllocName (int size, char *name)
 {
-	hunk_t	*h;
+	hunk_t	*h, *h0;
+	void *p;
 
 	if (size < 0)
 		Sys_Error ("Hunk_HighAllocName: bad size: %i", size);
@@ -517,7 +527,8 @@ void *Hunk_HighAllocName (int size, char *name)
 	Hunk_Check ();
 #endif
 
-	size = sizeof(hunk_t) + ((size+15)&~15);
+//	size = sizeof(hunk_t) + ((size+15)&~15);
+	size = sizeof(hunk_t) + ((size+15)&(~15))+256;
 
 	if (hunk_size - hunk_low_used - hunk_high_used < size)
 	{
@@ -528,14 +539,28 @@ void *Hunk_HighAllocName (int size, char *name)
 	hunk_high_used += size;
 	Cache_FreeHigh (hunk_high_used);
 
-	h = (hunk_t *)(hunk_base + hunk_size - hunk_high_used);
+//	h = (hunk_t *)(hunk_base + hunk_size - hunk_high_used);
+	h = (hunk_t *)(hunk_base + (hunk_size - hunk_high_used));
+
+	h0 = (hunk_t *)(hunk_base + hunk_size - hunk_high_used);
+	if(h0!=h)
+	{
+		tk_printf("Ptr Arith Bug %p!=%p\n", h0, h);
+	}
+	
+//	tk_printf("Hunk_HighAlloc: base=%p..%p sz=%d hused=%d hptr=%p\n",
+//		hunk_base, hunk_base+hunk_size,
+//		hunk_size, hunk_high_used, h);
 
 	memset (h, 0, size);
 	h->size = size;
 	h->sentinal = HUNK_SENTINAL;
 	Q_strncpy (h->name, name, 8);
 
-	return (void *)(h+1);
+	p=((byte *)h)+sizeof(hunk_t);
+	return(p);
+
+//	return (void *)(h+1);
 }
 
 
@@ -554,11 +579,14 @@ void *Hunk_TempAlloc (int size)
 	
 	if (hunk_tempactive)
 	{
+//		printf("A hunk_tempmark=%p\n", hunk_tempmark);
+
 		Hunk_FreeToHighMark (hunk_tempmark);
 		hunk_tempactive = false;
 	}
 	
 	hunk_tempmark = Hunk_HighMark ();
+//	printf("B hunk_tempmark=%p\n", hunk_tempmark);
 
 	buf = Hunk_HighAllocName (size, "temp");
 

@@ -171,7 +171,11 @@ X(sleep_0):
 
 #if 1
 .global X(__udivsi3_i4i)
+.global X(__udivsi3)
+.global X(__udivdi3)
 X(__udivsi3_i4i):
+X(__udivsi3):
+X(__udivdi3):
 	sts pr,r1
 	mov.l r4,@-r15
 	extu.w r5,r0
@@ -280,12 +284,37 @@ sdiv_res_neg:
 #endif
 
 #ifdef ARCH_SH4
+
+#ifdef _BGBCC
+.global	X(__sqrt_d)
+X(__sqrt_d):
+//	mov.l __sqrt_d_C0, r0
+	mova __sqrt_d_C0, r0
+	lds.l @r0+, fpscr
+	fmov dr4, dr0
+	lds.l @r0+, fpscr
+	fsqrt dr0
+	lds.l @r0+, fpscr
+//	mov #0, r0
+//	lds r0, fpscr
+	rts
+	nop
+
+.align 2
+__sqrt_d_C0:
+	.long 0x00100000
+	.long 0x00080000
+	.long 0x00000000
+#else
+
 .global	X(__sqrt_d)
 X(__sqrt_d):
 	fmov dr4, dr0
 	fsqrt dr0
 	rts
 	nop
+
+#endif
 
 .global	X(__tk_trapdebug)
 X(__tk_trapdebug):
@@ -634,7 +663,7 @@ X(__ashiftrt_r4_0):		rts
 
 #endif
 
-#if 1
+#ifdef _BGBCC
 .global X(__memcpy32_4)
 .global X(__memcpy32_8)
 .global X(__memcpy32_12)
@@ -835,13 +864,14 @@ X(__memcpy32):
 
 	add r4, r6
 
+#if 0
 	/* Copy 64-byte chunks */
 	mov r6, r7
 	mov 64, r0
 	sub r0, r7	
 	cmp/gt r4, r7
 	__memcpy32.l0_64:
-	bf __memcpy32.l1_64
+	bt __memcpy32.l1_64
 	bsr __memcpy32_64
 	mov 64, r0
 	add r0, r4
@@ -849,31 +879,41 @@ X(__memcpy32):
 	bra __memcpy32.l0_64
 	cmp/gt r4, r7
 	__memcpy32.l1_64:
+#endif
 
+#if 0
 	/* Copy 16-byte chunks */
 	mov r6, r7
-	mov 16, r0
-	sub r0, r7	
+	add #-16, r7	
 	cmp/gt r4, r7
 	__memcpy32.l0_16:
 	bf __memcpy32.l1_16
-	bsr __memcpy32_16
-	mov 16, r0
-	add r0, r4
-	add r0, r5
+
+//	bsr __memcpy32_16
+	mov.l @(r5, 0), r0
+	mov.l @(r5, 4), r1
+	mov.l @(r5, 8), r2
+	mov.l @(r5,12), r3
+	mov.l r0, @(r4, 0)
+	mov.l r1, @(r4, 4)
+	mov.l r2, @(r4, 8)
+	mov.l r3, @(r4,12)
+
+	add #16, r4
+	add #16, r5
 	bra __memcpy32.l0_16
 	cmp/gt r4, r7
 	__memcpy32.l1_16:
+#endif
 
 	/* Copy 4-byte chunks */
-	mov 16, r1
 	cmp/gt r4, r6
 	__memcpy32.l0_4:
 	bf __memcpy32.l1_4
 	mov.l @r5, r0
-	mov.l r0, @r5
-	add r1, r4
-	add r1, r5
+	mov.l r0, @r4
+	add #4, r4
+	add #4, r5
 	bra __memcpy32.l0_4
 	cmp/gt r4, r6
 	__memcpy32.l1_4:
@@ -882,9 +922,224 @@ X(__memcpy32):
 	rts
 	nop
 
+
+.global X(__memcpy8_4)
+.global X(__memcpy8_8)
+.global X(__memcpy8_12)
+.global X(__memcpy8_16)
+.global X(__memcpy8_20)
+.global X(__memcpy8_24)
+.global X(__memcpy8_28)
+.global X(__memcpy8_32)
+.global X(__memcpy8_36)
+.global X(__memcpy8_40)
+.global X(__memcpy8_44)
+.global X(__memcpy8_48)
+.global X(__memcpy8_52)
+.global X(__memcpy8_56)
+.global X(__memcpy8_60)
+.global X(__memcpy8_64)
+
+.global X(__memcpy8)
+
+X(__memcpy8_4):
+	mov r4, r7
+	or r5, r7
+	mov #3, r0
+	tst r0, r7
+	bt X(__memcpy8_4_a)
+X(__memcpy8_4_u):
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+	rts
+	nop
+X(__memcpy8_4_a):
+	mov.l @r5+, r0
+	mov.l r0, @r4
+	add #4, r4
+	rts
+	nop
+
+X(__memcpy8_8):
+	mov r4, r7
+	or r5, r7
+	mov #3, r0
+	tst r0, r7
+	bt X(__memcpy8_8_a)
+X(__memcpy8_8_u):
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+
+	rts
+	nop
+X(__memcpy8_8_a):
+	mov.l @r5+, r0
+	mov.l @r5+, r1
+	mov.l r0, @(r4, 0)
+	mov.l r1, @(r4, 4)
+	add #8, r4
+	rts
+	nop
+
+X(__memcpy8_12):
+	mov r4, r7
+	or r5, r7
+	mov #3, r0
+	tst r0, r7
+	bt X(__memcpy8_12_a)
+X(__memcpy8_12_u):
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+
+	rts
+	nop
+X(__memcpy8_12_a):
+	mov.l @r5+, r0
+	mov.l @r5+, r1
+	mov.l @r5+, r2
+	mov.l r0, @(r4, 0)
+	mov.l r1, @(r4, 4)
+	mov.l r2, @(r4, 8)
+	add #12, r4
+	rts
+	nop
+
+X(__memcpy8_16):
+	mov r4, r7
+	or r5, r7
+	mov #3, r0
+	tst r0, r7
+	bt X(__memcpy8_16_a)
+X(__memcpy8_16_u):
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+
+	mov.b @r5+, r0
+	mov.b @r5+, r1
+	mov.b @r5+, r2
+	mov.b @r5+, r3
+	add #4, r4
+	mov r4, r7
+	mov.b r3, @-r7
+	mov.b r2, @-r7
+	mov.b r1, @-r7
+	mov.b r0, @-r7
+
+	rts
+	nop
+X(__memcpy8_16_a):
+	mov.l @r5+, r0
+	mov.l @r5+, r1
+	mov.l @r5+, r2
+	mov.l @r5+, r3
+	mov.l r0, @(r4, 0)
+	mov.l r1, @(r4, 4)
+	mov.l r2, @(r4, 8)
+	mov.l r2, @(r4, 12)
+	add #16, r4
+	rts
+	nop
+
+X(__memcpy8_20):
+	sts.l pr, @-r15
+	bsr __memcpy8_16
+	bra __memcpy8_4
+	lds.l @r15+, pr
+X(__memcpy8_24):
+	sts.l pr, @-r15
+	bsr __memcpy8_16
+	bra __memcpy8_8
+	lds.l @r15+, pr
+X(__memcpy8_28):
+	sts.l pr, @-r15
+	bsr __memcpy8_16
+	bra __memcpy8_12
+	lds.l @r15+, pr
+X(__memcpy8_32):
+	sts.l pr, @-r15
+	bsr __memcpy8_16
+	bra __memcpy8_16
+	lds.l @r15+, pr
+
 #endif
 
-#if 1
+#ifdef _BGBCC
 .global X(__va_arg_i)
 X(__va_arg_i):
 	mov.l @(r4, 48), r0
@@ -972,8 +1227,8 @@ X(__va_arg_d):
 	nop
 __va_arg_d.L0:
 	mov.l @(r4, 56), r0
-	fmov.s @r0+, fr0
 	fmov.s @r0+, fr1
+	fmov.s @r0+, fr0
 	mov.l  r0, @(r4, 56)
 	rts
 	nop

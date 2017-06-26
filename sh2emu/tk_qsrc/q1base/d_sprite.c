@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "d_local.h"
 
 static int		sprite_height;
-static int		minindex, maxindex;
+static int		minindex, maxindex, numpindex;
 static sspan_t	*sprite_spans;
 
 #if	!id386
@@ -380,7 +380,10 @@ void D_SpriteScanLeftEdge (void)
 	pspan = sprite_spans;
 	i = minindex;
 	if (i == 0)
-		i = r_spritedesc.nump;
+	{
+//		i = r_spritedesc.nump;
+		i = numpindex;
+	}
 
 	lmaxindex = maxindex;
 	if (lmaxindex == 0)
@@ -420,7 +423,12 @@ void D_SpriteScanLeftEdge (void)
 
 		i--;
 		if (i == 0)
-			i = r_spritedesc.nump;
+		{
+//			i = r_spritedesc.nump;
+			i = numpindex;
+		}
+		if(i<0)
+			__debugbreak();
 
 	} while (i != lmaxindex);
 }
@@ -499,8 +507,12 @@ void D_SpriteScanRightEdge (void)
 		vvert = vnext;
 
 		i++;
-		if (i == r_spritedesc.nump)
+//		if (i == r_spritedesc.nump)
+		if (i == numpindex)
 			i = 0;
+
+		if (i > numpindex)
+			__debugbreak();
 
 	} while (i != maxindex);
 
@@ -574,7 +586,14 @@ void D_DrawSprite (void)
 	ymax = -999999.9;
 	pverts = r_spritedesc.pverts;
 
-	for (i=0 ; i<r_spritedesc.nump ; i++)
+	nump = r_spritedesc.nump;
+	numpindex = nump;
+	
+	minindex=0;
+	maxindex=0;
+
+//	for (i=0 ; i<r_spritedesc.nump ; i++)
+	for (i=0 ; i<nump ; i++)
 	{
 		if (pverts->v < ymin)
 		{
@@ -596,6 +615,15 @@ void D_DrawSprite (void)
 
 	if (ymin >= ymax)
 		return;		// doesn't cross any scans at all
+
+	tk_printf("D_DrawSprite: ymin=%f ymax=%f\n", ymin, ymax);
+	tk_printf("D_DrawSprite: mini=%d maxi=%d nump=%d\n",
+		minindex, maxindex, numpindex);
+
+	if(ymin<0)
+		return;
+	if(ymax>=MAXHEIGHT)
+		return;
 
 	cachewidth = r_spritedesc.pspriteframe->width;
 	sprite_height = r_spritedesc.pspriteframe->height;

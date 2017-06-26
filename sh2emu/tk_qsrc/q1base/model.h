@@ -353,6 +353,7 @@ typedef struct model_s
 	msurface_t	**marksurfaces;
 
 	hull_t		hulls[MAX_MAP_HULLS];
+//	hull_t		*hulls;
 
 	int			numtextures;
 	texture_t	**textures;

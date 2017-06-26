@@ -61,6 +61,7 @@ CL_ClearState
 */
 void CL_ClearState (void)
 {
+	efrag_t		*ef;
 	int			i;
 
 	if (!sv.active)
@@ -83,9 +84,15 @@ void CL_ClearState (void)
 // allocate the efrags and chain together into a free list
 //
 	cl.free_efrags = cl_efrags;
-	for (i=0 ; i<MAX_EFRAGS-1 ; i++)
-		cl.free_efrags[i].entnext = &cl.free_efrags[i+1];
-	cl.free_efrags[i].entnext = NULL;
+	for (i=0 ; i<(MAX_EFRAGS-1); i++)
+	{
+		ef=cl_efrags+i;
+		ef->entnext=ef+1;
+//		cl.free_efrags[i].entnext = &cl.free_efrags[i+1];
+	}
+	ef=cl_efrags+i;
+	ef->entnext=NULL;
+//	cl.free_efrags[i].entnext = NULL;
 }
 
 /*

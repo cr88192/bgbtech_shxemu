@@ -280,6 +280,7 @@ D_CacheSurface
 surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
 {
 	surfcache_t     *cache;
+	int t;
 
 //
 // if the surface is animating or flashing, flush the cache
@@ -295,6 +296,7 @@ surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
 //
 	cache = surface->cachespots[miplevel];
 
+#if 1	//BGB Debug
 	if (cache && !cache->dlight && surface->dlightframe != r_framecount
 			&& cache->texture == r_drawsurf.texture
 			&& cache->lightadj[0] == r_drawsurf.lightadj[0]
@@ -302,11 +304,17 @@ surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
 			&& cache->lightadj[2] == r_drawsurf.lightadj[2]
 			&& cache->lightadj[3] == r_drawsurf.lightadj[3] )
 		return cache;
+#endif
 
 //
 // determine shape of surface
 //
+
 	surfscale = 1.0 / (1<<miplevel);
+
+//	t = (1<<miplevel);
+//	surfscale = 1.0 / t;
+
 	r_drawsurf.surfmip = miplevel;
 	r_drawsurf.surfwidth = surface->extents[0] >> miplevel;
 	r_drawsurf.rowbytes = r_drawsurf.surfwidth * r_pixbytes;

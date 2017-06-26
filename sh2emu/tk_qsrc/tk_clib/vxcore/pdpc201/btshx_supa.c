@@ -30,6 +30,18 @@ int tk_getch(void)
 	return(P_UART_RX);
 }
 
+int tk_ptrIsRam(void *ptr)
+{
+	u32 a;
+	a=(u32)ptr;
+	a&=0x1FFFFFFF;
+	if(a<0x0C000000)
+		return(0);
+	if(a>=0x18000000)
+		return(0);
+	return(1);
+}
+
 int tk_puts(char *msg)
 {
 	char *s;
@@ -89,6 +101,30 @@ void tk_gets_n(char *msg, int n)
 u32 __moddi3(u32 a, u32 b)
 {
 	u32 q, r;
+	
+	q=a/b;
+	r=a-(q*b);
+	return(r);
+}
+
+u32 __umodsi3(u32 a, u32 b)
+{
+	u32 q, r;
+	
+	q=a/b;
+	r=a-(q*b);
+
+//	if(((s32)r)<0)
+//		{ *(int *)-1=-1; }
+//	if(r>=b)
+//		{ *(int *)-1=-1; }
+
+	return(r);
+}
+
+s32 __smodsi3(s32 a, s32 b)
+{
+	s32 q, r;
 	
 	q=a/b;
 	r=a-(q*b);
@@ -228,10 +264,10 @@ s64 __sdivlli(s64 a, s64 b)
 	sg=0;
 	
 	ua=(u64)a;
-	if(ua&0x80000000_00000000ULL)
+	if(ua&0x8000000000000000ULL)
 		{ ua=-ua; sg=1; }
 	ub=(u64)a;
-	if(ub&0x80000000_00000000ULL)
+	if(ub&0x8000000000000000ULL)
 		{ ub=-ub; sg^=1; }
 	uc=ua/ub;
 	if(sg)
@@ -402,10 +438,14 @@ __PDPCLIB_API__ void *_alloca(int sz)
 	return(TKMM_Malloc(sz));
 }
 
-void __allocmem(size_t size, void **ptr)
+void __allocmem(size_t size, void **rptr)
 {
+	void *ptr;
 //	*ptr=(void *)vx_malloc(size);
-	*ptr=TKMM_Malloc(size);
+	ptr=TKMM_Malloc(size);
+	tk_printf("__allocmem: %p..%p %d\n", ptr, ptr+size, size);
+	*rptr=ptr;
+//	*ptr=TKMM_MMList_AllocBrk(size);
 }
 
 void __freemem(void *ptr)
@@ -504,6 +544,19 @@ void tk_print_decimal(int val)
 	char *t;
 	int i, k, s;
 	
+	if(val==0)
+	{
+		tk_putc('0');
+		return;
+	}
+	
+//	if(val==(-2147483648))
+	if(val==(1<<31))
+	{
+		tk_puts("-2147483648");
+		return;
+	}
+	
 	k=val; s=0;
 	if(k<0)
 		{ k=-k; s=1; }
@@ -517,6 +570,9 @@ void tk_print_decimal(int val)
 		k=k/10;
 	}
 	if(s)*t++='-';
+	
+	if(tb[0]=='-')
+		*(int *)-1=-1;
 	
 	while(t>tb)
 		{ t--; tk_putc(*t); }
@@ -559,6 +615,14 @@ void tk_print_float(double val)
 	
 	ip=(int)val;
 	fp=(int)((val-ip)*1000000);
+
+//	if(ip==(-2147483648))
+	if(ip==(1<<31))
+	{
+//		*(int *)-1=-1;
+		tk_puts("#OVF");
+		return;
+	}
 
 //	*(int *)-1=-1;
 
@@ -783,4 +847,203 @@ void tk_vprintf(char *str, va_list lst)
 		}
 #endif
 	}
+}
+
+
+
+
+char *tk_sprint_hex(char *ct, u32 v)
+{
+	static char *chrs="0123456789ABCDEF";
+
+	*ct++=(chrs[(v>>28)&15]);
+	*ct++=(chrs[(v>>24)&15]);
+	*ct++=(chrs[(v>>20)&15]);
+	*ct++=(chrs[(v>>16)&15]);
+	*ct++=(chrs[(v>>12)&15]);
+	*ct++=(chrs[(v>> 8)&15]);
+	*ct++=(chrs[(v>> 4)&15]);
+	*ct++=(chrs[(v    )&15]);
+	return(ct);
+}
+
+char *tk_sprint_hex_n(char *ct, u32 v, int n)
+{
+	static char *chrs="0123456789ABCDEF";
+
+	if(n>7)*ct++=(chrs[(v>>28)&15]);
+	if(n>6)*ct++=(chrs[(v>>24)&15]);
+	if(n>5)*ct++=(chrs[(v>>20)&15]);
+	if(n>4)*ct++=(chrs[(v>>16)&15]);
+	if(n>3)*ct++=(chrs[(v>>12)&15]);
+	if(n>2)*ct++=(chrs[(v>> 8)&15]);
+	if(n>1)*ct++=(chrs[(v>> 4)&15]);
+	if(n>0)*ct++=(chrs[(v    )&15]);
+	return(ct);
+}
+
+char *tk_sprint_decimal(char *ct, int val)
+{
+	char tb[256];
+	char *t;
+	int i, k, s;
+	
+	if(val==0)
+	{
+		*ct++='0';
+		return(ct);
+	}
+	
+	k=val; s=0;
+	if(k<0)
+		{ k=-k; s=1; }
+	
+	t=tb;
+//	if(k==0)
+//		*t++='0';	
+	while(k>0)
+	{
+		i=k%10;
+		*t++='0'+i;
+		k=k/10;
+	}
+	if(s)*t++='-';
+	
+	while(t>tb)
+		{ t--; *ct++=*t; }
+	return(ct);
+}
+
+char *tk_sprint_decimal_n(char *ct, int val, int num)
+{
+	char tb[256];
+	char *t;
+	int i, k, n, s;
+	
+	k=val; s=0;
+	if(k<0)
+		{ k=-k; s=1; }
+	
+	t=tb; n=num;
+	while(n>0)
+	{
+		i=k%10;
+		*t++='0'+i;
+		k=k/10;
+		n--;
+	}
+
+//	if(s)*t++='-';
+	
+	while(t>tb)
+		{ t--; *ct++=*t; }
+	return(ct);
+}
+
+void tk_vsprintf(char *dst, char *str, va_list lst)
+{
+	double f;
+	char pcfill;
+	char *s, *s1;
+	char *ct;
+	int v, w, wf;
+
+	ct=dst;
+	s=str;
+	while(*s)
+	{
+		if(*s!='%')
+			{ *ct++=*s++; continue; }
+
+		if(s[1]=='%')
+			{ s+=2; *ct++='%'; continue; }
+		s++;
+
+#if 1
+		if(*s=='0')
+		{
+			pcfill='0';
+			s++;
+		}else
+		{
+			pcfill=' ';
+		}
+		
+		w=0;
+		if((*s>='0') && (*s<='9'))
+		{
+			while((*s>='0') && (*s<='9'))
+				w=(w*10)+((*s++)-'0');
+		}
+		
+		wf=0;
+		if(*s=='.')
+		{
+			s++;
+			if((*s>='0') && (*s<='9'))
+			{
+				while((*s>='0') && (*s<='9'))
+					wf=(wf*10)+((*s++)-'0');
+			}
+		}
+#endif
+
+#if 1
+		switch(*s++)
+		{
+		case 'c':
+			v=va_arg(lst, int);
+			*ct++=v;
+			break;
+
+		case 'd':
+		case 'i':
+			v=va_arg(lst, int);
+			if(w)
+				{ ct=tk_sprint_decimal_n(ct, v, w); }
+			else
+				{ ct=tk_sprint_decimal(ct, v); }
+			break;
+		case 'X':
+			v=va_arg(lst, int);
+
+			if(!w)w=tk_print_hex_genw(v);
+			ct=tk_sprint_hex_n(ct, v, w);
+			break;
+		case 's':
+			s1=va_arg(lst, char *);
+			while(*s1)
+				{ *ct++=*s1++; }
+			break;
+
+		case 'p':
+			s1=va_arg(lst, char *);
+			ct=tk_sprint_hex(ct, (u32)s1);
+			break;
+
+// #ifdef ARCH_HAS_FPU
+#if 0
+		case 'f':
+			f=6969.6969;
+			f=va_arg(lst, double);
+			ct=tk_sprint_float(ct, f);
+			break;
+#endif
+
+		default:
+			break;
+		}
+#endif
+	}
+	
+	*ct++=0;
+}
+
+void tk_sprintf(char *dst, char *str, ...)
+{
+	va_list lst;
+
+	va_start(lst, str);	
+	tk_vsprintf(dst, str, lst);
+	va_end(lst);
 }

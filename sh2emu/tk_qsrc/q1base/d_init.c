@@ -43,6 +43,7 @@ u32 d_softdiv_rcptab[1024];
 
 int D_SoftDiv(int a, int b)
 {
+#if 1
 	if(b<3)
 	{
 		if(b<0)
@@ -58,6 +59,7 @@ int D_SoftDiv(int a, int b)
 	{
 		return((((s64)a)*d_softdiv_rcptab[b]+0x7FFFFFFF)>>32);
 	}
+#endif
 
 	return(a/b);
 }
@@ -71,23 +73,35 @@ void D_Init (void)
 {
 	int i, j, k;
 
+	printf("D_Init: A0\n");
+
 	r_skydirect = 1;
 
 	Cvar_RegisterVariable (&d_subdiv16);
 	Cvar_RegisterVariable (&d_mipcap);
 	Cvar_RegisterVariable (&d_mipscale);
 
+	printf("D_Init: A1\n");
+
 	r_drawpolys = false;
+//	r_drawpolys = true;
 	r_worldpolysbacktofront = false;
 	r_recursiveaffinetriangles = true;
 //	r_pixbytes = 1;
 	r_aliasuvscale = 1.0;
 	
+	printf("D_Init: A2\n");
+
 	for(i=2; i<1024; i++)
 	{
 //		d_softdiv_rcptab[i]=0x100000000LL/i;
-		d_softdiv_rcptab[i]=0xFFFFFFFFU/i;
+//		d_softdiv_rcptab[i]=0xFFFFFFFFU/i;
+
+		j=0x7FFFFFFF/i;
+		d_softdiv_rcptab[i]=j*2;
 	}
+
+	printf("D_Init: A3\n");
 }
 
 
@@ -178,7 +192,8 @@ void D_SetupFrame (void)
 	for (i=0 ; i<(NUM_MIPS-1) ; i++)
 		d_scalemip[i] = basemip[i] * d_mipscale.value;
 
-#if	id386
+// #if	id386
+#if 0
 				if (d_subdiv16.value)
 					d_drawspans = D_DrawSpans16;
 				else

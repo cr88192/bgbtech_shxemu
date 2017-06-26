@@ -116,8 +116,8 @@ void Sys_FileSeek (int handle, int position)
 
 int Sys_FileRead (int handle, void *dest, int count)
 {
-//	printf("Sys_FileRead %d %p %d %p\n",
-//		handle, dest, count, sys_handles[handle]);
+	printf("Sys_FileRead hdl=%d dst=%p sz=%d fd=%p\n",
+		handle, dest, count, sys_handles[handle]);
 	return fread (dest, 1, count, sys_handles[handle]);
 }
 
@@ -234,12 +234,371 @@ void Sys_LowFPPrecision (void)
 
 void sleep_0();
 
+#ifndef _BGBCC
+void __debugbreak()
+{
+//	*(int *)-1=-1;
+}
+#endif
+
+void Sys_CheckSanity(void)
+{
+	static byte pat_tst0[16]={
+		0x78, 0x56, 0x34, 0x12,
+		0xEF, 0xCD, 0xAB, 0x89,
+		};
+	static int rec=0;
+	double		time, oldtime, newtime;
+	double f, g, h;
+	float ff, gf, hf;
+	int i, j, k, l;
+
+	if(!rec)
+	{
+		tk_puts("Q Flt 0: ");
+		tk_print_float(3.14159);
+		tk_puts("\n");
+		time=3.14159*2;
+		tk_puts("Q Flt 1: ");
+		tk_print_float(time);
+		tk_puts("\n");
+
+		tk_printf("Q Flt 2: %f\n", time);
+		printf("Q Flt 3: %f\n", time);
+		
+		*(double *)(&oldtime)=time;
+		newtime=*(double *)(&time);
+		tk_printf("Q Flt 4: %f\n", oldtime);
+		tk_printf("Q Flt 5: %f\n", newtime);
+		
+		oldtime=time*10.0;
+		newtime=time*0.1;
+		tk_printf("Q Flt 4-1: %f\n", oldtime);
+		tk_printf("Q Flt 5-1: %f\n", newtime);
+		
+		time=Q_atof("3.14159");
+	//	*(int *)-1=-1;
+		tk_printf("Q Flt 6: %f\n", time);
+
+		for(i=-1; i<=1; i++)
+			for(j=-1; j<=1; j++)
+		{
+			f=i; g=j;
+
+			tk_printf("%d==%d -> %d\n", i, j, i==j);
+			tk_printf("%d!=%d -> %d\n", i, j, i!=j);
+			tk_printf("%d< %d -> %d\n", i, j, i< j);
+			tk_printf("%d> %d -> %d\n", i, j, i> j);
+			tk_printf("%d<=%d -> %d\n", i, j, i<=j);
+			tk_printf("%d>=%d -> %d\n", i, j, i>=j);
+
+			if(i==j)	tk_printf("%d==%d -> T\n", i, j);
+			else		tk_printf("%d==%d -> F\n", i, j);
+			if(i!=j)	tk_printf("%d!=%d -> T\n", i, j);
+			else		tk_printf("%d!=%d -> F\n", i, j);
+			if(i<j)		tk_printf("%d< %d -> T\n", i, j);
+			else		tk_printf("%d< %d -> F\n", i, j);
+			if(i>j)		tk_printf("%d> %d -> T\n", i, j);
+			else		tk_printf("%d> %d -> F\n", i, j);
+			if(i<=j)	tk_printf("%d<=%d -> T\n", i, j);
+			else		tk_printf("%d<=%d -> F\n", i, j);
+			if(i>=j)	tk_printf("%d>=%d -> T\n", i, j);
+			else		tk_printf("%d>=%d -> F\n", i, j);
+
+			tk_printf("%f==%f -> %d\n", f, g, f==g);
+			tk_printf("%f!=%f -> %d\n", f, g, f!=g);
+			tk_printf("%f< %f -> %d\n", f, g, f< g);
+			tk_printf("%f> %f -> %d\n", f, g, f> g);
+			tk_printf("%f<=%f -> %d\n", f, g, f<=g);
+			tk_printf("%f>=%f -> %d\n", f, g, f>=g);
+			
+			if(f==g)	tk_printf("%f==%f -> T\n", f, g);
+			else		tk_printf("%f==%f -> F\n", f, g);
+			if(f!=g)	tk_printf("%f!=%f -> T\n", f, g);
+			else		tk_printf("%f!=%f -> F\n", f, g);
+			if(f<g)		tk_printf("%f<%f -> T\n", f, g);
+			else		tk_printf("%f<%f -> F\n", f, g);
+			if(f>g)		tk_printf("%f>%f -> T\n", f, g);
+			else		tk_printf("%f>%f -> F\n", f, g);
+			if(f<=g)	tk_printf("%f<=%f -> T\n", f, g);
+			else		tk_printf("%f<=%f -> F\n", f, g);
+			if(f>=g)	tk_printf("%f>=%f -> T\n", f, g);
+			else		tk_printf("%f>=%f -> F\n", f, g);
+		}
+
+		for(i=0; i<32; i++)
+		{
+			f=((M_PI*2.0)/16.0)*((double)i);
+			g=sqrt(i);
+			h=g*g;
+			tk_printf("i=%d: ", i);
+	//		tk_printf("a=%f sin=%f cos=%f sqrt(i)=%f(^2=%f)\n",
+	//			f, sin(f), cos(f), g, h);
+			tk_printf("a=%f sin=%f cos=%f ", f, sin(f), cos(f));
+			tk_printf("sqrt(i)=%f(^2=%f)\n", g, h);
+		}
+	}
+
+#if 1
+	if(LittleShort(0x1234)!=0x1234)
+		__debugbreak();
+	if(LittleLong(0x12345678)!=0x12345678)
+		__debugbreak();
+	if(LittleShort(0xABCD)!=(short)0xABCD)
+		__debugbreak();
+	if(LittleLong(0x89ABCDEF)!=0x89ABCDEF)
+		__debugbreak();
+
+	if(LittleShort(0x12345678)!=0x5678)
+		__debugbreak();
+	if(LittleShort(0x89ABCDEF)!=(short)0xCDEF)
+		__debugbreak();
+
+	if(LittleFloat(M_PI)!=((float)M_PI))
+		__debugbreak();
+
+	if(LittleShort(*(short *)(pat_tst0+2))!=0x1234)
+		__debugbreak();
+	if(LittleLong(*(int *)(pat_tst0+0))!=0x12345678)
+		__debugbreak();
+	if(LittleShort(*(short *)(pat_tst0+5))!=(short)0xABCD)
+		__debugbreak();
+	if(LittleLong(*(int *)(pat_tst0+4))!=0x89ABCDEF)
+		__debugbreak();
+
+	if(LittleShort(*(int *)(pat_tst0+0))!=0x5678)
+		__debugbreak();
+	if(LittleShort(*(int *)(pat_tst0+4))!=(short)0xCDEF)
+		__debugbreak();
+
+
+	i=4095;
+	if(&pr_functions[i] != pr_functions+i)
+		__debugbreak();
+	if((byte *)(&pr_functions[i]) !=
+		(byte *)pr_functions+i*sizeof(*pr_functions))
+			__debugbreak();
+	if(sizeof(*pr_functions)!=sizeof(dfunction_t))
+		__debugbreak();
+	if(sizeof(dfunction_t)!=36)
+		__debugbreak();
+#endif
+
+	i=3; j=4; k=5;
+	if((i+j)!=7)
+		__debugbreak();
+	if((i-k)!=-2)
+		__debugbreak();
+	if((i*j)!=12)
+		__debugbreak();
+
+	if((i&j)!=0)
+		__debugbreak();
+	if((i|k)!=7)
+		__debugbreak();
+	if((i^k)!=6)
+		__debugbreak();
+
+	i=-6972; j=1;
+
+	if((i>>1)!=(-3486))
+		__debugbreak();
+	if((((u32)i)>>1)!=(0x7FFFF262))
+		__debugbreak();
+
+	if((i>>j)!=(-3486))
+		__debugbreak();
+	if((((u32)i)>>j)!=(0x7FFFF262))
+		__debugbreak();
+
+	k=0;
+	if((i<<k)!=i)
+		__debugbreak();
+	if((i>>k)!=i)
+		__debugbreak();
+
+	j=1; k=9;
+	if((j<<k)!=512)
+		__debugbreak();
+	if((j<<8)!=256)
+		__debugbreak();
+	if((2<<k)!=1024)
+		__debugbreak();
+
+	i>>=3;
+	if(i!=(-872))
+		__debugbreak();
+	i<<=19;
+	if(i!=(-457179136))
+		__debugbreak();
+	i=-i;
+	if(i!=(457179136))
+		__debugbreak();
+
+	i=-6972; j=1;
+
+	f=i; ff=i;
+	if(f!=(-6972.0))
+		__debugbreak();
+	if(ff!=(-6972.0))
+		__debugbreak();
+		
+	f=3.14159; ff=f;
+	i=f; j=ff;
+	if(i!=3)
+		__debugbreak();
+	if(j!=3)
+		__debugbreak();
+
+	i=0; k=-1;
+
+	f=7.0; g=8.0; h=9.0;
+	if((f+g)!=15.0)
+		__debugbreak();
+	if((f-h)!=-2.0)
+		__debugbreak();
+	if((f*h)!=63.0)
+		__debugbreak();
+	if((h/g)!=1.125)
+		__debugbreak();
+
+	if(ceil(3.14)!=4.0)
+		__debugbreak();
+	if(floor(3.14)!=3.0)
+		__debugbreak();
+
+	if(i)
+		__debugbreak();
+	if(!j)
+		__debugbreak();
+	if(j<=0)
+		__debugbreak();
+	if(k>=0)
+		__debugbreak();
+	if(i<0)
+		__debugbreak();
+	if(i>0)
+		__debugbreak();
+
+	i=0; j=1; k=!j; l=!i;
+	if(i && j)
+		__debugbreak();
+	if(i || k)
+		__debugbreak();
+	if(j && l)	{}
+	else	__debugbreak();
+	if(j || k) {}
+	else	__debugbreak();
+	if(k || l) {}
+	else	__debugbreak();
+
+	if((i && j) || !(j && l))
+		__debugbreak();
+	if((i || j) && (j && l)) {}
+	else	__debugbreak();
+
+	if((i || j) && (i || k))
+		__debugbreak();
+	if((i || k) && (i || j))
+		__debugbreak();
+
+	if((i && j) || (j && l)) {}
+	else	__debugbreak();
+	if((j && l) || (i && j)) {}
+	else	__debugbreak();
+
+	i='5';
+	if (i >= '0' && i <= '9') {}
+	else	__debugbreak();
+	if (i >= 'a' && i <= 'z')
+		{ __debugbreak(); }
+	else	{ }
+
+	i='H';
+	if (i >= 'A' && i <= 'Z') {}
+	else	__debugbreak();
+
+	i=999; j=10;
+	if((i%j)!=9)
+		__debugbreak();
+	i=486; j=7;
+	if((i%j)!=3)
+		__debugbreak();
+
+	if(!rec)
+	{
+		i=3; j=4; k=5;
+		f=7.0; g=8.0; h=9.0;
+		ff=1.1;	gf=2.2;	hf=3.3;
+	}else
+	{
+		i=3; j=4; k=5;
+		f=7.0; g=8.0; h=9.0;
+	}
+
+	if(rec<3)
+	{
+		i=rec;
+		rec++;
+		Sys_CheckSanity();
+		rec--;
+		
+		if(i!=rec)
+			__debugbreak();
+	}
+	
+	if(rec<0)
+		__debugbreak();
+	
+	if(!rec)
+	{
+		tk_puts("Check for: Int Stomp\n");
+	
+//		if(i!=3)
+//			__debugbreak();
+		if(j!=4)
+			__debugbreak();
+		if(k!=5)
+			__debugbreak();
+
+		tk_puts("Check for: Double Stomp\n");
+
+		if(f==g)
+			__debugbreak();
+
+		if(f!=7.0)
+			__debugbreak();
+		if(g!=8.0)
+			__debugbreak();
+		if(h!=9.0)
+			__debugbreak();
+
+		tk_puts("Check for: Float Stomp\n");
+
+		if(ff!=1.1)
+			__debugbreak();
+		if(gf!=2.2)
+			__debugbreak();
+		if(hf!=3.3)
+			__debugbreak();
+	}else
+	{
+		f=rand()*0.01;
+		ff=sin(f);
+		gf=cos(f);
+		g=ff*f;
+		h=gf*f;
+	}
+}
+
 //=============================================================================
 
 int main (int argc, char **argv)
 {
 	static quakeparms_t    parms;
 	double		time, oldtime, newtime;
+	double f, g, h;
+	int i, j, k;
 
 	tk_puts("Q Main\n");
 
@@ -267,6 +626,8 @@ int main (int argc, char **argv)
 	Host_Init (&parms);
 
 	printf ("Host_Init: Done\n");
+
+	Sys_CheckSanity();
 
 	printf ("Enter Main Loop\n");
     oldtime = Sys_FloatTime () - 0.1;

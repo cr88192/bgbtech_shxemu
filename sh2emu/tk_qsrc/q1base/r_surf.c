@@ -227,11 +227,13 @@ texture_t *R_TextureAnimation (texture_t *base)
 	int		reletive;
 	int		count;
 
+#if 1
 	if (currententity->frame)
 	{
 		if (base->alternate_anims)
 			base = base->alternate_anims;
 	}
+#endif
 	
 	if (!base->anim_total)
 		return base;
@@ -266,6 +268,7 @@ void R_DrawSurface (void)
 	int				horzblockstep;
 	unsigned char	*pcolumndest;
 	void			(*pblockdrawer)(void);
+	int				mip;
 	texture_t		*mt;
 
 // calculate the lightings
@@ -275,15 +278,28 @@ void R_DrawSurface (void)
 
 	mt = r_drawsurf.texture;
 	
-	r_source = (byte *)mt + mt->offsets[r_drawsurf.surfmip];
+	mip = r_drawsurf.surfmip;
+	if(mip<0)mip=0;
+	if(mip>3)mip=3;
+
+//	r_source = ((byte *)mt) + mt->offsets[r_drawsurf.surfmip];
+	r_source = ((byte *)mt) + mt->offsets[mip];
+
+//	r_source = ((byte *)mt);
+//	r_source = ((byte *)mt)+sizeof(texture_t);
 	
 // the fractional light values should range from 0 to (VID_GRADES - 1) << 16
 // from a source range of 0 - 255
 	
-	texwidth = mt->width >> r_drawsurf.surfmip;
+//	texwidth = mt->width >> r_drawsurf.surfmip;
+	texwidth = mt->width >> mip;
 
-	blocksize = 16 >> r_drawsurf.surfmip;
-	blockdivshift = 4 - r_drawsurf.surfmip;
+//	blocksize = 16 >> r_drawsurf.surfmip;
+	blocksize = 16 >> mip;
+
+//	blockdivshift = 4 - r_drawsurf.surfmip;
+	blockdivshift = 4 - mip;
+
 	blockdivmask = (1 << blockdivshift) - 1;
 	
 	r_lightwidth = (r_drawsurf.surf->extents[0]>>4)+1;
@@ -307,21 +323,33 @@ void R_DrawSurface (void)
 		horzblockstep = blocksize << 1;
 	}
 
-	smax = mt->width >> r_drawsurf.surfmip;
+//	smax = mt->width >> r_drawsurf.surfmip;
+	smax = mt->width >> mip;
 	twidth = texwidth;
-	tmax = mt->height >> r_drawsurf.surfmip;
+//	tmax = mt->height >> r_drawsurf.surfmip;
+	tmax = mt->height >> mip;
 	sourcetstep = texwidth;
-	r_stepback = tmax * twidth;
+//	r_stepback = tmax * twidth;
+	r_stepback = tmax * smax;
 
 	r_sourcemax = r_source + (tmax * smax);
+//	r_sourcemax = r_source + (tmax * smax * r_pixbytes);
 
 	soffset = r_drawsurf.surf->texturemins[0];
 	basetoffset = r_drawsurf.surf->texturemins[1];
 
 // << 16 components are to guarantee positive values for %
 	soffset = ((soffset >> r_drawsurf.surfmip) + (smax << 16)) % smax;
-	basetptr = &r_source[((((basetoffset >> r_drawsurf.surfmip) 
-		+ (tmax << 16)) % tmax) * twidth)];
+	
+//	soffset=0;
+	
+//	basetptr = &r_source[((((basetoffset >> r_drawsurf.surfmip) 
+//		+ (tmax << 16)) % tmax) * twidth)];
+
+	basetptr = r_source + (((((basetoffset >> r_drawsurf.surfmip) 
+		+ (tmax << 16)) % tmax) * twidth));
+
+//	basetptr = r_source;
 
 	pcolumndest = r_drawsurf.surfdat;
 
@@ -332,6 +360,12 @@ void R_DrawSurface (void)
 		prowdestbase = pcolumndest;
 
 		pbasesource = basetptr + soffset;
+//		pbasesource = basetptr;
+
+		if(pbasesource<r_source)
+			__debugbreak();
+		if(pbasesource>r_sourcemax)
+			__debugbreak();
 
 		(*pblockdrawer)();
 
@@ -346,7 +380,8 @@ void R_DrawSurface (void)
 
 //=============================================================================
 
-#if	!id386
+// #if	!id386
+#if 1
 
 /*
 ================
@@ -555,7 +590,7 @@ R_DrawSurfaceBlock16
 FIXME: make this work
 ================
 */
-#if 1
+#if 0
 void R_DrawSurfaceBlock16 (void)
 {
 	int				k;
@@ -611,12 +646,44 @@ void R_DrawSurfaceBlock16_mipN (int mip)
 	psource = pbasesource;
 	prowdest = prowdestbase;
 
+	if(psource<r_source)
+	{
+		__debugbreak();
+	}
+	if(psource>r_sourcemax)
+	{
+		__debugbreak();
+	}
+
 	shr0=4-mip;
 	shp2=1<<shr0;
 	shp2n1=shp2-1;
 
 	for (v=0 ; v<r_numvblocks ; v++)
 	{
+
+		if(r_source>=r_sourcemax)
+			break;
+
+#if 0
+		if(psource<r_source)
+		{
+			while(psource<r_source)
+				psource+=(r_sourcemax-r_source);
+
+//			break;
+//			__debugbreak();
+		}
+		if(psource>r_sourcemax)
+		{
+			while(psource>=r_sourcemax)
+				psource-=(r_sourcemax-r_source);
+
+//			break;
+//			__debugbreak();
+		}
+#endif
+
 	// FIXME: make these locals?
 	// FIXME: use delta rather than both right and left, like ASM?
 		lightleft = r_lightptr[0];
@@ -672,6 +739,10 @@ void R_DrawSurfaceBlock16_mipN (int mip)
 				pix = psource[b];
 				prowdest[b] = vid.colormap16[(light & 0xFF00) + pix];
 #endif
+
+//				if(b&1)
+//					prowdest[b]=0x7FFF;
+
 				light += lightstep;
 			}
 	
@@ -682,7 +753,12 @@ void R_DrawSurfaceBlock16_mipN (int mip)
 		}
 
 		if (psource >= r_sourcemax)
+		{
 			psource -= r_stepback;
+
+//			__debugbreak();
+//			psource = psource+(-r_stepback);
+		}
 	}
 }
 

@@ -678,7 +678,8 @@ qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec
 
 //	tk_puts("SV_RecursiveHullCheck: E\n");
 
-#ifdef PARANOID
+// #ifdef PARANOID
+#if 0
 	if (sv_hullmodel &&
 		SV_HullPointContents (
 			sv_hullmodel, mid, node->children[side]) == CONTENTS_SOLID)

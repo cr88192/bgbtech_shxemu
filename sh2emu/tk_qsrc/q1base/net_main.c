@@ -807,6 +807,8 @@ void NET_Init (void)
 	int			controlSocket;
 	qsocket_t	*s;
 
+	printf("NET_Init: A0\n");
+
 	if (COM_CheckParm("-playback"))
 	{
 		net_numdrivers = 1;
@@ -850,6 +852,8 @@ void NET_Init (void)
 	// allocate space for network message buffer
 	SZ_Alloc (&net_message, NET_MAXMESSAGE);
 
+	printf("NET_Init: A1\n");
+
 	Cvar_RegisterVariable (&net_messagetimeout);
 	Cvar_RegisterVariable (&hostname);
 	Cvar_RegisterVariable (&config_com_port);
@@ -864,10 +868,14 @@ void NET_Init (void)
 	Cvar_RegisterVariable (&idgods);
 #endif
 
+	printf("NET_Init: A2\n");
+
 	Cmd_AddCommand ("slist", NET_Slist_f);
 	Cmd_AddCommand ("listen", NET_Listen_f);
 	Cmd_AddCommand ("maxplayers", MaxPlayers_f);
 	Cmd_AddCommand ("port", NET_Port_f);
+
+	printf("NET_Init: A3\n");
 
 	// initialize all the drivers
 	for (net_driverlevel=0 ; net_driverlevel<net_numdrivers ; net_driverlevel++)
@@ -881,10 +889,14 @@ void NET_Init (void)
 			net_drivers[net_driverlevel].Listen (true);
 		}
 
+	printf("NET_Init: A4\n");
+
 	if (*my_ipx_address)
 		Con_DPrintf("IPX address %s\n", my_ipx_address);
 	if (*my_tcpip_address)
 		Con_DPrintf("TCP/IP address %s\n", my_tcpip_address);
+
+	printf("NET_Init: A5\n");
 }
 
 /*

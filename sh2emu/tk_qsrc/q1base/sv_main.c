@@ -26,16 +26,7 @@ server_static_t	svs;
 
 char	localmodels[MAX_MODELS][5];			// inline model names for precache
 
-//============================================================================
-
-/*
-===============
-SV_Init
-===============
-*/
-void SV_Init (void)
-{
-	int		i;
+#if 1
 	extern	cvar_t	sv_maxvelocity;
 	extern	cvar_t	sv_gravity;
 	extern	cvar_t	sv_nostep;
@@ -46,6 +37,33 @@ void SV_Init (void)
 	extern	cvar_t	sv_accelerate;
 	extern	cvar_t	sv_idealpitchscale;
 	extern	cvar_t	sv_aim;
+#endif
+
+//============================================================================
+
+/*
+===============
+SV_Init
+===============
+*/
+void SV_Init (void)
+{
+	int		i;
+
+#if 0
+	extern	cvar_t	sv_maxvelocity;
+	extern	cvar_t	sv_gravity;
+	extern	cvar_t	sv_nostep;
+	extern	cvar_t	sv_friction;
+	extern	cvar_t	sv_edgefriction;
+	extern	cvar_t	sv_stopspeed;
+	extern	cvar_t	sv_maxspeed;
+	extern	cvar_t	sv_accelerate;
+	extern	cvar_t	sv_idealpitchscale;
+	extern	cvar_t	sv_aim;
+#endif
+
+	printf("SV_Init: A0\n");
 
 	Cvar_RegisterVariable (&sv_maxvelocity);
 	Cvar_RegisterVariable (&sv_gravity);
@@ -58,8 +76,12 @@ void SV_Init (void)
 	Cvar_RegisterVariable (&sv_aim);
 	Cvar_RegisterVariable (&sv_nostep);
 
+	printf("SV_Init: A1\n");
+
 	for (i=0 ; i<MAX_MODELS ; i++)
 		sprintf (localmodels[i], "*%i", i);
+
+	printf("SV_Init: A2\n");
 }
 
 /*

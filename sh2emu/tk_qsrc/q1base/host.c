@@ -941,7 +941,13 @@ void Host_Init (quakeparms_t *parms)
 		printf("Host_Init: A4-4\n");
 
 		Draw_Init ();
+
+		printf("Host_Init: A4-4-1\n");
+
 		SCR_Init ();
+
+		printf("Host_Init: A4-4-2\n");
+
 		R_Init ();
 
 		printf("Host_Init: A4-5\n");
