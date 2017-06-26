@@ -299,12 +299,6 @@ int BGBCC_SHXC_EmitStixVRegVRegImm(
 	{
 		cdreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, dreg);
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
-
-#if 1	//Debug: Deref pointers to check validity
-//		if(BGBCC_CCXL_TypePointerP(ctx, type))
-//			BGBCC_SHX_EmitOpMReg(sctx, BGBCC_SH_NMID_PREF, csreg);
-		BGBCC_SHXC_EmitDebugCheckReg(ctx, sctx, type, csreg);
-#endif
 		
 		BGBCC_SHXC_EmitStoreBRegOfsReg(ctx, sctx,
 			nm1, cdreg, imm*sz, csreg);
@@ -404,12 +398,6 @@ int BGBCC_SHXC_EmitStixVRegVRegVReg(
 		cdreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, dreg);
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
 		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
-
-#if 1	//Debug: Deref pointers to check validity
-//		if(BGBCC_CCXL_TypePointerP(ctx, type))
-//			BGBCC_SHX_EmitOpMReg(sctx, BGBCC_SH_NMID_PREF, ctreg);
-		BGBCC_SHXC_EmitDebugCheckReg(ctx, sctx, type, ctreg);
-#endif
 		
 		BGBCC_SHXC_EmitStoreBRegIRegScReg(ctx, sctx,
 			nm1, cdreg, csreg, sz, ctreg);
@@ -730,16 +718,12 @@ int BGBCC_SHXC_EmitDiffPtrVRegVRegVReg(
 		switch(sz)
 		{
 		case 1: nm1=-1; nm2=-1; break;
-//		case 2: nm1=BGBCC_SH_NMID_SHLR; nm2=-1; break;
-//		case 4: nm1=BGBCC_SH_NMID_SHLR2; nm2=-1; break;
-//		case 8: nm1=BGBCC_SH_NMID_SHLR2;
-//			nm2=BGBCC_SH_NMID_SHLR; break;
-//		case 16: nm1=BGBCC_SH_NMID_SHLR2;
-//			nm2=BGBCC_SH_NMID_SHLR2; break;
-
-		case 2: nm1=BGBCC_SH_NMID_SHAR; nm2=-1; break;
-		case 4: nm1=BGBCC_SH_NMID_SHAR; nm2=BGBCC_SH_NMID_SHAR; break;
-
+		case 2: nm1=BGBCC_SH_NMID_SHLR; nm2=-1; break;
+		case 4: nm1=BGBCC_SH_NMID_SHLR2; nm2=-1; break;
+		case 8: nm1=BGBCC_SH_NMID_SHLR2;
+			nm2=BGBCC_SH_NMID_SHLR; break;
+		case 16: nm1=BGBCC_SH_NMID_SHLR2;
+			nm2=BGBCC_SH_NMID_SHLR2; break;
 		default:
 			BGBCC_DBGBREAK
 			nm1=-1; nm2=-1;
@@ -1172,9 +1156,6 @@ int BGBCC_SHXC_EmitLeaBRegIRegScReg(
 		cbo-=1;
 	if((dreg==ireg) && (bs!=2))
 		shl=-1;
-		
-//	if(bs!=2)		//Debug
-//		shl=-1;
 
 	if((shl>=0) && (bs==2) && (cbo<=cmo))
 	{

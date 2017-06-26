@@ -71,7 +71,7 @@
 #define CCXL_TYB3_BASEARRMAX	64			//base array limit
 
 
-#define CCXL_REGTY_REGMASK			0x0F00000000000000ULL
+#define CCXL_REGTY_REGMASK			0xFF00000000000000ULL
 #define CCXL_REGTY_TEMP				0x0000000000000000ULL
 #define CCXL_REGTY_ARG				0x0100000000000000ULL
 #define CCXL_REGTY_LOCAL			0x0200000000000000ULL
@@ -89,6 +89,10 @@
 #define CCXL_REGTY_IMM_DOUBLE_LVT	0x0D00000000000000ULL	//double in LVT
 #define CCXL_REGTY_IMM_I128_LVT		0x0E00000000000000ULL	//pair of indices
 #define CCXL_REGTY_IMM_F128_LVT		0x0F00000000000000ULL	//pair of indices
+
+#define CCXL_REGTY2_TYMASK			0xE000000000000000ULL
+#define CCXL_REGTY2_IMM_LONG		0x2000000000000000ULL	//long(61b)
+#define CCXL_REGTY2_IMM_DOUBLE		0x4000000000000000ULL	//double(61b)
 
 //#define CCXL_REGID_REGMASK		0x000000000000FFFFULL
 //#define CCXL_REGID_TYPEMASK		0x0000FFFFFFFF0000ULL
@@ -109,6 +113,9 @@
 #define CCXL_REGINTPH_SHL		28
 
 #define CCXL_REGID_REG_Z		0x0000000000FFFFFFULL	//placeholder void reg
+#define CCXL_REGID_REG_DZ		0x0000000002FFFFFFULL	//multi-part regs
+
+#define CCXL_REGLONG2_MASK		0x1FFFFFFFFFFFFFFFULL	//long2/double2
 
 #define CCXL_LITID_STRUCT		1
 #define CCXL_LITID_UNION		2
@@ -343,6 +350,10 @@ BGBCC_CCXL_VirtTr **vtr;
 int n_vop, m_vop;
 int n_vtr, m_vtr;
 // int s_vop;
+
+char **goto_name;
+ccxl_label *goto_lbl;
+int n_goto, m_goto;
 
 ccxl_register *listdata;
 int n_listdata, m_listdata;

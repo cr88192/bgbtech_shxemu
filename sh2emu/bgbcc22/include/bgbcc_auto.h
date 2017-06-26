@@ -542,9 +542,9 @@ void BGBCC_CCXL_CompileInitVar(BGBCC_TransState *ctx,char *name, BCCX_Node *type
 void BGBCC_CCXL_CompileStatement(BGBCC_TransState *ctx, BCCX_Node *l);
 char *BGBCC_CCXL_VarTypeString_FlattenExpr(BGBCC_TransState *ctx,char *dst, BCCX_Node *l, int fl);
 char *BGBCC_CCXL_VarTypeString_FlattenName(BGBCC_TransState *ctx,char *t, char *s, int fl);
-int BGBCC_CCXL_VarTypeString_ModifierChar(BGBCC_TransState *ctx, int i);
-char *BGBCC_CCXL_VarTypeString_FlattenModifiers(BGBCC_TransState *ctx,char *t, int fl);
-char *BGBCC_CCXL_VarTypeString_FlattenModifiers2(BGBCC_TransState *ctx,char *t, int fl);
+int BGBCC_CCXL_VarTypeString_ModifierChar(BGBCC_TransState *ctx, s64 i);
+char *BGBCC_CCXL_VarTypeString_FlattenModifiers(BGBCC_TransState *ctx,char *t, s64 fl);
+char *BGBCC_CCXL_VarTypeString_FlattenModifiers2(BGBCC_TransState *ctx,char *t, s64 fl);
 char *BGBCC_CCXL_VarTypeString(BGBCC_TransState *ctx, BCCX_Node *ty);
 char *BGBCC_CCXL_VarImageTypeString(BGBCC_TransState *ctx, BCCX_Node *ty);
 char *BGBCC_CCXL_VarTypeFlagsString(BGBCC_TransState *ctx, BCCX_Node *ty);
@@ -630,7 +630,9 @@ void BGBCC_CCXL_CompileExprAsType(BGBCC_TransState *ctx,BCCX_Node *ty, BCCX_Node
 //AHSRC:ccxl/ccxl_global.c
 void BGBCC_CCXL_CheckExpandGlobals(BGBCC_TransState *ctx);
 int BGBCC_CCXL_HashName(char *name);
+int BGBCC_CCXL_HashNameCase(char *name);
 int BGBCC_CCXL_CheckNameNamesList(char *name, char *nameslst);
+int BGBCC_CCXL_CheckFlagstrFlag(char *sig, char *flag);
 BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_TryManifestLoadGlobal(BGBCC_TransState *ctx, char *name);
 BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_LookupGlobal(BGBCC_TransState *ctx, char *name);
 BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_GetGlobal2I(BGBCC_TransState *ctx, char *name);
@@ -670,6 +672,7 @@ void BGBCC_CCXL_LiteralData(BGBCC_TransState *ctx, int attr,byte *buf, int sz);
 int BGBCC_CCXL_HandleMissingProto(BGBCC_TransState *ctx, char *name);
 //AHSRC:ccxl/ccxl_index.c
 ccxl_label BGBCC_CCXL_LabelFromName(BGBCC_TransState *ctx, char *name);
+ccxl_label BGBCC_CCXL_LabelFromName(BGBCC_TransState *ctx, char *name);
 void BGBCC_CCXL_CompileBreak(BGBCC_TransState *ctx);
 void BGBCC_CCXL_CompileContinue(BGBCC_TransState *ctx);
 void BGBCC_CCXL_CompileBreakFalse(BGBCC_TransState *ctx);
@@ -689,6 +692,8 @@ int BGBCC_CCXL_GetMinMaxSizeofType(BGBCC_TransState *ctx, BCCX_Node *ty,int *rms
 int BGBCC_CCXL_TryGetSizeofName(BGBCC_TransState *ctx, char *name);
 int BGBCC_CCXL_GetMinMaxSizeofName(BGBCC_TransState *ctx, char *name,int *rmsz, int *rnsz, int *rmal, int *rnal);
 int BGBCC_CCXL_GetMinMaxSizeofDerefName(BGBCC_TransState *ctx, char *name,int *rmsz, int *rnsz, int *rmal, int *rnal);
+//AHSRC:ccxl/ccxl_infer.c
+int BGBCC_CCXL_InferExpr(BGBCC_TransState *ctx,BCCX_Node *l, ccxl_type *rdty);
 //AHSRC:ccxl/ccxl_pred.c
 bool BGBCC_CCXL_IsRegBasicP(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegArgBasicP(BGBCC_TransState *ctx, ccxl_register reg);
@@ -961,6 +966,7 @@ bool BGBCC_CCXL_TypeSgInt128P(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeFloatP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeDoubleP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeFloat128P(BGBCC_TransState *ctx, ccxl_type ty);
+bool BGBCC_CCXL_TypeRealP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeSmallFloatP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeSmallDoubleP(BGBCC_TransState *ctx, ccxl_type ty);
 bool BGBCC_CCXL_TypeSmallFloat128P(BGBCC_TransState *ctx, ccxl_type ty);
@@ -1040,6 +1046,7 @@ char *BGBCC_SHXA_ParseToken(char *cs, char **rtok);
 char *BGBCC_SHXA_ParseTokenAlt(char *cs, char **rtok);
 int BGBCC_SHXA_GetRegId(char *str);
 int BGBCC_SHXA_ParseOperand(char **rcs, BGBCC_SHX_OpcodeArg *opv);
+int BGBCC_SHXA_Init();
 int BGBCC_SHXA_LookupOpcodeNmid(char *name);
 int BGBCC_SHXA_LookupOpcodeFmid(BGBCC_SHX_OpcodeArg *arg0, BGBCC_SHX_OpcodeArg *arg1, BGBCC_SHX_OpcodeArg *arg2);
 int BGBCC_SHXA_TryAssembleOpcode(BGBCC_SHX_Context *ctx, char *name, BGBCC_SHX_OpcodeArg *arg0, BGBCC_SHX_OpcodeArg *arg1, BGBCC_SHX_OpcodeArg *arg2);
@@ -1061,8 +1068,9 @@ int BGBCC_SHXC_EmitVaArg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_ty
 int BGBCC_SHXC_EmitVaEnd(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register sreg);
 int BGBCC_SHXC_EmitVaStart(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register sreg, ccxl_register treg);
 char *BGBCC_SHXC_DebugRegToStr(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register reg);
-ccxl_status BGBCC_SHXC_CompilePrintVirtOp(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtOp *op);
+ccxl_status BGBCC_SHXC_PrintVirtOp(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtOp *op);
 ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtOp *op);
+ccxl_status BGBCC_SHXC_PrintVirtTr(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtTr *tr, int idx);
 ccxl_status BGBCC_SHXC_CompileVirtTr(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtTr *tr, int idx);
 ccxl_status BGBCC_SHXC_EndFunction(BGBCC_TransState *ctx,BGBCC_CCXL_LiteralInfo *obj);
 ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,BGBCC_CCXL_RegisterInfo *obj);
@@ -1205,10 +1213,12 @@ int BGBCC_SHXC_EmitLoadBRegOfsFpReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sc
 int BGBCC_SHXC_EmitStoreBRegOfsFpReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int breg, int ofs, int dreg);
 int BGBCC_SHXC_EmitLoadBRegIRegScFpReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int breg, int ireg, int sc, int dreg);
 int BGBCC_SHXC_EmitStoreBRegIRegScFpReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int breg, int ireg, int sc, int dreg);
-int BGBCC_SHXC_EmitTryGetFpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
+int BGBCC_SHXC_EmitTryGetDpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
 int BGBCC_SHXC_EmitGetDpRegisterI(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
+int BGBCC_SHXC_EmitTryGetFpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
 int BGBCC_SHXC_EmitGetFpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
 int BGBCC_SHXC_EmitReleaseFpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
+int BGBCC_SHXC_StompFpRegisterIndex(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int rgidx);
 int BGBCC_SHXC_EmitSyncFpRegisterIndex(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int rgidx);
 int BGBCC_SHXC_EmitSyncFpRegisters(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx);
 int BGBCC_SHXC_EmitLabelFlushFpRegisters(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx);
@@ -1241,6 +1251,7 @@ int BGBCC_SHXC_EmitJCmpVRegVRegLong(BGBCC_TransState *ctx, BGBCC_SHX_Context *sc
 int BGBCC_SHXC_EmitTryGetLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
 int BGBCC_SHXC_EmitGetLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg, int fl);
 int BGBCC_SHXC_EmitReleaseLpRegister(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register reg);
+int BGBCC_SHXC_StompLpRegisterIndex(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int rgidx);
 //AHSRC:shcc/shx_lxarith.c
 int BGBCC_SHXC_IndexLitInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, s64 val_lo, s64 val_hi);
 int BGBCC_SHXC_EmitBinaryVRegVRegInt128(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, int opr, ccxl_register treg);
@@ -1252,6 +1263,7 @@ int BGBCC_SHXC_EmitStoreFrameOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sc
 int BGBCC_SHXC_EmitLdaFrameOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int ofs, int dreg);
 int BGBCC_SHXC_EmitStoreStackOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int ofs, int dreg);
 int BGBCC_SHXC_EmitLoadBRegOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int breg, int ofs, int dreg);
+int BGBCC_SHXC_EmitLoadOp2BRegOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int nmid2, int breg, int ofs, int dreg);
 int BGBCC_SHXC_EmitStoreBRegOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int breg, int ofs, int dreg);
 int BGBCC_SHXC_EmitLeaBRegOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int breg, int ofs, int dreg);
 int BGBCC_SHXC_EmitLoadBRegIRegScReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int breg, int ireg, int sc, int dreg);
@@ -1301,10 +1313,12 @@ int BGBCC_SHXC_EmitJCmpVRegVReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, 
 int BGBCC_SHXC_EmitJCmpVRegZeroInt(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register sreg, int cmp, int lbl);
 int BGBCC_SHXC_EmitJCmpVRegZero(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register sreg, int cmp, int lbl);
 //AHSRC:shcc/shx_struct.c
+int BGBCC_SHXC_EmitDebugCheckReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, int sreg);
 int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, int gblid, int fid);
 int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, int gblid, int fid);
 int BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, int gblid, int fid);
 int BGBCC_SHXC_EmitValueCopyRegRegSz(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int dreg, int sreg, int sz, int al);
+int BGBCC_SHXC_EmitLoadTypeBRegOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, int sreg, int ofs, int dreg);
 //AHSRC:mm/inflate.c
 int PDUNZ_ReadBit();
 int PDUNZ_Read2Bits();

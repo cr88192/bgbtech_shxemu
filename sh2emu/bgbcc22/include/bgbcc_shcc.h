@@ -56,7 +56,6 @@
 #define BGBCC_SH_REG_DR5		0x35
 #define BGBCC_SH_REG_DR6		0x36
 #define BGBCC_SH_REG_DR7		0x37
-
 #define BGBCC_SH_REG_DR8		0x38	
 #define BGBCC_SH_REG_DR9		0x39
 #define BGBCC_SH_REG_DR10		0x3A
@@ -66,14 +65,14 @@
 #define BGBCC_SH_REG_DR14		0x3E
 #define BGBCC_SH_REG_DR15		0x3F
 
-#define BGBCC_SH_REG_XD0		0x38	
-#define BGBCC_SH_REG_XD1		0x39
-#define BGBCC_SH_REG_XD2		0x3A
-#define BGBCC_SH_REG_XD3		0x3B
-#define BGBCC_SH_REG_XD4		0x3C
-#define BGBCC_SH_REG_XD5		0x3D
-#define BGBCC_SH_REG_XD6		0x3E
-#define BGBCC_SH_REG_XD7		0x3F
+//#define BGBCC_SH_REG_XD0		0x38	
+//#define BGBCC_SH_REG_XD1		0x39
+//#define BGBCC_SH_REG_XD2		0x3A
+//#define BGBCC_SH_REG_XD3		0x3B
+//#define BGBCC_SH_REG_XD4		0x3C
+//#define BGBCC_SH_REG_XD5		0x3D
+//#define BGBCC_SH_REG_XD6		0x3E
+//#define BGBCC_SH_REG_XD7		0x3F
 
 //#define BGBCC_SH_REG_PC			0x3E
 
@@ -447,6 +446,7 @@ int lbl_got;			//label ID for got
 int frm_offs_retstr;	//offset of return struct
 
 BGBCC_SHX_Context *next;
+struct BGBCC_TransState_s *tctx;
 FILE *cgen_log;
 
 char *csrept;

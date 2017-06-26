@@ -18,6 +18,23 @@ int BGBCC_CCXL_HashName(char *name)
 	return(hi);
 }
 
+int BGBCC_CCXL_HashNameCase(char *name)
+{
+	char *s;
+	int hi, c;
+	
+	s=name; hi=0;
+	while(*s)
+	{
+		c=(*s++);
+		if(((u32)(c-'A'))<('Z'-'A'))
+			c+='a'-'A';
+		hi=(hi*251)+c;
+	}
+	hi=((hi*251)>>8)&4095;
+	return(hi);
+}
+
 int BGBCC_CCXL_CheckNameNamesList(char *name, char *nameslst)
 {
 	char tb[256];
@@ -42,6 +59,57 @@ int BGBCC_CCXL_CheckNameNamesList(char *name, char *nameslst)
 			return(1);
 	}
 	return(0);
+}
+
+int BGBCC_CCXL_CheckFlagstrFlag(char *sig, char *flag)
+{
+	char *s;
+	int hi, l;
+	
+	if(!sig)
+		return(0);
+	if(!strcmp(sig, flag))
+		return(1);
+	
+	l=strlen(flag);
+	s=sig;
+	while(*s)
+	{
+		if(!strncmp(s, flag, l))
+			return(1);
+		if((*s>='a') && (*s<='z') && (*s!='u'))
+			{ s++; continue; }
+		if((*s>='A') && (*s<='Z') && (*s!='U'))
+		{
+			if((s[1]>='a') && (s[1]<='z') && (s[1]!='u'))
+				{ s+=2; continue; }
+			break;
+		}
+
+		if((*s=='u') || (*s=='U'))
+		{
+			s++;
+			if((*s>='0') && (*s<='9'))
+			{
+				while((*s>='0') && (*s<='9'))
+					s++;
+				continue;
+			}
+			
+			while(*s && (*s!=';'))
+				s++;
+			if(*s==';')s++;
+			continue;
+		}
+		break;
+	}
+	
+	return(0);
+	
+//	s=name; hi=0;
+//	while(*s)hi=(hi*251)+(*s++);
+//	hi=((hi*251)>>8)&4095;
+//	return(hi);
 }
 
 BGBCC_CCXL_RegisterInfo *BGBCC_CCXL_TryManifestLoadGlobal(
@@ -357,7 +425,10 @@ void BGBCC_CCXL_AddLiteral(BGBCC_TransState *ctx,
 		ctx->manif_literal=i;
 	}else
 	{
-		obj->hnext_name=-1;
+		obj->hnext_name=ctx->usort_literal;
+		ctx->usort_literal=i;
+
+//		obj->hnext_name=-1;
 //		BGBCC_DBGBREAK
 	}
 }
@@ -599,12 +670,13 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 //				obj->decl->n_args=0;
 				obj->decl->n_locals=0;
 				obj->decl->n_vargs=0;
+				obj->decl->n_goto=0;
 
 				ctx->regstackpos=0;
 				ctx->uregstackpos=0;
 				ctx->markstackpos=0;
 //				ctx->ip=ctx->ips;
-				ctx->n_goto=0;
+//				ctx->n_goto=0;
 //				ctx->n_lbl=0;
 				return;
 			}
@@ -819,11 +891,13 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 //		obj->decl->type.val=256+obj->litid;
 		obj->decl->type=BGBCC_CCXL_MakeTypeID(ctx, 256+obj->litid);
 
+		obj->decl->n_goto=0;
+
 		ctx->regstackpos=0;
 		ctx->uregstackpos=0;
 		ctx->markstackpos=0;
 //		ctx->ip=ctx->ips;
-		ctx->n_goto=0;
+//		ctx->n_goto=0;
 //		ctx->n_lbl=0;
 		break;
 
@@ -917,10 +991,12 @@ void BGBCC_CCXL_BeginName(BGBCC_TransState *ctx, int tag, char *name)
 
 	case CCXL_CMD_BODY:
 		ctx->cur_func=obj->parent->decl;
+		ctx->cur_func->n_goto=0;
+
 		ctx->regstackpos=0;
 		ctx->markstackpos=0;
 //		ctx->ip=ctx->ips;
-		ctx->n_goto=0;
+//		ctx->n_goto=0;
 //		ctx->n_lbl=0;
 		ctx->n_vop=0;
 		ctx->n_vtr=0;
@@ -1160,6 +1236,108 @@ void BGBCC_CCXL_SanityObjSize(BGBCC_TransState *ctx,
 //			msz=(msz+(mal2-1))&(~(mal2-1));
 			msz=msz2+nsz2;
 		}
+
+		break;
+
+
+	case CCXL_LITID_UNION:
+		if(!obj->decl)
+			{ BGBCC_DBGBREAK }
+
+		msz=obj->decl->fxmsize;
+		nsz=obj->decl->fxnsize;
+
+		if(!obj->decl->n_fields)
+			break;
+
+		if((msz<=0) || (nsz<=0))
+			{ BGBCC_DBGBREAK }
+
+		if(msz!=nsz)
+			{ BGBCC_DBGBREAK }
+
+		msz=0; nsz=0; mal=1; nal=1;
+		for(i=0; i<obj->decl->n_fields; i++)
+		{
+			msz2=obj->decl->fields[i]->fxmsize;
+			nsz2=obj->decl->fields[i]->fxnsize;
+			mal2=obj->decl->fields[i]->fxmalgn;
+			nal2=obj->decl->fields[i]->fxnalgn;
+			
+			if((msz2<=0) || (nsz2<=0))
+				{ BGBCC_DBGBREAK }
+
+			if((mal2<=0) || (nal2<=0))
+				{ BGBCC_DBGBREAK }
+			
+			if((msz2!=nsz2) || (mal2!=nal2))
+				{ BGBCC_DBGBREAK }
+			
+			msz=(msz+(mal2-1))&(~(mal2-1));
+			nsz=(nsz+(nal2-1))&(~(nal2-1));
+
+//			if(obj->decl->fields[i]->fxmoffs!=msz)
+//				{ BGBCC_DBGBREAK }
+//			if(obj->decl->fields[i]->fxnoffs!=nsz)
+//				{ BGBCC_DBGBREAK }
+
+			if(obj->decl->fields[i]->fxmoffs!=0)
+				{ BGBCC_DBGBREAK }
+			if(obj->decl->fields[i]->fxnoffs!=0)
+				{ BGBCC_DBGBREAK }
+
+			if(msz==nsz)
+			{
+				if(obj->decl->fields[i]->fxoffs!=0)
+					{ BGBCC_DBGBREAK }
+			}else
+			{
+				BGBCC_DBGBREAK
+			}
+
+//			msz+=msz2;	nsz+=nsz2;
+			if(msz2>msz)
+				msz=msz2;
+			if(nsz2>nsz)
+				nsz=nsz2;
+			if(mal2>mal)mal=mal2;
+			if(nal2>nal)nal=nal2;
+		}
+		
+		if(i<obj->decl->n_fields)
+		{
+			BGBCC_DBGBREAK
+			break;
+		}
+		
+		al=ctx->arch_align_objmin;
+		if((al>0) && (mal==nal) && (mal<al))
+			{ mal=al; nal=al; }
+		
+		msz=(msz+(mal-1))&(~(mal-1));
+		nsz=(nsz+(nal-1))&(~(nal-1));
+		if(obj->decl->fxmsize!=msz)
+			{ BGBCC_DBGBREAK }
+		if(obj->decl->fxnsize!=nsz)
+			{ BGBCC_DBGBREAK }
+		if(obj->decl->fxmalgn!=mal)
+			{ BGBCC_DBGBREAK }
+		if(obj->decl->fxnalgn!=nal)
+			{ BGBCC_DBGBREAK }
+
+#if 0
+		msz=0;
+		for(i=0; i<obj->decl->n_fields; i++)
+		{
+			msz2=obj->decl->fields[i]->fxoffs;
+			nsz2=obj->decl->fields[i]->fxnsize;
+			mal2=obj->decl->fields[i]->fxmalgn;
+			if(msz2<msz)
+				{ BGBCC_DBGBREAK }
+//			msz=(msz+(mal2-1))&(~(mal2-1));
+			msz=msz2+nsz2;
+		}
+#endif
 
 		break;
 	}

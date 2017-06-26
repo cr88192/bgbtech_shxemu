@@ -383,9 +383,9 @@ BCCX_Node *cf_ty;
 //byte **lbl_dest;
 //int n_goto, n_lbl;
 
-char **goto_name;
-ccxl_label *goto_lbl;
-int n_goto, m_goto;
+// char **goto_name;
+// ccxl_label *goto_lbl;
+// int n_goto, m_goto;
 
 int n_warn, n_error, n_note;
 
@@ -477,6 +477,7 @@ int n_literals, m_literals;
 
 int hash_literals[4096];
 int manif_literal;
+int usort_literal;
 
 // BGBCC_CCXL_TypeOverflow *tyovf[1024];
 BGBCC_CCXL_TypeOverflow *tyovf[16384];

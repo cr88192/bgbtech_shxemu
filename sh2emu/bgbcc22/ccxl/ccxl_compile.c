@@ -1197,7 +1197,7 @@ char *BGBCC_CCXL_VarTypeString_FlattenName(BGBCC_TransState *ctx,
 	return(t);
 }
 
-int BGBCC_CCXL_VarTypeString_ModifierChar(BGBCC_TransState *ctx, int i)
+int BGBCC_CCXL_VarTypeString_ModifierChar(BGBCC_TransState *ctx, s64 i)
 {
 	int c;
 
@@ -1228,9 +1228,10 @@ int BGBCC_CCXL_VarTypeString_ModifierChar(BGBCC_TransState *ctx, int i)
 	{
 	case BGBCC_TYFL_ABSTRACT: c='a'; break;
 	case BGBCC_TYFL_BIGENDIAN: c='b'; break;
-	//c (cdecl)
+	case BGBCC_TYFL_CDECL: c='c'; break;
 	case BGBCC_TYFL_DELEGATE: c='d'; break;
-	case BGBCC_TYFL_EVENT: c='e'; break;
+//	case BGBCC_TYFL_EVENT: c='e'; break;
+	case BGBCC_TYFL_EXTERN: c='e'; break;
 	//f (fastcall/amd64)
 	case BGBCC_TYFL_GETTER: c='g'; break;
 	case BGBCC_TYFL_SETTER: c='h'; break;
@@ -1238,7 +1239,7 @@ int BGBCC_CCXL_VarTypeString_ModifierChar(BGBCC_TransState *ctx, int i)
 	case BGBCC_TYFL_FINAL: c='j'; break;
 	case BGBCC_TYFL_CONST: c='k'; break;
 	case BGBCC_TYFL_LTLENDIAN: c='l'; break;
-	//m
+	case BGBCC_TYFL_PACKED: c='m'; break;
 	case BGBCC_TYFL_NATIVE: c='n'; break;
 	case BGBCC_TYFL_OVERRIDE: c='o'; break;
 	case BGBCC_TYFL_PUBLIC: c='p'; break;
@@ -1248,18 +1249,26 @@ int BGBCC_CCXL_VarTypeString_ModifierChar(BGBCC_TransState *ctx, int i)
 	//t (thiscall)
 	//u (special)
 	case BGBCC_TYFL_VIRTUAL: c='v'; break;
-	//w (stdcall/win64)
+	case BGBCC_TYFL_STDCALL: c='w'; break;
 	case BGBCC_TYFL_XCALL: c='x'; break;
 	case BGBCC_TYFL_TRANSIENT: c='y'; break;
 	//z
+//	case BGBCC_TYFL_VOLATILE: c='z'; break;
 
 //	case BGBCC_TYFL_TRANSIENT: c=('C'<<8)|'t'; break;
 
 //	case BGBCC_TYFL_ASYNC: c=('C'<<8)|'a'; break;
 	case BGBCC_TYFL_BYREF: c=('C'<<8)|'b'; break;
+
+	case BGBCC_TYFL_EVENT: c=('C'<<8)|'e'; break;
+
 	case BGBCC_TYFL_INTERFACE: c=('C'<<8)|'i'; break;
 
 	case BGBCC_TYFL_SYNCHRONIZED: c=('C'<<8)|'s'; break;
+
+	case BGBCC_TYFL_DLLEXPORT: c=('D'<<8)|'e'; break;
+	case BGBCC_TYFL_DLLIMPORT: c=('D'<<8)|'i'; break;
+
 	case BGBCC_TYFL_THREAD: c=('D'<<8)|'t'; break;
 	default: c=0; break;
 	}
@@ -1267,12 +1276,13 @@ int BGBCC_CCXL_VarTypeString_ModifierChar(BGBCC_TransState *ctx, int i)
 }
 
 char *BGBCC_CCXL_VarTypeString_FlattenModifiers(BGBCC_TransState *ctx,
-	char *t, int fl)
+	char *t, s64 fl)
 {
 	int i, j, k;
 
 	k=0;
-	for(i=0; i<30; i++)
+//	for(i=0; i<30; i++)
+	for(i=0; i<60; i++)
 	{
 		j=BGBCC_CCXL_VarTypeString_ModifierChar(ctx, fl&(1<<i));
 		if(j)k++;
@@ -1281,7 +1291,8 @@ char *BGBCC_CCXL_VarTypeString_FlattenModifiers(BGBCC_TransState *ctx,
 	if(k>2)
 	{
 		*t++='M';
-		for(i=0; i<31; i++)
+//		for(i=0; i<31; i++)
+		for(i=0; i<60; i++)
 		{
 			j=BGBCC_CCXL_VarTypeString_ModifierChar(ctx, fl&(1<<i));
 			if(j)
@@ -1297,7 +1308,8 @@ char *BGBCC_CCXL_VarTypeString_FlattenModifiers(BGBCC_TransState *ctx,
 		return(t);
 	}
 
-	for(i=0; i<31; i++)
+//	for(i=0; i<31; i++)
+	for(i=0; i<60; i++)
 	{
 		j=BGBCC_CCXL_VarTypeString_ModifierChar(ctx, fl&(1<<i));
 		if(j)
@@ -1313,11 +1325,12 @@ char *BGBCC_CCXL_VarTypeString_FlattenModifiers(BGBCC_TransState *ctx,
 }
 
 char *BGBCC_CCXL_VarTypeString_FlattenModifiers2(BGBCC_TransState *ctx,
-	char *t, int fl)
+	char *t, s64 fl)
 {
 	int i, j, k;
 
-	for(i=0; i<31; i++)
+//	for(i=0; i<31; i++)
+	for(i=0; i<60; i++)
 	{
 		j=BGBCC_CCXL_VarTypeString_ModifierChar(ctx, fl&(1<<i));
 		if(j)
@@ -1336,7 +1349,7 @@ char *BGBCC_CCXL_VarTypeString(BGBCC_TransState *ctx, BCCX_Node *ty)
 	char buf[256];
 	char *s, *t, *t1;
 	BCCX_Node *c, *n;
-	int i;
+	int i, j, k;
 
 	if(!ty)return(NULL);
 
@@ -1369,6 +1382,7 @@ char *BGBCC_CCXL_VarTypeString(BGBCC_TransState *ctx, BCCX_Node *ty)
 					}
 
 					BGBCC_CCXL_Error(ctx, "Invalid array size specifier\n");
+					BGBCC_DBGBREAK
 					*t++='0'; c=BCCX_Next(c); continue;
 				}
 
@@ -1379,6 +1393,10 @@ char *BGBCC_CCXL_VarTypeString(BGBCC_TransState *ctx, BCCX_Node *ty)
 						"Negative Size Array\n");
 					*t++='1'; c=BCCX_Next(c); continue;
 				}
+				
+//				if(ctx->cur_func && ctx->cur_func->name &&
+//					!strcmp(ctx->cur_func->name, "D_PolysetDraw"))
+//						{ k=-1; BGBCC_DBGBREAK }
 				
 				sprintf(t, "%d", i);
 				t+=strlen(t);
@@ -2098,6 +2116,12 @@ BCCX_Node *BGBCC_CCXL_CompileBlock2(BGBCC_TransState *ctx,
 	int tk;
 	int i, j, k;
 
+//	if(name && !strcmp(name, "D_PolysetDraw"))
+//	{
+//		k=-1;
+//		BGBCC_DBGBREAK
+//	}
+
 	name=BGBCC_CCXL_QualifyNameNS(ctx, name);
 
 	BGBCC_CCXL_EmitSigProto(ctx, type, name, args);
@@ -2111,6 +2135,8 @@ BCCX_Node *BGBCC_CCXL_CompileBlock2(BGBCC_TransState *ctx,
 
 	ctx->contstack=cname;
 	ctx->breakstack=bname;
+	ctx->contstackpos=0;
+	ctx->breakstackpos=0;
 
 	ocf_n=ctx->cf_n;
 	ocf_ty=ctx->cf_ty;
@@ -2401,11 +2427,11 @@ void BGBCC_CCXL_CompileStruct(BGBCC_TransState *ctx, BCCX_Node *l)
 	char tb[256];
 	BGBCC_CCXL_LiteralInfo *cur;
 	BCCX_Node *c, *t, *n, *osn;
-	char *s, *os0, *s1;
+	char *s, *s0, *os0, *s1;
 	int i, j;
 
-	s=BCCX_GetCst(l, &bgbcc_rcst_name, "name");
-	s=BGBCC_CCXL_QualifyNameNS(ctx, s);
+	s0=BCCX_GetCst(l, &bgbcc_rcst_name, "name");
+	s=BGBCC_CCXL_QualifyNameNS(ctx, s0);
 
 	/* avoid redefining the same stuff */
 	cur=BGBCC_CCXL_LookupStructure(ctx, s);
@@ -2426,11 +2452,8 @@ void BGBCC_CCXL_CompileStruct(BGBCC_TransState *ctx, BCCX_Node *l)
 	j=ctx->cur_idx;
 	ctx->cur_idx=0;
 
-	BGBCC_CCXL_BeginName(ctx, CCXL_CMD_STRUCT,
-		BCCX_GetCst(l, &bgbcc_rcst_name, "name"));
-
-	BGBCC_CCXL_AttribStr(ctx, CCXL_ATTR_NAME,
-		BCCX_GetCst(l, &bgbcc_rcst_name, "name"));
+	BGBCC_CCXL_BeginName(ctx, CCXL_CMD_STRUCT, s);
+	BGBCC_CCXL_AttribStr(ctx, CCXL_ATTR_NAME, s);
 
 	c=BCCX_Fetch(l, "body");
 	while(c)
@@ -2450,11 +2473,11 @@ void BGBCC_CCXL_CompileUnion(BGBCC_TransState *ctx, BCCX_Node *l)
 {
 	BGBCC_CCXL_LiteralInfo *cur;
 	BCCX_Node *c, *t, *n, *osn;
-	char *s, *os0;
+	char *s, *s0, *os0;
 	int i, j;
 
-	s=BCCX_GetCst(l, &bgbcc_rcst_name, "name");
-	s=BGBCC_CCXL_QualifyNameNS(ctx, s);
+	s0=BCCX_GetCst(l, &bgbcc_rcst_name, "name");
+	s=BGBCC_CCXL_QualifyNameNS(ctx, s0);
 
 	/* avoid redefining the same stuff */
 	cur=BGBCC_CCXL_LookupStructure(ctx, s);
@@ -2475,11 +2498,8 @@ void BGBCC_CCXL_CompileUnion(BGBCC_TransState *ctx, BCCX_Node *l)
 	j=ctx->cur_idx;
 	ctx->cur_idx=0;
 
-	BGBCC_CCXL_BeginName(ctx, CCXL_CMD_UNION,
-		BCCX_GetCst(l, &bgbcc_rcst_name, "name"));
-
-	BGBCC_CCXL_AttribStr(ctx, CCXL_ATTR_NAME,
-		BCCX_GetCst(l, &bgbcc_rcst_name, "name"));
+	BGBCC_CCXL_BeginName(ctx, CCXL_CMD_UNION, s);
+	BGBCC_CCXL_AttribStr(ctx, CCXL_ATTR_NAME, s);
 
 	c=BCCX_Fetch(l, "body");
 	while(c)

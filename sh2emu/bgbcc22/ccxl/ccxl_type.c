@@ -9,6 +9,7 @@ bool BGBCC_CCXL_TypeSmallTypeP(
 		{
 			return(true);
 		}
+		return(false);
 	}
 
 	if(BGBCC_CCXL_TypeSmallLongP(ctx, dty))
@@ -17,6 +18,7 @@ bool BGBCC_CCXL_TypeSmallTypeP(
 		{
 			return(true);
 		}
+		return(false);
 	}
 
 	if(BGBCC_CCXL_TypeSmallFloatP(ctx, dty))
@@ -30,6 +32,7 @@ bool BGBCC_CCXL_TypeSmallTypeP(
 		{
 			return(true);
 		}
+		return(false);
 	}
 
 	if(BGBCC_CCXL_TypeSmallDoubleP(ctx, dty))
@@ -43,6 +46,7 @@ bool BGBCC_CCXL_TypeSmallTypeP(
 		{
 			return(true);
 		}
+		return(false);
 	}
 	
 	return(false);
@@ -301,6 +305,23 @@ bool BGBCC_CCXL_TypeFloat128P(
 	if(BGBCC_CCXL_TypePointerP(ctx, ty))
 		return(false);
 
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_F128)
+		return(true);
+	return(false);
+}
+
+bool BGBCC_CCXL_TypeRealP(
+	BGBCC_TransState *ctx, ccxl_type ty)
+{
+	if(BGBCC_CCXL_TypeArrayP(ctx, ty))
+		return(false);
+	if(BGBCC_CCXL_TypePointerP(ctx, ty))
+		return(false);
+
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_F)
+		return(true);
+	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_D)
+		return(true);
 	if(BGBCC_CCXL_GetTypeBaseType(ctx, ty)==CCXL_TY_F128)
 		return(true);
 	return(false);
@@ -1252,6 +1273,7 @@ ccxl_status BGBCC_CCXL_TypeDerefType(
 				ovf.asz[i]=ovf.asz[i+1];
 			ovf.asz[15]=0;
 			ovf.an--;
+//			ovf.asz[ovf.an]=0;
 		}else if(ovf.an)
 		{
 			ovf.an=0;
@@ -1536,6 +1558,7 @@ int BGBCC_CCXL_TypeGetArrayDimSize(
 //			for(j=0; j<ovf.an; j++)
 //				i=i*ovf.asz[j];
 			i=ovf.asz[0];
+//			i=ovf.asz[ovf.an-1];
 		}else if(ovf.an)
 		{
 			i=ovf.asz[0];
@@ -1909,6 +1932,14 @@ char *BGBCC_CCXL_TypeGetSig(
 		pn=(ty.val&CCXL_TYB2_PTRMASK)>>CCXL_TYB2_PTRSHL;
 		asz=(ty.val&CCXL_TYB2_ARRMASK)>>CCXL_TYB2_ARRSHL;
 		bt=ty.val&CCXL_TYB2_BASEMASK;
+		an=asz?1:0;
+	}
+
+	if((ty.val&CCXL_TY_TYTY_MASK)==CCXL_TY_TYTY_BASIC3)
+	{
+		pn=(ty.val&CCXL_TYB3_PTRMASK)>>CCXL_TYB3_PTRSHL;
+		asz=(ty.val&CCXL_TYB3_ARRMASK)>>CCXL_TYB3_ARRSHL;
+		bt=ty.val&CCXL_TYB3_BASEMASK;
 		an=asz?1:0;
 	}
 
@@ -2864,6 +2895,15 @@ ccxl_status BGBCC_CCXL_GetTypeCompareBinaryDest(
 	{
 		*rdty=rty;
 		return(CCXL_STATUS_YES);
+	}
+
+	if(opr==CCXL_CMP_NV)
+	{
+		if(lty.val==rty.val)
+		{
+			*rdty=lty;
+			return(CCXL_STATUS_YES);
+		}
 	}
 
 	*rdty=lty;

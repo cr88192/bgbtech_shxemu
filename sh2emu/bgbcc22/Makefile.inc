@@ -23,6 +23,7 @@ SRCS=\
 	ccxl/ccxl_expr.c \
 	ccxl/ccxl_global.c \
 	ccxl/ccxl_index.c \
+	ccxl/ccxl_infer.c \
 	ccxl/ccxl_pred.c \
 	ccxl/ccxl_reduce.c \
 	ccxl/ccxl_register.c \

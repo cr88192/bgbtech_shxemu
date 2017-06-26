@@ -86,6 +86,7 @@
 #include "ccxl/ccxl_expr.c"
 #include "ccxl/ccxl_global.c"
 #include "ccxl/ccxl_index.c"
+#include "ccxl/ccxl_infer.c"
 #include "ccxl/ccxl_pred.c"
 #include "ccxl/ccxl_reduce.c"
 #include "ccxl/ccxl_register.c"

@@ -80,6 +80,9 @@ ccxl_status BGBCC_CCXL_RegisterAllocTemporaryLLn(
 //		if(!ctx->cur_func->regs[i])
 		if(!ri)
 		{
+			if(i<ctx->cur_func->n_regs)
+				BGBCC_DBGBREAK
+
 //			if(!j)
 //				{ ctx->cur_func->regs_tyseq[i]=(z<<16)|1; }
 //			else
@@ -243,6 +246,11 @@ ccxl_status BGBCC_CCXL_RegisterCheckRelease(
 //		BGBCC_CCXL_FreeRegisterInfo(ctx, ri);
 		return(CCXL_STATUS_YES);
 	}
+
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+		{ return(CCXL_STATUS_NO); }
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+		{ return(CCXL_STATUS_NO); }
 
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_ARG)
 		{ return(CCXL_STATUS_NO); }

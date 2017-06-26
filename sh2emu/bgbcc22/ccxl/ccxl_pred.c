@@ -180,6 +180,11 @@ ccxl_type BGBCC_CCXL_GetRegType(
 		return(tty);
 	}
 
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+		{ tty.val=CCXL_TY_L; return(tty); }
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+		{ tty.val=CCXL_TY_D; return(tty); }
+
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_INT)
 		{ tty.val=CCXL_TY_I; return(tty); }
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LONG)
@@ -404,6 +409,8 @@ bool BGBCC_CCXL_IsRegImmLongP(
 		return(true);
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LONG_LVT)
 		return(true);
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+		return(true);
 	return(false);
 }
 
@@ -421,6 +428,8 @@ bool BGBCC_CCXL_IsRegImmDoubleP(
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE)
 		return(true);
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE_LVT)
+		return(true);
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
 		return(true);
 	return(false);
 }
@@ -641,6 +650,11 @@ bool BGBCC_CCXL_IsRegImmP(
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_F128_LVT)
 		return(true);
 
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+		return(true);
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+		return(true);
+
 	return(false);
 }
 
@@ -655,6 +669,12 @@ bool BGBCC_CCXL_IsRegImmZeroP(
 		{ return(!(reg.val&CCXL_REGINT_MASK)); }
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE)
 		{ return(!(reg.val&CCXL_REGLONG_MASK)); }
+
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+		{ return(!(reg.val&CCXL_REGLONG2_MASK)); }
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+		{ return(!(reg.val&CCXL_REGLONG2_MASK)); }
+
 	return(false);
 }
 
@@ -666,6 +686,8 @@ bool BGBCC_CCXL_IsRegImmILP(
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LONG)
 		return(true);
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LONG_LVT)
+		return(true);
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
 		return(true);
 	return(false);
 }
@@ -686,6 +708,12 @@ bool BGBCC_CCXL_IsRegImmILFDP(
 		return(true);
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE_LVT)
 		return(true);
+
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+		return(true);
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+		return(true);
+
 	return(false);
 }
 
@@ -923,6 +951,11 @@ int BGBCC_CCXL_GetRegImmIntValue(
 	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE_LVT)
 		{ return(BGBCC_CCXL_GetRegImmDoubleValue(ctx, reg)); }
 
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+		{ return(BGBCC_CCXL_GetRegImmLongValue(ctx, reg)); }
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+		{ return(BGBCC_CCXL_GetRegImmDoubleValue(ctx, reg)); }
+
 	return(0);
 }
 
@@ -956,6 +989,17 @@ s64 BGBCC_CCXL_GetRegImmLongValue(
 		v=ctx->ctab_lvt8[i];
 		return(v);
 	}
+
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+	{
+		v=reg.val&CCXL_REGLONG2_MASK;
+		if(v&((~CCXL_REGLONG2_MASK)>>1))
+			v|=~CCXL_REGLONG2_MASK;
+		return(v);
+	}
+
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+		{ return(BGBCC_CCXL_GetRegImmDoubleValue(ctx, reg)); }
 
 	return(0);
 }
@@ -1074,6 +1118,13 @@ double BGBCC_CCXL_GetRegImmDoubleValue(
 		return(*(double *)(&fl));
 	}
 
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+	{
+		fl=reg.val&CCXL_REGLONG2_MASK;
+		fl=fl<<3;
+		return(*(double *)(&fl));
+	}
+
 	return(0);
 }
 
@@ -1175,7 +1226,8 @@ ccxl_status BGBCC_CCXL_GetRegForLongValue(
 	ccxl_register treg;
 	int i, j, k;
 	
-	if(((val<<8)>>8)!=val)
+//	if(((val<<8)>>8)!=val)
+	if(((val<<3)>>3)!=val)
 	{
 		i=BGBCC_CCXL_IndexLitS64(ctx, val);
 		treg.val=(i&CCXL_REGINT_MASK)|CCXL_REGTY_IMM_LONG_LVT;
@@ -1183,7 +1235,8 @@ ccxl_status BGBCC_CCXL_GetRegForLongValue(
 		return(CCXL_STATUS_YES);
 	}
 	
-	treg.val=(val&CCXL_REGLONG_MASK)|CCXL_REGTY_IMM_LONG;
+//	treg.val=(val&CCXL_REGLONG_MASK)|CCXL_REGTY_IMM_LONG;
+	treg.val=(val&CCXL_REGLONG2_MASK)|CCXL_REGTY2_IMM_LONG;
 	*rreg=treg;
 	return(CCXL_STATUS_YES);
 }
@@ -1201,9 +1254,15 @@ ccxl_status BGBCC_CCXL_GetRegForFloatValue(
 ccxl_status BGBCC_CCXL_GetRegForDoubleValue(
 	BGBCC_TransState *ctx, ccxl_register *rreg, f64 val)
 {
+	u64 uli;
 	ccxl_register treg;
 	
-	treg.val=(((*(u64 *)(&val))>>8)&CCXL_REGLONG_MASK)|CCXL_REGTY_IMM_DOUBLE;
+//	treg.val=(((*(u64 *)(&val))>>8)&CCXL_REGLONG_MASK)|CCXL_REGTY_IMM_DOUBLE;
+//	treg.val=(((*(u64 *)(&val))>>3)&CCXL_REGLONG2_MASK)|CCXL_REGTY2_IMM_DOUBLE;
+
+	uli=*(u64 *)(&val); uli=(uli+3)>>3;
+	treg.val=(uli&CCXL_REGLONG2_MASK)|CCXL_REGTY2_IMM_DOUBLE;
+
 	*rreg=treg;
 	return(CCXL_STATUS_YES);
 }

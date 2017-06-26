@@ -1,5 +1,6 @@
 #include <bgbccc.h>
 
+#if 0
 ccxl_label BGBCC_CCXL_LabelFromName(BGBCC_TransState *ctx, char *name)
 {
 	int i;
@@ -31,6 +32,46 @@ ccxl_label BGBCC_CCXL_LabelFromName(BGBCC_TransState *ctx, char *name)
 	ctx->goto_lbl[i]=BGBCC_CCXL_GenSym(ctx);
 	return(ctx->goto_lbl[i]);
 }
+#endif
+
+#if 1
+ccxl_label BGBCC_CCXL_LabelFromName(BGBCC_TransState *ctx, char *name)
+{
+	int i;
+	
+	for(i=0; i<ctx->cur_func->n_goto; i++)
+	{
+		if(!strcmp(ctx->cur_func->goto_name[i], name))
+			return(ctx->cur_func->goto_lbl[i]);
+	}
+	
+	if(!ctx->cur_func->goto_name)
+	{
+//		i=256;
+		i=16;
+		ctx->cur_func->goto_name=bgbcc_malloc(i*sizeof(char *));
+		ctx->cur_func->goto_lbl=bgbcc_malloc(i*sizeof(ccxl_label));
+		ctx->cur_func->n_goto=0;
+		ctx->cur_func->m_goto=i;
+	}
+	
+	if((ctx->cur_func->n_goto+1)>=ctx->cur_func->m_goto)
+	{
+		i=ctx->cur_func->m_goto+(ctx->cur_func->m_goto>>1);
+		ctx->cur_func->goto_name=bgbcc_realloc(
+			ctx->cur_func->goto_name, i*sizeof(char *));
+		ctx->cur_func->goto_lbl=bgbcc_realloc(
+			ctx->cur_func->goto_lbl, i*sizeof(ccxl_label));
+		ctx->cur_func->m_goto=i;
+	}
+	
+	i=ctx->cur_func->n_goto++;
+	ctx->cur_func->goto_name[i]=bgbcc_strdup(name);
+	ctx->cur_func->goto_lbl[i]=BGBCC_CCXL_GenSym(ctx);
+	return(ctx->cur_func->goto_lbl[i]);
+}
+#endif
+
 
 void BGBCC_CCXL_CompileBreak(BGBCC_TransState *ctx)
 {

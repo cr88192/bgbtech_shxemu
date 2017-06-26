@@ -142,6 +142,7 @@ Function calls will always leave a value on the stack even if the return type fo
 If an arithmetic operation is performed between values with matching types, the operation is performed as that type.
 If an arithmetic operation is performed between values of non-matching types, then the value will be converted to the common supertype.
 
+
 === Type Signatures ===
 
 Typed signatures are encoded as strings, with characters indicating value types.
@@ -179,6 +180,48 @@ Typed signatures are encoded as strings, with characters indicating value types.
 * 'U{name};': Extended Type
 * 'X{name};': Struct/Union
 * '({args}){ret}': Function Signature
+
+
+=== Flag String ===
+
+* a: abstract ("__abstract")
+* b: bigendian ("__bigendian")
+* c: cdecl ("__cdecl")
+* d: delegate ("__delegate")
+* e: extern ("extern")
+* f: fastcall ("__fastcall")
+* g: getter ("__get")
+* h: setter ("__set")
+* i: inline ("inline" / "__inline")
+* j: final/const2 ("type * const")
+* k: const ("const type")
+* l: ltlendian ("__ltlendian")
+* m: packed ("__packed" / "__unaligned", struct=packed, pointer=unaligned)
+* n: native ("__native")
+* o: override ("__override")
+* p: public ("public")
+* q: private ("private")
+* r: protected ("protected")
+* s: static ("static")
+* t: thiscall (virtual method function)
+* u: (special case)
+* v: virtual|volatile ("virtual"/"volatile")
+* w: stdcall ("__stdcall")
+* x: xcall ("__xcall")
+* y: transient ("__transient")
+* z: reserved
+
+* Cb: reference ("&type")
+* Ci: interface ("__interface")
+* Cs: synchronized ("__synchronized")
+* Ct: thread ("__thread")
+
+* Cw: wide ("__wide")
+
+* De: dllexport
+* Di: dllimport
+
+* U{name};	//named flag
 
 
 === Operators ===

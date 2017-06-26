@@ -387,6 +387,25 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructure(
 #endif
 
 #if 0
+	c=ctx->usort_literal;
+	while(c>0)
+	{
+		cur=ctx->literals[c];
+		c=cur->hnext_name;
+
+		if((cur->littype!=CCXL_LITID_STRUCT) &&
+			(cur->littype!=CCXL_LITID_UNION) &&
+			(cur->littype!=CCXL_LITID_CLASS) &&
+			(cur->littype!=CCXL_LITID_FUNCTION))
+				continue;
+		if(!cur->name)
+			continue;
+		if(!strcmp(cur->name, str))
+			return(cur);
+	}
+#endif
+
+#if 0
 	for(i=0; i<ctx->n_literals; i++)
 	{
 		cur=ctx->literals[i];
@@ -400,7 +419,10 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_LookupStructure(
 		if(!cur->name)
 			continue;
 		if(!strcmp(cur->name, str))
+		{
+			BGBCC_DBGBREAK
 			return(cur);
+		}
 	}
 #endif
 
@@ -438,6 +460,9 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetStruct(
 	cur->littype=CCXL_LITID_STRUCT;
 	cur->name=bgbcc_strdup(str);
 
+	if(!ctx->n_literals)
+		ctx->n_literals++;
+
 	i=ctx->n_literals++;
 	ctx->literals[i]=cur;
 	cur->litid=i;
@@ -465,6 +490,9 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetUnion(
 	cur->littype=CCXL_LITID_UNION;
 	cur->name=bgbcc_strdup(str);
 
+	if(!ctx->n_literals)
+		ctx->n_literals++;
+
 	i=ctx->n_literals++;
 	ctx->literals[i]=cur;
 	cur->litid=i;
@@ -491,6 +519,9 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedef2(
 	cur=bgbcc_malloc(sizeof(BGBCC_CCXL_LiteralInfo));
 	cur->littype=CCXL_LITID_TYPEDEF;
 	cur->name=bgbcc_strdup(str);
+
+	if(!ctx->n_literals)
+		ctx->n_literals++;
 
 	i=ctx->n_literals++;
 	ctx->literals[i]=cur;
@@ -579,6 +610,9 @@ BGBCC_CCXL_LiteralInfo *BGBCC_CCXL_GetTypedef(
 	cur->littype=CCXL_LITID_TYPEDEF;
 	cur->name=bgbcc_strdup(name);
 	cur->sig=bgbcc_strdup(sig);
+
+	if(!ctx->n_literals)
+		ctx->n_literals++;
 
 	i=ctx->n_literals++;
 	ctx->literals[i]=cur;

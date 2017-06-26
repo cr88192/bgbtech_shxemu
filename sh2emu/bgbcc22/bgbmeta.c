@@ -551,7 +551,7 @@ int BGBCC_LoadCSourcesCCXL(
 
 	omsz=*rsz;
 
-	BIPRO_ProfilerSetActive(1);
+//	BIPRO_ProfilerSetActive(1);
 
 	ctx=bgbcc_malloc(sizeof(BGBCC_TransState));
 	memset(ctx, 0, sizeof(BGBCC_TransState));
@@ -633,7 +633,7 @@ int BGBCC_LoadCSourcesCCXL(
 	t2=t1-t0;
 	printf("Flatten Image %dms\n", t2);
 
-	BIPRO_ProfilerSetActive(0);
+//	BIPRO_ProfilerSetActive(0);
 //	BIPRO_ProfileDumpStats();
 
 	if(i<0)return(i);

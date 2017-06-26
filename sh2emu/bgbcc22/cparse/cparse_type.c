@@ -505,6 +505,7 @@ int BGBCP_DefTypeFlag(BGBCP_ParseState *ctx, char *tag)
 				if(!bgbcp_strcmp(tag, "__packed"))i=BGBCC_TYFL_PACKED;
 				if(!bgbcp_strcmp(tag, "__gc"))i=BGBCC_TYFL_GC;
 				if(!bgbcp_strcmp(tag, "__nogc"))i=BGBCC_TYFL_NOGC;
+				if(!bgbcp_strcmp(tag, "__unaligned"))i=BGBCC_TYFL_PACKED;
 
 				if(!bgbcp_strcmp(tag, "__wide"))i=BGBCC_TYFL_WIDE;
 

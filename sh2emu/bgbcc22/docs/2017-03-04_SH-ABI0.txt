@@ -29,7 +29,8 @@ Register Use:
 * R13: Preserve
 * R14: Preserve, Frame Pointer
 * R15: Stack Pointer
-* FR0 .. FR3: Scratch, Float Return
+* FR0/FR1: Scratch, Float Return
+* FR2/FR3: SH: Scratch, BJX1: Preserve
 * FR4 ..FR11: Scratch, Float Arguments
 * FR12..FR15: Preserve
 * XR0 .. XR7: If available, will be treated as Scratch

@@ -252,11 +252,11 @@ ccxl_status BGBCC_CCXL_EmitConv(BGBCC_TransState *ctx,
 	if(ctx->cgif_no3ac)
 		return(0);
 
-	if(dtype.val==stype.val)
-	{
-		BGBCC_CCXL_EmitMov(ctx, dtype, dst, src);
-		return(0);
-	}
+//	if(dtype.val==stype.val)
+//	{
+//		BGBCC_CCXL_EmitMov(ctx, dtype, dst, src);
+//		return(0);
+//	}
 
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, stype) &&
 		BGBCC_CCXL_IsRegDoubleP(ctx, src))

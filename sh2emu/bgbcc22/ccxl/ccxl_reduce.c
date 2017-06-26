@@ -322,6 +322,8 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 	BCCX_Node *l, int flag)
 {
 	BCCX_Node *c, *t, *v, *x, *ln, *rn;
+	BGBCC_CCXL_RegisterInfo *ri;
+	ccxl_type bty;
 	char *s, *suf;
 	double f, g;
 	int i0, i1;
@@ -844,6 +846,43 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 			return(t);
 		}
 
+		s=BCCX_GetCst(l, &bgbcc_rcst_name, "name");
+		ri=BGBCC_CCXL_LookupGlobal(ctx, s);
+
+//		if(ri && ri->flagstr && !strcmp(ri->flagstr, "k"))
+		if(ri && BGBCC_CCXL_CheckFlagstrFlag(ri->flagstr, "k"))
+		{
+			if(BGBCC_CCXL_IsRegImmIntP(ctx, ri->value))
+			{
+				i=BGBCC_CCXL_GetRegImmIntValue(ctx, ri->value);
+				t=BGBCC_CCXL_WrapInt(i);
+				return(t);
+			}
+
+			if(BGBCC_CCXL_IsRegImmLongP(ctx, ri->value))
+			{
+				i=BGBCC_CCXL_GetRegImmLongValue(ctx, ri->value);
+				t=BGBCC_CCXL_WrapIntSuf(i, "L");
+				return(t);
+			}
+
+#if 1
+			if(BGBCC_CCXL_IsRegImmFloatP(ctx, ri->value))
+			{
+				f=BGBCC_CCXL_GetRegImmFloatValue(ctx, ri->value);
+				t=BGBCC_CCXL_WrapRealSuf(f, "F");
+				return(t);
+			}
+
+			if(BGBCC_CCXL_IsRegImmDoubleP(ctx, ri->value))
+			{
+				f=BGBCC_CCXL_GetRegImmDoubleValue(ctx, ri->value);
+				t=BGBCC_CCXL_WrapReal(f);
+				return(t);
+			}
+#endif
+		}
+
 		return(BCCX_Clone(l));
 	}
 
@@ -867,6 +906,7 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 					NULL, &i0, NULL, NULL);
 				if((i>=0) && (i0>0))
 					return(BGBCC_CCXL_WrapInt(i0));
+				BGBCC_DBGBREAK
 			}
 		}
 	}
@@ -877,8 +917,21 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 
 		if(BGBCC_CCXL_IsUnaryP(ctx, t, "&"))
 		{
+			if(ctx->arch_sizeof_ptr)
+				return(BGBCC_CCXL_WrapInt(ctx->arch_sizeof_ptr));
+
 			if(flag&1)
+			{
 				return(BGBCC_CCXL_WrapInt(8));
+			}
+		}
+		
+		i=BGBCC_CCXL_InferExpr(ctx, t, &bty);
+		if(i>0)
+		{
+			i=BGBCC_CCXL_TypeGetLogicalSize(ctx, bty);
+			if(i>0)
+				return(BGBCC_CCXL_WrapInt(i));
 		}
 
 		if(BCCX_TagIsCstP(t, &bgbcc_rcst_ref, "ref"))
@@ -894,6 +947,7 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 					NULL, &i0, NULL, NULL);
 				if((i>=0) && (i0>0))
 					return(BGBCC_CCXL_WrapInt(i0));
+				BGBCC_DBGBREAK
 			}
 		}
 
@@ -923,6 +977,11 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 				return(BGBCC_CCXL_WrapInt(i));
 			}
 		}
+
+		if(flag&1)
+			{ BGBCC_DBGBREAK }
+
+		return(BCCX_Clone(l));
 	}
 
 	return(BCCX_Clone(l));

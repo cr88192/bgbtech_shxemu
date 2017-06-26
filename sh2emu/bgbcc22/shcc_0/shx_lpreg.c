@@ -25,9 +25,7 @@ int BGBCC_SHXC_EmitTryGetLpRegister(
 //	for(i=1; i<4; i++)
 	for(i=bgbcc_shx_lminreg; i<bgbcc_shx_lmaxreg; i++)
 	{
-//		if(!((sctx->regalc_save)&(3<<i)))
-//			continue;
-		if(((sctx->regalc_save)&(3<<i))!=(3<<i))
+		if(!((sctx->regalc_save)&(3<<i)))
 			continue;
 		if(BGBCC_CCXL_RegisterIdentEqualP(ctx,
 			reg, sctx->regalc_map[i]))
@@ -73,8 +71,7 @@ int BGBCC_SHXC_EmitGetLpRegister(
 		if(sctx->regalc_ltcnt[i]<255)
 			sctx->regalc_ltcnt[i]++;
 
-//	zreg.val=CCXL_REGTY_TEMP|CCXL_REGID_REGMASK;
-	zreg.val=CCXL_REGID_REG_DZ;
+	zreg.val=CCXL_REGTY_TEMP|CCXL_REGID_REGMASK;
 
 	/* Check for registers not holding a live value. */
 //	for(i=2; i<5; i++)
@@ -83,16 +80,12 @@ int BGBCC_SHXC_EmitGetLpRegister(
 		if(excl&(3<<i))
 			continue;
 
-//		if(!((sctx->regalc_save)&(3<<i)))
-//			continue;
-		if(((sctx->regalc_save)&(3<<i))!=(3<<i))
+		if(!((sctx->regalc_save)&(3<<i)))
 			continue;
-		if(!((sctx->regalc_live)&(3<<i)))
-//		if(	!((sctx->regalc_live)&(3<<i)) &&
-//			!((sctx->regalc_dirty)&(3<<i)))
+//		if(!((sctx->regalc_live)&(3<<i)))
+		if(	!((sctx->regalc_live)&(3<<i)) &&
+			!((sctx->regalc_dirty)&(3<<i)))
 		{
-			sctx->regalc_ltcnt[i+0]=0;
-			sctx->regalc_ltcnt[i+1]=0;
 			sctx->regalc_map[i+0]=reg;
 			sctx->regalc_map[i+1]=zreg;
 			sctx->regalc_utcnt[i]=1;
@@ -127,8 +120,7 @@ int BGBCC_SHXC_EmitGetLpRegister(
 		if((sctx->regalc_dirty)&(2<<i))
 			BGBCC_SHXC_EmitSyncRegisterIndex(ctx, sctx, i+1);
 
-		sctx->regalc_ltcnt[i+0]=0;
-		sctx->regalc_ltcnt[i+1]=0;
+		
 		sctx->regalc_map[i+0]=reg;
 		sctx->regalc_map[i+1]=zreg;
 		sctx->regalc_utcnt[i]=1;
@@ -197,36 +189,3 @@ int BGBCC_SHXC_EmitReleaseLpRegister(
 	return(0);
 }
 
-int BGBCC_SHXC_StompLpRegisterIndex(
-	BGBCC_TransState *ctx,
-	BGBCC_SHX_Context *sctx, int rgidx)
-{
-	ccxl_register reg, zreg;
-	int creg;
-	int i;
-
-	i=rgidx;
-
-	if(!((sctx->regalc_save)&(1<<i)))
-		return(0);
-
-	reg=sctx->regalc_map[i];
-	zreg.val=CCXL_REGID_REG_Z;
-
-	if(reg.val==CCXL_REGID_REG_DZ)
-	{
-		sctx->regalc_map[i-1]=zreg;
-		sctx->regalc_map[i+0]=zreg;
-		return(1);
-	}
-
-	if(BGBCC_CCXL_IsRegSgLongP(ctx, reg))
-	{
-		sctx->regalc_map[i+0]=zreg;
-		sctx->regalc_map[i+1]=zreg;
-		return(1);
-	}
-
-	sctx->regalc_map[i]=zreg;
-	return(1);
-}

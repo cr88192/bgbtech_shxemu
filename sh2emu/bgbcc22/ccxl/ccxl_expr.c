@@ -104,25 +104,32 @@ void BGBCC_CCXL_CompileExprList(BGBCC_TransState *ctx, BCCX_Node *lst)
 void BGBCC_CCXL_CompileExprListReverse(BGBCC_TransState *ctx, BCCX_Node *lst)
 {
 	BCCX_Node *stk[128];
-	BCCX_Node *cur;
-	int i;
-
-	i=0; cur=lst;
-	while(cur) { stk[i++]=cur; cur=BCCX_Next(cur); }
-	while(i--)BGBCC_CCXL_CompileExpr(ctx, stk[i]);
-}
-
-void BGBCC_CCXL_CompileArgsList(BGBCC_TransState *ctx, BCCX_Node *lst)
-{
-	BCCX_Node *stk[128];
-	BCCX_Node *cur;
+	BCCX_Node *cur, *n;
 	int i;
 
 	i=0; cur=lst;
 	while(cur) { stk[i++]=cur; cur=BCCX_Next(cur); }
 	while(i--)
 	{
-		BGBCC_CCXL_CompileExpr(ctx, stk[i]);
+//		BGBCC_CCXL_CompileExpr(ctx, stk[i]);
+		n=BGBCC_CCXL_ReduceExpr(ctx, stk[i]);
+		BGBCC_CCXL_CompileExpr(ctx, n);
+	}
+}
+
+void BGBCC_CCXL_CompileArgsList(BGBCC_TransState *ctx, BCCX_Node *lst)
+{
+	BCCX_Node *stk[128];
+	BCCX_Node *cur, *n;
+	int i;
+
+	i=0; cur=lst;
+	while(cur) { stk[i++]=cur; cur=BCCX_Next(cur); }
+	while(i--)
+	{
+//		BGBCC_CCXL_CompileExpr(ctx, stk[i]);
+		n=BGBCC_CCXL_ReduceExpr(ctx, stk[i]);
+		BGBCC_CCXL_CompileExpr(ctx, n);
 	}
 }
 
@@ -316,8 +323,11 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 {
 	byte *ips[64];
 	ccxl_label l0, l1, l2, l3;
+	ccxl_register sreg, treg;
+	ccxl_type bty, dty, sty, tty, lty, rty;
 	char *s0, *s1, *s2, *s3;
 	BCCX_Node *c, *d, *t, *u, *v, *ln, *rn;
+	int i0, i1, i2, i3;
 	int i, j, k;
 
 	if(BCCX_TagIsCstP(l, &bgbcc_rcst_return, "return"))
@@ -485,19 +495,31 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 			return;
 		}
 
-		BGBCC_CCXL_StackBeginU(ctx, "i");
+		ln=BCCX_Fetch(l, "then");
+		rn=BCCX_Fetch(l, "else");
+
+		ln=BGBCC_CCXL_ReduceExpr(ctx, ln);
+		rn=BGBCC_CCXL_ReduceExpr(ctx, rn);
+		
+		i0=BGBCC_CCXL_InferExpr(ctx, ln, &lty);
+		i1=BGBCC_CCXL_InferExpr(ctx, rn, &rty);
+//		BGBCC_CCXL_GetTypeBinaryDest(ctx, CCXL_BINOP_ADD, lty, rty, &dty);
+		BGBCC_CCXL_GetTypeCompareBinaryDest(ctx, CCXL_CMP_NV, lty, rty, &dty);
+		s0=BGBCC_CCXL_TypeGetSig(ctx, dty);
+
+//		BGBCC_CCXL_StackBeginU(ctx, "i");
+		BGBCC_CCXL_StackBeginU(ctx, s0);
 		l0=BGBCC_CCXL_GenSym(ctx);
 		l1=BGBCC_CCXL_GenSym(ctx);
 		BGBCC_CCXL_CompileJCF(ctx, t, l0);
 
-		BGBCC_CCXL_CompileExprT(ctx, BCCX_Fetch(l, "then"));
+		BGBCC_CCXL_CompileExprT(ctx, ln);
 		BGBCC_CCXL_StackSetU(ctx);
 
 		BGBCC_CCXL_CompileJmp(ctx, l1);
 		BGBCC_CCXL_EmitLabel(ctx, l0);
 
-		t=BCCX_Fetch(l, "else");
-		BGBCC_CCXL_CompileExprT(ctx, t);
+		BGBCC_CCXL_CompileExprT(ctx, rn);
 		BGBCC_CCXL_StackSetU(ctx);
 
 		BGBCC_CCXL_EmitLabel(ctx, l1);

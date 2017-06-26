@@ -157,7 +157,7 @@ int BGBCC_SHXA_GetRegId(char *str)
 		{
 			t=BGBCC_SH_REG_FR0; isdr=0;
 			if((str[0]=='D') || (str[0]=='d'))
-				{ t=BGBCC_SH_REG_DR0; isdr=1; }
+				{ isdr=1; }
 			if(str[2]=='0')
 			{
 				if(!str[3])
@@ -166,8 +166,8 @@ int BGBCC_SHXA_GetRegId(char *str)
 				if((str[3]>='0') && (str[3]<='9') && !str[4])
 				{
 					t1=t+(str[3]-'0');
-//					if(isdr)
-//						t1=BGBCC_SH_REG_DR0+(((t1&15)>>1)|((t1&1)<<3));
+					if(isdr)
+						t1=BGBCC_SH_REG_DR0+(((t1&15)>>1)|((t1&1)<<3));
 					return(t1);
 				}
 			}else if(str[2]=='1')
@@ -177,15 +177,15 @@ int BGBCC_SHXA_GetRegId(char *str)
 				if((str[3]>='0') && (str[3]<='5') && !str[4])
 				{
 					t1=t+10+(str[3]-'0');
-//					if(isdr)
-//						t1=BGBCC_SH_REG_DR0+(((t1&15)>>1)|((t1&1)<<3));
+					if(isdr)
+						t1=BGBCC_SH_REG_DR0+(((t1&15)>>1)|((t1&1)<<3));
 					return(t1);
 				}
 			}else if((str[2]>='0') && (str[2]<='9') && !str[3])
 			{
 				t1=t+(str[2]-'0');
-//				if(isdr)
-//					t1=BGBCC_SH_REG_DR0+(((t1&15)>>1)|((t1&1)<<3));
+				if(isdr)
+					t1=BGBCC_SH_REG_DR0+(((t1&15)>>1)|((t1&1)<<3));
 				return(t1);
 			}
 		}
@@ -226,40 +226,6 @@ int BGBCC_SHXA_GetRegId(char *str)
 			return(BGBCC_SH_REG_PR);
 		if(!bgbcc_stricmp(str, "pc"))
 			return(BGBCC_SH_REG_PC);
-		break;
-
-	case 'X':	case 'x':
-		if((str[1]=='F') || (str[1]=='f') ||
-			(str[1]=='D') || (str[1]=='d'))
-		{
-			t=BGBCC_SH_REG_FR0; isdr=0;
-			if((str[1]=='D') || (str[1]=='d'))
-				{ t=BGBCC_SH_REG_DR0; isdr=1; }
-			if(str[2]=='0')
-			{
-				if(!str[3])
-					return(t^1);
-
-				if((str[3]>='0') && (str[3]<='9') && !str[4])
-				{
-					t1=t+(str[3]-'0')^1;
-					return(t1);
-				}
-			}else if(str[2]=='1')
-			{
-				if(!str[3])
-					return((t+1)^1);
-				if((str[3]>='0') && (str[3]<='5') && !str[4])
-				{
-					t1=t+10+(str[3]-'0')^1;
-					return(t1);
-				}
-			}else if((str[2]>='0') && (str[2]<='9') && !str[3])
-			{
-				t1=t+(str[2]-'0')^1;
-				return(t1);
-			}
-		}
 		break;
 
 	default:

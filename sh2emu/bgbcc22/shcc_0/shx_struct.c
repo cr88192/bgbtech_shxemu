@@ -1,13 +1,3 @@
-int BGBCC_SHXC_EmitDebugCheckReg(
-	BGBCC_TransState *ctx,
-	BGBCC_SHX_Context *sctx,
-	ccxl_type type, int sreg)
-{
-//	if(BGBCC_CCXL_TypePointerP(ctx, type))
-//		BGBCC_SHX_EmitOpMReg(sctx, BGBCC_SH_NMID_PREF, sreg);
-	return(0);
-}
-
 int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
@@ -27,9 +17,6 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	type2=fi->type;
 
 	ty=type.val;
-
-//	if(!strcmp(ctx->cur_func->name, "RecursiveLightPoint") && !sctx->is_simpass)
-//		k=-1;
 
 	if(BGBCC_CCXL_TypeValueObjectP(ctx, type) ||
 		BGBCC_CCXL_TypeArrayP(ctx, type))
@@ -75,8 +62,7 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	if(nm1>=0)
 	{
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
-//		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
-		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
 	
 		if(((csreg&15)==15) && ((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
 			{ BGBCC_DBGBREAK }
@@ -85,7 +71,7 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 
 		if(BGBCC_CCXL_TypeDoubleP(ctx, type))
 		{
-			if((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_DR0)
+			if((cdreg&BGBCC_SH_REG_RTMASK3)!=BGBCC_SH_REG_DR0)
 				{ BGBCC_DBGBREAK }
 		}
 		else if(BGBCC_CCXL_TypeFloatP(ctx, type))
@@ -115,7 +101,6 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 	ccxl_register sreg, int gblid, int fid)
 {
 	BGBCC_CCXL_RegisterInfo *obj, *fi;
-	int tr0, tr1, tr2;
 	int csreg, ctreg, cdreg;
 	int nm1, nm2, ty, sz, al;
 	int i, j, k;
@@ -186,7 +171,7 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 
 		if(BGBCC_CCXL_TypeDoubleP(ctx, type))
 		{
-			if((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_DR0)
+			if((csreg&BGBCC_SH_REG_RTMASK3)!=BGBCC_SH_REG_DR0)
 				{ BGBCC_DBGBREAK }
 		}
 		else if(BGBCC_CCXL_TypeFloatP(ctx, type))
@@ -194,19 +179,6 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 			if((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0)
 				{ BGBCC_DBGBREAK }
 		}
-
-#if 1	//Debug: Deref pointers to check validity
-//		if(BGBCC_CCXL_TypePointerP(ctx, type))
-//		{
-//			tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_GR);
-//			BGBCC_SHX_EmitOpLdRegReg(sctx, BGBCC_SH_NMID_MOVB,
-//				csreg, tr0);
-//			BGBCC_SHX_EmitOpMReg(sctx, BGBCC_SH_NMID_PREF, csreg);
-//			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
-//		}
-
-		BGBCC_SHXC_EmitDebugCheckReg(ctx, sctx, type, csreg);
-#endif
 
 		BGBCC_SHXC_EmitStoreBRegOfsReg(ctx, sctx,
 			nm1, cdreg, fi->fxoffs, csreg);
@@ -315,12 +287,6 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 	int tr0, tr1;
 	int nm1, nm2;
 	int i, j, k;
-
-	if(!strcmp(ctx->cur_func->name, "Mod_LoadBrushModel"))
-	{
-		k=-1;
-//		__debugbreak();
-	}
 
 	nm1=BGBCC_SH_NMID_MOVL;
 	nm2=BGBCC_SH_NMID_MOVL;
@@ -461,7 +427,7 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 	}
 #endif
 
-#if 0
+#if 1
 	if((sz<=64) && (al>=4))
 	{
 		switch((sz+3)/4)
@@ -495,9 +461,7 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 			return(1);
 		}
 	}
-#endif
-
-#if 1	
+	
 	if(al>=4)
 	{
 		BGBCC_SHXC_EmitMovRegReg(ctx, sctx,
@@ -511,44 +475,6 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 	}
 #endif
 
-#if 1
-	if((sz<=64) && (al>=1) && !(sz&3))
-	{
-		switch((sz+3)/4)
-		{
-		case  1: s0="__memcpy8_4"; break;
-		case  2: s0="__memcpy8_8"; break;
-		case  3: s0="__memcpy8_12"; break;
-		case  4: s0="__memcpy8_16"; break;
-		case  5: s0="__memcpy8_20"; break;
-		case  6: s0="__memcpy8_24"; break;
-		case  7: s0="__memcpy8_28"; break;
-		case  8: s0="__memcpy8_32"; break;
-#if 0
-		case  9: s0="__memcpy8_36"; break;
-		case 10: s0="__memcpy8_40"; break;
-		case 11: s0="__memcpy8_44"; break;
-		case 12: s0="__memcpy8_48"; break;
-		case 13: s0="__memcpy8_52"; break;
-		case 14: s0="__memcpy8_58"; break;
-		case 15: s0="__memcpy8_60"; break;
-		case 16: s0="__memcpy8_64"; break;
-#endif
-		default: s0=NULL; break;
-		}
-		
-		if(s0)
-		{
-			BGBCC_SHXC_EmitMovRegReg(ctx, sctx,
-				dreg, BGBCC_SH_REG_R4);
-			BGBCC_SHXC_EmitMovRegReg(ctx, sctx,
-				sreg, BGBCC_SH_REG_R5);
-			BGBCC_SHXC_EmitCallName(ctx, sctx, s0);
-			return(1);
-		}
-	}
-#endif
-
 	BGBCC_SHXC_EmitMovRegReg(ctx, sctx,
 		dreg, BGBCC_SH_REG_R4);
 	BGBCC_SHXC_EmitMovRegReg(ctx, sctx,
@@ -556,45 +482,5 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 	BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
 		BGBCC_SH_REG_R6, sz);
 	BGBCC_SHXC_EmitCallName(ctx, sctx, "memcpy");
-	return(1);
-}
-
-
-int BGBCC_SHXC_EmitLoadTypeBRegOfsReg(
-	BGBCC_TransState *ctx,
-	BGBCC_SHX_Context *sctx,
-	ccxl_type type, int sreg, int ofs, int dreg)
-{
-	int nm1, nm2, ty, sz;
-	
-	ty=type.val;
-
-	switch(ty)
-	{
-	case CCXL_TY_I:		case CCXL_TY_UI:
-	case CCXL_TY_NL:	case CCXL_TY_UNL:
-		sz=4; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
-	case CCXL_TY_SB:
-		sz=1; nm1=BGBCC_SH_NMID_MOVB; nm2=-1; break;
-	case CCXL_TY_UB:
-		sz=1; nm1=BGBCC_SH_NMID_MOVB; nm2=BGBCC_SH_NMID_EXTUB; break;
-	case CCXL_TY_SS:
-		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=-1; break;
-	case CCXL_TY_US:
-		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=BGBCC_SH_NMID_EXTUW; break;
-
-	case CCXL_TY_F:
-		sz=4; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
-	case CCXL_TY_D:
-		sz=8; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
-	case CCXL_TY_L:	case CCXL_TY_UL:
-		sz=8; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
-	}
-
-	if(BGBCC_CCXL_TypePointerP(ctx, type))
-		{ sz=4; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; }
-
-	BGBCC_SHXC_EmitLoadOp2BRegOfsReg(ctx, sctx,
-		nm1, nm2, sreg, ofs, dreg);
 	return(1);
 }
