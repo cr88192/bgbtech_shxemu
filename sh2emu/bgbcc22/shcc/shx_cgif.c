@@ -55,6 +55,27 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 		break;
 	}
 
+	switch(ctx->sub_arch)
+	{
+	case BGBCC_ARCH_SH_SH2:
+	case BGBCC_ARCH_SH_SH2L:
+	case BGBCC_ARCH_SH_SH2B:
+		shctx->has_shad=0;
+		shctx->has_movi20=0;
+		break;
+	case BGBCC_ARCH_SH_SH4:
+	case BGBCC_ARCH_SH_SH4L:
+	case BGBCC_ARCH_SH_SH4B:
+		shctx->has_shad=1;
+//		shctx->has_movi20=0;
+		shctx->has_movi20=1;
+		shctx->has_misalgn=1;
+		shctx->has_bjx1mov=1;
+		break;
+	default:
+		break;
+	}
+
 	return(0);
 }
 

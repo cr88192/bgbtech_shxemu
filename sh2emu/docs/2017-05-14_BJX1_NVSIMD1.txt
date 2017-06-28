@@ -376,8 +376,8 @@ Instructions (Extended)
 ****			FCFD / FSCA			//
 ****			FDFD / FTRV2
 ****			FEFD / FSCA			//
-**	FnmE ?
-**      FooF ? (Escape 32 for FPU/SIMD Ops)
+**	FnmE FMAC FRm, FRn
+**	FooF ? (Escape 32 for FPU/SIMD Ops)
 
 64-Bit I-Forms
 *	8EFn-8Em6-vodd-dddd PMOV.S @(Ro,Rm,disp24), FRn

@@ -1,6 +1,6 @@
 int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 {
-	static const byte ldow2[16]={1,0,0,1, 0,0,1,0, 0,0,0,0, 0,0,1,1};
+	static const byte ldow2[16]={1,0,0,1, 0,0,1,0, 1,0,0,0, 0,0,1,1};
 	u16 opw, opw2;
 	int isds;
 	int i, j, k;
@@ -88,28 +88,28 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->rm=0;
 				op->nmid=BTESH2_NMID_PREF;
 				op->fmid=BTESH2_FMID_STREG;
-				op->Run=BTSH_Op_NOP_Z;
+				op->Run=BTSH_Op_PREF_StReg;
 				break;
 			case 0x9:
 				op->rn=(opw>>8)&15;
 				op->rm=0;
 				op->nmid=BTESH2_NMID_OCBI;
 				op->fmid=BTESH2_FMID_STREG;
-				op->Run=BTSH_Op_NOP_Z;
+				op->Run=BTSH_Op_OCBI_StReg;
 				break;
 			case 0xA:
 				op->rn=(opw>>8)&15;
 				op->rm=0;
 				op->nmid=BTESH2_NMID_OCBP;
 				op->fmid=BTESH2_FMID_STREG;
-				op->Run=BTSH_Op_NOP_Z;
+				op->Run=BTSH_Op_OCBP_StReg;
 				break;
 			case 0xB:
 				op->rn=(opw>>8)&15;
 				op->rm=0;
 				op->nmid=BTESH2_NMID_OCBWB;
 				op->fmid=BTESH2_FMID_STREG;
-				op->Run=BTSH_Op_NOP_Z;
+				op->Run=BTSH_Op_OCBWB_StReg;
 				break;
 
 			case 0xC: /* 0-C3 */
@@ -1282,9 +1282,13 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			break;
 		case 0xA: /* 8A-- */
 #if 1
+//			i=(opw<<16)|(opw2&0xFFFF);
+
 			op->rn=0;
-			op->imm=(((sbyte)opw)<<16)|opw2;
-			op->fl=BTESH2_OPFL_EXTRAWORD;
+//			op->imm=(((sbyte)opw)<<16)|opw2;
+			op->imm=(((sbyte)opw)<<16)|(opw2&0xFFFF);
+			op->fl=BTESH2_OPFL_EXTRAWORD|
+				BTESH2_OPFL_INVDLYSLOT;
 			op->nmid=BTESH2_NMID_MOV;
 			op->fmid=BTESH2_FMID_REGIMM;
 			op->Run=BTSH_Op_MOV_RegImm;

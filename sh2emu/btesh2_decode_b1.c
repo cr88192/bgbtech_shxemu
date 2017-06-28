@@ -363,6 +363,15 @@ int BTESH2_DecodeOpcode_BJX1_8E(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
 		op->Run=BTSH_Op_BSR_Abs;
 		break;
 
+	case 0xE: /* E--- */
+		i=((byte)opw)|(((byte)opw2)<<8);
+		op->rn=(opw2>>8)&15;
+		op->imm=(u32)((s16)i);
+		op->nmid=BTESH2_NMID_MOV;
+		op->fmid=BTESH2_FMID_REGIMM;
+		op->Run=BTSH_Op_MOV_RegImm;
+		break;
+
 	default:
 		break;
 	}
@@ -378,7 +387,7 @@ int BTESH2_DecodeOpcode_BJX1(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
 	{
 	case 0x8A:
 		op->rn=0;
-		op->imm=(((sbyte)opw)<<16)|opw2;
+		op->imm=(((sbyte)opw)<<16)|(opw2&0xFFFF);
 		op->fl=BTESH2_OPFL_EXTRAWORD;
 		op->nmid=BTESH2_NMID_MOV;
 		op->fmid=BTESH2_FMID_REGIMM;

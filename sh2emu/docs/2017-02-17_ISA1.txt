@@ -356,8 +356,8 @@ Instructions precded with '!' are extensions specific to this VM.
 **	6nmA NEGC Rm, Rn
 **	6nmB NEG Rm, Rn
 **	6nmC EXTU.B Rm, Rn
-**	6nmD EXTS.B Rm, Rn
-**	6nmE EXTU.W Rm, Rn
+**	6nmD EXTU.W Rm, Rn
+**	6nmE EXTS.B Rm, Rn
 **	6nmF EXTS.W Rm, Rn
 * 7nii ADD #imm, Rn
 * 8---

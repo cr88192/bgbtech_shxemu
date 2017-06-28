@@ -305,7 +305,7 @@ Instructions
 ****			FCFD / FSCA			//
 ****			FDFD / FTRV2
 ****			FEFD / FSCA			//
-**	FnmE ? (Reserved Ops)
+**	FnmE FMAC FRm, FRn
 **	FooF ? (Escape 32 for FPU/SIMD Ops)
 
 

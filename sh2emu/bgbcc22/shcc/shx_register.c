@@ -403,6 +403,13 @@ int BGBCC_SHXC_EmitStoreBRegOfsReg(
 
 	if(BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg))
 	{
+		if(ofs==0)
+		{
+			BGBCC_SHX_EmitOpRegStReg(sctx, BGBCC_SH_NMID_FMOVS,
+				dreg, breg);
+			return(1);
+		}
+	
 		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
 			BGBCC_SH_REG_R0, ofs);

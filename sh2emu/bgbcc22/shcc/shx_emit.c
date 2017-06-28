@@ -1730,7 +1730,7 @@ int BGBCC_SHX_TryEmitOpRegStRegDisp(
 
 	if(disp==0)
 	{
-		return(BGBCC_SHX_EmitOpRegStReg(ctx, nmid, rm, rn));
+		return(BGBCC_SHX_TryEmitOpRegStReg(ctx, nmid, rm, rn));
 	}
 
 //	if((rm&BGBCC_SH_REG_RTMASK3)==BGBCC_SH_REG_DR0)
@@ -1807,7 +1807,7 @@ int BGBCC_SHX_TryEmitOpLdRegDispReg(BGBCC_SHX_Context *ctx,
 
 	if(disp==0)
 	{
-		return(BGBCC_SHX_EmitOpLdRegReg(ctx, nmid, rm, rn));
+		return(BGBCC_SHX_TryEmitOpLdRegReg(ctx, nmid, rm, rn));
 	}
 
 //	if((rn&BGBCC_SH_REG_RTMASK3)==BGBCC_SH_REG_DR0)
@@ -1885,7 +1885,7 @@ int BGBCC_SHX_TryEmitOpRegStReg2(
 
 	if(ro==BGBCC_SH_REG_ZZR)
 	{
-		return(BGBCC_SHX_EmitOpRegStReg(ctx, nmid, rm, rn));
+		return(BGBCC_SHX_TryEmitOpRegStReg(ctx, nmid, rm, rn));
 	}
 
 //	if((rm&BGBCC_SH_REG_RTMASK3)==BGBCC_SH_REG_DR0)
@@ -2247,6 +2247,64 @@ int BGBCC_SHX_EmitLoadRegImm(
 		opw=0xE000|((reg&15)<<8)|(imm&255);
 		BGBCC_SHX_EmitWord(ctx, opw);
 		return(1);
+	}
+
+#if 1
+	if((((s16)imm)==imm) && ((reg&0xF0)==0x00))
+	{
+		opw=0x9000|((reg&15)<<8);
+		BGBCC_SHX_EmitWord(ctx, opw);
+		BGBCC_SHX_EmitIndexAddImm16(ctx, imm);
+		return(1);
+	}
+#endif
+
+	if(ctx->has_movi20)
+//	if(0)
+	{
+		if((((imm<<12)>>12)==imm) && ((reg&0xF0)==0x00))
+		{
+			opw=0x0000|((reg&15)<<8)|((imm>>12)&0xF0);
+			opw2=imm&0xFFFF;
+			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
+			return(1);
+		}
+
+		if(((((imm<<4)>>4)&(~255))==imm) && ((reg&0xF0)==0x00))
+		{
+			opw=0x0001|((reg&15)<<8)|((imm>>20)&0xF0);
+			opw2=(imm>>8)&0xFFFF;
+			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
+			return(1);
+		}
+	}
+
+	if(ctx->has_bjx1mov)
+//	if(0)
+	{
+#if 1
+		if((((imm<<8)>>8)==imm) && (reg==BGBCC_SH_REG_R0))
+		{
+			opw=0x8A00|((imm>>16)&0xFF);
+			opw2=imm&0xFFFF;
+			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
+			return(1);
+		}
+#endif
+
+#if 1
+		if((((imm<<16)>>16)==imm) && ((reg&0xF0)==0x00))
+		{
+			opw=0x8E00|(imm&0xFF);
+			opw2=0xE000|((reg&15)<<8)|((imm>>8)&0xFF);
+			BGBCC_SHX_EmitWord(ctx, opw);
+			BGBCC_SHX_EmitWord(ctx, opw2);
+			return(1);
+		}
+#endif
 	}
 
 #if 0

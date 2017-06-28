@@ -472,3 +472,28 @@ void BTSH_Op_CASL_RegRegR0D(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 
 	cpu->regs[BTESH2_REG_SR]=s;
 }
+
+
+void BTSH_Op_PREF_StReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 m, n, o, s;
+	
+	cpu->ptcpc=op->pc;
+	n=cpu->regs[op->rn];
+	
+	if(!n)
+		return;
+	o=BTESH2_GetAddrDWord(cpu, n);
+}
+
+void BTSH_Op_OCBI_StReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+}
+
+void BTSH_Op_OCBP_StReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+}
+
+void BTSH_Op_OCBWB_StReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+}

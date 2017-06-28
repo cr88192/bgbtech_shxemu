@@ -363,6 +363,11 @@ byte use_dbr;		//uses fp double registers
 byte is_vararg;		//function is varargs
 byte is_simpass;	//is simulation pass
 
+byte has_shad;		//has SHAD/SHLD
+byte has_movi20;	//has MOVI20 and friends
+byte has_misalgn;	//has misaligned load/store
+byte has_bjx1mov;	//has BJX1 MOV I-forms
+
 u32 *lbl_ofs;		//label offsets
 u32 *rlc_ofs;		//reloc offsets
 u32 *lbl_id;		//label IDs

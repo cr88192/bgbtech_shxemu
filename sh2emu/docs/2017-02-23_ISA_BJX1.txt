@@ -17,7 +17,13 @@ Registers:
 *	FPSCR: FPU Control Register
 *	FPUL: FPU Load Register
 
-*	FR0..FR15: FPU Registers
+*	FR0..FR15: FPU Registers (Bank A)
+*	XF0..XF15: FPU Registers (Bank B)
+
+*	XR0..XR15: Logical high half of 64-bit registers.
+**		Not normally used in 32-bit mode.
+**		Implicitly paired to R0..R15 in 64-bit mode.
+**		May be absent on 32-bit only cores.
 
 *	R0_A..R7_A: R0..R7 (Bank A, User)
 *	R0_B..R7_B: R0..R7 (Bank B, Super)
@@ -73,11 +79,15 @@ FPU (32-bit):
 *	The FPUSCR.SZ bit controls whether to copy a single or register pair.
 *	The FPUSCR.PR bit selects between Single and Split-Double calculations.
 
-FPU (64-bit):
+FPU (64-bit, Old):
 *	The FPU registers are 64-bit.
 *	FPUSCR.SZ controls whether memory loads/stores are 32 or 64 bit.
 *	FPUSCR.PR controls whether Float or Double calculations are done.
 *	For float, only half of the register is used.
+
+FPU (64-bit, New):
+*	NV SIMD Spec covers the FPU
+*	64-bit operation will be essentially the same as 32-bit operation.
 
 
 MMU: An MMU may be used. It will be based on page-tables.
@@ -135,7 +145,7 @@ Displacements:
 
 If an instruction is preceded with a '/', it is not implemented, but more just to say what is there.
 
-Instructions precded with '!' are extensions specific to this VM.
+Instructions precded with '!' are extensions specific to this VM or ISA.
 * '!?', possible, but debatable.
 * '!!', very uncertain.
 
@@ -211,7 +221,8 @@ Basic I-Forms (16-bit)
 ***		0n4A / STC ?, Rn
 ***		0n5A STS FPUL, Rn		//Copy FPUL to Rn
 ***		0n6A STS FPSCR, Rn		//Copy FPSCR to Rn
-***		0nFA STC DBR, Rn		//Copy FPSCR to Rn
+
+***		0nFA STC DBR, Rn		//Copy DBR to Rn
 **	0--B
 ***		000B RTS				//Return from Function
 ***		001B SLEEP				//Sleep until interrupt
@@ -302,14 +313,15 @@ Basic I-Forms (16-bit)
 ***		4nM3 STC.L/Q Rm_B, @-Rn
 **	4--4
 ***		4n04 ROTL Rn
-***		4-14 -
+***		4n14 ! ROT32 Rn				//Rn<->XRn
 ***		4-24 ROTCL Rn
-***		4-34
-***		4n44 ! EXTU.L Rn			//zero extend 32 -> 64
-***		4n54 ! EXTS.L Rn			//sign extend 32 -> 64
+***		4n34 ! SHLL4 Rn				//(Rn<<4)->Rn
+***		4n44 ! EXTU.L Rn			//zero extend 32 -> 64 (zeroes XRn)
+***		4n54 ! EXTS.L Rn			//sign extend 32 -> 64 (sign-extends to XRn)
 ***		4n64 ! MOV.W @R0, Rn		//(Alt MOV.W, BJX1-64)
+****		MOVFAR/MOVFLAT			//(BJX1-32+)
 ***		4m74 ! MOV.W Rm, @R0		//(Alt MOV.W, BJX1-64)
-***             ..
+****		MOVFAR/MOVFLAT			//(BJX1-32+)
 ***		4n84 / DIVU R0, Rn
 ***		4n94 / DIVS R0, Rn
 ***		..
@@ -319,6 +331,10 @@ Basic I-Forms (16-bit)
 ***		4n05 ROTR Rn
 ***		4n15 CMPPL Rn
 ***		4n25 ROTCR Rn
+***		4n35 ! SHLR4 Rn				//(Rn>>4)->Rn
+***		4n45 ! MOVHI R0, XRn		//R0->XRn
+***		4m55 ! MOVHI XRm, R0		//XRm->R0
+
 ***             ..		
 ***		4n85 / CLIPU.W
 ***		4n95 / CLIPS.W
@@ -350,7 +366,8 @@ Basic I-Forms (16-bit)
 ***		4n08 SHLL2 Rn
 ***		4n18 SHLL8 Rn
 ***		4n28 SHLL16 Rn
-***		4-38 -
+***		4n38 ! SHLL32 Rn		//Rn->XRn, 0->Rn
+***		4-48 -
 ***		...
 ***		4-E8 -
 ***		4nF8-iiii	LDSH16 #imm16, Rn	//Rn=(Rn<<16)|Imm
@@ -358,6 +375,8 @@ Basic I-Forms (16-bit)
 ***		4n09 SHLR2 Rn
 ***		4n19 SHLR8 Rn
 ***		4n29 SHLR16 Rn
+***		4n39 ! SHLR32 Rn		//XRn->Rn, 0->XRn
+
 ***		4mA9 / MOVUA.L @Rm, R0
 ***		4mE9 / MOVUA.L @Rm+, R0
 **	4--A
@@ -414,8 +433,8 @@ Basic I-Forms (16-bit)
 **	6nmA NEGC Rm, Rn
 **	6nmB NEG Rm, Rn
 **	6nmC EXTU.B Rm, Rn
-**	6nmD EXTS.B Rm, Rn
-**	6nmE EXTU.W Rm, Rn
+**	6nmD EXTU.W Rm, Rn
+**	6nmE EXTS.B Rm, Rn
 **	6nmF EXTS.W Rm, Rn
 * 7nii ADD #imm, Rn
 * 8---
@@ -433,7 +452,12 @@ Basic I-Forms (16-bit)
 **	89dd BT label
 **	8Aii-iiii MOVI24 #imm24, R0			//32-bit op, loads 24-bit immediate.
 **	8Bdd BF label
-**	8Cii LDSH8 #imm, R0			//R0=(R0 SHL 8)|Imm8
+**	8Cii ? LDSH8 #imm, R0			//R0=(R0 SHL 8)|Imm8
+**  8Cii XPFX2
+***		8C0x..8C3x					//Operation Prefix (OPFX)
+***		8C4x..8C7x xxxx				//32-bit Ops
+***		8C8x..8CBx xxxx				//48-bit Ops
+***		8CCx..8CFx xxxx				//64-bit Ops
 **	8Ddd BTS label
 **	8Eii XPFX0/Escape32			//Escape for 32 bit I-Forms
 ***		Combines with a following instruction to form a new one.
