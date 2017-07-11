@@ -248,6 +248,7 @@ void Sys_CheckSanity(void)
 		0xEF, 0xCD, 0xAB, 0x89,
 		};
 	static int rec=0;
+	int *pj, *pk;
 	double		time, oldtime, newtime;
 	double f, g, h;
 	float ff, gf, hf;
@@ -381,6 +382,13 @@ void Sys_CheckSanity(void)
 	if(sizeof(*pr_functions)!=sizeof(dfunction_t))
 		__debugbreak();
 	if(sizeof(dfunction_t)!=36)
+		__debugbreak();
+		
+	pj=(int *)pat_tst0+3;
+	pk=(int *)pat_tst0;
+	if((pj-pk)!=3)
+		__debugbreak();
+	if(((byte *)pj-(byte *)pk)!=12)
 		__debugbreak();
 #endif
 

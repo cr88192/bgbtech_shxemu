@@ -93,14 +93,18 @@ int NUM_FOR_EDICT(edict_t *e);
 
 #define	NEXT_EDICT(e) ((edict_t *)( (byte *)e + pr_edict_size))
 
-#define	EDICT_TO_PROG(e) ((byte *)e - (byte *)sv.edicts)
-#define PROG_TO_EDICT(e) ((edict_t *)((byte *)sv.edicts + e))
+// #define	EDICT_TO_PROG(e) ((byte *)e - (byte *)sv.edicts)
+#define	EDICT_TO_PROG(e) ((byte *)(e) - ((byte *)(sv.edicts)))
+// #define PROG_TO_EDICT(e) ((edict_t *)((byte *)sv.edicts + e))
+#define PROG_TO_EDICT(e) ((edict_t *)(((byte *)(sv.edicts)) + (e)))
 
 //============================================================================
 
 #define	G_FLOAT(o) (pr_globals[o])
 #define	G_INT(o) (*(int *)&pr_globals[o])
-#define	G_EDICT(o) ((edict_t *)((byte *)sv.edicts+ *(int *)&pr_globals[o]))
+//#define	G_EDICT(o) ((edict_t *)((byte *)sv.edicts+ *(int *)&pr_globals[o]))
+#define	G_EDICT(o) ((edict_t *)(((byte *)(sv.edicts))+ \
+	(*(int *)(&pr_globals[o]))))
 #define G_EDICTNUM(o) NUM_FOR_EDICT(G_EDICT(o))
 #define	G_VECTOR(o) (&pr_globals[o])
 // #define	G_STRING(o) (pr_strings + *(string_t *)&pr_globals[o])

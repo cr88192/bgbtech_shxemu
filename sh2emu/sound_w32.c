@@ -345,7 +345,7 @@ int SoundDev_WriteRawSamples(short *buffer,
 //		printf("Sound: Resync %d\n", snd_rover-dma);
 //		printf("Sound: Resync %d\n", snd_rover-dma2);
 		printf("Sound: Resync %d %.3fs\n",
-			snd_rover-dma2, (snd_rover-dma2)/(2*44100.0));
+			(int)(snd_rover-dma2), (snd_rover-dma2)/(2*44100.0));
 		rs=1;
 
 #if 1

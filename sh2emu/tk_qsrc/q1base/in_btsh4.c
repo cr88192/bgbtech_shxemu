@@ -60,6 +60,7 @@ void IN_Commands (void)
 		switch(c)
 		{
 		case   8: c=K_BACKSPACE; break;
+		case 127: c=K_DEL; break;
 		case 153: c=K_PAUSE; break;
 		case 154: c=K_MWHEELUP; break;
 		case 155: c=K_MWHEELDOWN; break;
@@ -71,8 +72,10 @@ void IN_Commands (void)
 		
 		if(c>=256)
 			continue;
-		
-		Key_Event (c, dn);
+
+//		tk_printf("IN_Commands: %d %d\n", c, dn);
+
+		Key_Event (c, dn);		
 	}
 }
 

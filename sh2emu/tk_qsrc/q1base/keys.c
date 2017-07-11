@@ -407,7 +407,12 @@ void Key_SetBinding (int keynum, char *binding)
 	int		l;
 			
 	if (keynum == -1)
+	{
+		tk_printf("Key_SetBinding: Reject %d %s\n", keynum, binding);
 		return;
+	}
+
+	tk_printf("Key_SetBinding: %d %s\n", keynum, binding);
 
 // free old bindings
 	if (keybindings[keynum])
@@ -700,6 +705,8 @@ void Key_Event (int key, qboolean down)
 		return;
 	}
 
+//	tk_printf("Key_Event A1: %d\n", key);
+
 //
 // if not a consolekey, send to the interpreter no matter what mode is
 //
@@ -707,9 +714,13 @@ void Key_Event (int key, qboolean down)
 	|| (key_dest == key_console && !consolekeys[key])
 	|| (key_dest == key_game && ( !con_forcedup || !consolekeys[key] ) ) )
 	{
+//		tk_printf("Key_Event A2: %d\n", key);
+
 		kb = keybindings[key];
 		if (kb)
 		{
+//			tk_printf("Key_Event: %s\n", kb);
+		
 			if (kb[0] == '+')
 			{	// button commands add keynum as a parm
 				sprintf (cmd, "%s %i\n", kb, key);

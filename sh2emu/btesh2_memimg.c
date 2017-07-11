@@ -43,13 +43,13 @@ BTESH2_PhysSpan *BTESH2_AllocPhysSpan(void)
 }
 
 u32 btesh2_spandfl_GetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	return(*(sbyte *)(sp->data+reladdr));
 }
 
 u32 btesh2_spandfl_GetW_BE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	byte *ptr;
 	int i;
@@ -62,7 +62,7 @@ u32 btesh2_spandfl_GetW_BE(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spandfl_GetW_LE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	byte *ptr;
 	int i;
@@ -83,7 +83,7 @@ u32 btesh2_spandfl_GetW_LE(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spandfl_GetD_BE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	byte *ptr;
 	u32 i;
@@ -95,7 +95,7 @@ u32 btesh2_spandfl_GetD_BE(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spandfl_GetD_LE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	byte *ptr;
 	u32 i;
@@ -116,7 +116,7 @@ u32 btesh2_spandfl_GetD_LE(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -125,7 +125,7 @@ int btesh2_spandfl_SetB(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetW_BE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -135,7 +135,7 @@ int btesh2_spandfl_SetW_BE(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetW_LE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -149,7 +149,7 @@ int btesh2_spandfl_SetW_LE(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetD_BE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -161,7 +161,7 @@ int btesh2_spandfl_SetD_BE(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetD_LE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -181,7 +181,7 @@ int btesh2_spandfl_SetD_LE(BTESH2_PhysSpan *sp,
 
 #if 1
 int btesh2_spandfl_SetB_Fl(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -191,7 +191,7 @@ int btesh2_spandfl_SetB_Fl(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetW_FlBE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -202,7 +202,7 @@ int btesh2_spandfl_SetW_FlBE(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetW_FlLE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -213,7 +213,7 @@ int btesh2_spandfl_SetW_FlLE(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetD_FlBE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -226,7 +226,7 @@ int btesh2_spandfl_SetD_FlBE(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetD_FlLE(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	byte *ptr;
 	ptr=sp->data+reladdr;
@@ -244,7 +244,7 @@ int btesh2_spandfl_SetD_FlLE(BTESH2_PhysSpan *sp,
 #endif
 
 u32 btesh2_spandfl_GetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
@@ -258,7 +258,7 @@ u32 btesh2_spandfl_GetW(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spandfl_GetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
@@ -273,8 +273,26 @@ u32 btesh2_spandfl_GetD(BTESH2_PhysSpan *sp,
 	}
 }
 
+u64 btesh2_spandfl_GetQ(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
+{
+	if(cpu->csfl&BTESH2_CSFL_LE)
+	{
+//		sp->GetD=btesh2_spandfl_GetD_LE;
+		if(!sp->dmdflag)
+			sp->flags|=BTESH2_SPFL_SIMPLEMEM_LE;
+		return(sp->GetD(sp, cpu, reladdr+0)+
+			(((u64)sp->GetD(sp, cpu, reladdr+4))<<32));
+	}else
+	{
+//		sp->GetD=btesh2_spandfl_GetD_BE;
+		return(sp->GetD(sp, cpu, reladdr+4)+
+			(((u64)sp->GetD(sp, cpu, reladdr+0))<<32));
+	}
+}
+
 int btesh2_spandfl_SetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
@@ -292,7 +310,7 @@ int btesh2_spandfl_SetW(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spandfl_SetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
@@ -309,8 +327,31 @@ int btesh2_spandfl_SetD(BTESH2_PhysSpan *sp,
 	}
 }
 
+int btesh2_spandfl_SetQ(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u64 val)
+{
+	if(cpu->csfl&BTESH2_CSFL_LE)
+	{
+//		sp->SetD=btesh2_spandfl_SetD_LE;
+//		if(sp->dmdflag)
+//			sp->SetD=btesh2_spandfl_SetD_FlLE;
+		sp->SetD(sp, cpu, reladdr+0, val);
+		sp->SetD(sp, cpu, reladdr+4, val>>32);
+		return(0);
+	}else
+	{
+		sp->SetD(sp, cpu, reladdr+4, val);
+		sp->SetD(sp, cpu, reladdr+0, val>>32);
+		return(0);
+//		sp->SetD=btesh2_spandfl_SetD_BE;
+//		if(sp->dmdflag)
+//			sp->SetD=btesh2_spandfl_SetD_FlBE;
+//		return(sp->SetD(sp, cpu, reladdr, val));
+	}
+}
+
 int BTESH2_MemoryDefineSpan(BTESH2_MemoryImage *img,
-	u32 base, u32 limit, byte *data, char *name)
+	btesh2_paddr base, btesh2_paddr limit, byte *data, char *name)
 {
 	BTESH2_PhysSpan *sp;
 	int i, sz;
@@ -332,17 +373,19 @@ int BTESH2_MemoryDefineSpan(BTESH2_MemoryImage *img,
 	sp->GetB=btesh2_spandfl_GetB;
 	sp->GetW=btesh2_spandfl_GetW;
 	sp->GetD=btesh2_spandfl_GetD;
+	sp->GetQ=btesh2_spandfl_GetQ;
 
 	sp->SetB=btesh2_spandfl_SetB;
 	sp->SetW=btesh2_spandfl_SetW;
 	sp->SetD=btesh2_spandfl_SetD;
+	sp->SetQ=btesh2_spandfl_SetQ;
 	
 	i=BTESH2_MemoryAddSpan(img, sp);
 	return(i);
 }
 
 int BTESH2_MemoryDefineSpan_InitFF(BTESH2_MemoryImage *img,
-	u32 base, u32 limit, byte *data, char *name)
+	btesh2_paddr base, btesh2_paddr limit, byte *data, char *name)
 {
 	BTESH2_PhysSpan *sp;
 	int i;
@@ -372,59 +415,75 @@ void btesh2_spandmd_demandInit(BTESH2_PhysSpan *sp)
 	sp->GetB=btesh2_spandfl_GetB;
 	sp->GetW=btesh2_spandfl_GetW;
 	sp->GetD=btesh2_spandfl_GetD;
+	sp->GetQ=btesh2_spandfl_GetQ;
 
 	sp->SetB=btesh2_spandfl_SetB;
 	sp->SetW=btesh2_spandfl_SetW;
 	sp->SetD=btesh2_spandfl_SetD;
+	sp->SetQ=btesh2_spandfl_SetQ;
 
 	if(sp->dmdflag)
 		sp->SetB=btesh2_spandfl_SetB_Fl;
 }
 
 u32 btesh2_spandmd_GetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	btesh2_spandmd_demandInit(sp);
 	return(sp->GetB(sp, cpu, reladdr));
 }
 
 u32 btesh2_spandmd_GetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	btesh2_spandmd_demandInit(sp);
 	return(sp->GetW(sp, cpu, reladdr));
 }
 
 u32 btesh2_spandmd_GetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	btesh2_spandmd_demandInit(sp);
 	return(sp->GetD(sp, cpu, reladdr));
 }
 
+u64 btesh2_spandmd_GetQ(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
+{
+	btesh2_spandmd_demandInit(sp);
+	return(sp->GetQ(sp, cpu, reladdr));
+}
+
 int btesh2_spandmd_SetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	btesh2_spandmd_demandInit(sp);
 	return(sp->SetB(sp, cpu, reladdr, val));
 }
 
 int btesh2_spandmd_SetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	btesh2_spandmd_demandInit(sp);
 	return(sp->SetW(sp, cpu, reladdr, val));
 }
 
 int btesh2_spandmd_SetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	btesh2_spandmd_demandInit(sp);
 	return(sp->SetD(sp, cpu, reladdr, val));
 }
 
+int btesh2_spandmd_SetQ(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u64 val)
+{
+	btesh2_spandmd_demandInit(sp);
+	return(sp->SetQ(sp, cpu, reladdr, val));
+}
+
 int BTESH2_MemoryDefineSpanDemand(BTESH2_MemoryImage *img,
-	u32 base, u32 limit, byte **addr, int *flag, char *name)
+	btesh2_paddr base, btesh2_paddr limit, byte **addr, int *flag, char *name)
 {
 	BTESH2_PhysSpan *sp;
 	int i, sz;
@@ -440,10 +499,12 @@ int BTESH2_MemoryDefineSpanDemand(BTESH2_MemoryImage *img,
 	sp->GetB=btesh2_spandmd_GetB;
 	sp->GetW=btesh2_spandmd_GetW;
 	sp->GetD=btesh2_spandmd_GetD;
+	sp->GetQ=btesh2_spandmd_GetQ;
 
 	sp->SetB=btesh2_spandmd_SetB;
 	sp->SetW=btesh2_spandmd_SetW;
 	sp->SetD=btesh2_spandmd_SetD;
+	sp->SetQ=btesh2_spandmd_SetQ;
 	
 	i=BTESH2_MemoryAddSpan(img, sp);
 	return(i);
@@ -451,7 +512,7 @@ int BTESH2_MemoryDefineSpanDemand(BTESH2_MemoryImage *img,
 
 
 u32 btesh2_spanreg_GetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 i, j;
 	i=sp->GetD(sp, cpu, reladdr&(~3));
@@ -467,7 +528,7 @@ u32 btesh2_spanreg_GetB(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spanreg_GetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 i, j;
 	i=sp->GetD(sp, cpu, reladdr&(~3));
@@ -483,7 +544,7 @@ u32 btesh2_spanreg_GetW(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanreg_SetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int i;
 	i=sp->SetD(sp, cpu, reladdr, val);
@@ -491,7 +552,7 @@ int btesh2_spanreg_SetB(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanreg_SetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int i;
 	i=sp->SetD(sp, cpu, reladdr, val);
@@ -499,10 +560,11 @@ int btesh2_spanreg_SetW(BTESH2_PhysSpan *sp,
 }
 
 int BTESH2_MemoryDefineSpanRegs(BTESH2_MemoryImage *img,
-	u32 base, u32 limit, char *name,
-	u32 (*GetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr),
+	btesh2_paddr base, btesh2_paddr limit, char *name,
+	u32 (*GetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu,
+		btesh2_paddr reladdr),
 	int (*SetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu,
-		u32 reladdr, u32 val)
+		btesh2_paddr reladdr, u32 val)
 	)
 {
 	BTESH2_PhysSpan *sp;
@@ -529,7 +591,7 @@ int BTESH2_MemoryDefineSpanRegs(BTESH2_MemoryImage *img,
 
 
 BTESH2_PhysSpan *BTESH2_GetSpanForAddr(BTESH2_CpuState *cpu,
-	u32 addr, u32 lim)
+	btesh2_paddr addr, btesh2_paddr lim)
 {
 	BTESH2_MemoryImage *mem;
 	BTESH2_PhysSpan *sp, *sp1;
@@ -692,7 +754,8 @@ int BTESH2_RestoreTrap(BTESH2_CpuState *cpu)
 
 
 #if 0
-int BTESH2_CheckAddrTrapSmc_FlushAddrA(BTESH2_CpuState *cpu, u32 addr, u32 val)
+int BTESH2_CheckAddrTrapSmc_FlushAddrA(
+	BTESH2_CpuState *cpu, btesh2_paddr addr, u32 val)
 {
 	BTESH2_Trace *tr;
 	u32 *pbm;
@@ -800,7 +863,8 @@ int BTESH2_CheckAddrTrapSmc_FlushAddrA(BTESH2_CpuState *cpu, u32 addr, u32 val)
 #endif
 
 #if 1
-int BTESH2_CheckAddrTrapSmc_FlushAddrB(BTESH2_CpuState *cpu, u32 addr, u32 val)
+int BTESH2_CheckAddrTrapSmc_FlushAddrB(
+	BTESH2_CpuState *cpu, btesh2_paddr addr, u32 val)
 {
 	BTESH2_Trace *tr;
 	u32 *pbm;
@@ -941,7 +1005,8 @@ int BTESH2_CheckAddrTrapSmc_FlushAddrB(BTESH2_CpuState *cpu, u32 addr, u32 val)
 }
 #endif
 
-int BTESH2_CheckAddrTrapSmc(BTESH2_CpuState *cpu, u32 addr, u32 val)
+int BTESH2_CheckAddrTrapSmc(BTESH2_CpuState *cpu,
+	btesh2_paddr addr, u32 val)
 {
 //	static int lsmc=-1;
 	BTESH2_Trace *tr;
@@ -1004,7 +1069,7 @@ int BTESH2_CheckAddrTrapSmc(BTESH2_CpuState *cpu, u32 addr, u32 val)
 	return(0);
 }
 
-int BTESH2_MarkAddrTrapSmc(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_MarkAddrTrapSmc(BTESH2_CpuState *cpu, btesh2_paddr addr)
 {
 	int pg, bp, bm;
 	int i, j, k, st;
@@ -1023,21 +1088,22 @@ int BTESH2_MarkAddrTrapSmc(BTESH2_CpuState *cpu, u32 addr)
 	return(0);
 }
 
-int BTESH2_GetAddrBytePhy(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_GetAddrBytePhy(BTESH2_CpuState *cpu, btesh2_paddr addr)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return(-1);
 	}
 	return(sp->GetB(sp, cpu, addr-sp->base));
 }
 
-int BTESH2_GetAddrWordPhy(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_GetAddrWordPhy(BTESH2_CpuState *cpu, btesh2_paddr addr)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
@@ -1046,14 +1112,15 @@ int BTESH2_GetAddrWordPhy(BTESH2_CpuState *cpu, u32 addr)
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+1);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return(-1);
 	}
 	return(sp->GetW(sp, cpu, addr-sp->base));
 }
 
-u32 BTESH2_GetAddrDWordPhy(BTESH2_CpuState *cpu, u32 addr)
+u32 BTESH2_GetAddrDWordPhy(BTESH2_CpuState *cpu, btesh2_paddr addr)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
@@ -1062,14 +1129,32 @@ u32 BTESH2_GetAddrDWordPhy(BTESH2_CpuState *cpu, u32 addr)
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+3);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return((u32)(-1));
 	}
 	return(sp->GetD(sp, cpu, addr-sp->base));
 }
 
-int BTESH2_SetAddrBytePhy(BTESH2_CpuState *cpu, u32 addr, int val)
+u64 BTESH2_GetAddrQWordPhy(BTESH2_CpuState *cpu, btesh2_paddr addr)
+{
+	BTESH2_PhysSpan *sp;
+	byte *ptr;
+	u32 i;
+	
+	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+7);
+	if(!sp)
+	{
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+		return((u64)(-1));
+	}
+	return(sp->GetQ(sp, cpu, addr-sp->base));
+}
+
+int BTESH2_SetAddrBytePhy(BTESH2_CpuState *cpu, btesh2_paddr addr, int val)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
@@ -1083,14 +1168,15 @@ int BTESH2_SetAddrBytePhy(BTESH2_CpuState *cpu, u32 addr, int val)
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+1);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return(-1);
 	}
 	return(sp->SetB(sp, cpu, addr-sp->base, val));
 }
 
-int BTESH2_SetAddrWordPhy(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrWordPhy(BTESH2_CpuState *cpu, btesh2_paddr addr, int val)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
@@ -1104,14 +1190,15 @@ int BTESH2_SetAddrWordPhy(BTESH2_CpuState *cpu, u32 addr, int val)
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+1);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return(-1);
 	}
 	return(sp->SetW(sp, cpu, addr-sp->base, val));
 }
 
-int BTESH2_SetAddrDWordPhy(BTESH2_CpuState *cpu, u32 addr, u32 val)
+int BTESH2_SetAddrDWordPhy(BTESH2_CpuState *cpu, btesh2_paddr addr, u32 val)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
@@ -1125,14 +1212,37 @@ int BTESH2_SetAddrDWordPhy(BTESH2_CpuState *cpu, u32 addr, u32 val)
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+3);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return(-1);
 	}
 	return(sp->SetD(sp, cpu, addr-sp->base, val));
 }
 
-int BTESH2_SetAddrBytePhy2(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrQWordPhy(BTESH2_CpuState *cpu, btesh2_paddr addr, u64 val)
+{
+	BTESH2_PhysSpan *sp;
+	byte *ptr;
+	int i;
+	
+	if(cpu->status)
+		return(-1);
+	if(BTESH2_CheckAddrTrapSmc(cpu, addr, val))
+		return(-1);
+
+	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+7);
+	if(!sp)
+	{
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+		return(-1);
+	}
+	return(sp->SetQ(sp, cpu, addr-sp->base, val));
+}
+
+int BTESH2_SetAddrBytePhy2(BTESH2_CpuState *cpu, btesh2_paddr addr, int val)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
@@ -1141,14 +1251,15 @@ int BTESH2_SetAddrBytePhy2(BTESH2_CpuState *cpu, u32 addr, int val)
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+1);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return(-1);
 	}
 	return(sp->SetB(sp, cpu, addr-sp->base, val));
 }
 
-int BTESH2_SetAddrWordPhy2(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrWordPhy2(BTESH2_CpuState *cpu, btesh2_paddr addr, int val)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
@@ -1157,14 +1268,15 @@ int BTESH2_SetAddrWordPhy2(BTESH2_CpuState *cpu, u32 addr, int val)
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+1);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return(-1);
 	}
 	return(sp->SetW(sp, cpu, addr-sp->base, val));
 }
 
-int BTESH2_SetAddrDWordPhy2(BTESH2_CpuState *cpu, u32 addr, u32 val)
+int BTESH2_SetAddrDWordPhy2(BTESH2_CpuState *cpu, btesh2_paddr addr, u32 val)
 {
 	BTESH2_PhysSpan *sp;
 	byte *ptr;
@@ -1173,14 +1285,32 @@ int BTESH2_SetAddrDWordPhy2(BTESH2_CpuState *cpu, u32 addr, u32 val)
 	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+3);
 	if(!sp)
 	{
-		cpu->regs[BTESH2_REG_FLA]=addr;
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		return(-1);
 	}
 	return(sp->SetD(sp, cpu, addr-sp->base, val));
 }
 
-int BTESH2_MemCpyIn(BTESH2_CpuState *cpu, u32 addr,
+int BTESH2_SetAddrQWordPhy2(BTESH2_CpuState *cpu, btesh2_paddr addr, u64 val)
+{
+	BTESH2_PhysSpan *sp;
+	byte *ptr;
+	int i;
+	
+	sp=BTESH2_GetSpanForAddr(cpu, addr, addr+7);
+	if(!sp)
+	{
+//		cpu->regs[BTESH2_REG_FLA]=addr;
+		cpu->regs[BTESH2_REG_TEA]=addr;
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+		return(-1);
+	}
+	return(sp->SetQ(sp, cpu, addr-sp->base, val));
+}
+
+int BTESH2_MemCpyIn(BTESH2_CpuState *cpu, btesh2_paddr addr,
 	byte *buf, int sz)
 {
 	BTESH2_PhysSpan *sp;
@@ -1194,18 +1324,53 @@ int BTESH2_MemCpyIn(BTESH2_CpuState *cpu, u32 addr,
 	return(0);
 }
 
-int BTESH2_GetAddrByte(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_GetAddrByte(BTESH2_CpuState *cpu, btesh2_paddr addr)
 	{ return(cpu->GetAddrByte(cpu, addr)); }
-int BTESH2_GetAddrWord(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_GetAddrWord(BTESH2_CpuState *cpu, btesh2_paddr addr)
 	{ return(cpu->GetAddrWord(cpu, addr)); }
-u32 BTESH2_GetAddrDWord(BTESH2_CpuState *cpu, u32 addr)
+u32 BTESH2_GetAddrDWord(BTESH2_CpuState *cpu, btesh2_paddr addr)
 	{ return(cpu->GetAddrDWord(cpu, addr)); }
-int BTESH2_SetAddrByte(BTESH2_CpuState *cpu, u32 addr, int val)
+u64 BTESH2_GetAddrQWord(BTESH2_CpuState *cpu, btesh2_paddr addr)
+	{ return(cpu->GetAddrQWord(cpu, addr)); }
+
+int BTESH2_SetAddrByte(BTESH2_CpuState *cpu, btesh2_paddr addr, int val)
 	{ return(cpu->SetAddrByte(cpu, addr, val)); }
-int BTESH2_SetAddrWord(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrWord(BTESH2_CpuState *cpu, btesh2_paddr addr, int val)
 	{ return(cpu->SetAddrWord(cpu, addr, val)); }
-int BTESH2_SetAddrDWord(BTESH2_CpuState *cpu, u32 addr, u32 val)
+int BTESH2_SetAddrDWord(BTESH2_CpuState *cpu, btesh2_paddr addr, u32 val)
 	{ return(cpu->SetAddrDWord(cpu, addr, val)); }
+int BTESH2_SetAddrQWord(BTESH2_CpuState *cpu, btesh2_paddr addr, u64 val)
+	{ return(cpu->SetAddrQWord(cpu, addr, val)); }
 
 int BTESH2_CheckCpuFmmuP(BTESH2_CpuState *cpu)
 	{ return(cpu->GetAddrDWord==BTESH2_GetAddrDWordFMMU); }
+
+u64 BTESH2_GetRegQWord(BTESH2_CpuState *cpu, int rm)
+{
+	u64 i, j, k;
+	i=cpu->regs[rm+BTESH2_REG_RLO]|
+		((u64)cpu->regs[rm+BTESH2_REG_RHI]<<32);
+	return(i);
+}
+
+int BTESH2_SetRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
+{
+	cpu->regs[rn+BTESH2_REG_RLO]=val;
+	cpu->regs[rn+BTESH2_REG_RHI]=val>>32;
+	return(0);
+}
+
+
+u64 BTESH2_GetFRegQWord(BTESH2_CpuState *cpu, int rm)
+{
+	u64 i, j, k;
+	i=cpu->fregs[rm+1]|((u64)cpu->regs[rm+0]<<32);
+	return(i);
+}
+
+int BTESH2_SetFRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
+{
+	cpu->regs[rn+1]=val;
+	cpu->regs[rn+0]=val>>32;
+	return(0);
+}

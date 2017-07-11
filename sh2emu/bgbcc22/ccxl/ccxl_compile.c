@@ -2122,14 +2122,14 @@ BCCX_Node *BGBCC_CCXL_CompileBlock2(BGBCC_TransState *ctx,
 //		BGBCC_DBGBREAK
 //	}
 
+	i=0;
+	if(type)i=BCCX_GetIntCst(type, &bgbcc_rcst_flags, "flags");
+
 	name=BGBCC_CCXL_QualifyNameNS(ctx, name);
+//	name=BGBCC_CCXL_QualifyNameNSFl(ctx, name, i);
 
 	BGBCC_CCXL_EmitSigProto(ctx, type, name, args);
 
-	i=0;
-
-	//hack: disable extern inline bastards...
-	if(type)i=BCCX_GetIntCst(type, &bgbcc_rcst_flags, "flags");
 	if(i&BGBCC_TYFL_EXTERN)
 		return(NULL);
 
@@ -2379,7 +2379,11 @@ BCCX_Node *BGBCC_CCXL_CompileProto(BGBCC_TransState *ctx,
 	BCCX_Node *c, *t, *n, *u;
 	int i, j, k;
 
+//	i=0;
+//	if(type)i=BCCX_GetIntCst(type, &bgbcc_rcst_flags, "flags");
+
 	name=BGBCC_CCXL_QualifyNameNS(ctx, name);
+//	name=BGBCC_CCXL_QualifyNameNSFl(ctx, name, i);
 
 	/* avoid redefining the same stuff */
 	if(BGBCC_CCXL_LookupGlobal(ctx, name))
@@ -3046,8 +3050,34 @@ void BGBCC_CCXL_EmitVarValueR2(BGBCC_TransState *ctx, BCCX_Node *v)
 
 char *BGBCC_CCXL_QualifyNameNS(BGBCC_TransState *ctx, char *name)
 {
+	return(BGBCC_CCXL_QualifyNameNSFl(ctx, name, 0));
+}
+
+char *BGBCC_CCXL_QualifyNameNSFl(BGBCC_TransState *ctx, char *name, s64 fl)
+{
 	char tb[256];
 	char *s;
+
+	if(fl&BGBCC_TYFL_STATIC)
+	{
+		if(ctx->cur_struct)
+		{
+			sprintf(tb, "TU%08X/%s/%s", ctx->tuidx, ctx->cur_struct, name);
+			s=bgbcc_strdup(tb);
+			return(s);
+		}
+
+		if(ctx->cur_ns)
+		{
+			sprintf(tb, "TU%08X/%s/%s", ctx->tuidx, ctx->cur_ns, name);
+			s=bgbcc_strdup(tb);
+			return(s);
+		}
+
+		sprintf(tb, "TU%08X/%s", ctx->tuidx, name);
+		s=bgbcc_strdup(tb);
+		return(s);
+	}
 
 	if(ctx->cur_struct)
 	{
@@ -3077,7 +3107,8 @@ void BGBCC_CCXL_EmitTopVar(BGBCC_TransState *ctx,
 
 	s=BGBCC_CCXL_VarTypeString(ctx, ty);
 	s2=BGBCC_CCXL_VarTypeFlagsString(ctx, ty);
-	s1=BGBCC_CCXL_QualifyNameNS(ctx, name);
+//	s1=BGBCC_CCXL_QualifyNameNS(ctx, name);
+	s1=BGBCC_CCXL_QualifyNameNSFl(ctx, name, i);
 
 	if(!v && BGBCC_CCXL_CheckDefinedContextName(ctx,
 		CCXL_CMD_VARDECL, s1))
@@ -3342,7 +3373,7 @@ char *BGBCC_CCXL_CompileModule(char *name, BCCX_Node *l)
 	BGBCC_TransState *ctx;
 	BCCX_Node *c;
 	char *s;
-
+	int i;
 
 	ctx=bgbcc_malloc(sizeof(BGBCC_TransState));
 	memset(ctx, 0, sizeof(BGBCC_TransState));
@@ -3355,6 +3386,9 @@ char *BGBCC_CCXL_CompileModule(char *name, BCCX_Node *l)
 
 	s=BCCX_GetCst(l, &bgbcc_rcst_arch, "arch");
 	ctx->arch=BGBCP_ArchForName(s);
+
+	i=BCCX_GetIntCst(l, &bgbcc_rcst_index, "index");
+	ctx->tuidx=i;
 
 	ctx->types=BCCX_Fetch(l, "types");
 	ctx->structs=BCCX_Fetch(l, "structs");

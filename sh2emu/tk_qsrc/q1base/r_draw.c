@@ -88,8 +88,8 @@ void R_EmitEdge (mvertex_t *pv0, mvertex_t *pv1)
 	float	scale, lzi0, u0, v0;
 	int		side;
 
-//	if (r_lastvertvalid)
-	if(0)
+	if (r_lastvertvalid)
+//	if(0)
 	{
 		u0 = r_u1;
 		v0 = r_v1;
@@ -843,7 +843,7 @@ void R_RenderPoly (msurface_t *fa, int clipflags)
 			{
 				frac = dist / (dist - lastdist);
 
-#if 0
+#if 1
 				verts[newpage][newverts].position[0] =
 						verts[vertpage][i].position[0] +
 						((verts[vertpage][lastvert].position[0] -
@@ -858,7 +858,7 @@ void R_RenderPoly (msurface_t *fa, int clipflags)
 						  verts[vertpage][i].position[2]) * frac);
 #endif
 
-#if 1
+#if 0
 				pv0 = verts[newpage][newverts].position;
 				pv1 = verts[vertpage][i].position;
 				pv2 = verts[vertpage][lastvert].position;

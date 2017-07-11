@@ -177,9 +177,9 @@ void D_CalcGradients (msurface_t *pface)
 
 	pplane = pface->plane;
 
-	i = 1 << miplevel;
-	mipscale = 1.0 / ((float)i);
-//	mipscale = 1.0 / (float)(1 << miplevel);
+//	i = 1 << miplevel;
+//	mipscale = 1.0 / ((float)i);
+	mipscale = 1.0 / (float)(1 << miplevel);
 
 //	tk_printf("mipscape = %f\n", mipscale);
 
@@ -220,10 +220,10 @@ void D_CalcGradients (msurface_t *pface)
 	tk_printf("p_temp1 = ( %f %f %f )\n", p_temp1[0], p_temp1[1], p_temp1[2]);
 #endif
 
-#if 0
 //	t = 0x10000*mipscale;
 	t = mipscale * 65536.0;
 
+#if 0
 	f2 = DotProduct (p_temp1, p_saxis);
 	f0 = f2 * 0x10000 + 0.5;
 	f1 = pface->texinfo->vecs[0][3]*t;

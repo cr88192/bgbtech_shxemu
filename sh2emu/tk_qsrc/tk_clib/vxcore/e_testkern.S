@@ -364,6 +364,18 @@ L_movmem_2mod4_end:
 	mov.l	r1,@(20,r4)
 #endif
 
+#if 1
+.global X(__movmemSI12_i4)
+X(__movmemSI12_i4):
+	mov.l	@r5,r0
+	mov.l	@(4,r5),r1
+	mov.l	@(8,r5),r2
+	mov.l	r0,@r4
+	mov.l	r1,@(4,r4)
+	rts
+	mov.l	r2,@(8,r4)
+#endif
+
 .global X(__longj)
 X(__longj):
 	mov r4, r1
@@ -661,6 +673,35 @@ X(__ashiftrt_r4_1):		shar r4
 X(__ashiftrt_r4_0):		rts
 						nop
 
+#endif
+
+#if 1
+.global X(__ashrdi3)
+X(__ashrdi3):
+	tst r6, r6
+	bt __ashrdi3_L0
+
+	mov r4, r0
+	mov r5, r1
+
+	neg r6, r7
+	shld r7, r0
+	shld r7, r1
+
+	add #32, r7
+	mov r5, r3
+	shld r7, r3
+	add r3, r0
+	
+	rts
+	nop
+
+__ashrdi3_L0:
+	mov r4, r0
+	mov r5, r1
+	rts
+	nop
+	
 #endif
 
 #ifdef _BGBCC
@@ -1234,6 +1275,31 @@ __va_arg_d.L0:
 	nop
 #endif
 
+_gdb_gen_isr:
+_gdb_int_isr:
+	mov.l _intevt, r3
+	mov.l _vecevt, r1
+	mov.l @r3, r0
+	shll2 r0
+	mov.l @(r0, r1), r2
+	jmp @r2
+	nop
+	
+//	rte
+//	nop
+
+// _gdb_gen_isr:
+	bra _gdb_illegalinst_isr
+	nop
+_gdb_tlb_isr:
+	bra _gdb_illegalinst_isr
+	nop
+
+_traevt: .long 0xFF000020
+_expevt: .long 0xFF000024
+_intevt: .long 0xFF000028
+_vecevt: .long _vector_table
+
 /* .section .vect */
 .align 4
 _vector_table:
@@ -1254,12 +1320,12 @@ _vector_table:
 .long _gdb_unhandled_isr		/* 0x0D: (reserved) */
 .long _gdb_unhandled_isr		/* 0x0E: (reserved) */
 .long _gdb_unhandled_isr		/* 0x0F: (reserved) */
+
 .long _gdb_pit_isr	 			/* 0x10: PIT */
 .long _gdb_ihandler_emac		/* 0x11: (EMAC interface) */
 .long _gdb_ihandler_uart0		/* 0x12: (UART0 Console) */
 .long _gdb_ihandler_uart2		/* 0x13: (UART2 Console) */
 .long _gdb_unhandled_isr		/* 0x14: (reserved) */
-
 .long _gdb_unhandled_isr		/* 0x15: (reserved) */
 .long _gdb_unhandled_isr		/* 0x16: (reserved) */
 .long _gdb_ihandler_uart1		/* 0x17: (UART1 Console) */
@@ -1270,8 +1336,8 @@ _vector_table:
 .long _gdb_unhandled_isr		/* 0x1C: (reserved) */
 .long _gdb_unhandled_isr		/* 0x1D: (reserved) */
 .long _gdb_unhandled_isr		/* 0x1E: (reserved) */
-
 .long _gdb_unhandled_isr		/* 0x1F: (reserved) */
+
 .long _gdb_trapa32_isr			/* 0x20: trap 32 instruction */
 .long _gdb_trapa33_isr			/* 0x21: trap 33 instruction */
 .long _gdb_trapa34_isr			/* 0x22: trap 34 instruction */
@@ -1280,34 +1346,53 @@ _vector_table:
 .long _gdb_unhandled_isr		/* 0x25 */
 .long _gdb_unhandled_isr		/* 0x26 */
 .long _gdb_unhandled_isr		/* 0x27 */
+.long _gdb_unhandled_isr		/* 0x28 */
+.long _gdb_unhandled_isr		/* 0x29 */
+.long _gdb_unhandled_isr		/* 0x2A */
+.long _gdb_unhandled_isr		/* 0x2B */
+.long _gdb_unhandled_isr		/* 0x2C */
+.long _gdb_unhandled_isr		/* 0x2D */
+.long _gdb_unhandled_isr		/* 0x2E */
+.long _gdb_unhandled_isr		/* 0x2F */
 
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
+.long _gdb_unhandled_isr		/* 0x30 */
+.long _gdb_unhandled_isr		/* 0x31 */
+.long _gdb_unhandled_isr		/* 0x32 */
+.long _gdb_unhandled_isr		/* 0x33 */
+.long _gdb_unhandled_isr		/* 0x34 */
+.long _gdb_unhandled_isr		/* 0x35 */
+.long _gdb_unhandled_isr		/* 0x36 */
+.long _gdb_unhandled_isr		/* 0x37 */
+.long _gdb_unhandled_isr		/* 0x38 */
+.long _gdb_unhandled_isr		/* 0x39 */
+.long _gdb_unhandled_isr		/* 0x3A */
+.long _gdb_unhandled_isr		/* 0x3B */
+.long _gdb_unhandled_isr		/* 0x3C */
+.long _gdb_unhandled_isr		/* 0x3D */
+.long _gdb_unhandled_isr		/* 0x3E */
+.long _gdb_unhandled_isr		/* 0x3F */
 
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
+_gen_isr:						/* 0x100 */
+	mov.l _gen_isr_L0, r0		/* 0x100 */
+	jmp @r0						/* 0x102 */
+	nop							/* 0x104 */
+	nop							/* 0x106 */
+_gen_isr_L0: .long _gdb_gen_isr	/* 0x108 */
+.skip 0x2F4, 0					/* 0x10C */
 
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-.long _gdb_unhandled_isr
-
+_tlb_isr:						/* 0x400 */
+	mov.l _tlb_isr_L0, r0		/* 0x400 */
+	jmp @r0						/* 0x402 */
+	nop							/* 0x404 */
+	nop							/* 0x406 */
+_tlb_isr_L0: .long _gdb_tlb_isr	/* 0x408 */
+.skip 0x1F4, 0					/* 0x40C */
+_int_isr:						/* 0x600 */
+	mov.l _int_isr_L0, r0		/* 0x600 */
+	jmp @r0						/* 0x602 */
+	nop							/* 0x604 */
+	nop							/* 0x606 */
+_int_isr_L0: .long _gdb_int_isr	/* 0x608 */
 
 .section .data
 .weak X(__fpscr_values)

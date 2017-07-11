@@ -318,7 +318,7 @@ s64 btesh2_getvtime_ns(BTESH2_CpuState *cpu)
 }
 
 u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 *mmio;
 	s64 t0, t1;
@@ -422,7 +422,7 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 
 //	default: i=-1; break;
 	default:
-		printf("MMIO_Read: %04X\n", reladdr>>2);
+		printf("MMIO_Read: %04X\n", (int)(reladdr>>2));
 		i=0; break;
 	}
 	
@@ -430,7 +430,7 @@ u32 btesh2_spanmmio_GetD(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int v, le;
 	u32 *mmio;
@@ -509,7 +509,7 @@ int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 		break;
 
 	default:
-		printf("MMIO_Write: %04X %08X\n", reladdr>>2, val);
+		printf("MMIO_Write: %04X %08X\n", (int)(reladdr>>2), val);
 		break;
 	}
 
@@ -517,7 +517,7 @@ int btesh2_spanmmio_SetD(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spanmmio_GetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 i, j;
 	i=btesh2_spanmmio_GetD(sp, cpu, reladdr&(~3));
@@ -527,7 +527,7 @@ u32 btesh2_spanmmio_GetB(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spanmmio_GetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 i, j;
 	i=btesh2_spanmmio_GetD(sp, cpu, reladdr&(~3));
@@ -537,7 +537,7 @@ u32 btesh2_spanmmio_GetW(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanmmio_SetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int i;
 	i=btesh2_spanmmio_SetD(sp, cpu, reladdr, val);
@@ -545,7 +545,7 @@ int btesh2_spanmmio_SetB(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanmmio_SetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int i;
 	i=btesh2_spanmmio_SetD(sp, cpu, reladdr, val);
@@ -553,19 +553,24 @@ int btesh2_spanmmio_SetW(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spanmmreg_GetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 v;
 
-	switch(reladdr>>2)
+	switch((int)(reladdr>>2))
 	{
 	case 0: v=cpu->regs[BTESH2_REG_PTEH]; break;
 	case 1: v=cpu->regs[BTESH2_REG_PTEL]; break;
 	case 2: v=cpu->regs[BTESH2_REG_TTB]; break;
 	case 3: v=cpu->regs[BTESH2_REG_TEA]; break;
 	case 4: v=cpu->regs[BTESH2_REG_MMUCR]; break;
+
+	case  8: v=cpu->regs[BTESH2_REG_TRAEVT]; break;
+	case  9: v=cpu->regs[BTESH2_REG_EXPEVT]; break;
+	case 10: v=cpu->regs[BTESH2_REG_INTEVT]; break;
+
 	default:
-		printf("MMREG: Unhandled Get A=%08X\n", reladdr);
+		printf("MMREG: Unhandled Get A=%08X\n", (int)reladdr);
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		v=0; break;
@@ -574,9 +579,9 @@ u32 btesh2_spanmmreg_GetD(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
-	switch(reladdr>>2)
+	switch((int)(reladdr>>2))
 	{
 	case 0: cpu->regs[BTESH2_REG_PTEH]=val; break;
 	case 1: cpu->regs[BTESH2_REG_PTEL]=val; break;
@@ -586,8 +591,13 @@ int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
 		cpu->regs[BTESH2_REG_MMUCR]=val;
 		BTESH2_SetupUpdateFMMU(cpu);
 		break;
+
+	case  8: cpu->regs[BTESH2_REG_TRAEVT]=val; break;
+	case  9: cpu->regs[BTESH2_REG_EXPEVT]=val; break;
+	case 10: cpu->regs[BTESH2_REG_INTEVT]=val; break;
+
 	default:
-		printf("MMREG: Unhandled Set A=%08X V=%08X\n", reladdr, val);
+		printf("MMREG: Unhandled Set A=%08X V=%08X\n", (int)reladdr, val);
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		break;
@@ -597,15 +607,15 @@ int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
 
 
 u32 btesh2_peridbg_GetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 v;
 
-	switch(reladdr>>2)
+	switch((int)(reladdr>>2))
 	{
 	default:
 		printf("PERIREG(%s): Unhandled Get A=%08X\n",
-			sp->name, reladdr);
+			sp->name, (int)reladdr);
 
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
@@ -616,13 +626,13 @@ u32 btesh2_peridbg_GetD(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_peridbg_SetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
-	switch(reladdr>>2)
+	switch((int)(reladdr>>2))
 	{
 	default:
 		printf("PERIREG(%s): Unhandled Set A=%08X V=%08X\n",
-			sp->name, reladdr, val);
+			sp->name, (int)reladdr, val);
 
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
@@ -634,17 +644,17 @@ int btesh2_peridbg_SetD(BTESH2_PhysSpan *sp,
 
 
 u32 btesh2_periasic_GetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 v;
 
-	switch(reladdr)
+	switch((int)reladdr)
 	{
 	case 0x28:
 		v=17; break;
 	default:
 		printf("PERIASIC(%s): Unhandled Get A=%08X\n",
-			sp->name, reladdr);
+			sp->name, (int)reladdr);
 
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
@@ -655,13 +665,13 @@ u32 btesh2_periasic_GetD(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_periasic_SetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
-	switch(reladdr)
+	switch((int)reladdr)
 	{
 	default:
 		printf("PERIASIC(%s): Unhandled Set A=%08X V=%08X\n",
-			sp->name, reladdr, val);
+			sp->name, (int)reladdr, val);
 
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
 		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
@@ -673,7 +683,7 @@ int btesh2_periasic_SetD(BTESH2_PhysSpan *sp,
 
 
 u32 btesh2_spanemac_GetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	printf("EMAC Get\n");
 
@@ -684,7 +694,7 @@ u32 btesh2_spanemac_GetD(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanemac_SetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	printf("EMAC Set\n");
 
@@ -695,7 +705,7 @@ int btesh2_spanemac_SetD(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spanemac_GetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 i, j;
 	i=btesh2_spanemac_GetD(sp, cpu, reladdr&(~3));
@@ -705,7 +715,7 @@ u32 btesh2_spanemac_GetB(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_spanemac_GetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 i, j;
 	i=btesh2_spanemac_GetD(sp, cpu, reladdr&(~3));
@@ -715,7 +725,7 @@ u32 btesh2_spanemac_GetW(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanemac_SetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int i;
 	i=btesh2_spanemac_SetD(sp, cpu, reladdr, val);
@@ -723,7 +733,7 @@ int btesh2_spanemac_SetB(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_spanemac_SetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int i;
 	i=btesh2_spanemac_SetD(sp, cpu, reladdr, val);
@@ -1289,9 +1299,12 @@ int btesh2_main_startimage()
 		cpu->GetAddrByte=BTESH2_GetAddrByteFMMU;
 		cpu->GetAddrWord=BTESH2_GetAddrWordFMMU;
 		cpu->GetAddrDWord=BTESH2_GetAddrDWordFMMU;
+		cpu->GetAddrQWord=BTESH2_GetAddrQWordFMMU;
+
 		cpu->SetAddrByte=BTESH2_SetAddrByteFMMU;
 		cpu->SetAddrWord=BTESH2_SetAddrWordFMMU;
 		cpu->SetAddrDWord=BTESH2_SetAddrDWordFMMU;
+		cpu->SetAddrQWord=BTESH2_SetAddrQWordFMMU;
 
 		BTESH2_SetupUpdateFMMU(cpu);
 
@@ -1333,9 +1346,12 @@ int btesh2_main_startimage()
 		cpu->GetAddrByte=BTESH2_GetAddrBytePhy;
 		cpu->GetAddrWord=BTESH2_GetAddrWordPhy;
 		cpu->GetAddrDWord=BTESH2_GetAddrDWordPhy;
+		cpu->GetAddrQWord=BTESH2_GetAddrQWordPhy;
+
 		cpu->SetAddrByte=BTESH2_SetAddrBytePhy;
 		cpu->SetAddrWord=BTESH2_SetAddrWordPhy;
 		cpu->SetAddrDWord=BTESH2_SetAddrDWordPhy;
+		cpu->SetAddrQWord=BTESH2_SetAddrQWordPhy;
 	}
 
 	if(1)

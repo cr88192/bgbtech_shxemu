@@ -41,15 +41,11 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 
 	switch(ctx->sub_arch)
 	{
-	case BGBCC_ARCH_SH_SH2:
-	case BGBCC_ARCH_SH_SH2B:
-	case BGBCC_ARCH_SH_SH4B:
-		shctx->is_le=0;
-		break;
-	case BGBCC_ARCH_SH_SH4:
-	case BGBCC_ARCH_SH_SH2L:
-	case BGBCC_ARCH_SH_SH4L:
-		shctx->is_le=1;
+	case BGBCC_ARCH_SH_BX6B:
+	case BGBCC_ARCH_SH_BX6L:
+		ctx->arch_sizeof_long=8;
+		ctx->arch_sizeof_ptr=8;
+		ctx->arch_sizeof_valist=128;
 		break;
 	default:
 		break;
@@ -58,20 +54,57 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	switch(ctx->sub_arch)
 	{
 	case BGBCC_ARCH_SH_SH2:
+	case BGBCC_ARCH_SH_SH2B:
+	case BGBCC_ARCH_SH_SH4B:
+	case BGBCC_ARCH_SH_BX1B:
+	case BGBCC_ARCH_SH_BX6B:
+		shctx->is_le=0;
+		break;
+	case BGBCC_ARCH_SH_SH4:
+	case BGBCC_ARCH_SH_SH2L:
+	case BGBCC_ARCH_SH_SH4L:
+	case BGBCC_ARCH_SH_BX1L:
+	case BGBCC_ARCH_SH_BX6L:
+		shctx->is_le=1;
+		break;
+	default:
+		break;
+	}
+
+	shctx->has_shad=0;
+	shctx->has_movi20=0;
+	shctx->has_bjx1jmp=0;
+	shctx->has_movi20=0;
+	shctx->has_misalgn=0;
+	shctx->has_bjx1mov=0;
+	shctx->has_bjx1ari=0;
+
+	switch(ctx->sub_arch)
+	{
+	case BGBCC_ARCH_SH_SH2:
 	case BGBCC_ARCH_SH_SH2L:
 	case BGBCC_ARCH_SH_SH2B:
-		shctx->has_shad=0;
-		shctx->has_movi20=0;
 		break;
 	case BGBCC_ARCH_SH_SH4:
 	case BGBCC_ARCH_SH_SH4L:
 	case BGBCC_ARCH_SH_SH4B:
 		shctx->has_shad=1;
+		break;
+
+	case BGBCC_ARCH_SH_BX1L:
+	case BGBCC_ARCH_SH_BX1B:
+	case BGBCC_ARCH_SH_BX6L:
+	case BGBCC_ARCH_SH_BX6B:
+		shctx->has_shad=1;
 //		shctx->has_movi20=0;
+//		shctx->has_bjx1jmp=0;
 		shctx->has_movi20=1;
 		shctx->has_misalgn=1;
 		shctx->has_bjx1mov=1;
+		shctx->has_bjx1jmp=1;
+		shctx->has_bjx1ari=1;
 		break;
+
 	default:
 		break;
 	}
@@ -177,6 +210,9 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 
 	for(i=0; i<obj->n_locals; i++)
 	{
+		if(obj->locals[i]->regflags&BGBCC_REGFL_CULL)
+			continue;
+	
 		rcls=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->locals[i]->type);
 		obj->locals[i]->regcls=rcls;
 		switch(rcls)
@@ -369,6 +405,9 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 
 	for(i=0; i<obj->n_locals; i++)
 	{
+		if(obj->locals[i]->regflags&BGBCC_REGFL_CULL)
+			continue;
+
 		j=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->locals[i]->type);
 		switch(j)
 		{
@@ -523,8 +562,11 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 		if(sctx->reg_vsave&(1<<i))
 		{
 			sctx->reg_save|=(1<<i);
-			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_MOVL,
-				BGBCC_SH_REG_R0+i, BGBCC_SH_REG_SP);
+//			BGBCC_SHX_EmitOpRegStDecReg(sctx, BGBCC_SH_NMID_MOVL,
+//				BGBCC_SH_REG_R0+i, BGBCC_SH_REG_SP);
+
+			BGBCC_SHX_EmitOpReg(sctx, BGBCC_SH_NMID_PUSH,
+				BGBCC_SH_REG_R0+i);
 		}else
 		{
 			for(j=i; j>0; j--)
@@ -671,6 +713,9 @@ int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,
 
 	for(i=0; i<obj->n_locals; i++)
 	{
+		if(obj->locals[i]->regflags&BGBCC_REGFL_CULL)
+			continue;
+
 		rcls=BGBCC_SHXC_TypeGetRegClassP(ctx, obj->locals[i]->type);
 
 //		if(BGBCC_CCXL_TypeArrayP(ctx, obj->locals[i]->type) ||
@@ -771,6 +816,17 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 //	BGBCC_SHXC_EmitLoadFrameOfsReg(ctx, sctx, - 4, BGBCC_SH_REG_R3);
 //	BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_LDS,
 //		BGBCC_SH_REG_R3, BGBCC_SH_REG_PR);
+
+	for(i=0; i<obj->n_locals; i++)
+	{
+//		if(obj->locals[i]->regflags&BGBCC_REGFL_CULL)
+//			continue;
+
+		if(obj->locals[i]->regflags&BGBCC_REGFL_ACCESSED)
+			{ obj->locals[i]->regflags&=~BGBCC_REGFL_CULL; }
+		else
+			{ obj->locals[i]->regflags|=BGBCC_REGFL_CULL; }
+	}
 
 	BGBCC_SHX_EmitCheckFlushIndexImm(sctx);
 
@@ -883,8 +939,10 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 	{
 		if(sctx->reg_save&(1<<i))
 		{
-			BGBCC_SHX_EmitOpLdIncRegReg(sctx, BGBCC_SH_NMID_MOVL,
-				BGBCC_SH_REG_SP, BGBCC_SH_REG_R0+i);
+//			BGBCC_SHX_EmitOpLdIncRegReg(sctx, BGBCC_SH_NMID_MOVL,
+//				BGBCC_SH_REG_SP, BGBCC_SH_REG_R0+i);
+			BGBCC_SHX_EmitOpReg(sctx, BGBCC_SH_NMID_POP,
+				BGBCC_SH_REG_R0+i);
 		}else
 		{
 			for(j=i; j<15; j++)
@@ -1440,6 +1498,7 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_EmitLabelFlushRegisters(ctx, sctx);
 		BGBCC_SHXC_ResetFpscrLocal(ctx, sctx);
+//		BGBCC_SHX_EmitForceFlushIndexImm(sctx);
 		BGBCC_SHX_EmitLabel(sctx,
 			op->imm.si);
 		break;
@@ -1464,6 +1523,7 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 	case CCXL_VOP_JCMP_ZERO:
 		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_ResetFpscrLocal(ctx, sctx);
+//		BGBCC_SHX_EmitForceFlushIndexImm(sctx);
 		BGBCC_SHXC_EmitJCmpVRegZero(ctx, sctx, op->type,
 			op->srca, op->opr, op->imm.si);
 		BGBCC_SHXC_EmitLabelFlushRegisters(ctx, sctx);
@@ -1471,6 +1531,7 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 	case CCXL_VOP_JCMP:
 		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_ResetFpscrLocal(ctx, sctx);
+//		BGBCC_SHX_EmitForceFlushIndexImm(sctx);
 		BGBCC_SHXC_EmitJCmpVRegVReg(ctx, sctx, op->type,
 			op->srca, op->srcb, op->opr, op->imm.si);
 		BGBCC_SHXC_EmitLabelFlushRegisters(ctx, sctx);
@@ -1478,6 +1539,8 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 	case CCXL_VOP_CALL:
 		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_ResetFpscrDefaults(ctx, sctx);
+//		BGBCC_SHX_EmitForceFlushIndexImm(sctx);
+
 //		sctx->sreg_live|=0x00F4;
 		sctx->sreg_live|=0x00F0;
 		sctx->sfreg_live|=0x0FF0;
@@ -1681,11 +1744,15 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 	BGBCC_CCXL_RegisterInfo *obj)
 {
 	BGBCC_SHX_Context *sctx;
-	int l0;
+	int otrov, issta;
+	int l0, np, co, lo, bo, sz, nsz;
 	int i, j, k;
 
 	sctx=ctx->uctx;
-	
+
+	if(obj->regflags&BGBCC_REGFL_CULL)
+		return(0);
+
 	if(sctx->cgen_log)
 	{
 		fprintf(sctx->cgen_log, "BGBCC_SHXC_BuildFunction: Begin %s\n",
@@ -1715,41 +1782,75 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 		fflush(sctx->cgen_log);
 	}
 
-	BGBCC_SHX_SetBeginSimPass(sctx);
-
+	otrov=sctx->lbltrov;
 	sctx->reg_vsave=0;
 	sctx->freg_vsave=0;
+	lo=-1;
+	bo=BGBCC_SHX_EmitGetOffs(sctx);
+	sctx->simfnsz=9999999;
+	nsz=0;
 
-	BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
-
-	BGBCC_SHX_SetSectionName(sctx, ".text");
-//	BGBCC_SHX_EmitBAlign(sctx, 4);
-	BGBCC_SHX_EmitBAlign(sctx, 16);
-
-	BGBCC_SHX_EmitLabel(sctx, l0);
-	BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj);
-	
-	for(i=0; i<obj->n_vtr; i++)
+	for(np=0; np<6; np++)
 	{
-		BGBCC_SHXC_CompileVirtTr(ctx, sctx, obj, obj->vtr[i], i);
+		sctx->lbltrov=otrov;
+
+		sctx->is_stable=1;		//pretend stable
+
+		BGBCC_SHX_SetBeginSimPass(sctx);
+
+		BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
+
+		BGBCC_SHX_SetSectionName(sctx, ".text");
+		BGBCC_SHX_EmitBAlign(sctx, 4);
+//		BGBCC_SHX_EmitBAlign(sctx, 16);
+
+		BGBCC_SHX_EmitLabel(sctx, l0);
+		BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj);
+		
+		for(i=0; i<obj->n_vtr; i++)
+		{
+			BGBCC_SHXC_CompileVirtTr(ctx, sctx, obj, obj->vtr[i], i);
+		}
+		
+		BGBCC_SHXC_EmitFrameEpilog(ctx, sctx, obj);
+
+		BGBCC_SHX_SetEndSimPass(sctx);
+		
+		co=BGBCC_SHX_EmitGetOffs(sctx);
+		sz=co-bo;
+		if(sz>nsz)nsz=sz;
+		sctx->simfnsz=sz;
+		
+		issta=1;
+		if(sctx->reg_vsave!=sctx->reg_save)
+			issta=0;
+		if(sctx->freg_vsave!=sctx->freg_save)
+			issta=0;
+		if(co!=lo)
+			issta=0;
+		if(sctx->is_stable&2)
+			issta=0;
+		
+		sctx->reg_vsave=sctx->reg_save;
+		sctx->freg_vsave=sctx->freg_save;
+		lo=co;
+
+		if(issta)
+			break;
 	}
 	
-	BGBCC_SHXC_EmitFrameEpilog(ctx, sctx, obj);
+	sctx->is_stable=issta;
+	sctx->simfnnsz=nsz;
 
 	if(sctx->cgen_log)
 	{
-		fprintf(sctx->cgen_log, "BGBCC_SHXC_BuildFunction: EndSim %s\n",
-			obj->name);
+		fprintf(sctx->cgen_log, "BGBCC_SHXC_BuildFunction: EndSim %s np=%d\n",
+			obj->name, np);
 		fflush(sctx->cgen_log);
 	}
-
-	BGBCC_SHX_SetEndSimPass(sctx);
-	
-	sctx->reg_vsave=sctx->reg_save;
-	sctx->freg_vsave=sctx->freg_save;
 #endif
 
-#if 1
+#if 0
 	if(sctx->cgen_log)
 	{
 		fprintf(sctx->cgen_log, "BGBCC_SHXC_BuildFunction: BegSim2 %s\n",
@@ -1757,13 +1858,15 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 		fflush(sctx->cgen_log);
 	}
 
+	sctx->lbltrov=otrov;
+
 	BGBCC_SHX_SetBeginSimPass(sctx);
 
 	BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
 
 	BGBCC_SHX_SetSectionName(sctx, ".text");
-//	BGBCC_SHX_EmitBAlign(sctx, 4);
-	BGBCC_SHX_EmitBAlign(sctx, 16);
+	BGBCC_SHX_EmitBAlign(sctx, 4);
+//	BGBCC_SHX_EmitBAlign(sctx, 16);
 
 	BGBCC_SHX_EmitLabel(sctx, l0);
 	BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj);
@@ -1787,21 +1890,30 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 	sctx->reg_vsave=sctx->reg_save;
 	sctx->freg_vsave=sctx->freg_save;
 #endif
+
+	sctx->lbltrov=otrov;
 	
 	sctx->need_farjmp=0;
+	sctx->need_f16jmp=0;
 	sctx->need_n12jmp=0;
 //	if((obj->srctok*4)>=128)
-	if((obj->n_vop*6)>=128)
+//	if((obj->n_vop*6)>=128)
+//	if(sctx->simfnsz>244)
+//	if(sctx->simfnnsz>120)
+//	if(sctx->simfnnsz>60)
 		sctx->need_n12jmp=1;
 //	if((obj->srctok*4)>=2048)
-	if((obj->n_vop*6)>=2048)
+//	if((obj->n_vop*6)>=2048)
+	if(sctx->simfnnsz>3840)
+		sctx->need_f16jmp=1;
+	if(sctx->simfnnsz>30720)
 		sctx->need_farjmp=1;
 	
 	BGBCC_SHXC_SetupFrameLayout(ctx, sctx, obj);
 
 	BGBCC_SHX_SetSectionName(sctx, ".text");
-//	BGBCC_SHX_EmitBAlign(sctx, 4);
-	BGBCC_SHX_EmitBAlign(sctx, 16);
+	BGBCC_SHX_EmitBAlign(sctx, 4);
+//	BGBCC_SHX_EmitBAlign(sctx, 16);
 
 	BGBCC_SHX_EmitLabel(sctx, l0);
 	BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj);
@@ -2186,6 +2298,9 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 
 	sctx=ctx->uctx;
 	
+	if(obj->regflags&BGBCC_REGFL_CULL)
+		return(0);
+	
 	l0=obj->fxoffs;
 	if(l0<=0)
 	{
@@ -2197,6 +2312,9 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 	
 	if(!obj->value.val)
 	{
+//		if(!strcmp(obj->name, "snd_scaletable"))
+//			i=-1;
+		
 		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->type);
 		if(sz<1)sz=1;
 		sz=(sz+3)&(~3);
@@ -2407,7 +2525,7 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 	byte *ctl, *ctr;
 	char *s0;
 	int en;
-	s32 b, d, b1, d1;
+	s32 b, d, b1, d1, w0, w1;
 	int i, j, k;
 
 	en=(sctx->is_le==0);
@@ -2455,11 +2573,17 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 		{
 		case BGBCC_SH_RLC_REL8:
 			b=bgbcc_gets8en(ctr, en);
-			bgbcc_sets8en(ctr, en, b+d);
+			d1=b+d;
+			if(((sbyte)d1)!=d1)
+				__debugbreak();
+			bgbcc_sets8en(ctr, en, d1);
 			break;
 		case BGBCC_SH_RLC_REL16:
 			b=bgbcc_gets16en(ctr, en);
-			bgbcc_sets16en(ctr, en, b+d);
+			d1=b+d;
+			if(((s16)d1)!=d1)
+				__debugbreak();
+			bgbcc_sets16en(ctr, en, d1);
 			break;
 		case BGBCC_SH_RLC_REL32:
 			b=bgbcc_gets32en(ctr, en);
@@ -2515,6 +2639,41 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 				__debugbreak();
 			bgbcc_setu16en(ctr, en, (b&0xFF00)|(d1&0x00FF));
 			break;
+
+		case BGBCC_SH_RLC_RELW16_BJX:
+			w0=bgbcc_getu16en(ctr+0, en);
+			w1=bgbcc_getu16en(ctr+2, en);
+			
+//			b=(w0&255)|((w1&255)<<8);
+			b=((w0&255)<<8)|(w1&255);
+			b1=(b<<16)>>16;
+
+			d1=b1+((d-6)>>1);
+			if(((d1<<16)>>16)!=d1)
+				__debugbreak();
+			w0=(w0&0xFF00)|((d1>>8)&0x00FF);
+			w1=(w1&0xFF00)|((d1   )&0x00FF);
+			bgbcc_setu16en(ctr+0, en, w0);
+			bgbcc_setu16en(ctr+2, en, w1);
+			break;
+
+		case BGBCC_SH_RLC_RELW20_BJX:
+			w0=bgbcc_getu16en(ctr+0, en);
+			w1=bgbcc_getu16en(ctr+2, en);
+			
+//			b=(w0&255)|((w1&255)<<8);
+			b=((w0&255)<<8)|(w1&255);
+			b1=(b<<12)>>12;
+
+			d1=b1+((d-6)>>1);
+			if(((d1<<12)>>12)!=d1)
+				__debugbreak();
+			w0=(w0&0xFF00)|((d1>>12)&0x00FF);
+			w1=(w1&0xF000)|((d1    )&0x0FFF);
+			bgbcc_setu16en(ctr+0, en, w0);
+			bgbcc_setu16en(ctr+2, en, w1);
+			break;
+
 		default:
 			__debugbreak();
 		}
@@ -2755,6 +2914,62 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 	{
 		litobj=ctx->literals[i];
 		BGBCC_CCXL_SanityObjSize(ctx, litobj, 1);
+	}
+
+	for(i=0; i<ctx->n_reg_globals; i++)
+	{
+		obj=ctx->reg_globals[i];
+		if(!obj)
+			continue;
+		
+		if(obj->flagsint&BGBCC_TYFL_DLLEXPORT)
+		{
+			BGBCC_CCXL_GlobalMarkReachable(ctx, obj);
+			continue;
+		}
+
+		if(obj->name)
+		{
+			if(!strncmp(obj->name, "__", 2))
+			{
+				BGBCC_CCXL_GlobalMarkReachable(ctx, obj);
+				continue;
+			}
+
+			if(!strcmp(obj->name, "main"))
+			{
+				BGBCC_CCXL_GlobalMarkReachable(ctx, obj);
+				continue;
+			}
+		}
+	}
+
+	for(i=0; i<ctx->n_reg_globals; i++)
+	{
+		obj=ctx->reg_globals[i];
+		if(!obj)
+			continue;
+
+		if(obj->regtype==CCXL_LITID_FUNCTION)
+		{
+			if(!(obj->regflags&BGBCC_REGFL_ACCESSED))
+				{ obj->regflags|=BGBCC_REGFL_CULL; }
+			continue;
+		}
+
+		if(obj->regtype==CCXL_LITID_GLOBALVAR)
+		{
+			if(!(obj->regflags&BGBCC_REGFL_ACCESSED))
+				{ obj->regflags|=BGBCC_REGFL_CULL; }
+			continue;
+		}
+
+		if(obj->regtype==CCXL_LITID_STATICVAR)
+		{
+			if(!(obj->regflags&BGBCC_REGFL_ACCESSED))
+				{ obj->regflags|=BGBCC_REGFL_CULL; }
+			continue;
+		}
 	}
 
 	for(i=0; i<ctx->n_reg_globals; i++)

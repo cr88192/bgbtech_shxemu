@@ -545,9 +545,13 @@ int BGBCC_CCXL_TryGetSizeofName(BGBCC_TransState *ctx, char *name)
 {
 	static int rcp=0;
 	int sza[2], ala[2];
+	BGBCC_CCXL_RegisterInfo *gbl;
+	BGBCC_CCXL_LiteralInfo *litobj;
 	ccxl_register treg;
+	ccxl_type tty;
 	ccxl_type ty;
 	char *s;
+	int sz, sz1, asz;
 	int i;
 
 	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, &treg, false);
@@ -560,8 +564,47 @@ int BGBCC_CCXL_TryGetSizeofName(BGBCC_TransState *ctx, char *name)
 	rcp=0;
 	if(i>=0)
 	{
-		if(sza[0]==sza[1])
+		if((sza[0]==sza[1]) && (sza[0]>0))
 			return(sza[0]);
+	}
+
+	gbl=NULL;
+
+	if(BGBCC_CCXL_IsRegGlobalP(ctx, treg))
+	{
+		i=BGBCC_CCXL_GetRegID(ctx, treg);
+		gbl=ctx->reg_globals[i];
+	}
+	
+	if(!gbl)
+		return(-1);
+
+	ty=gbl->type;
+
+	if(BGBCC_CCXL_TypeArrayP(ctx, ty))
+	{
+		BGBCC_CCXL_TypeDerefType(ctx, ty, &tty);
+		sz1=BGBCC_CCXL_TypeGetLogicalSize(ctx, tty);
+		if(sz1<=0)
+			return(-1);
+
+		if(BGBCC_CCXL_IsRegImmLiteralP(ctx, gbl->value))
+		{
+			i=gbl->value.val&CCXL_REGINT_MASK;
+			litobj=ctx->literals[i];
+
+			asz=litobj->decl->n_listdata;
+
+			sz=sz1*asz;
+			if(sz>0)
+				return(sz);
+		}
+
+//		asz=BGBCC_CCXL_TypeGetArraySize(ctx, ty);
+//		sz=sz1*asz;
+//		if(sz>0)
+//			return(sz);
+		return(-1);
 	}
 
 	return(-1);

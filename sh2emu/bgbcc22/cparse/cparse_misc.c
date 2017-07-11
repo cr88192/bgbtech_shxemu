@@ -330,6 +330,20 @@ fourcc BGBCP_ArchForName(char *name)
 	if(!bgbcp_strcmp(name, "SH2"))	i=BGBCC_ARCH_SH;
 	if(!bgbcp_strcmp(name, "SH4"))	i=BGBCC_ARCH_SH;
 	if(!bgbcp_strcmp(name, "SH"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "SH2L"))	i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "SH4L"))	i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "SH2B"))	i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "SH4B"))	i=BGBCC_ARCH_SH;
+
+	if(!bgbcp_strcmp(name, "BJX1"))			i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1_32"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1_64"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1L"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1L_32"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1L_64"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1B"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1B_32"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1B_64"))		i=BGBCC_ARCH_SH;
 
 	return(i);
 }
@@ -342,6 +356,20 @@ fourcc BGBCP_SubArchForName(int arch, char *name)
 
 	if(!bgbcp_strcmp(name, "SH2"))	i=BGBCC_ARCH_SH_SH2;
 	if(!bgbcp_strcmp(name, "SH4"))	i=BGBCC_ARCH_SH_SH4;
+	if(!bgbcp_strcmp(name, "SH2L"))	i=BGBCC_ARCH_SH_SH2L;
+	if(!bgbcp_strcmp(name, "SH4L"))	i=BGBCC_ARCH_SH_SH4L;
+	if(!bgbcp_strcmp(name, "SH2B"))	i=BGBCC_ARCH_SH_SH2B;
+	if(!bgbcp_strcmp(name, "SH4B"))	i=BGBCC_ARCH_SH_SH4B;
+
+	if(!bgbcp_strcmp(name, "BJX1"))			i=BGBCC_ARCH_SH_BX1L;
+	if(!bgbcp_strcmp(name, "BJX1_32"))		i=BGBCC_ARCH_SH_BX1L;
+	if(!bgbcp_strcmp(name, "BJX1_64"))		i=BGBCC_ARCH_SH_BX6L;
+	if(!bgbcp_strcmp(name, "BJX1L"))		i=BGBCC_ARCH_SH_BX1L;
+	if(!bgbcp_strcmp(name, "BJX1L_32"))		i=BGBCC_ARCH_SH_BX1L;
+	if(!bgbcp_strcmp(name, "BJX1L_64"))		i=BGBCC_ARCH_SH_BX6L;
+	if(!bgbcp_strcmp(name, "BJX1B"))		i=BGBCC_ARCH_SH_BX1B;
+	if(!bgbcp_strcmp(name, "BJX1B_32"))		i=BGBCC_ARCH_SH_BX1B;
+	if(!bgbcp_strcmp(name, "BJX1B_64"))		i=BGBCC_ARCH_SH_BX6B;
 
 	return(i);
 }
@@ -386,6 +414,15 @@ char *BGBCP_NameForSubArch(fourcc arch, fourcc subarch)
 	case BGBCC_ARCH_SH_SH4B:
 		s="SH4B"; break;
 
+	case BGBCC_ARCH_SH_BX1L:
+		s="BJX1L"; break;
+	case BGBCC_ARCH_SH_BX1B:
+		s="BJX1B"; break;
+	case BGBCC_ARCH_SH_BX6L:
+		s="BJX1L_64"; break;
+	case BGBCC_ARCH_SH_BX6B:
+		s="BJX1B_64"; break;
+
 	default:
 		s=NULL; break;
 	}
@@ -412,6 +449,15 @@ char *BGBCP_DescForSubArch(fourcc arch, fourcc subarch)
 		s="SH2 Big Endian"; break;
 	case BGBCC_ARCH_SH_SH4B:
 		s="SH4 Big Endian"; break;
+
+	case BGBCC_ARCH_SH_BX1L:
+		s="BJX1 32-bit Little Endian"; break;
+	case BGBCC_ARCH_SH_BX1B:
+		s="BJX1 32-bit Big Endian"; break;
+	case BGBCC_ARCH_SH_BX6L:
+		s="BJX1 64-bit Little Endian"; break;
+	case BGBCC_ARCH_SH_BX6B:
+		s="BJX1 64-bit Big Endian"; break;
 
 	default:
 		s=NULL; break;
@@ -524,6 +570,8 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 	ctx->arch=BGBCC_GetArch();
 	ctx->subarch=BGBCC_GetSubArch();
 	
+	ctx->tuidx=BGBCC_GenSymInt();
+	
 	BGBCC_CCXL_SetupParserForArch(ctx);
 
 	t0=clock();
@@ -593,6 +641,8 @@ BCCX_Node *BGBCP_ModuleBuffer(char *name, char *modname, char *buf)
 
 	s=BGBCP_NameForArch(ctx->arch);
 	BCCX_SetCst(n, &bgbcc_rcst_arch, "arch", s);
+
+	BCCX_SetIntCst(n, &bgbcc_rcst_index, "index", ctx->tuidx);
 
 	s=BGBCP_NameForSubArch(ctx->arch, ctx->subarch);
 	if(s)

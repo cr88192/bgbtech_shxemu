@@ -1125,10 +1125,12 @@ int BGBCC_CCXL_TypeGetLogicalSize(
 	{
 		BGBCC_CCXL_TypeDerefType(ctx, ty, &tty);
 		sz1=BGBCC_CCXL_TypeGetLogicalSize(ctx, tty);
-		asz=BGBCC_CCXL_TypeGetArraySize(ctx, ty);
+//		asz=BGBCC_CCXL_TypeGetArraySize(ctx, ty);
+		asz=BGBCC_CCXL_TypeGetArrayDimSize(ctx, ty);
 		sz=sz1*asz;
 		if(sz>0)
 			return(sz);
+		return(-1);
 	}
 
 	sz=BGBCC_CCXL_TypeGetLogicalBaseSize(ctx, ty);

@@ -114,6 +114,10 @@ void Cbuf_InsertText (char *text)
 	char	*temp;
 	int		templen;
 
+	tk_printf("Cbuf_InsertText: %p {{\n", text);
+	tk_puts(text);
+	tk_printf("Cbuf_InsertText: }}\n");
+
 // copy off any commands still remaining in the exec buffer
 	templen = cmd_text.cursize;
 	if (templen)
@@ -616,6 +620,8 @@ void	Cmd_ExecuteString (char *text, cmd_source_t src)
 {	
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;
+
+	tk_printf("Cmd_ExecuteString: %s\n", text);
 
 	cmd_source = src;
 	Cmd_TokenizeString (text);

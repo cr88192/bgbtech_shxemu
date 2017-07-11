@@ -119,6 +119,13 @@ int BGBCC_SHXC_EmitLdixVRegVRegVReg(
 	int nm1, nm2, ty, sz, asz, bsz;
 	int i, j, k;
 
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, treg))
+	{
+		j=BGBCC_CCXL_GetRegImmIntValue(ctx, treg);
+		i=BGBCC_SHXC_EmitLdixVRegVRegImm(ctx, sctx, type, dreg, sreg, j);
+		return(i);
+	}
+
 	ty=type.val;
 
 //	if(BGBCC_CCXL_TypeArrayP(ctx, type))
@@ -328,6 +335,13 @@ int BGBCC_SHXC_EmitStixVRegVRegVReg(
 	int tr0;
 	int nm1, nm2, ty, sz, al;
 	int i, j, k;
+
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, sreg))
+	{
+		j=BGBCC_CCXL_GetRegImmIntValue(ctx, sreg);
+		i=BGBCC_SHXC_EmitStixVRegVRegImm(ctx, sctx, type, dreg, treg, j);
+		return(i);
+	}
 
 #if 0
 	if(BGBCC_CCXL_TypeArrayP(ctx, type))
@@ -1068,6 +1082,7 @@ int BGBCC_SHXC_EmitLeaBRegIRegScReg(
 	int nmid, int breg, int ireg, int sc, int dreg)
 {
 	int treg;
+	int opw1, opw2;
 	int nm1, nm2, nm3;
 	int p0, p1, shl, bs, cbo, cmo;
 	int i, j, k;
@@ -1192,12 +1207,31 @@ int BGBCC_SHXC_EmitLeaBRegIRegScReg(
 
 	if((shl>=0) && (bs==2) && (cbo<=cmo))
 	{
+		opw1=-1;
+		switch(shl)
+		{
+			case 0: opw1=BGBCC_SH_NMID_LEAB; break;
+			case 1: opw1=BGBCC_SH_NMID_LEAW; break;
+			case 2: opw1=BGBCC_SH_NMID_LEAL; break;
+			case 3: opw1=BGBCC_SH_NMID_LEAQ; break;
+			default:	break;
+		}
+		if((opw1>0) && (breg!=BGBCC_SH_REG_R0))
+		{
+			i=BGBCC_SHX_TryEmitOpLdReg2Reg(sctx,
+				opw1, breg, ireg, dreg);
+			if(i>0)
+				return(1);
+		}
+	
 		if(breg==dreg)
 		{
-			treg=BGBCC_SH_REG_R1;
+//			treg=BGBCC_SH_REG_R1;
+			treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, ireg, treg);
 			BGBCC_SHXC_EmitLeaShlRegImm(ctx, sctx, treg, shl);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, treg, dreg);
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
 		}else
 		{
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, ireg, dreg);
@@ -1211,12 +1245,14 @@ int BGBCC_SHXC_EmitLeaBRegIRegScReg(
 	{
 		if(breg==dreg)
 		{
-			treg=BGBCC_SH_REG_R1;
+//			treg=BGBCC_SH_REG_R1;
+			treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, ireg, treg);
 			BGBCC_SHX_EmitOpReg(sctx, BGBCC_SH_NMID_SHLL, treg);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, ireg, treg);
 			BGBCC_SHXC_EmitLeaShlRegImm(ctx, sctx, treg, shl);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, treg, dreg);
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
 			return(1);
 		}
 
@@ -1232,12 +1268,14 @@ int BGBCC_SHXC_EmitLeaBRegIRegScReg(
 	{
 		if(breg==dreg)
 		{
-			treg=BGBCC_SH_REG_R1;
+//			treg=BGBCC_SH_REG_R1;
+			treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, ireg, treg);
 			BGBCC_SHX_EmitOpReg(sctx, BGBCC_SH_NMID_SHLL2, treg);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, ireg, treg);
 			BGBCC_SHXC_EmitLeaShlRegImm(ctx, sctx, treg, shl);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, treg, dreg);
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
 			return(1);
 		}
 
@@ -1300,22 +1338,48 @@ int BGBCC_SHXC_EmitLeaBRegIRegScReg(
 //		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV,
 //			ireg, dreg);
 
+		treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_GR);
+
+		if(breg==dreg)
+		{
+			i=BGBCC_SHX_TryEmitOpRegImmReg(sctx, BGBCC_SH_NMID_MULL,
+				ireg, sc, treg);
+			if(i>0)
+			{
+				BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
+					treg, dreg);
+				BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
+				return(1);
+			}
+		}else
+		{
+			i=BGBCC_SHX_TryEmitOpRegImmReg(sctx, BGBCC_SH_NMID_MULL,
+				ireg, sc, dreg);
+			if(i>0)
+			{
+				BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, breg, dreg);
+				BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
+				return(1);
+			}
+		}
+
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
-			BGBCC_SH_REG_R0, sc);
+			treg, sc);
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MULL,
-			ireg, BGBCC_SH_REG_R0);
+			ireg, treg);
 		if(breg==dreg)
 		{
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_STS,
-				BGBCC_SH_REG_MACL, BGBCC_SH_REG_R1);
+				BGBCC_SH_REG_MACL, treg);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD,
-				BGBCC_SH_REG_R1, dreg);
+				treg, dreg);
 		}else
 		{
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_STS,
 				BGBCC_SH_REG_MACL, dreg);
 			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, breg, dreg);
 		}
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
 		return(1);
 	}
 

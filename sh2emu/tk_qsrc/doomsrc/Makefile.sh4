@@ -3,7 +3,7 @@ TOOLPATH=/opt/cross/bin/
 CC=$(TOOLPATH)sh4-gcc
 OBJDUMP=$(TOOLPATH)sh4-objdump
 
-TK_CFL=-nostdinc -nostdlib -nostartfiles -fno-builtin \
+TK_CFL=-nostdinc -nostdlib -nostartfiles -fno-builtin -fno-strict-aliasing \
 	-DARCH_SH4 -DARCH_SH4LE -O2
 TK_LDFL= $(TK_CFL) \
 	-Wl,-nostdlib -Wl,-e,_start -Wl,-T,../sh4elf.x ../tk_clib/crt0.o

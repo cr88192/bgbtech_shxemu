@@ -1,4 +1,5 @@
-int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
+int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
+	BTESH2_Opcode *op, btesh2_vaddr pc)
 {
 	static const byte ldow2[16]={1,0,0,1, 0,0,1,0, 1,0,0,0, 0,0,1,1};
 	u16 opw, opw2;
@@ -16,6 +17,7 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 	op->fl=0;
 
 	op->opw=opw;
+	op->opw2=opw2;
 	op->pc=pc;
 	switch(opw>>12)
 	{
@@ -44,6 +46,10 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STC;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			case 0x2: /* 0-22 */
 				op->rn=(opw>>8)&15;
@@ -51,6 +57,33 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STC;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				break;
+
+			case 0x3: /* 0-32 */
+				op->rn=(opw>>8)&15;
+				op->rm=BTESH2_REG_SSR;
+				op->nmid=BTESH2_NMID_STC;
+				op->fmid=BTESH2_FMID_REGREG;
+				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				break;
+			case 0x4: /* 0-42 */
+				op->rn=(opw>>8)&15;
+				op->rm=BTESH2_REG_SPC;
+				op->nmid=BTESH2_NMID_STC;
+				op->fmid=BTESH2_FMID_REGREG;
+				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 
 			case 0x8:	case 0x9:	case 0xA:	case 0xB:
@@ -60,6 +93,10 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STC;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			}
 			break;
@@ -119,6 +156,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_MOVCAL;
 				op->fmid=BTESH2_FMID_REGST;
 				op->Run=BTSH_Op_MOV_RegStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegStD;
 				break;
 
 			case 0xE:
@@ -137,6 +176,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGSTR0N;
 			op->Run=BTSH_Op_MOV_RegStR0nB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegStR0nB;
 			break;
 		case 0x5: /* 0--5 */
 			op->rn=(opw>>8)&15;
@@ -145,6 +186,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGSTR0N;
 			op->Run=BTSH_Op_MOV_RegStR0nW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_RegStR0nW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_RegStR0nQ;
+				}
+			}
 			break;
 		case 0x6: /* 0--6 */
 			op->rn=(opw>>8)&15;
@@ -153,6 +203,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVL;
 			op->fmid=BTESH2_FMID_REGSTR0N;
 			op->Run=BTSH_Op_MOV_RegStR0nD;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegStR0nD;
 			break;
 		case 0x7: /* 0--7 */
 			op->rn=(opw>>8)&15;
@@ -181,14 +233,36 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				break;
 
 			case 0x4: /* 0-48 */
-				op->nmid=BTESH2_NMID_CLRS;
-				op->fmid=BTESH2_FMID_NONE;
-				op->Run=BTSH_Op_CLRT_Z;
+				switch((opw>>8)&15)
+				{
+				case 0x0:
+					op->nmid=BTESH2_NMID_CLRS;
+					op->fmid=BTESH2_FMID_NONE;
+					op->Run=BTSH_Op_CLRS_Z;
+					break;
+				case 0x1: case 0x2: case 0x3:
+					op->imm=(opw>>8)&15;
+					op->nmid=BTESH2_NMID_ICLRMD;
+					op->fmid=BTESH2_FMID_IMM;
+					op->Run=BTSH_Op_ICLRMD_Imm;
+					break;
+				}
 				break;
 			case 0x5: /* 0-58 */
-				op->nmid=BTESH2_NMID_SETS;
-				op->fmid=BTESH2_FMID_NONE;
-				op->Run=BTSH_Op_SETT_Z;
+				switch((opw>>8)&15)
+				{
+				case 0x0:
+					op->nmid=BTESH2_NMID_SETS;
+					op->fmid=BTESH2_FMID_NONE;
+					op->Run=BTSH_Op_SETS_Z;
+					break;
+				case 0x1: case 0x2: case 0x3:
+					op->imm=(opw>>8)&15;
+					op->nmid=BTESH2_NMID_ISETMD;
+					op->fmid=BTESH2_FMID_IMM;
+					op->Run=BTSH_Op_ISETMD_Imm;
+					break;
+				}
 				break;
 			}
 			break;
@@ -222,6 +296,10 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			case 0x1: /* 0-1A */
 				op->rn=(opw>>8)&15;
@@ -229,6 +307,10 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			case 0x2: /* 0-2A */
 				op->rn=(opw>>8)&15;
@@ -236,6 +318,21 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				break;
+			case 0x3: /* 0-3A */
+				op->rn=(opw>>8)&15;
+				op->rm=BTESH2_REG_SGR;
+				op->nmid=BTESH2_NMID_STS;
+				op->fmid=BTESH2_FMID_REGREG;
+				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 
 			case 0x5: /* 0-5A */
@@ -244,6 +341,10 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			case 0x6: /* 0-6A */
 				op->rn=(opw>>8)&15;
@@ -251,6 +352,10 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			}
 			break;
@@ -287,6 +392,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGLDR0M;
 			op->Run=BTSH_Op_MOV_RegLdR0mB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegLdR0mB;
 			break;
 		case 0xD: /* 0--D */
 			op->rn=(opw>>8)&15;
@@ -295,6 +402,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGLDR0M;
 			op->Run=BTSH_Op_MOV_RegLdR0mW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_RegLdR0mW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_RegLdR0mQ;
+				}
+			}
 			break;
 		case 0xE: /* 0--E */
 			op->rn=(opw>>8)&15;
@@ -303,6 +419,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVL;
 			op->fmid=BTESH2_FMID_REGLDR0M;
 			op->Run=BTSH_Op_MOV_RegLdR0mD;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegLdR0mD;
 			break;
 		case 0xF: /* 0--F */
 			op->rn=(opw>>8)&15;
@@ -320,6 +438,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		op->nmid=BTESH2_NMID_MOVL;
 		op->fmid=BTESH2_FMID_REGSTDISP;
 		op->Run=BTSH_Op_MOV_RegStDispD;
+		if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			op->Run=BTSH_OpJQ_MOV_RegStDispD;
 		break;
 	case 0x2: /* 2--- */
 		switch(opw&15)
@@ -330,6 +450,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGST;
 			op->Run=BTSH_Op_MOV_RegStB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegStB;
 			break;
 		case 0x1: /* 2--1 */
 			op->rn=(opw>>8)&15;
@@ -337,6 +459,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGST;
 			op->Run=BTSH_Op_MOV_RegStW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_RegStW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_RegStQ;
+				}
+			}
 			break;
 		case 0x2: /* 2--2 */
 			op->rn=(opw>>8)&15;
@@ -346,6 +477,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->Run=BTSH_Op_MOV_RegStD;
 			if(BTESH2_CheckCpuFmmuP(cpu))
 				op->Run=BTSH_Op_MOV_RegStD_FMMU;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegStD;
 			break;
 		case 0x3:
 			op->rn=(opw>>8)&15;
@@ -361,6 +494,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGDECST;
 			op->Run=BTSH_Op_MOV_RegDecStB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegDecStB;
 			break;
 		case 0x5: /* 2--5 */
 			op->rn=(opw>>8)&15;
@@ -368,6 +503,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGDECST;
 			op->Run=BTSH_Op_MOV_RegDecStW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_RegDecStW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
+				}
+			}
 			break;
 		case 0x6: /* 2--6 */
 			op->rn=(opw>>8)&15;
@@ -377,6 +521,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->Run=BTSH_Op_MOV_RegDecStD;
 //			if(BTESH2_CheckCpuFmmuP(cpu))
 //				op->Run=BTSH_Op_MOV_RegDecStD_FMMU;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegDecStD;
 			break;
 		case 0x7: /* 2--7 */
 			op->rn=(opw>>8)&15;
@@ -391,6 +537,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_TST;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_TST_RegReg;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_TSTQ;
+				op->Run=BTSH_Op_TSTQ_RegReg;
+			}
 			break;
 		case 0x9: /* 2--9 */
 			op->rn=(opw>>8)&15;
@@ -398,6 +549,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_AND;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_AND_RegReg;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_ANDQ;
+				op->Run=BTSH_Op_ANDQ_RegReg;
+			}
 			break;
 		case 0xA: /* 2--A */
 			op->rn=(opw>>8)&15;
@@ -405,6 +561,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_XOR;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_XOR_RegReg;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_XORQ;
+				op->Run=BTSH_Op_XORQ_RegReg;
+			}
 			break;
 		case 0xB: /* 2--B */
 			op->rn=(opw>>8)&15;
@@ -412,6 +573,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_OR;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_OR_RegReg;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_ORQ;
+				op->Run=BTSH_Op_ORQ_RegReg;
+			}
 			break;
 		case 0xC: /* 2--C */
 			op->rn=(opw>>8)&15;
@@ -507,6 +673,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_SUB;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_SUB_RegReg;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_SUBQ;
+				op->Run=BTSH_Op_SUBQ_RegReg;
+			}
 			break;
 
 		case 0x9: /* 3--9 */
@@ -533,6 +704,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_ADD;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_ADD_RegReg;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_ADDQ;
+				op->Run=BTSH_Op_ADDQ_RegReg;
+			}
 			break;
 		case 0xD: /* 3--D */
 			op->rn=(opw>>8)&15;
@@ -616,6 +792,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STSL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 			case 0x1: /* 4-12 */
 				op->rn=(opw>>8)&15;
@@ -623,6 +801,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STSL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 			case 0x2: /* 4-22 */
 				op->rn=(opw>>8)&15;
@@ -630,6 +810,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STSL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 
 			case 0x5: /* 4-52 */
@@ -638,6 +820,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STSL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 			case 0x6: /* 4-62 */
 				op->rn=(opw>>8)&15;
@@ -645,6 +829,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STSL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 			}
 			break;
@@ -657,6 +843,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STCL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 			case 0x1: /* 4-13 */
 				op->rn=(opw>>8)&15;
@@ -664,6 +852,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STCL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 			case 0x2: /* 4-23 */
 				op->rn=(opw>>8)&15;
@@ -671,6 +861,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STCL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 
 			case 0x8:	case 0x9:	case 0xA:	case 0xB:
@@ -680,6 +872,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_STCL;
 				op->fmid=BTESH2_FMID_REGDECST;
 				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
 				break;
 			}
 			break;
@@ -734,6 +928,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->Run=BTSH_Op_MOV_RegIncLdD;
 //				if(BTESH2_CheckCpuFmmuP(cpu))
 //					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 			case 0x1: /* 4-16 */
 				op->rm=(opw>>8)&15;
@@ -743,6 +939,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->Run=BTSH_Op_MOV_RegIncLdD;
 //				if(BTESH2_CheckCpuFmmuP(cpu))
 //					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 			case 0x2: /* 4-26 */
 				op->rm=(opw>>8)&15;
@@ -752,6 +950,19 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->Run=BTSH_Op_MOV_RegIncLdD;
 //				if(BTESH2_CheckCpuFmmuP(cpu))
 //					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
+				break;
+			case 0x3: /* 4-36 */
+				op->rm=(opw>>8)&15;
+				op->rn=BTESH2_REG_SGR;
+				op->nmid=BTESH2_NMID_LDSL;
+				op->fmid=BTESH2_FMID_REGINCLD;
+				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 
 			case 0x5: /* 4-56 */
@@ -762,6 +973,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->Run=BTSH_Op_MOV_RegIncLdD;
 //				if(BTESH2_CheckCpuFmmuP(cpu))
 //					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 			case 0x6: /* 4-66 */
 				op->rm=(opw>>8)&15;
@@ -771,6 +984,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->Run=BTSH_Op_MOV_FPSCR_RegIncLdD;
 //				if(BTESH2_CheckCpuFmmuP(cpu))
 //					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 			}
 			break;
@@ -783,6 +998,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDCL;
 				op->fmid=BTESH2_FMID_REGINCLD;
 				op->Run=BTSH_Op_MOV_RegSrIncLdD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegSrIncLdQ;
 				break;
 			case 0x1: /* 4-17 */
 				op->rm=(opw>>8)&15;
@@ -792,6 +1009,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->Run=BTSH_Op_MOV_RegIncLdD;
 //				if(BTESH2_CheckCpuFmmuP(cpu))
 //					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 			case 0x2: /* 4-27 */
 				op->rm=(opw>>8)&15;
@@ -801,6 +1020,30 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->Run=BTSH_Op_MOV_RegIncLdD;
 //				if(BTESH2_CheckCpuFmmuP(cpu))
 //					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
+				break;
+			case 0x3: /* 4-37 */
+				op->rm=(opw>>8)&15;
+				op->rn=BTESH2_REG_SSR;
+				op->nmid=BTESH2_NMID_LDCL;
+				op->fmid=BTESH2_FMID_REGINCLD;
+				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
+				break;
+			case 0x4: /* 4-47 */
+				op->rm=(opw>>8)&15;
+				op->rn=BTESH2_REG_SPC;
+				op->nmid=BTESH2_NMID_LDCL;
+				op->fmid=BTESH2_FMID_REGINCLD;
+				op->Run=BTSH_Op_MOV_RegIncLdD;
+//				if(BTESH2_CheckCpuFmmuP(cpu))
+//					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 
 			case 0x8:	case 0x9:	case 0xA:	case 0xB:
@@ -812,6 +1055,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->Run=BTSH_Op_MOV_RegIncLdD;
 //				if(BTESH2_CheckCpuFmmuP(cpu))
 //					op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 			}
 			break;
@@ -835,6 +1080,25 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_SHLL16;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_SHLL16_Reg;
+				break;
+
+			case 0x4: /* 4-48 */
+				op->rn=BTESH2_REG_SP;
+				op->rm=(opw>>8)&15;
+				op->nmid=BTESH2_NMID_PUSH;
+				op->fmid=BTESH2_FMID_REGRM;
+				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
+				break;
+			case 0x5: /* 4-58 */
+				op->rn=(opw>>8)&15;
+				op->rm=BTESH2_REG_SP;
+				op->nmid=BTESH2_NMID_POP;
+				op->fmid=BTESH2_FMID_REGRN;
+				op->Run=BTSH_Op_MOV_RegIncLdD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
 			}
 			break;
@@ -870,6 +1134,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			case 0x1: /* 4-1A */
 				op->rm=(opw>>8)&15;
@@ -877,6 +1143,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			case 0x2: /* 4-2A */
 				op->rm=(opw>>8)&15;
@@ -884,6 +1152,17 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				break;
+			case 0x3: /* 4-3A */
+				op->rm=(opw>>8)&15;
+				op->rn=BTESH2_REG_SGR;
+				op->nmid=BTESH2_NMID_LDS;
+				op->fmid=BTESH2_FMID_REGREG;
+				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 
 			case 0x5: /* 4-5A */
@@ -892,6 +1171,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			case 0x6: /* 4-5A */
 				op->rm=(opw>>8)&15;
@@ -899,6 +1180,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDS;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_FPSCR_RegReg;
+//				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+//					op->Run=BTSH_OpJQ_MOV_FPSCR_RegReg;
 				break;
 			}
 			break;
@@ -935,6 +1218,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_MOVB;
 				op->fmid=BTESH2_FMID_REGINCST;
 				op->Run=BTSH_Op_MOV_RegIncStB;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncStB;
 				break;
 			case 0x9: /* 4-9B, 2A */
 				op->rn=(opw>>8)&15;
@@ -942,6 +1227,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_MOVW;
 				op->fmid=BTESH2_FMID_REGINCST;
 				op->Run=BTSH_Op_MOV_RegIncStW;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				{
+					op->Run=BTSH_OpJQ_MOV_RegIncStW;
+					if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					{
+						op->nmid=BTESH2_NMID_MOVQ;
+						op->Run=BTSH_OpJQ_MOV_RegIncStQ;
+					}
+				}
 				break;
 			case 0xA: /* 4-AB, 2A */
 				op->rn=(opw>>8)&15;
@@ -949,6 +1243,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_MOVL;
 				op->fmid=BTESH2_FMID_REGINCST;
 				op->Run=BTSH_Op_MOV_RegIncStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncStD;
 				break;
 
 			case 0xC: /* 4-CB, 2A */
@@ -957,6 +1253,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_MOVB;
 				op->fmid=BTESH2_FMID_REGDECLD;
 				op->Run=BTSH_Op_MOV_RegDecLdB;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecLdB;
 				break;
 			case 0xD: /* 4-DB, 2A */
 				op->rn=(opw>>8)&15;
@@ -964,6 +1262,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_MOVW;
 				op->fmid=BTESH2_FMID_REGDECLD;
 				op->Run=BTSH_Op_MOV_RegDecLdW;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				{
+					op->Run=BTSH_OpJQ_MOV_RegDecLdW;
+					if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					{
+						op->nmid=BTESH2_NMID_MOVQ;
+						op->Run=BTSH_OpJQ_MOV_RegDecLdQ;
+					}
+				}
 				break;
 			case 0xE: /* 4-EB, 2A */
 				op->rn=(opw>>8)&15;
@@ -971,6 +1278,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_MOVL;
 				op->fmid=BTESH2_FMID_REGDECLD;
 				op->Run=BTSH_Op_MOV_RegDecLdD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecLdD;
 				break;
 			}
 			break;
@@ -997,6 +1306,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDC;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegRegSrB;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegRegSr;
 				break;
 			case 0x1: /* 4-1E */
 				op->rm=(opw>>8)&15;
@@ -1004,6 +1315,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDC;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			case 0x2: /* 4-2E */
 				op->rm=(opw>>8)&15;
@@ -1011,6 +1324,26 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDC;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				break;
+			case 0x3: /* 4-3E */
+				op->rm=(opw>>8)&15;
+				op->rn=BTESH2_REG_SSR;
+				op->nmid=BTESH2_NMID_LDC;
+				op->fmid=BTESH2_FMID_REGREG;
+				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				break;
+			case 0x4: /* 4-4E */
+				op->rm=(opw>>8)&15;
+				op->rn=BTESH2_REG_SPC;
+				op->nmid=BTESH2_NMID_LDC;
+				op->fmid=BTESH2_FMID_REGREG;
+				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			
 			case 0x8:	case 0x9:	case 0xA:	case 0xB:
@@ -1020,6 +1353,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_LDC;
 				op->fmid=BTESH2_FMID_REGREG;
 				op->Run=BTSH_Op_MOV_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+					op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			}
 			break;
@@ -1042,6 +1377,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		op->Run=BTSH_Op_MOV_RegLdDispD;
 		if(BTESH2_CheckCpuFmmuP(cpu))
 			op->Run=BTSH_Op_MOV_RegLdDispD_FMMU;
+		if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			op->Run=BTSH_OpJQ_MOV_RegLdDispD;
 		break;
 	case 0x6: /* 6--- */
 		switch(opw&15)
@@ -1052,6 +1389,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGLD;
 			op->Run=BTSH_Op_MOV_RegMemB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegMemB;
 			break;
 		case 0x1: /* 6--1 */
 			op->rn=(opw>>8)&15;
@@ -1059,6 +1398,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGLD;
 			op->Run=BTSH_Op_MOV_RegMemW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_RegMemW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_RegMemQ;
+				}
+			}
 			break;
 		case 0x2: /* 6--2 */
 			op->rn=(opw>>8)&15;
@@ -1068,6 +1416,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->Run=BTSH_Op_MOV_RegMemD;
 			if(BTESH2_CheckCpuFmmuP(cpu))
 				op->Run=BTSH_Op_MOV_RegMemD_FMMU;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegMemD;
 			break;
 		case 0x3: /* 6--3 */
 			op->rn=(opw>>8)&15;
@@ -1075,6 +1425,13 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOV;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_MOV_RegReg;
+
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_MOVQ;
+				op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				break;
+			}
 
 			if(isds)
 			{
@@ -1130,6 +1487,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGINCLD;
 			op->Run=BTSH_Op_MOV_RegIncLdB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegIncLdB;
 			break;
 		case 0x5: /* 6--5 */
 			op->rn=(opw>>8)&15;
@@ -1137,6 +1496,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGINCLD;
 			op->Run=BTSH_Op_MOV_RegIncLdW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_RegIncLdW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
+				}
+			}
 			break;
 		case 0x6: /* 6--6 */
 			op->rn=(opw>>8)&15;
@@ -1146,6 +1514,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->Run=BTSH_Op_MOV_RegIncLdD;
 //			if(BTESH2_CheckCpuFmmuP(cpu))
 //				op->Run=BTSH_Op_MOV_RegIncLdD_FMMU;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegIncLdD;
 			break;
 		case 0x7: /* 6--7 */
 			op->rn=(opw>>8)&15;
@@ -1230,6 +1600,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGSTDISP;
 			op->Run=BTSH_Op_MOV_R0StDispB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_R0StDispB;
 			break;
 		case 0x1: /* 81-- */
 			op->rm=0;
@@ -1238,6 +1610,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGSTDISP;
 			op->Run=BTSH_Op_MOV_R0StDispW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_R0StDispW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_R0StDispQ;
+				}
+			}
 			break;
 		case 0x2: /* 82-- */
 			break;
@@ -1250,6 +1631,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGLDDISP;
 			op->Run=BTSH_Op_MOV_R0LdDispB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_R0LdDispB;
 			break;
 		case 0x5: /* 85-- */
 			op->rm=(opw>>4)&15;
@@ -1258,6 +1641,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGLDDISP;
 			op->Run=BTSH_Op_MOV_R0LdDispW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_R0LdDispW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_R0LdDispQ;
+				}
+			}
 			break;
 		case 0x6: /* 86-- */
 			break;
@@ -1305,15 +1697,17 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->Run=BTSH_Op_BF_Abs;
 			break;
 		case 0xC: /* 8C-- */
-#if 1
+			BTESH2_DecodeOpcode_BJX1_8C(cpu, op, pc, opw, opw2);
+			break;
+#if 0
 			op->imm=((byte)opw);
 			op->rn=0;
 			op->ro=8;
 			op->nmid=BTESH2_NMID_MOV;
 			op->fmid=BTESH2_FMID_REGIMM;
 			op->Run=BTSH_Op_MOV_RegShlImm;
-#endif
 			break;
+#endif
 		case 0xD: /* 8D-- */
 //			i=(opw<<24)>>24;
 			i=((sbyte)opw);
@@ -1349,6 +1743,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		op->nmid=BTESH2_NMID_MOVW;
 		op->fmid=BTESH2_FMID_REGLDABS;
 		op->Run=BTSH_Op_MOV_RegLdAbsW;
+		if(cpu->csfl&BTESH2_CSFL_SRDQ)
+		{
+			op->imm=((pc+4)&(~3))+(4*i);
+			op->nmid=BTESH2_NMID_MOVQ;
+			op->Run=BTSH_OpJQ_MOV_RegLdAbsQ;
+		}
 		break;
 	case 0xA: /* A---, BRA label */
 		i=(opw<<20)>>20;
@@ -1378,6 +1778,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGSTDISP;
 			op->Run=BTSH_Op_MOV_RegStDispB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegStDispB;
 			break;
 		case 0x1: /* C1-- */
 			op->rn=BTESH2_REG_GBR;
@@ -1386,6 +1788,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGSTDISP;
 			op->Run=BTSH_Op_MOV_RegStDispW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_RegStDispW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_RegStDispQ;
+				}
+			}
 			break;
 		case 0x2: /* C2-- */
 			op->rn=BTESH2_REG_GBR;
@@ -1394,6 +1805,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVL;
 			op->fmid=BTESH2_FMID_REGSTDISP;
 			op->Run=BTSH_Op_MOV_RegStDispD;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegStDispD;
 			break;
 		case 0x3: /* C3--, TRAPA #imm */
 			op->rn=BTESH2_REG_GBR;
@@ -1413,6 +1826,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVB;
 			op->fmid=BTESH2_FMID_REGLDDISP;
 			op->Run=BTSH_Op_MOV_RegLdDispB;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegLdDispB;
 			break;
 		case 0x5: /* C5--, MOV.W @(disp,GBR),R0 */
 			op->rn=0;
@@ -1421,6 +1836,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVW;
 			op->fmid=BTESH2_FMID_REGLDDISP;
 			op->Run=BTSH_Op_MOV_RegLdDispW;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_OpJQ_MOV_RegLdDispW;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->Run=BTSH_OpJQ_MOV_RegLdDispQ;
+				}
+			}
 			break;
 		case 0x6: /* C6--, MOV.L @(disp,GBR),R0 */
 			op->rn=0;
@@ -1429,6 +1853,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_MOVL;
 			op->fmid=BTESH2_FMID_REGLDDISP;
 			op->Run=BTSH_Op_MOV_RegLdDispD;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegLdDispD;
 			break;
 		case 0x7: /* C7--, MOVA @(disp,PC),R0 */
 			op->rn=0;
@@ -1444,6 +1870,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->fmid=BTESH2_FMID_REGLDABS;
 //			op->Run=BTSH_Op_MOV_RegLdAbsD;
 			op->Run=BTSH_Op_MOVA_RegImm;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOVA_RegImm;
 			break;
 		case 0x8: /* C8-- */
 			op->rn=0;
@@ -1452,6 +1880,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_TST;
 			op->fmid=BTESH2_FMID_REGIMM;
 			op->Run=BTSH_Op_TST_RegImm;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_TSTQ;
+				op->Run=BTSH_Op_TSTQ_RegImm;
+			}
 			break;
 		case 0x9: /* C9-- */
 			op->rn=0;
@@ -1460,6 +1893,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_AND;
 			op->fmid=BTESH2_FMID_REGIMM;
 			op->Run=BTSH_Op_AND_RegImm;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_ANDQ;
+				op->Run=BTSH_Op_ANDQ_RegImm;
+			}
 			break;
 		case 0xA: /* CA-- */
 			op->rn=0;
@@ -1468,6 +1906,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_XOR;
 			op->fmid=BTESH2_FMID_REGIMM;
 			op->Run=BTSH_Op_XOR_RegImm;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_XORQ;
+				op->Run=BTSH_Op_XORQ_RegImm;
+			}
 			break;
 		case 0xB: /* CB-- */
 			op->rn=0;
@@ -1476,6 +1919,11 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->nmid=BTESH2_NMID_OR;
 			op->fmid=BTESH2_FMID_REGIMM;
 			op->Run=BTSH_Op_OR_RegImm;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_ORQ;
+				op->Run=BTSH_Op_ORQ_RegImm;
+			}
 			break;
 		case 0xC: /* CC-- */
 			op->rn=0;
@@ -1523,6 +1971,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		op->nmid=BTESH2_NMID_MOVL;
 		op->fmid=BTESH2_FMID_REGLDABS;
 		op->Run=BTSH_Op_MOV_RegLdAbsD;
+		if(cpu->csfl&BTESH2_CSFL_SRJQ)
+		{
+			op->Run=BTSH_OpJQ_MOV_RegLdAbsD;
+			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			{
+				op->nmid=BTESH2_NMID_MOVL;
+				op->Run=BTSH_OpJQ_MOV_RegLdAbsDQ;
+			}
+		}
 		break;
 	case 0xE: /* E--- */
 		op->rn=(opw>>8)&15;
@@ -1530,6 +1987,13 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 		op->nmid=BTESH2_NMID_MOV;
 		op->fmid=BTESH2_FMID_REGIMM;
 		op->Run=BTSH_Op_MOV_RegImm;
+
+		if(cpu->csfl&BTESH2_CSFL_SRDQ)
+		{
+			op->nmid=BTESH2_NMID_MOVQ;
+			op->Run=BTSH_OpJQ_MOV_RegImmQ;
+			break;
+		}
 		
 		if(isds)
 			break;
@@ -1573,6 +2037,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->fl=BTESH2_OPFL_EXTRAWORD|
 				BTESH2_OPFL_INVDLYSLOT;
 			op->Run=BTSH_Op_MOV_StRegImmD;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_StRegImmD;
 			break;
 		}
 
@@ -1586,6 +2052,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 			op->fl=BTESH2_OPFL_EXTRAWORD|
 				BTESH2_OPFL_INVDLYSLOT;
 			op->Run=BTSH_Op_MOV_DecStRegImmD;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegDecStImmD;
 			break;
 		}
 #endif
@@ -1760,6 +2228,13 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op, u32 pc)
 				op->nmid=BTESH2_NMID_FCNVDS;
 				op->fmid=BTESH2_FMID_REGRM;
 				op->Run=BTSH_Op_FCNVDS_R;
+				break;
+
+			case 0xD: /* F-DD */
+				op->imm=(opw>>8)&15;
+				op->nmid=BTESH2_NMID_PSETMD4;
+				op->fmid=BTESH2_FMID_IMM;
+				op->Run=BTSH_Op_PSETMD4_Imm;
 				break;
 
 			case 0xE:
@@ -2598,11 +3073,12 @@ BTESH2_Trace *BTESH2_Trace_Run32(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 
 int btesh2_nmid_pairs[256*256];
 
-int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
+int BTESH2_DecodeTrace(BTESH2_CpuState *cpu,
+	BTESH2_Trace *tr, btesh2_vaddr spc)
 {
 	BTESH2_Opcode *op, *op1;
 	static int rov;
-	u32 pc, brapc, jmppc;
+	btesh2_vaddr pc, brapc, jmppc;
 	int i0, i1, i2, i3;
 	int i, j, k, n;
 	
@@ -2642,9 +3118,11 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 			if((op->imm+4)>tr->maxpc)
 				tr->maxpc=op->imm+4;
 			
-			op->imm=BTESH2_GetAddrDWord(cpu, op->imm);
+			op->imm=(s32)BTESH2_GetAddrDWord(cpu, op->imm);
 			op->fmid=BTESH2_FMID_REGVIMM;
 			op->Run=BTSH_Op_MOV_RegImm;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegImmQ;
 		}
 #endif
 
@@ -2656,9 +3134,11 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 			if((op->imm+2)>tr->maxpc)
 				tr->maxpc=op->imm+2;
 			
-			op->imm=BTESH2_GetAddrWord(cpu, op->imm);
+			op->imm=(s16)BTESH2_GetAddrWord(cpu, op->imm);
 			op->fmid=BTESH2_FMID_REGVIMM;
 			op->Run=BTSH_Op_MOV_RegImm;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+				op->Run=BTSH_OpJQ_MOV_RegImmQ;
 		}
 #endif
 		
@@ -2689,6 +3169,14 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr, u32 spc)
 //						op1->imm=((op1->pc+8)&(~3))+(4*op1->ro);
 					if(op1->fl&BTESH2_OPFL_PCADLYSLOTW)
 						op1->imm=(op1->pc+6)+(2*op1->ro);
+
+					if(!op1->Run)
+					{
+						op1->nmid=BTESH2_NMID_INVALID;
+						op1->fmid=BTESH2_FMID_NONE;
+						op1->fl=BTESH2_OPFL_CTRLF;
+						op1->Run=BTSH_Op_TRAP_UD;
+					}
 
 #if 1
 					if(op1->fl&BTESH2_OPFL_INVDLYSLOT)
@@ -2864,7 +3352,7 @@ void BTESH2_FlushTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	if(tr->jtflag&BTESH2_TRJTFL_NOSTOMP_MASK)
 		__debugbreak();
 	
-	if(tr->srcpc==(u32)(-1))
+	if(tr->srcpc==(btesh2_vaddr)(-1))
 	{
 		if(!(tr->jtflag&BTESH2_TRJTFL_ICACHE) ||
 			(tr->jtflag&BTESH2_TRJTFL_NOSTOMP_MASK))
@@ -2949,10 +3437,11 @@ void BTESH2_FlushTracesFull(BTESH2_CpuState *cpu)
 	}
 }
 
-force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc)
+force_inline BTESH2_Trace *BTESH2_TraceForAddr(
+	BTESH2_CpuState *cpu, btesh2_vaddr spc)
 {
 	BTESH2_Trace *tr, *tr1, *tr2;
-	u32 spc1;
+	btesh2_vaddr spc1;
 	int h, h0, h1, hp, hp1;
 	int i, j, k;
 	

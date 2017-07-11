@@ -539,11 +539,15 @@ while (1)
 		break;
 	case OP_AND:
 //		tk_puts("PR_ExecuteProgram: OP_AND\n");
-		c->_float = a->_float && b->_float;
+//		c->_float = a->_float && b->_float;
+		i = a->_float && b->_float;
+		c->_float = i;
 		break;
 	case OP_OR:
 //		tk_puts("PR_ExecuteProgram: OP_OR\n");
-		c->_float = a->_float || b->_float;
+		i = a->_float || b->_float;
+		c->_float = i;
+//		c->_float = a->_float || b->_float;
 		break;
 		
 	case OP_NOT_F:
@@ -552,7 +556,9 @@ while (1)
 		break;
 	case OP_NOT_V:
 //		tk_puts("PR_ExecuteProgram: OP_NOT_V\n");
-		c->_float = !a->vector[0] && !a->vector[1] && !a->vector[2];
+//		c->_float = !a->vector[0] && !a->vector[1] && !a->vector[2];
+		i = !a->vector[0] && !a->vector[1] && !a->vector[2];
+		c->_float = i;
 		break;
 	case OP_NOT_S:
 //		tk_puts("PR_ExecuteProgram: OP_NOT_S\n");
@@ -573,9 +579,13 @@ while (1)
 		break;
 	case OP_EQ_V:
 //		tk_puts("PR_ExecuteProgram: OP_EQ_V\n");
-		c->_float = (a->vector[0] == b->vector[0]) &&
-					(a->vector[1] == b->vector[1]) &&
-					(a->vector[2] == b->vector[2]);
+//		c->_float = (a->vector[0] == b->vector[0]) &&
+//					(a->vector[1] == b->vector[1]) &&
+//					(a->vector[2] == b->vector[2]);
+		i = (a->vector[0] == b->vector[0]) &&
+			(a->vector[1] == b->vector[1]) &&
+			(a->vector[2] == b->vector[2]);
+		c->_float = i;
 		break;
 	case OP_EQ_S:
 //		tk_puts("PR_ExecuteProgram: OP_EQ_S\n");
@@ -600,13 +610,19 @@ while (1)
 		break;
 	case OP_NE_V:
 //		tk_puts("PR_ExecuteProgram: OP_NE_V\n");
-		c->_float = (a->vector[0] != b->vector[0]) ||
-					(a->vector[1] != b->vector[1]) ||
-					(a->vector[2] != b->vector[2]);
+//		c->_float = (a->vector[0] != b->vector[0]) ||
+//					(a->vector[1] != b->vector[1]) ||
+//					(a->vector[2] != b->vector[2]);
+		i =	(a->vector[0] != b->vector[0]) ||
+			(a->vector[1] != b->vector[1]) ||
+			(a->vector[2] != b->vector[2]);
+		c->_float = i;
 		break;
 	case OP_NE_S:
 //		tk_puts("PR_ExecuteProgram: OP_NE_S\n");
-		c->_float = strcmp(pr_strings+a->string,pr_strings+b->string);
+//		c->_float = strcmp(pr_strings+a->string,pr_strings+b->string);
+		i = strcmp(pr_strings+a->string,pr_strings+b->string);
+		c->_float = i;
 		break;
 	case OP_NE_E:
 //		tk_puts("PR_ExecuteProgram: OP_NE_E\n");
@@ -631,6 +647,7 @@ while (1)
 		b->vector[0] = a->vector[0];
 		b->vector[1] = a->vector[1];
 		b->vector[2] = a->vector[2];
+//		memcpy(b->vector, a->vector, 3*sizeof(float));
 		break;
 		
 	case OP_STOREP_F:
@@ -639,15 +656,18 @@ while (1)
 	case OP_STOREP_S:
 	case OP_STOREP_FNC:		// pointers
 //		tk_puts("PR_ExecuteProgram: OP_STOREP_F\n");
-		ptr = (eval_t *)((byte *)sv.edicts + b->_int);
+//		ptr = (eval_t *)((byte *)sv.edicts + b->_int);
+		ptr = (eval_t *)(((byte *)sv.edicts) + b->_int);
 		ptr->_int = a->_int;
 		break;
 	case OP_STOREP_V:
 //		tk_puts("PR_ExecuteProgram: OP_STOREP_V\n");
-		ptr = (eval_t *)((byte *)sv.edicts + b->_int);
+//		ptr = (eval_t *)((byte *)sv.edicts + b->_int);
+		ptr = (eval_t *)(((byte *)sv.edicts) + b->_int);
 		ptr->vector[0] = a->vector[0];
 		ptr->vector[1] = a->vector[1];
 		ptr->vector[2] = a->vector[2];
+//		memcpy(ptr->vector, a->vector, 3*sizeof(float));
 		break;
 		
 	case OP_ADDRESS:
@@ -656,9 +676,11 @@ while (1)
 #ifdef PARANOID
 		NUM_FOR_EDICT(ed);		// make sure it's in range
 #endif
-		if (ed == (edict_t *)sv.edicts && sv.state == ss_active)
+//		if (ed == (edict_t *)sv.edicts && sv.state == ss_active)
+		if ((ed == (edict_t *)sv.edicts) && (sv.state == ss_active))
 			PR_RunError ("assignment to world entity");
-		c->_int = (byte *)((int *)&ed->v + b->_int) - (byte *)sv.edicts;
+//		c->_int = (byte *)((int *)&ed->v + b->_int) - (byte *)sv.edicts;
+		c->_int = (byte *)(((int *)(&ed->v)) + b->_int) - (byte *)sv.edicts;
 		break;
 		
 	case OP_LOAD_F:
@@ -687,10 +709,12 @@ while (1)
 #ifdef PARANOID
 		NUM_FOR_EDICT(ed);		// make sure it's in range
 #endif
-		a = (eval_t *)((int *)&ed->v + b->_int);
+//		a = (eval_t *)((int *)&ed->v + b->_int);
+		a = (eval_t *)(((int *)(&ed->v)) + b->_int);
 		c->vector[0] = a->vector[0];
 		c->vector[1] = a->vector[1];
 		c->vector[2] = a->vector[2];
+//		memcpy(c->vector, a->vector, 3*sizeof(float));
 		break;
 		
 //==================
@@ -743,6 +767,7 @@ while (1)
 		if((a->function<0) || (a->function>=progs->numfunctions))
 		{
 			tk_printf("Bad Function %d\n", a->function);
+			PR_RunError ("Bad Function");
 			break;
 		}
 

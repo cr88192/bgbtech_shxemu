@@ -27,6 +27,26 @@ void BTSH_Op_MOV_RegLdAbsD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[op->rn]=BTESH2_GetAddrDWord(cpu, op->imm);
 }
 
+void BTSH_Op_MOV_RegLdAbsQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetRegQWord(cpu, op->rn,
+		BTESH2_GetAddrQWord(cpu, op->imm));
+}
+
+void BTSH_Op_MOVU_RegLdAbsW(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]=(u16)BTESH2_GetAddrWord(cpu, op->imm);
+}
+
+void BTSH_Op_MOVU_RegLdAbsWQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetRegQWord(cpu, op->rn,
+		(u16)BTESH2_GetAddrWord(cpu, op->imm));
+}
+
 void BTSH_Op_MOV_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	{ cpu->regs[op->rn]=cpu->regs[op->rm]; }
 
@@ -113,6 +133,58 @@ void BTSH_Op_MOV_RegDecStD_FMMU(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	BTESH2_SetAddrDWordFMMU(cpu, cpu->regs[op->rn], cpu->regs[op->rm]);
 }
 
+
+#if 1
+void BTSH_Op_MOV_ImmStB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrByte(cpu, cpu->regs[op->rn], op->imm);
+}
+
+void BTSH_Op_MOV_ImmStW(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrWord(cpu, cpu->regs[op->rn], op->imm);
+}
+
+void BTSH_Op_MOV_ImmStD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn], op->imm);
+}
+
+void BTSH_Op_MOV_ImmStQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrQWord(cpu, cpu->regs[op->rn], (u64)((s32)op->imm));
+}
+
+void BTSH_Op_MOV_ImmDecStB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]--;
+	BTESH2_SetAddrByte(cpu, cpu->regs[op->rn], op->imm);
+}
+void BTSH_Op_MOV_ImmDecStW(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]-=2;
+	BTESH2_SetAddrWord(cpu, cpu->regs[op->rn], op->imm);
+}
+void BTSH_Op_MOV_ImmDecStD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]-=4;
+	BTESH2_SetAddrDWord(cpu, cpu->regs[op->rn], op->imm);
+}
+void BTSH_Op_MOV_ImmDecStQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]-=8;
+	BTESH2_SetAddrQWord(cpu, cpu->regs[op->rn], (u64)((s32)op->imm));
+}
+#endif
+
 void BTSH_Op_MOV_RegIncLdB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	cpu->ptcpc=op->pc;
@@ -141,9 +213,22 @@ void BTSH_Op_MOV_RegIncLdD_FMMU(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 
 void BTSH_Op_MOV_RegSrIncLdD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
+	u32 v;
 	cpu->ptcpc=op->pc;
 	cpu->regs[op->rm]+=4;
-	cpu->regs[op->rn]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4)&0x3F3;
+//	cpu->regs[op->rn]=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4)&0x3F3;
+	v=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4);
+	cpu->regs[op->rn]=v;
+
+	if(v&BTESH2_SRFL_JQ)
+		{ cpu->csfl|=BTESH2_CSFL_SRJQ; }
+	else
+		{ cpu->csfl&=~BTESH2_CSFL_SRJQ; }
+
+	if(v&BTESH2_SRFL_DQ)
+		{ cpu->csfl|=BTESH2_CSFL_SRDQ; }
+	else
+		{ cpu->csfl&=~BTESH2_CSFL_SRDQ; }
 }
 
 
@@ -191,6 +276,14 @@ void BTSH_Op_MOV_RegStDispD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		cpu->regs[op->rn]+op->imm, cpu->regs[op->rm]);
 }
 
+void BTSH_Op_MOV_RegStDispQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrQWord(cpu,
+		cpu->regs[op->rn]+op->imm,
+		BTESH2_GetRegQWord(cpu, op->rm));
+}
+
 void BTSH_Op_MOV_RegLdDispB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	cpu->ptcpc=op->pc;
@@ -210,6 +303,14 @@ void BTSH_Op_MOV_RegLdDispD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->ptcpc=op->pc;
 	cpu->regs[op->rn]=BTESH2_GetAddrDWord(cpu,
 		cpu->regs[op->rm]+op->imm);
+}
+
+void BTSH_Op_MOV_RegLdDispQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	
+	BTESH2_SetRegQWord(cpu, op->rn, 
+		BTESH2_GetAddrQWord(cpu, cpu->regs[op->rm]+op->imm));
 }
 
 void BTSH_Op_MOV_RegLdDispD_FMMU(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -384,6 +485,14 @@ void BTSH_Op_MOV_RegStRoDispD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		cpu->regs[op->rn]+cpu->regs[op->ro]*4+op->imm, cpu->regs[op->rm]);
 }
 
+void BTSH_Op_MOV_RegStRoDispQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetAddrQWord(cpu,
+		cpu->regs[op->rn]+cpu->regs[op->ro]*8+op->imm,
+		BTESH2_GetRegQWord(cpu, op->rm));
+}
+
 void BTSH_Op_MOV_RegLdRoDispB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	cpu->ptcpc=op->pc;
@@ -403,6 +512,14 @@ void BTSH_Op_MOV_RegLdRoDispD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->ptcpc=op->pc;
 	cpu->regs[op->rn]=BTESH2_GetAddrDWord(cpu,
 		cpu->regs[op->rm]+cpu->regs[op->ro]*4+op->imm);
+}
+
+void BTSH_Op_MOV_RegLdRoDispQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	BTESH2_SetRegQWord(cpu, op->rn,
+		BTESH2_GetAddrQWord(cpu,
+			cpu->regs[op->rm]+cpu->regs[op->ro]*8+op->imm));
 }
 #endif
 

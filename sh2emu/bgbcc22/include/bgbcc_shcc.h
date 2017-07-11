@@ -104,6 +104,88 @@
 #define BGBCC_SH_REG_LR14		0x5E
 #define BGBCC_SH_REG_LR15		0x5F		//Invalid
 
+#define BGBCC_SH_REG_RH0		0x60
+#define BGBCC_SH_REG_RH1		0x61
+#define BGBCC_SH_REG_RH2		0x62
+#define BGBCC_SH_REG_RH3		0x63
+#define BGBCC_SH_REG_RH4		0x64
+#define BGBCC_SH_REG_RH5		0x65
+#define BGBCC_SH_REG_RH6		0x66
+#define BGBCC_SH_REG_RH7		0x67
+#define BGBCC_SH_REG_RH8		0x68
+#define BGBCC_SH_REG_RH9		0x69
+#define BGBCC_SH_REG_RH10		0x6A
+#define BGBCC_SH_REG_RH11		0x6B
+#define BGBCC_SH_REG_RH12		0x6C
+#define BGBCC_SH_REG_RH13		0x6D
+#define BGBCC_SH_REG_RH14		0x6E
+#define BGBCC_SH_REG_RH15		0x6F
+
+#define BGBCC_SH_REG_RQ0		0x70
+#define BGBCC_SH_REG_RQ1		0x71
+#define BGBCC_SH_REG_RQ2		0x72
+#define BGBCC_SH_REG_RQ3		0x73
+#define BGBCC_SH_REG_RQ4		0x74
+#define BGBCC_SH_REG_RQ5		0x75
+#define BGBCC_SH_REG_RQ6		0x76
+#define BGBCC_SH_REG_RQ7		0x77
+#define BGBCC_SH_REG_RQ8		0x78
+#define BGBCC_SH_REG_RQ9		0x79
+#define BGBCC_SH_REG_RQ10		0x7A
+#define BGBCC_SH_REG_RQ11		0x7B
+#define BGBCC_SH_REG_RQ12		0x7C
+#define BGBCC_SH_REG_RQ13		0x7D
+#define BGBCC_SH_REG_RQ14		0x7E
+#define BGBCC_SH_REG_RQ15		0x7F
+
+
+#define BGBCC_SH_REG_DR16		0x80
+#define BGBCC_SH_REG_DR17		0x81
+#define BGBCC_SH_REG_DR18		0x82
+#define BGBCC_SH_REG_DR19		0x83
+#define BGBCC_SH_REG_DR20		0x84
+#define BGBCC_SH_REG_DR21		0x85
+#define BGBCC_SH_REG_DR22		0x86
+#define BGBCC_SH_REG_DR23		0x87
+#define BGBCC_SH_REG_DR24		0x88	
+#define BGBCC_SH_REG_DR25		0x89
+#define BGBCC_SH_REG_DR26		0x8A
+#define BGBCC_SH_REG_DR27		0x8B
+#define BGBCC_SH_REG_DR28		0x8C
+#define BGBCC_SH_REG_DR29		0x8D
+#define BGBCC_SH_REG_DR30		0x8E
+#define BGBCC_SH_REG_DR31		0x8F
+
+#define BGBCC_SH_REG_XF0		0x90
+#define BGBCC_SH_REG_XF1		0x91
+#define BGBCC_SH_REG_XF2		0x92
+#define BGBCC_SH_REG_XF3		0x93
+#define BGBCC_SH_REG_XF4		0x94
+#define BGBCC_SH_REG_XF12		0x9C
+#define BGBCC_SH_REG_XF13		0x9D
+#define BGBCC_SH_REG_XF14		0x9E
+#define BGBCC_SH_REG_XF15		0x9F
+
+#define BGBCC_SH_REG_YF0		0xA0
+#define BGBCC_SH_REG_YF1		0xA1
+#define BGBCC_SH_REG_YF2		0xA2
+#define BGBCC_SH_REG_YF3		0xA3
+#define BGBCC_SH_REG_YF4		0xA4
+#define BGBCC_SH_REG_YF12		0xAC
+#define BGBCC_SH_REG_YF13		0xAD
+#define BGBCC_SH_REG_YF14		0xAE
+#define BGBCC_SH_REG_YF15		0xAF
+
+#define BGBCC_SH_REG_ZF0		0xB0
+#define BGBCC_SH_REG_ZF1		0xB1
+#define BGBCC_SH_REG_ZF2		0xB2
+#define BGBCC_SH_REG_ZF3		0xB3
+#define BGBCC_SH_REG_ZF4		0xB4
+#define BGBCC_SH_REG_ZF12		0xBC
+#define BGBCC_SH_REG_ZF13		0xBD
+#define BGBCC_SH_REG_ZF14		0xBE
+#define BGBCC_SH_REG_ZF15		0xBF
+
 #define BGBCC_SH_REG_RTMASK		0xF0
 #define BGBCC_SH_REG_RTMASK3	0xF8
 
@@ -209,11 +291,23 @@
 #define BGBCC_SH_NMID_INVDLY		0x60	//
 #define BGBCC_SH_NMID_CLRS			0x61	//
 #define BGBCC_SH_NMID_SETS			0x62	//
-#define BGBCC_SH_NMID_NOTT			0x63	//
-#define BGBCC_SH_NMID_LDTLB			0x64	//
-#define BGBCC_SH_NMID_BRK			0x65	//
-#define BGBCC_SH_NMID_MOVRT			0x66	//
-#define BGBCC_SH_NMID_MOVCAL		0x67	//
+#define BGBCC_SH_NMID_MOVI20		0x63	//MOVI20
+#define BGBCC_SH_NMID_MOVI20S		0x64	//MOVI20S
+#define BGBCC_SH_NMID_MOVUB			0x65	//MOVU.B
+#define BGBCC_SH_NMID_MOVUW			0x66	//MOVU.W
+#define BGBCC_SH_NMID_MOVUL			0x67	//MOVU.L
+#define BGBCC_SH_NMID_LEAB			0x68	//LEA.B
+#define BGBCC_SH_NMID_LEAW			0x69	//LEA.W
+#define BGBCC_SH_NMID_LEAL			0x6A	//LEA.L
+#define BGBCC_SH_NMID_LEAQ			0x6B	//LEA.Q
+#define BGBCC_SH_NMID_LEAO			0x6C	//LEA.O
+#define BGBCC_SH_NMID_NOTT			0x6D	//
+#define BGBCC_SH_NMID_LDTLB			0x6E	//
+#define BGBCC_SH_NMID_BRK			0x6F	//
+#define BGBCC_SH_NMID_MOVRT			0x70	//
+#define BGBCC_SH_NMID_MOVCAL		0x71	//
+#define BGBCC_SH_NMID_PUSH			0x72	//
+#define BGBCC_SH_NMID_POP			0x73	//
 
 #define BGBCC_SH_NMID_FABS			0x80	//
 #define BGBCC_SH_NMID_FADD			0x81	//
@@ -239,14 +333,30 @@
 #define BGBCC_SH_NMID_FTRC			0x95	//
 #define BGBCC_SH_NMID_FSRRA			0x96	//
 
+#define BGBCC_SH_NMID_FIPR			0x97	//
+#define BGBCC_SH_NMID_FTRV			0x98	//
+#define BGBCC_SH_NMID_PSETMD4		0x99	//
+#define BGBCC_SH_NMID_PSETMD12		0x9A	//
+
 #define BGBCC_SH_NMID_MOVI			0xC0	//
 #define BGBCC_SH_NMID_MOVIV			0xC1	//
-
 #define BGBCC_SH_NMID_PREF			0xC2	//
 #define BGBCC_SH_NMID_OCBI			0xC3	//
 #define BGBCC_SH_NMID_OCBP			0xC4	//
 #define BGBCC_SH_NMID_OCBWB			0xC5	//
 #define BGBCC_SH_NMID_ICBI			0xC6	//
+
+#define BGBCC_SH_NMID_MOVQ			0xC7	//SUB
+#define BGBCC_SH_NMID_ADDQ			0xC8	//ADD
+#define BGBCC_SH_NMID_SUBQ			0xC9	//SUB
+#define BGBCC_SH_NMID_MULQ			0xCA	//SUB
+#define BGBCC_SH_NMID_ANDQ			0xCB	//SUB
+#define BGBCC_SH_NMID_ORQ			0xCC	//SUB
+#define BGBCC_SH_NMID_XORQ			0xCD	//SUB
+#define BGBCC_SH_NMID_SHLLQ			0xCE	//SUB
+#define BGBCC_SH_NMID_SHLRQ			0xCF	//SUB
+#define BGBCC_SH_NMID_SHARQ			0xD0	//SUB
+#define BGBCC_SH_NMID_LDSH16		0xD1	//SUB
 
 
 #define BGBCC_SH_FMID_REGREG		0x01	//Rm, Rn
@@ -305,6 +415,10 @@
 #define BGBCC_SH_RLC_RELW12L		0x0B	//Relative Low 12 bits (DWORD)
 #define BGBCC_SH_RLC_RELW8L			0x0C	//Relative Low 8 bit (DWORD)
 
+#define BGBCC_SH_RLC_REL20_2A		0x0D	//Relative 20 bit (BYTE, SH2A)
+#define BGBCC_SH_RLC_RELW16_BJX		0x0E	//Relative 16 bit (WORD, BJX1)
+#define BGBCC_SH_RLC_RELW20_BJX		0x0F	//Relative 20 bit (WORD, BJX1)
+
 #define BGBCC_SH_CSEG_TEXT		0x00		//.text section
 #define BGBCC_SH_CSEG_STRTAB	0x01		//.strtab section
 #define BGBCC_SH_CSEG_GOT		0x02		//.got section
@@ -331,6 +445,8 @@
 
 #define BGBCC_SH_MAX_CACHEVAR 5
 
+#define BGBCC_SH_MAX_CACHEFPVAR 4
+
 
 #define BGBCC_SHX_GenLabelTemp(ctx)		\
 	BGBCC_SHX_GenLabelTempLLn(ctx, __FILE__, __LINE__)
@@ -355,18 +471,26 @@ byte nsec;
 
 byte is_le;			//is little endian
 byte use_bp;		//use frame pointer
-byte need_farjmp;	//function needs far jumps
+byte need_farjmp;	//function needs far32 jumps
+byte need_f16jmp;	//function needs far16 jumps
 byte need_n12jmp;	//function needs at least 12-bit jumps
 byte is_pic;		//is PIC.
 byte use_fpr;		//uses floating point registers
 byte use_dbr;		//uses fp double registers
 byte is_vararg;		//function is varargs
 byte is_simpass;	//is simulation pass
+byte is_stable;		//function is stable
+byte is_addr64;		//target uses 64-bit addresses
 
 byte has_shad;		//has SHAD/SHLD
 byte has_movi20;	//has MOVI20 and friends
 byte has_misalgn;	//has misaligned load/store
 byte has_bjx1mov;	//has BJX1 MOV I-forms
+byte has_bjx1jmp;	//has BJX1 Branch I-forms
+byte has_bjx1ari;	//has BJX1 Arithmetic I-forms
+
+int simfnsz;		//simulation's function size
+int simfnnsz;		//simulation's max function size
 
 u32 *lbl_ofs;		//label offsets
 u32 *rlc_ofs;		//reloc offsets
@@ -379,7 +503,8 @@ s32 *lbl_chn;		//label chains
 int nlbl, mlbl;
 int nrlc, mrlc;
 int nvlbl;
-u16 lblrov;			//labels (local/temp)
+u16 lblrov;			//labels (local)
+u16 lbltrov;		//labels (temp)
 
 s32 lbl_hash[1024];		//label chain hash
 

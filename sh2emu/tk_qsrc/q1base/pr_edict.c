@@ -33,7 +33,11 @@ int				pr_edict_size;	// in bytes
 
 unsigned short		pr_crc;
 
-int		type_size[8] = {1,sizeof(string_t)/4,1,3,1,1,sizeof(func_t)/4,sizeof(void *)/4};
+int		type_size[8] = {
+	1,sizeof(string_t)/4,1,3,1,1,
+	sizeof(func_t)/4,sizeof(void *)/4};
+
+// int		type_size[8] = {1,1,1,3,1,1,1,1};
 
 ddef_t *ED_FieldAtOfs (int ofs);
 qboolean	ED_ParseEpair (void *base, ddef_t *key, char *s);
@@ -266,7 +270,8 @@ Done:
 	if (!def)
 		return NULL;
 
-	return (eval_t *)((char *)&ed->v + def->ofs*4);
+//	return (eval_t *)((char *)&ed->v + def->ofs*4);
+	return (eval_t *)(((char *)&ed->v) + (def->ofs*4));
 }
 
 
@@ -299,7 +304,8 @@ char *PR_ValueString (etype_t type, eval_t *val)
 	case ev_function:
 		if((val->function<0) || (val->function>=progs->numfunctions))
 		{
-			sprintf (line, "bad function %d", val->function);
+			sprintf (line, "bad function %d/%d",
+				val->function, progs->numfunctions);
 			break;
 		}
 
@@ -317,7 +323,8 @@ char *PR_ValueString (etype_t type, eval_t *val)
 		sprintf (line, "%5.1f", val->_float);
 		break;
 	case ev_vector:
-		sprintf (line, "'%5.1f %5.1f %5.1f'", val->vector[0], val->vector[1], val->vector[2]);
+		sprintf (line, "'%5.1f %5.1f %5.1f'",
+			val->vector[0], val->vector[1], val->vector[2]);
 		break;
 	case ev_pointer:
 		sprintf (line, "pointer");

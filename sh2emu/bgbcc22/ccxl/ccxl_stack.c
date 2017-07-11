@@ -266,6 +266,7 @@ int BGBCC_CCXL_LookupGlobalIndex(BGBCC_TransState *ctx, char *name)
 int BGBCC_CCXL_LookupAsRegister(BGBCC_TransState *ctx,
 	char *name, ccxl_register *rreg)
 {
+//	char *s1;
 	int i;
 
 	i=BGBCC_CCXL_TryLookupAsRegister(ctx, name, rreg, false);
@@ -300,6 +301,7 @@ int BGBCC_CCXL_TryLookupAsRegister(BGBCC_TransState *ctx,
 {
 	ccxl_register treg;
 	ccxl_type ty;
+	char *s1;
 	int i, j;
 
 	i=BGBCC_CCXL_LookupLocalIndex(ctx, name);
@@ -332,13 +334,31 @@ int BGBCC_CCXL_TryLookupAsRegister(BGBCC_TransState *ctx,
 		return(CCXL_STATUS_YES);
 	}
 
-	i=BGBCC_CCXL_LookupGlobalIndex(ctx, name);
+	i=-1;
+
+	if((i<0) && (ctx->cur_struct || ctx->cur_ns))
+	{
+		s1=BGBCC_CCXL_QualifyNameNS(ctx, name);
+		i=BGBCC_CCXL_LookupGlobalIndex(ctx, s1);
+	}
+
+	if(i<0)
+	{
+		i=BGBCC_CCXL_LookupGlobalIndex(ctx, name);
+	}
+
+	if(i<0)
+	{
+		s1=BGBCC_CCXL_QualifyNameNSFl(ctx, name, BGBCC_TYFL_STATIC);
+		i=BGBCC_CCXL_LookupGlobalIndex(ctx, s1);
+	}
+
 	if(i>=0)
 	{
 		ty=ctx->reg_globals[i]->type;
 
-		ctx->reg_globals[i]->regflags|=
-			BGBCC_REGFL_ACCESSED;
+//		ctx->reg_globals[i]->regflags|=
+//			BGBCC_REGFL_ACCESSED;
 		treg.val=CCXL_REGTY_GLOBAL|
 			(((s64)ty.val)<<CCXL_REGID_TYPESHIFT)|i;
 		BGBCC_CCXL_RegisterCheckAcquire(ctx, treg);
@@ -1737,7 +1757,8 @@ ccxl_status BGBCC_CCXL_StackBinaryOpStore(BGBCC_TransState *ctx,
 //		if(BGBCC_CCXL_TypeEqualP(ctx, dty, sty) &&
 //			BGBCC_CCXL_TypeEqualP(ctx, dty, tty))
 		if(BGBCC_CCXL_TypeCompatibleP(ctx, dty, sty) &&
-			BGBCC_CCXL_TypeCompatibleP(ctx, dty, tty))
+			BGBCC_CCXL_TypeCompatibleP(ctx, dty, tty) &&
+			!BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, treg))
 		{
 			BGBCC_CCXL_EmitBinaryOp(ctx, dty, opr, dreg, sreg, treg);
 			BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
@@ -1787,7 +1808,8 @@ ccxl_status BGBCC_CCXL_StackBinaryOpStore(BGBCC_TransState *ctx,
 //		if(BGBCC_CCXL_TypeEqualP(ctx, dty, sty) &&
 //			BGBCC_CCXL_TypeEqualP(ctx, dty, tty))
 		if(BGBCC_CCXL_TypeCompatibleP(ctx, dty, sty) &&
-			BGBCC_CCXL_TypeCompatibleP(ctx, dty, tty))
+			BGBCC_CCXL_TypeCompatibleP(ctx, dty, tty) &&
+			!BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, treg))
 		{
 //			BGBCC_CCXL_RegisterAllocTemporaryInt(ctx, &dreg);
 			BGBCC_CCXL_EmitCompareOp(ctx, dty, opr, dreg, sreg, treg);

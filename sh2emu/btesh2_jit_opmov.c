@@ -58,6 +58,14 @@ int BTESH2_TryJitOpcode_MovReg(UAX_Context *jctx,
 		BTESH2_JitStoreVMRegImm(jctx, op->rn, (s32)(op->imm));
 		return(1);
 	}
+
+	if((	(op->nmid==BTESH2_NMID_MOVI20) ||
+			(op->nmid==BTESH2_NMID_MOVI20S)) &&
+		(op->fmid==BTESH2_FMID_REGIMM))
+	{
+		BTESH2_JitStoreVMRegImm(jctx, op->rn, (s32)(op->imm));
+		return(1);
+	}
 	
 	return(0);
 }

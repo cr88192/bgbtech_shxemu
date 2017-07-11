@@ -971,7 +971,10 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	}
 
 	if(!mach_name && !bgbcc_arch)
+	{
 		mach_name="SH4";
+//		mach_name="BJX1L";
+	}
 
 	if(mach_name)
 	{

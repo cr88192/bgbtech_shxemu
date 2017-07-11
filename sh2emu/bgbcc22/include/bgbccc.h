@@ -210,6 +210,8 @@ extern "C" {
 	//struct: struct was initialized with data in-code
 	//register: was initialized with an object (destroy on release)
 
+#define BGBCC_REGFL_RECTRACE		0x0008		//hit by reachability trace
+
 #define BGBCC_REGFL_DEMANDLOAD		0x0010		//demand-load requested
 #define BGBCC_REGFL_LOADED			0x0020		//already loaded
 
@@ -288,6 +290,11 @@ extern "C" {
 #define BGBCC_ARCH_SH_SH2B	BGBCC_FOURCC('S', 'H', '2', 'B')
 #define BGBCC_ARCH_SH_SH4B	BGBCC_FOURCC('S', 'H', '4', 'B')
 
+#define BGBCC_ARCH_SH_BX1L	BGBCC_FOURCC('B', 'X', '1', 'L')
+#define BGBCC_ARCH_SH_BX1B	BGBCC_FOURCC('B', 'X', '1', 'B')
+#define BGBCC_ARCH_SH_BX6L	BGBCC_FOURCC('B', 'X', '6', 'L')
+#define BGBCC_ARCH_SH_BX6B	BGBCC_FOURCC('B', 'X', '6', 'B')
+
 //output formats.
 //format specifics depend on target.
 #define BGBCC_IMGFMT_OBJ	BGBCC_FOURCC('O', 'B', 'J', ' ')
@@ -337,6 +344,7 @@ int flags;
 fourcc lang;
 fourcc arch;
 fourcc subarch;
+int tuidx;				//translation unit index
 
 BCCX_Node *structs;
 BCCX_Node *types;
@@ -436,6 +444,8 @@ int cur_idx4;	//property
 fourcc lang;
 fourcc arch;			//major architecture
 fourcc sub_arch;		//subset architecture
+int tuidx;				//translation unit index
+
 byte arch_sizeof_long;
 byte arch_sizeof_ptr;
 byte arch_sizeof_valist;

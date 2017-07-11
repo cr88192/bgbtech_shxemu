@@ -28,7 +28,7 @@ int BTESH2_FastMapCheckPteSane(BTESH2_CpuState *cpu, u32 pte)
 	return(1);
 }
 
-u32 BTESH2_FastMapVirtToPhys(BTESH2_CpuState *cpu, u32 addr)
+btesh2_paddr BTESH2_FastMapVirtToPhys(BTESH2_CpuState *cpu, btesh2_vaddr addr)
 {
 	u64 tlbe0, tlbe1, tlbe2;
 	u32 tlbh, ptde, pte;
@@ -132,11 +132,11 @@ force_inline void BTESH2_FMMU_SetupForPSpan(BTESH2_CpuState *cpu)
 }
 
 
-int BTESH2_GetAddrByteFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_GetAddrByteFMMU_NoAT(BTESH2_CpuState *cpu, btesh2_vaddr addr)
 {
 //	BTESH2_MemoryImage *mem;
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1, ra1;
+	btesh2_vaddr addr1, ra1;
 	int i;
 
 	addr1=addr&0x1FFFFFFF;
@@ -173,11 +173,11 @@ int BTESH2_GetAddrByteFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
 	return(i);
 }
 
-int BTESH2_GetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_GetAddrByteFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr)
 {
 //	BTESH2_MemoryImage *mem;
 //	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1;
+	btesh2_vaddr addr1;
 	int i;
 
 #if 1
@@ -195,11 +195,11 @@ int BTESH2_GetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr)
 	return(i);
 }
 
-int BTESH2_GetAddrWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_GetAddrWordFMMU_NoAT(BTESH2_CpuState *cpu, btesh2_vaddr addr)
 {
 //	BTESH2_MemoryImage *mem;
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1, ra1;
+	btesh2_vaddr addr1, ra1;
 	int i;
 
 	addr1=addr&0x1FFFFFFF;
@@ -254,11 +254,11 @@ int BTESH2_GetAddrWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
 	return(i);
 }
 
-int BTESH2_GetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr)
+int BTESH2_GetAddrWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr)
 {
 //	BTESH2_MemoryImage *mem;
 //	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1;
+	btesh2_vaddr addr1;
 	int i;
 
 #if 1
@@ -276,11 +276,12 @@ int BTESH2_GetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr)
 	return(i);
 }
 
-default_inline u32 BTESH2_GetAddrDWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
+default_inline u32 BTESH2_GetAddrDWordFMMU_NoAT(
+	BTESH2_CpuState *cpu, btesh2_vaddr addr)
 {
 //	BTESH2_MemoryImage *mem;
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1, ra1;
+	btesh2_vaddr addr1, ra1;
 	int i;
 
 	addr1=addr&0x1FFFFFFF;
@@ -333,9 +334,10 @@ default_inline u32 BTESH2_GetAddrDWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr)
 	return(i);
 }
 
-default_inline u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr)
+default_inline u32 BTESH2_GetAddrDWordFMMU(
+	BTESH2_CpuState *cpu, btesh2_vaddr addr)
 {
-	u32 addr1;
+	btesh2_vaddr addr1;
 	int i;
 
 	if(((addr&0x80000000) ||
@@ -351,10 +353,32 @@ default_inline u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr)
 	return(i);
 }
 
-#if 0
-int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
+default_inline u64 BTESH2_GetAddrQWordFMMU(
+	BTESH2_CpuState *cpu, btesh2_vaddr addr)
 {
-	u32 addr1;
+	btesh2_vaddr addr1;
+	u64 v;
+	int i;
+
+#if 0
+	if(((addr&0x80000000) ||
+		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
+		((addr>>29)<6))
+	{
+		return(BTESH2_GetAddrQWordFMMU_NoAT(cpu, addr));
+	}
+#endif
+
+	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
+	v=BTESH2_GetAddrQWordPhy(cpu, addr1);
+	BTESH2_FMMU_SetupForPSpan(cpu);
+	return(v);
+}
+
+#if 0
+int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
+{
+	btesh2_vaddr addr1;
 
 	if(cpu->status)
 		return(-1);
@@ -367,10 +391,10 @@ int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
 
 #if 1
 force_inline int BTESH2_SetAddrByteFMMU_NoAT_I(
-	BTESH2_CpuState *cpu, u32 addr, int val)
+	BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 {
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1, ra1;
+	btesh2_vaddr addr1, ra1;
 	int i;
 
 	addr1=addr&0x1FFFFFFF;
@@ -409,10 +433,11 @@ force_inline int BTESH2_SetAddrByteFMMU_NoAT_I(
 	return(i);
 }
 
-int BTESH2_SetAddrByteFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrByteFMMU_NoAT(
+	BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 {
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1;
+	btesh2_vaddr addr1;
 
 	if(cpu->status)
 		return(-1);
@@ -422,10 +447,10 @@ int BTESH2_SetAddrByteFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr, int val)
 	return(BTESH2_SetAddrByteFMMU_NoAT_I(cpu, addr, val));
 }
 
-int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 {
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1;
+	btesh2_vaddr addr1;
 
 	if(cpu->status)
 		return(-1);
@@ -446,11 +471,11 @@ int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
 
 
 #if 0
-int BTESH2_SetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 {
 //	BTESH2_MemoryImage *mem;
 	BTESH2_PhysSpan *sp;
-	u32 addr1;
+	btesh2_vaddr addr1;
 
 	if(cpu->status)
 		return(-1);
@@ -477,10 +502,10 @@ int BTESH2_SetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
 
 #if 1
 force_inline int BTESH2_SetAddrWordFMMU_NoAT_I(
-	BTESH2_CpuState *cpu, u32 addr, int val)
+	BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 {
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1, ra1;
+	btesh2_vaddr addr1, ra1;
 	int i;
 
 	addr1=addr&0x1FFFFFFF;
@@ -519,10 +544,11 @@ force_inline int BTESH2_SetAddrWordFMMU_NoAT_I(
 	return(i);
 }
 
-int BTESH2_SetAddrWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrWordFMMU_NoAT(
+	BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 {
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1;
+	btesh2_vaddr addr1;
 
 	if(cpu->status)
 		return(-1);
@@ -532,10 +558,10 @@ int BTESH2_SetAddrWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr, int val)
 	return(BTESH2_SetAddrWordFMMU_NoAT_I(cpu, addr, val));
 }
 
-int BTESH2_SetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
+int BTESH2_SetAddrWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 {
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1;
+	btesh2_vaddr addr1;
 
 	if(cpu->status)
 		return(-1);
@@ -555,10 +581,10 @@ int BTESH2_SetAddrWordFMMU(BTESH2_CpuState *cpu, u32 addr, int val)
 #endif
 
 force_inline int BTESH2_SetAddrDWordFMMU_NoAT_I(
-	BTESH2_CpuState *cpu, u32 addr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_vaddr addr, u32 val)
 {
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1, ra1;
+	btesh2_vaddr addr1, ra1;
 	int i;
 
 	addr1=addr&0x1FFFFFFF;
@@ -597,11 +623,12 @@ force_inline int BTESH2_SetAddrDWordFMMU_NoAT_I(
 	return(i);
 }
 
-int BTESH2_SetAddrDWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr, u32 val)
+int BTESH2_SetAddrDWordFMMU_NoAT(BTESH2_CpuState *cpu,
+	btesh2_vaddr addr, u32 val)
 {
 //	BTESH2_MemoryImage *mem;
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1;
+	btesh2_vaddr addr1;
 
 	if(cpu->status)
 		return(-1);
@@ -611,11 +638,12 @@ int BTESH2_SetAddrDWordFMMU_NoAT(BTESH2_CpuState *cpu, u32 addr, u32 val)
 	return(BTESH2_SetAddrDWordFMMU_NoAT_I(cpu, addr, val));
 }
 
-int BTESH2_SetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr, u32 val)
+int BTESH2_SetAddrDWordFMMU(BTESH2_CpuState *cpu,
+	btesh2_vaddr addr, u32 val)
 {
 //	BTESH2_MemoryImage *mem;
 	BTESH2_PhysSpan *sp, *sp1;
-	u32 addr1;
+	btesh2_vaddr addr1;
 
 	if(cpu->status)
 		return(-1);
@@ -633,6 +661,30 @@ int BTESH2_SetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr, u32 val)
 	return(BTESH2_SetAddrDWordPhy2(cpu, addr1, val));
 }
 
+int BTESH2_SetAddrQWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, u64 val)
+{
+//	BTESH2_MemoryImage *mem;
+	BTESH2_PhysSpan *sp, *sp1;
+	btesh2_vaddr addr1;
+
+	if(cpu->status)
+		return(-1);
+//	if(BTESH2_CheckAddrTrapSmc(cpu, addr, val))
+//		return(-1);
+
+#if 0
+	if(((addr&0x80000000) ||
+		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
+		((addr>>29)<6))
+	{
+		return(BTESH2_SetAddrQWordFMMU_NoAT_I(cpu, addr, val));
+	}
+#endif
+
+	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
+	return(BTESH2_SetAddrQWordPhy2(cpu, addr1, val));
+}
+
 int BTESH2_SetupUpdateFMMU(BTESH2_CpuState *cpu)
 {
 	if(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)
@@ -640,17 +692,25 @@ int BTESH2_SetupUpdateFMMU(BTESH2_CpuState *cpu)
 		cpu->GetAddrByte=BTESH2_GetAddrByteFMMU;
 		cpu->GetAddrWord=BTESH2_GetAddrWordFMMU;
 		cpu->GetAddrDWord=BTESH2_GetAddrDWordFMMU;
+		cpu->GetAddrQWord=BTESH2_GetAddrQWordFMMU;
+
 		cpu->SetAddrByte=BTESH2_SetAddrByteFMMU;
 		cpu->SetAddrWord=BTESH2_SetAddrWordFMMU;
 		cpu->SetAddrDWord=BTESH2_SetAddrDWordFMMU;
+		cpu->SetAddrQWord=BTESH2_SetAddrQWordFMMU;
 	}else
 	{
 		cpu->GetAddrByte=BTESH2_GetAddrByteFMMU_NoAT;
 		cpu->GetAddrWord=BTESH2_GetAddrWordFMMU_NoAT;
 		cpu->GetAddrDWord=BTESH2_GetAddrDWordFMMU_NoAT;
+//		cpu->GetAddrQWord=BTESH2_GetAddrQWordFMMU_NoAT;
+		cpu->GetAddrQWord=BTESH2_GetAddrQWordFMMU;
+
 		cpu->SetAddrByte=BTESH2_SetAddrByteFMMU_NoAT;
 		cpu->SetAddrWord=BTESH2_SetAddrWordFMMU_NoAT;
 		cpu->SetAddrDWord=BTESH2_SetAddrDWordFMMU_NoAT;
+//		cpu->SetAddrQWord=BTESH2_SetAddrQWordFMMU_NoAT;
+		cpu->SetAddrQWord=BTESH2_SetAddrQWordFMMU;
 	}
 	cpu->jit_needflush=1;
 	return(0);

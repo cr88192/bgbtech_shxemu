@@ -12,7 +12,7 @@ int SoundDev_WriteStereoSamples2(
 double btesh2_ips;
 
 u32 btesh2_dspdev_RegGetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	int ix, ix1;
 	u32 v;
@@ -36,11 +36,12 @@ u32 btesh2_dspdev_RegGetD(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_dspdev_RegSetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int ix, ix1;
 
-	printf("btesh2_dspdev_RegSetD: %04X=%08X\n", reladdr, val);
+//	printf("btesh2_dspdev_RegSetD: %04X=%08X\n", reladdr, val);
+	printf("btesh2_dspdev_RegSetD: %04llX=%08X\n", reladdr, val);
 
 	switch(reladdr)
 	{

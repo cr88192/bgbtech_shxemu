@@ -1284,6 +1284,32 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 			return(1);
 		}
 
+		if(!strcmp(tk0, "I.skip") || !strcmp(tk0, "I.space"))
+		{
+			j=1; k=0;
+
+			cs2=cs1;
+			cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk0);
+			j=bgbcc_atoi(tk0+1);
+
+			if(*cs2 && *cs2==',')
+			{
+				if(*cs2==',')
+					cs2++;
+				cs2=BGBCC_SHXA_ParseTokenAlt(cs2, &tk1);
+				k=bgbcc_atoi(tk1+1);
+			}
+			
+			while((j--)>0)
+				BGBCC_SHX_EmitByte(ctx, k);
+
+			while(*cs2 && (*cs2!='\r') && (*cs2!='\n'))
+				cs2++;
+
+			*rcs=cs2;
+			return(1);
+		}
+
 		if(!strcmp(tk0, "I.type") ||
 			!strcmp(tk0, "I.size") ||
 			!strcmp(tk0, "I.file") ||

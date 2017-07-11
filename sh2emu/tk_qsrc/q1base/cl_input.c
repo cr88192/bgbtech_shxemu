@@ -82,6 +82,8 @@ void KeyDown (kbutton_t *b)
 	if (b->state & 1)
 		return;		// still down
 	b->state |= 1 + 2;	// down + impulse down
+	
+	tk_printf("KeyDown %p\n", b);
 }
 
 void KeyUp (kbutton_t *b)
@@ -112,6 +114,8 @@ void KeyUp (kbutton_t *b)
 		return;		// still up (this should not happen)
 	b->state &= ~1;		// now up
 	b->state |= 4; 		// impulse up
+
+	tk_printf("KeyUp %p\n", b);
 }
 
 void IN_KLookDown (void) {KeyDown(&in_klook);}

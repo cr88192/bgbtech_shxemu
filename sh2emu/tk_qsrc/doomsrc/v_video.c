@@ -227,7 +227,7 @@ void V_DrawPatch(
 //	return;
 	
 	if(!V_CheckPointerRam(patch, 65536))
-		return(0);
+		return;
 	
 	y -= SHORT(patch->topoffset); 
 	x -= SHORT(patch->leftoffset); 
@@ -266,7 +266,7 @@ void V_DrawPatch(
 			count = column->length; 
 
 			if(!V_CheckPointerRam(source, count+4))
-				return(0);
+				return;
 				 
 			while (count--) 
 			{

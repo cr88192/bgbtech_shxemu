@@ -2,7 +2,7 @@ BUILD = .
 PATH := $(BUILD):$(PATH)
 
 TK_CFL=-nostdinc -nostdlib -nostartfiles -fno-builtin \
-	-DARCH_SH4 -DARCH_SH4LE -O3
+	-DARCH_SH4 -DARCH_SH4LE
 TK_LDFL= $TK_CFL \
 	-Wl,-nostdlib -Wl,-e,_start -Wl,-T,sh4elf.x
 
@@ -12,7 +12,8 @@ CC=$(TOOLPATH)sh4-gcc
 AR=$(TOOLPATH)sh4-ar
 AS=$(TOOLPATH)sh4-as
 
-COPTS= -g -c -O2 -Iinclude $(TK_CFL)
+# COPTS= -g -c -O2 -Iinclude $(TK_CFL)
+COPTS= -c -Os -Iinclude $(TK_CFL)
 
 SRCS_CLIB = \
 	pdpc201/stdio.c \

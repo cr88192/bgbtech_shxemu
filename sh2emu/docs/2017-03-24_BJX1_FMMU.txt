@@ -138,6 +138,7 @@ TTB (N-level):
 * Bit 1: Reserved (Set to 0)
 * Bits 2..3: Page Table Levels
 ** 00=3, 01=4, 10=5, 11=6
+* Bit 4: Interpret VBR as 64-bit.
 * Bits 12..63: Physical Page Address of Top-level Page Table Directory
 
 Virtual Address Space (MMUCR.AT=0)

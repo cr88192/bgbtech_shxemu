@@ -9,6 +9,8 @@
 #define BTESH2_ARFL_NOLINK			0x01
 #define BTESH2_ARFL_NOJIT			0x02
 
+#define BTESH2_REG_R0		0
+
 #define BTESH2_REG_SP		15
 
 #define BTESH2_REG_SR		16
@@ -38,7 +40,18 @@
 #define BTESH2_REG_SGR		42
 #define BTESH2_REG_DBR		43
 
+#define BTESH2_REG_TRAEVT	44		//Trap Event
+#define BTESH2_REG_EXPEVT	45		//Exception Event
+#define BTESH2_REG_INTEVT	46		//Interrupt Event
+
 #define BTESH2_REG_ZZR		47		//Null Register (Placeholder Reg)
+
+#define BTESH2_REG_RLO		0		//Register Low Halves
+#define BTESH2_REG_RHI		64		//Register High Halves
+
+#define BTESH2_REG_R0HI		64
+#define BTESH2_REG_R15HI	79
+#define BTESH2_REG_RBANK_HI	(BTESH2_REG_R0HI|BTESH2_REG_RBANK)
 
 
 #define BTESH2_OPFL_CTRLF		1	//opcode effects control-flow
@@ -75,9 +88,12 @@
 #define BTESH2_SRFL_T			0x00000001	//
 #define BTESH2_SRFL_S			0x00000002	//
 
+#define BTESH2_SRFL_DQ			0x00001000	//64-bit mode
+
 #define BTESH2_SRFL_BL			0x10000000	//Block Ints
 #define BTESH2_SRFL_RB			0x20000000	//Register Bank
 #define BTESH2_SRFL_MD			0x40000000	//Mode (User/Super)
+#define BTESH2_SRFL_JQ			0x80000000	//64-bit mode
 
 #define BTESH2_FPSCR_RM0		0x00000000	//
 #define BTESH2_FPSCR_RM1		0x00000001	//
@@ -116,6 +132,8 @@
 #define BTESH2_CSFL_FPSZ		0x04	//FPSCR.SZ
 #define BTESH2_CSFL_FPFR		0x08	//FPSCR.FR
 #define BTESH2_CSFL_FPVE		0x10	//FPSCR.VE
+#define BTESH2_CSFL_SRJQ		0x20	//SR.JQ
+#define BTESH2_CSFL_SRDQ		0x40	//SR.DQ
 
 #define BTESH2_NMID_UNK			0x00	//Unknown
 #define BTESH2_NMID_MOV			0x01	//MOV
@@ -217,18 +235,25 @@
 #define BTESH2_NMID_INVDLY		0x60	//
 #define BTESH2_NMID_CLRS		0x61	//
 #define BTESH2_NMID_SETS		0x62	//
-
-#define BTESH2_NMID_MOVI20		0x64	//MOVI20
-#define BTESH2_NMID_MOVI20S		0x65	//MOVI20S
-#define BTESH2_NMID_MOVUB		0x66	//MOVU.B
-#define BTESH2_NMID_MOVUW		0x67	//MOVU.W
+#define BTESH2_NMID_MOVI20		0x63	//MOVI20
+#define BTESH2_NMID_MOVI20S		0x64	//MOVI20S
+#define BTESH2_NMID_MOVUB		0x65	//MOVU.B
+#define BTESH2_NMID_MOVUW		0x66	//MOVU.W
 #define BTESH2_NMID_MOVUL		0x67	//MOVU.L
-
 #define BTESH2_NMID_LEAB		0x68	//LEA.B
 #define BTESH2_NMID_LEAW		0x69	//LEA.W
 #define BTESH2_NMID_LEAL		0x6A	//LEA.L
 #define BTESH2_NMID_LEAQ		0x6B	//LEA.Q
 #define BTESH2_NMID_LEAO		0x6C	//LEA.O
+#define BTESH2_NMID_NOTT		0x6D	//
+#define BTESH2_NMID_LDTLB		0x6E	//
+#define BTESH2_NMID_BRK			0x6F	//
+#define BTESH2_NMID_MOVRT		0x70	//
+#define BTESH2_NMID_MOVCAL		0x71	//
+#define BTESH2_NMID_PUSH		0x72	//
+#define BTESH2_NMID_POP			0x73	//
+#define BTESH2_NMID_ICLRMD		0x74	//
+#define BTESH2_NMID_ISETMD		0x75	//
 
 #define BTESH2_NMID_FABS		0x80	//
 #define BTESH2_NMID_FADD		0x81	//
@@ -252,9 +277,17 @@
 #define BTESH2_NMID_FSTS		0x93	//
 #define BTESH2_NMID_FSUB		0x94	//
 #define BTESH2_NMID_FTRC		0x95	//
-#define BTESH2_NMID_MOVCAL		0x96	//
+// #define BTESH2_NMID_MOVCAL		0x96	//
+#define BTESH2_NMID_FSRRA		0x96	//
 #define BTESH2_NMID_FIPR		0x97	//
 #define BTESH2_NMID_FTRV		0x98	//
+#define BTESH2_NMID_PSETMD4		0x99	//
+#define BTESH2_NMID_PSETMD12	0x9A	//
+#define BTESH2_NMID_FMOVX		0x9B	//
+#define BTESH2_NMID_FMOVIS		0x9C	//
+#define BTESH2_NMID_FMOVID		0x9D	//
+#define BTESH2_NMID_FMOVSI		0x9E	//
+#define BTESH2_NMID_FMOVDI		0x9F	//
 
 #define BTESH2_NMID_MOVI		0xC0	//
 #define BTESH2_NMID_MOVIV		0xC1	//
@@ -263,6 +296,19 @@
 #define BTESH2_NMID_OCBP		0xC4	//
 #define BTESH2_NMID_OCBWB		0xC5	//
 #define BTESH2_NMID_ICBI		0xC6	//
+
+#define BTESH2_NMID_MOVQ		0xC7	//SUB
+#define BTESH2_NMID_ADDQ		0xC8	//ADD
+#define BTESH2_NMID_SUBQ		0xC9	//SUB
+#define BTESH2_NMID_MULQ		0xCA	//SUB
+#define BTESH2_NMID_ANDQ		0xCB	//SUB
+#define BTESH2_NMID_ORQ			0xCC	//SUB
+#define BTESH2_NMID_XORQ		0xCD	//SUB
+#define BTESH2_NMID_SHLLQ		0xCE	//SUB
+#define BTESH2_NMID_SHLRQ		0xCF	//SUB
+#define BTESH2_NMID_SHARQ		0xD0	//SUB
+#define BTESH2_NMID_LDSH16		0xD1	//SUB
+#define BTESH2_NMID_TSTQ		0xD2	//SUB
 
 
 #define BTESH2_FMID_REGREG		0x01	//Rm, Rn
@@ -302,6 +348,7 @@
 
 #define BTESH2_FMID_REGSTRODISP	0x20	//Rm, @(Rn,Ro,Disp)
 #define BTESH2_FMID_REGLDRODISP	0x21	//@(Rm,Ro,Disp), Rn
+#define BTESH2_FMID_REGIMMREG	0x22	//Rm, Imm, Rn
 
 
 typedef unsigned char byte;
@@ -312,6 +359,12 @@ typedef unsigned int u32;
 typedef signed int s32;
 typedef unsigned long long u64;
 typedef signed long long s64;
+
+// typedef u32 btesh2_vaddr;
+// typedef u32 btesh2_paddr;
+
+typedef u64 btesh2_vaddr;
+typedef u64 btesh2_paddr;
 
 #ifndef __cplusplus
 #ifndef _BOOL_T
@@ -330,17 +383,24 @@ typedef struct BTESH2_CpuState_s BTESH2_CpuState;
 
 /** Represents a physical memory span */
 struct BTESH2_PhysSpan_s {
-u32 base;
-u32 limit;
-u32 range_n3;
+btesh2_paddr base;
+btesh2_paddr limit;
+btesh2_paddr range_n3;
 byte *data;
 char *name;
-u32 (*GetB)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr);
-u32 (*GetW)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr);
-u32 (*GetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr);
-int (*SetB)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr, u32 val);
-int (*SetW)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr, u32 val);
-int (*SetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, u32 reladdr, u32 val);
+u32 (*GetB)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, btesh2_paddr reladdr);
+u32 (*GetW)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, btesh2_paddr reladdr);
+u32 (*GetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, btesh2_paddr reladdr);
+u64 (*GetQ)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu, btesh2_paddr reladdr);
+
+int (*SetB)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu,
+	btesh2_paddr reladdr, u32 val);
+int (*SetW)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu,
+	btesh2_paddr reladdr, u32 val);
+int (*SetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu,
+	btesh2_paddr reladdr, u32 val);
+int (*SetQ)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu,
+	btesh2_paddr reladdr, u64 val);
 
 byte **dmdaddr;
 int *dmdflag;
@@ -360,14 +420,15 @@ BTESH2_PhysSpan *t_span[32];
 
 struct BTESH2_Opcode_s {
 u16 opw;		//opcode word
+u16 opw2;		//opcode word 2
 byte rm;		//register Rm
 byte rn;		//register Rn
 byte ro;		//register for offsets
 byte fl;		//opcode flags
 byte nmid;		//name ID (disasm)
 byte fmid;		//form ID (disasm)
-u32 pc;
-u32 imm;		//extended immediate or absolute value
+btesh2_vaddr pc;
+btesh2_vaddr imm;		//extended immediate or absolute value
 void (*Run)(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 };
 
@@ -420,10 +481,10 @@ void (*Run)(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
 
 struct BTESH2_Trace_s {
 BTESH2_Opcode *ops[BTESH2_TR_MAXOPS];
-u32 srcpc;		//source PC for trace
-u32 nxtpc;		//next PC
-u32 maxpc;		//max PC for trace
-u32 jmppc;		//jump PC
+btesh2_vaddr srcpc;		//source PC for trace
+btesh2_vaddr nxtpc;		//next PC
+btesh2_vaddr maxpc;		//max PC for trace
+btesh2_vaddr jmppc;		//jump PC
 byte nops;		//number of ops in trace
 byte nwops;		//number of word-ops in trace
 byte amiss;
@@ -444,11 +505,17 @@ BTESH2_Trace *lnknext;		//next trace in linked traces
 // };
 
 struct BTESH2_CpuState_s {
-u32 regs[64];
-u32 trapregs[64];	//trapped registers
+// u32 regs[64];
+// u32 trapregs[64];	//trapped registers
 
-u32 fregs[32];
-u32 trapfregs[32];
+u32 regs[128];
+u32 trapregs[128];	//trapped registers
+
+//u32 fregs[32];
+//u32 trapfregs[32];
+
+u32 fregs[64];
+u32 trapfregs[64];
 
 BTESH2_Trace *icache[BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL];
 #ifdef BTESH2_TR_JHASHSZ
@@ -493,12 +560,14 @@ byte *pspan_pdata;
 
 BTESH2_Trace *trlinked[256];	//linked traces
 
-int (*GetAddrByte)(BTESH2_CpuState *cpu, u32 addr);
-int (*GetAddrWord)(BTESH2_CpuState *cpu, u32 addr);
-u32 (*GetAddrDWord)(BTESH2_CpuState *cpu, u32 addr);
-int (*SetAddrByte)(BTESH2_CpuState *cpu, u32 addr, int val);
-int (*SetAddrWord)(BTESH2_CpuState *cpu, u32 addr, int val);
-int (*SetAddrDWord)(BTESH2_CpuState *cpu, u32 addr, u32 val);
+int (*GetAddrByte)(BTESH2_CpuState *cpu, btesh2_vaddr addr);
+int (*GetAddrWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr);
+u32 (*GetAddrDWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr);
+u64 (*GetAddrQWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr);
+int (*SetAddrByte)(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val);
+int (*SetAddrWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val);
+int (*SetAddrDWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr, u32 val);
+int (*SetAddrQWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr, u64 val);
 
 u32 *logpc;
 u32 *logsp;
@@ -509,11 +578,11 @@ char **map_name;
 int map_nsym, map_msym;
 };
 
-u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr);
-int BTESH2_SetAddrDWordFMMU(BTESH2_CpuState *cpu, u32 addr, u32 val);
+u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr);
+int BTESH2_SetAddrDWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, u32 val);
 
-u32 BTESH2_GetAddrDWord(BTESH2_CpuState *cpu, u32 addr);
-int BTESH2_SetAddrDWord(BTESH2_CpuState *cpu, u32 addr, u32 val);
+u32 BTESH2_GetAddrDWord(BTESH2_CpuState *cpu, btesh2_vaddr addr);
+int BTESH2_SetAddrDWord(BTESH2_CpuState *cpu, btesh2_vaddr addr, u32 val);
 
 BTESH2_Opcode *BTESH2_AllocOpcode(BTESH2_CpuState *cpu);
 void BTESH2_FreeOpcode(BTESH2_CpuState *cpu, BTESH2_Opcode *op);
@@ -521,13 +590,14 @@ BTESH2_Trace *BTESH2_AllocTrace(BTESH2_CpuState *cpu);
 void BTESH2_FreeTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 void BTESH2_FlushTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr);
 
-force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, u32 spc);
+force_inline BTESH2_Trace *BTESH2_TraceForAddr(BTESH2_CpuState *cpu, 
+	btesh2_vaddr spc);
 
 int BTESH2_DecodeOpcode_2A(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
-	u32 pc, u16 opw, u16 opw2);
+	btesh2_vaddr pc, u16 opw, u16 opw2);
 int BTESH2_DecodeOpcode_BJX1(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
-	u32 pc, u16 opw, u16 opw2);
+	btesh2_vaddr pc, u16 opw, u16 opw2);
 int BTESH2_DecodeOpcode_BJX1_8E(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
-	u32 pc, u16 opw, u16 opw2);
+	btesh2_vaddr pc, u16 opw, u16 opw2);
 
 #endif

@@ -324,7 +324,7 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 	BCCX_Node *c, *t, *v, *x, *ln, *rn;
 	BGBCC_CCXL_RegisterInfo *ri;
 	ccxl_type bty;
-	char *s, *suf;
+	char *s, *s1, *suf;
 	double f, g;
 	int i0, i1;
 	s64 i, j;
@@ -847,7 +847,39 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 		}
 
 		s=BCCX_GetCst(l, &bgbcc_rcst_name, "name");
-		ri=BGBCC_CCXL_LookupGlobal(ctx, s);
+		
+		ri=NULL;
+		
+		if(!ri)
+		{
+			i=BGBCC_CCXL_LookupLocalIndex(ctx, s);
+			if(i>=0)
+				{ ri=ctx->cur_func->locals[i]; }
+		}
+
+		if(!ri)
+		{
+			i=BGBCC_CCXL_LookupArgIndex(ctx, s);
+			if(i>=0)
+				{ ri=ctx->cur_func->args[i]; }
+		}
+
+		if(!ri && (ctx->cur_struct || ctx->cur_ns))
+		{
+			s1=BGBCC_CCXL_QualifyNameNS(ctx, s);
+			ri=BGBCC_CCXL_LookupGlobal(ctx, s1);
+		}
+
+		if(!ri)
+		{
+			ri=BGBCC_CCXL_LookupGlobal(ctx, s);
+		}
+		
+		if(!ri)
+		{
+			s1=BGBCC_CCXL_QualifyNameNSFl(ctx, s, BGBCC_TYFL_STATIC);
+			ri=BGBCC_CCXL_LookupGlobal(ctx, s1);
+		}
 
 //		if(ri && ri->flagstr && !strcmp(ri->flagstr, "k"))
 		if(ri && BGBCC_CCXL_CheckFlagstrFlag(ri->flagstr, "k"))

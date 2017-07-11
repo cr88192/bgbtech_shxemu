@@ -350,7 +350,7 @@ int FRGL_TimeMS();
 
 
 u32 btesh2_gfxcon_GetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	int ix, ix1;
 	u32 v;
@@ -394,7 +394,7 @@ u32 btesh2_gfxcon_GetD(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_gfxcon_SetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int ix, ix1;
 
@@ -440,7 +440,7 @@ int btesh2_gfxcon_SetD(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_gfxcon_GetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 i, j;
 	i=btesh2_gfxcon_GetD(sp, cpu, reladdr&(~3));
@@ -450,7 +450,7 @@ u32 btesh2_gfxcon_GetB(BTESH2_PhysSpan *sp,
 }
 
 u32 btesh2_gfxcon_GetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	u32 i, j;
 	i=btesh2_gfxcon_GetD(sp, cpu, reladdr&(~3));
@@ -460,7 +460,7 @@ u32 btesh2_gfxcon_GetW(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_gfxcon_SetB(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int i;
 	i=btesh2_gfxcon_SetD(sp, cpu, reladdr, val);
@@ -468,7 +468,7 @@ int btesh2_gfxcon_SetB(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_gfxcon_SetW(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int i;
 	i=btesh2_gfxcon_SetD(sp, cpu, reladdr, val);

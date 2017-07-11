@@ -2006,5 +2006,5 @@ PF_setspawnparms	//78
 };
 
 builtin_t *pr_builtins = pr_builtin;
-//int pr_numbuiltins = sizeof(pr_builtin)/sizeof(pr_builtin[0]);
-int pr_numbuiltins = 79;
+int pr_numbuiltins = sizeof(pr_builtin)/sizeof(pr_builtin[0]);
+// int pr_numbuiltins = 79;

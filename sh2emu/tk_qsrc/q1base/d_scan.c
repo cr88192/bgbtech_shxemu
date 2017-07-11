@@ -620,24 +620,23 @@ void D_DrawSpans16 (espan_t *pspan)
 	float			sdivz, tdivz, zi, z, du, dv, spancountminus1;
 	float			sdivz8stepu, tdivz8stepu, zi8stepu;
 
+//	return;	//BGB Debug
+
 	sstep = 0;	// keep compiler happy
 	tstep = 0;	// ditto
 
 //	pbase = (unsigned char *)cacheblock;
 	pbase = (unsigned short *)cacheblock;
 
-//	sdivz8stepu = d_sdivzstepu * 8;
-//	tdivz8stepu = d_tdivzstepu * 8;
-//	zi8stepu = d_zistepu * 8;
+	sdivz8stepu = d_sdivzstepu * 8;
+	tdivz8stepu = d_tdivzstepu * 8;
+	zi8stepu = d_zistepu * 8;
 
 //	z=1.0;
 
-	sdivz8stepu = d_sdivzstepu * 8.0f;
-
-//	__debugbreak();
-
-	tdivz8stepu = d_tdivzstepu * 8.0f;
-	zi8stepu = d_zistepu * 8.0f;
+//	sdivz8stepu = d_sdivzstepu * 8.0f;
+//	tdivz8stepu = d_tdivzstepu * 8.0f;
+//	zi8stepu = d_zistepu * 8.0f;
 
 //	__debugbreak();
 
@@ -660,8 +659,8 @@ void D_DrawSpans16 (espan_t *pspan)
 		sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
 		tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
 		zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-//		z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
-		z = 65536.0 / zi;	// prescale to 16.16 fixed-point
+		z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+//		z = 65536.0 / zi;	// prescale to 16.16 fixed-point
 
 //		tk_printf("zio=%f %f %f\n", d_ziorigin, d_zistepv, d_zistepu);
 
@@ -694,11 +693,11 @@ void D_DrawSpans16 (espan_t *pspan)
 				sdivz += sdivz8stepu;
 				tdivz += tdivz8stepu;
 				zi += zi8stepu;
-//				z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
-				z = 65536.0 / zi;	// prescale to 16.16 fixed-point
+				z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+//				z = 65536.0 / zi;	// prescale to 16.16 fixed-point
 
-//				snext = (int)(sdivz * z) + sadjust;
-				snext = (sdivz * z) + sadjust;
+				snext = (int)(sdivz * z) + sadjust;
+//				snext = (sdivz * z) + sadjust;
 				if (snext > bbextents)
 					snext = bbextents;
 				else if (snext < 8)
@@ -725,10 +724,10 @@ void D_DrawSpans16 (espan_t *pspan)
 				sdivz += d_sdivzstepu * spancountminus1;
 				tdivz += d_tdivzstepu * spancountminus1;
 				zi += d_zistepu * spancountminus1;
-//				z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
-				z = 65536.0 / zi;	// prescale to 16.16 fixed-point
-//				snext = (int)(sdivz * z) + sadjust;
-				snext = (sdivz * z) + sadjust;
+				z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+//				z = 65536.0 / zi;	// prescale to 16.16 fixed-point
+				snext = (int)(sdivz * z) + sadjust;
+//				snext = (sdivz * z) + sadjust;
 				if (snext > bbextents)
 					snext = bbextents;
 				else if (snext < 8)

@@ -289,7 +289,7 @@ int BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(
 	if(nm1>=0)
 	{
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
-		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 		
 		BGBCC_SHXC_EmitLeaBRegOfsReg(ctx, sctx,
 			nm1, csreg, fi->fxoffs, cdreg);
@@ -316,10 +316,18 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 	int nm1, nm2;
 	int i, j, k;
 
-	if(!strcmp(ctx->cur_func->name, "Mod_LoadBrushModel"))
-	{
-		k=-1;
+//	if(!strcmp(ctx->cur_func->name, "Mod_LoadBrushModel"))
+//	{
+//		k=-1;
 //		__debugbreak();
+//	}
+
+	if(sctx->has_misalgn)
+	{
+		/*	if we have misaligned load/store,
+			pretend copy is aligned. */
+		if((al<4) && !(sz&3))
+			al=4;
 	}
 
 	nm1=BGBCC_SH_NMID_MOVL;
@@ -461,7 +469,7 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 	}
 #endif
 
-#if 0
+#if 1
 	if((sz<=64) && (al>=4))
 	{
 		switch((sz+3)/4)

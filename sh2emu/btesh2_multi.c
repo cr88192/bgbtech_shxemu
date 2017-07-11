@@ -21,6 +21,7 @@
 #include "btesh2_opjmp.c"
 #include "btesh2_opmov.c"
 #include "btesh2_opmov2.c"
+#include "btesh2_opmov_jq.c"
 
 #include "btesh2_opfpari.c"
 

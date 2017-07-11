@@ -32,7 +32,7 @@ u32 btesh2_jxgpu_primerov;
 JXGPU_RasterState *btesh2_dcgfx_softgpu=NULL;
 
 u32 btesh2_dcgfx_VregGetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
 {
 	int ix, ix1;
 	u32 v;
@@ -77,13 +77,14 @@ u32 btesh2_dcgfx_VregGetD(BTESH2_PhysSpan *sp,
 }
 
 int btesh2_dcgfx_VregSetD(BTESH2_PhysSpan *sp,
-	BTESH2_CpuState *cpu, u32 reladdr, u32 val)
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
 	int ix, ix1;
 
 //	ix=reladdr>>2;
 
-	printf("btesh2_dcgfx_VregSetD: %04X=%08X\n", reladdr, val);
+//	printf("btesh2_dcgfx_VregSetD: %04X=%08X\n", reladdr, val);
+	printf("btesh2_dcgfx_VregSetD: %04llX=%08X\n", reladdr, val);
 
 	switch(reladdr)
 	{

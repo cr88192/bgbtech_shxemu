@@ -984,6 +984,14 @@ char *BGBCC_GenSym2()
 //	return(BS1_RStrDup(BASM_GenSym()));
 }
 
+int BGBCC_GenSymInt()
+{
+	int i;
+	i=bgbcc_gsseed^(bgbcc_gsseq++);
+	i&=0x7FFFFFFF;	//make sure positive
+	return(i);
+}
+
 int bgbcc_strcmp(char *s1, char *s2)
 {
 	while(*s1 && *s2 && (*s1==*s2))

@@ -265,7 +265,8 @@
 #define CCXL_LBL_GLOBALBASE			0x000000	//globals (main context)
 
 #define CCXL_LBL_GENSYMBASE			0x800000	//gensyms (middle)
-#define CCXL_LBL_GENSYM2BASE		0xC00000	//gensyms (backend)
+#define CCXL_LBL_GENSYM2BASE		0xC00000	//gensyms (backend, stable)
+#define CCXL_LBL_GENSYM2BASE2		0xE00000	//gensyms (backend, temp)
 
 
 typedef struct { u64 val; } ccxl_register;

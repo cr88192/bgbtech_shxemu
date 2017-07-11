@@ -621,6 +621,50 @@ bool BGBCC_CCXL_IsRegImmInt32P(
 	return(false);
 }
 
+
+bool BGBCC_CCXL_IsRegNonReachTraceP(
+	BGBCC_TransState *ctx, ccxl_register reg)
+{
+	if(((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_TEMP) ||
+		((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_ARG) ||
+		((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_LOCAL))
+			return(true);
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_INT)
+		return(true);
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LONG)
+		return(true);
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_FLOAT)
+		return(true);
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE)
+		return(true);
+//	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_STRING)
+//		return(true);
+//	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_WSTRING)
+//		return(true);
+//	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LITERAL)
+//		return(true);
+//	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_GBLADDR)
+//		return(true);
+
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_LONG_LVT)
+		return(true);
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_DOUBLE_LVT)
+		return(true);
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_I128_LVT)
+		return(true);
+	if((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_IMM_F128_LVT)
+		return(true);
+
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_LONG)
+		return(true);
+	if((reg.val&CCXL_REGTY2_TYMASK)==CCXL_REGTY2_IMM_DOUBLE)
+		return(true);
+
+	return(false);
+}
+
+
 bool BGBCC_CCXL_IsRegImmP(
 	BGBCC_TransState *ctx, ccxl_register reg)
 {

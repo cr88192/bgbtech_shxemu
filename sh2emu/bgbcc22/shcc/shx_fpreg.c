@@ -18,6 +18,8 @@ const byte bgbcc_shx_dcachereg[5]={
 	BGBCC_SH_REG_DR14, BGBCC_SH_REG_DR14,
 	BGBCC_SH_REG_ZZR};
 
+const byte bgbcc_shx_fmaxreg=4;
+
 int BGBCC_SHXC_EmitRegIsGpReg(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
@@ -104,13 +106,32 @@ int BGBCC_SHXC_UpdateStatusFpscr(
 	BGBCC_SHX_Context *sctx,
 	u32 state)
 {
+	int st1, st2;
 	int treg;
+	int i, j;
 
 	state&=~0x1000;
 
 	if(state!=sctx->cur_fpscr)
 //	if(1)
 	{
+		st1=(state          )&(~(BGBCC_SH_FPSCR_PR|BGBCC_SH_FPSCR_SZ|3));
+		st2=(sctx->cur_fpscr)&(~(BGBCC_SH_FPSCR_PR|BGBCC_SH_FPSCR_SZ|3));
+		if(st1==st2)
+		{
+			j=0;
+			if(state&BGBCC_SH_FPSCR_SZ)j|=8;
+			if(state&BGBCC_SH_FPSCR_PR)j|=4;
+			j|=(state&3);
+			i=BGBCC_SHX_TryEmitOpImm(sctx, BGBCC_SH_NMID_PSETMD4, j);
+			
+			if(i>0)
+			{
+				sctx->cur_fpscr=state;
+				return(1);
+			}
+		}
+	
 		treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
 			treg, state);
@@ -547,12 +568,7 @@ int BGBCC_SHXC_EmitLoadBRegOfsFpReg(
 		return(1);
 	}
 
-	p0=BGBCC_SHX_TryEmitOpLdRegDispReg(sctx,
-		BGBCC_SH_NMID_FMOVS, breg, ofs, dreg);
-	if(p0>0)
-		return(1);
-
-#if 0
+#if 1
 	if(ofs==0)
 	{
 		BGBCC_SHX_EmitOpLdRegReg(sctx,
@@ -560,6 +576,11 @@ int BGBCC_SHXC_EmitLoadBRegOfsFpReg(
 		return(1);
 	}
 #endif
+
+	p0=BGBCC_SHX_TryEmitOpLdRegDispReg(sctx,
+		BGBCC_SH_NMID_FMOVS, breg, ofs, dreg);
+	if(p0>0)
+		return(1);
 
 	BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
 	p0=BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV,
@@ -722,9 +743,9 @@ int BGBCC_SHXC_EmitTryGetDpRegister(
 	zreg.val=CCXL_REGID_REG_DZ;
 
 	/* value already in a register? */
-//	for(i=1; i<4; i++)
+//	for(i=1; i<bgbcc_shx_fmaxreg; i++)
 //	for(i=bgbcc_shx_lminreg; i<bgbcc_shx_lmaxreg; i++)
-	for(i=0; i<4; i+=2)
+	for(i=0; i<bgbcc_shx_fmaxreg; i+=2)
 	{
 //		if(!((sctx->fregalc_save)&(3<<i)))
 //			continue;
@@ -754,7 +775,7 @@ int BGBCC_SHXC_EmitTryGetDpRegister(
 		/* Check for registers not holding a live value. */
 //		for(i=0; i<5; i++)
 //		for(i=0; i<bgbcc_shx_maxreg; i++)
-		for(i=0; i<4; i+=2)
+		for(i=0; i<bgbcc_shx_fmaxreg; i+=2)
 		{
 //			if(excl&(1<<i))
 //				continue;
@@ -809,7 +830,7 @@ int BGBCC_SHXC_EmitGetDpRegisterI(
 	int creg;
 	int i;
 
-	for(i=0; i<4; i++)
+	for(i=0; i<bgbcc_shx_fmaxreg; i++)
 		if(sctx->fregalc_ltcnt[i]<255)
 			sctx->fregalc_ltcnt[i]++;
 
@@ -818,7 +839,7 @@ int BGBCC_SHXC_EmitGetDpRegisterI(
 
 	bi=-1; nsv=0;
 	/* Check for registers not holding a live value. */
-	for(i=0; i<4; i+=2)
+	for(i=0; i<bgbcc_shx_fmaxreg; i+=2)
 	{
 //		if(!((sctx->fregalc_save)&(3<<i)))
 		if(((sctx->fregalc_save)&(3<<i))!=(3<<i))
@@ -860,7 +881,7 @@ int BGBCC_SHXC_EmitGetDpRegisterI(
 	}
 
 	/* Check for unallocated registers. */
-	for(i=0; i<4; i+=2)
+	for(i=0; i<bgbcc_shx_fmaxreg; i+=2)
 	{
 //		if((sctx->fregalc_save)&(1<<i))
 //			continue;
@@ -916,7 +937,7 @@ int BGBCC_SHXC_EmitTryGetFpRegister(
 	}
 
 	/* value already in a register? */
-	for(i=0; i<4; i++)
+	for(i=0; i<bgbcc_shx_fmaxreg; i++)
 	{
 		if(!((sctx->fregalc_save)&(1<<i)))
 			continue;
@@ -948,7 +969,7 @@ int BGBCC_SHXC_EmitTryGetFpRegister(
 		/* Check for registers not holding a live value. */
 //		for(i=0; i<5; i++)
 //		for(i=0; i<bgbcc_shx_maxreg; i++)
-		for(i=0; i<4; i++)
+		for(i=0; i<bgbcc_shx_fmaxreg; i++)
 		{
 //			if(excl&(1<<i))
 //				continue;
@@ -1028,13 +1049,13 @@ int BGBCC_SHXC_EmitGetFpRegister(
 	if((creg>=0) && (creg!=BGBCC_SH_REG_ZZR))
 		return(creg);
 
-	for(i=0; i<4; i++)
+	for(i=0; i<bgbcc_shx_fmaxreg; i++)
 		if(sctx->fregalc_ltcnt[i]<255)
 			sctx->fregalc_ltcnt[i]++;
 
 	/* Check for registers not holding a live value. */
 	bi=-1; nsv=0;
-	for(i=0; i<4; i++)
+	for(i=0; i<bgbcc_shx_fmaxreg; i++)
 	{
 		if(!((sctx->fregalc_save)&(1<<i)))
 		{
@@ -1089,7 +1110,7 @@ int BGBCC_SHXC_EmitGetFpRegister(
 	}
 
 	/* Check for unallocated registers. */
-	for(i=0; i<4; i++)
+	for(i=0; i<bgbcc_shx_fmaxreg; i++)
 	{
 		if((sctx->fregalc_save)&(1<<i))
 			continue;
@@ -1128,7 +1149,7 @@ int BGBCC_SHXC_EmitReleaseFpRegister(
 //	isdbl=BGBCC_CCXL_IsRegDoubleP(ctx, reg);
 
 	/* value in register? */
-	for(i=0; i<4; i++)
+	for(i=0; i<bgbcc_shx_fmaxreg; i++)
 	{
 		if(!((sctx->fregalc_save)&(1<<i)))
 			continue;
@@ -1254,7 +1275,7 @@ int BGBCC_SHXC_EmitSyncFpRegisters(
 	int i;
 
 	/* value in register? */
-	for(i=0; i<4; i++)
+	for(i=0; i<bgbcc_shx_fmaxreg; i++)
 	{
 		BGBCC_SHXC_EmitSyncFpRegisterIndex(ctx, sctx, i);
 		sctx->fregalc_utcnt[i]=0;
@@ -1271,7 +1292,7 @@ int BGBCC_SHXC_EmitLabelFlushFpRegisters(
 {
 	int i;
 
-	for(i=0; i<4; i++)
+	for(i=0; i<bgbcc_shx_fmaxreg; i++)
 	{
 		if(!((sctx->fregalc_save)&(1<<i)))
 			continue;
@@ -1367,6 +1388,20 @@ int BGBCC_SHXC_EmitBinaryVRegVRegVRegFloat(
 	{
 		i=BGBCC_SHXC_EmitBinaryVRegVRegFloat(ctx, sctx, type, dreg, opr, treg);
 		return(i);
+	}
+
+	if(BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, treg))
+	{
+		if((opr==CCXL_BINOP_ADD) ||
+			(opr==CCXL_BINOP_MUL))
+		{
+			i=BGBCC_SHXC_EmitBinaryVRegVRegVRegFloat(ctx, sctx, type,
+				dreg, opr, treg, sreg);
+			return(i);
+		}
+		
+		BGBCC_CCXL_StubError(ctx);
+		return(0);
 	}
 
 	BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, type, dreg, sreg);
