@@ -43,6 +43,7 @@
 #include "btesh2_decode_b1.c"
 #include "btesh2_interp.c"
 #include "btesh2_ldelf.c"
+#include "btesh2_ldpecoff.c"
 
 #include "softgpu/jxgpu_multi.c"
 #include "btesh2_gfxcon.c"

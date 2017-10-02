@@ -36,7 +36,7 @@ struct uPeMainHeader
 	WORD  mMachine;						//0044:
 	WORD  mNumberOfSections;			//0046:
 	DWORD mTimeDateStamp;				//0048: (Creation Time, Unix Time)
-	DWORD mPointerToSymbolTable;		//004A: (Unused, 0)
+	DWORD mPointerToSymbolTable;		//004C: (Unused, 0)
 	DWORD mNumberOfSymbols;				//0050: (Unused, 0)
 	WORD  mSizeOfOptionalHeader;		//0054: Size of rest of header.
 	WORD  mCharacteristics;				//0056:
@@ -61,7 +61,7 @@ struct uPeMainHeader
 	WORD  mMinorSubsystemVersion;		//008A: (Ignore?)
 	DWORD mWin32VersionValue;			//008C: (Ignore?)
 	DWORD mSizeOfImage;					//0090:
-	DWORD mSizeOfHeaders;				//0095:
+	DWORD mSizeOfHeaders;				//0094:
 	DWORD mCheckSum;					//0098: (Ignore?)
 	WORD  mSubsystem;					//009C: (Ignore?)
 	WORD  mDllCharacteristics;			//009E: (Ignore?)
@@ -84,6 +84,7 @@ struct uPeMainHeader
 	DWORD szCertTable;					//00DC:
 	DWORD rvaBaseRelocTable;			//00E0:
 	DWORD szBaseRelocTable;				//00E4:
+
 	DWORD rvaDebugData;					//00E8:
 	DWORD szDebugData;					//00EC:
 	DWORD rvaArchData;					//00F0:
@@ -109,14 +110,15 @@ struct uPeMainHeader
 
 
 Machine:
-* x86-32: 0x014C
-* x86-64: 0x8664
-* ARM:    0x01C0
-* SH-3:   0x01A2
-* SH-DSP: 0x01A3
-* SH-4:   0x01A6
-* SH-5:   0x01A8
-
+* x86-32:   0x014C
+* x86-64:   0x8664
+* ARM:      0x01C0
+* SH-3:     0x01A2
+* SH-DSP:   0x01A3
+* SH-4:     0x01A6
+* SH-5:     0x01A8
+* BJX1-32:  0xB132
+* BJX1-64:  0xB164
 
 The main header is followed by sections.
 
@@ -135,12 +137,17 @@ struct uPeSectionHeader
 	//28
 };
 
+
+=== Base Relocations ===
+
 Relocations:
 struct uPeRelocBlock
 {
 	DWORD rvaPage;		//RVA of Page to be relocated
 	DWORD szBlock;		//Size of relocs in this block
 };
+
+The szBlock field is expressed in bytes. It includes the size of the RelocBlock header in addition to the associated reloc entries.
 
 The relocations are given as 16 bit numbers:
 * Low 12 bits: Offset within page.

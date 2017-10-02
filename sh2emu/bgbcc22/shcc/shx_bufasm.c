@@ -1368,7 +1368,9 @@ int BGBCC_SHXC_AssembleBuffer(
 {
 	char *cs;
 
+	sctx->is_rawasm=1;
 	cs=text;
 	BGBCC_SHXA_ParseBuffer(sctx, &cs);
+	sctx->is_rawasm=0;
 	return(0);
 }

@@ -246,6 +246,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 					op->fmid=BTESH2_FMID_IMM;
 					op->Run=BTSH_Op_ICLRMD_Imm;
 					break;
+
+				case 0x8:
+					op->nmid=BTESH2_NMID_CLRS;
+					op->fmid=BTESH2_FMID_NONE;
+					op->Run=BTSH_Op_TRAPSP_CLR_Z;
+					break;
 				}
 				break;
 			case 0x5: /* 0-58 */
@@ -261,6 +267,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 					op->nmid=BTESH2_NMID_ISETMD;
 					op->fmid=BTESH2_FMID_IMM;
 					op->Run=BTSH_Op_ISETMD_Imm;
+					break;
+
+				case 0x8:
+					op->nmid=BTESH2_NMID_SETS;
+					op->fmid=BTESH2_FMID_NONE;
+					op->Run=BTSH_Op_TRAPSP_SET_Z;
 					break;
 				}
 				break;
@@ -3189,6 +3201,27 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu,
 						tr->ops[n++]=op1;
 //						tr->ops[n++]=op;
 						break;
+					}
+#endif
+
+#if 1
+					if(	(op->nmid==BTESH2_NMID_BRA) &&
+						(op->fmid==BTESH2_FMID_ABS) &&
+						(n<=(BTESH2_TR_MAXOPS/2)))
+					{
+						if(op1->nmid==BTESH2_NMID_NOP)
+						{
+							BTESH2_FreeOpcode(cpu, op1);
+						}else
+						{
+//							tr->ops[n++]=op;
+							tr->ops[n++]=op1;
+						}
+
+						pc=op->imm;
+						BTESH2_FreeOpcode(cpu, op);
+
+						continue;
 					}
 #endif
 

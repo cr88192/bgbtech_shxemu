@@ -56,13 +56,16 @@ void SV_SetIdealPitch (void)
 	trace_t	tr;
 	vec3_t	top, bottom;
 	float	z[MAX_FORWARD];
+	float f, g;
 	int		i, j;
 	int		step, dir, steps;
 
 	if (!((int)sv_player->v.flags & FL_ONGROUND))
 		return;
 		
-	angleval = sv_player->v.angles[YAW] * M_PI*2 / 360;
+//	angleval = sv_player->v.angles[YAW] * M_PI*2 / 360;
+	angleval = sv_player->v.angles[YAW] * ((M_PI*2.0) / 360.0);
+//	angleval = 90.0 * ((M_PI*2.0) / 360.0);
 	sinval = sin(angleval);
 	cosval = cos(angleval);
 
@@ -83,7 +86,11 @@ void SV_SetIdealPitch (void)
 		if (tr.fraction == 1)
 			return;	// near a dropoff
 		
-		z[i] = top[2] + tr.fraction*(bottom[2]-top[2]);
+		f=bottom[2]-top[2];
+		z[i] = top[2] + tr.fraction*f;
+//		tk_printf("%f = %f+%f*%f\n", z[i], top[2], tr.fraction, f);
+
+//		z[i] = top[2] + tr.fraction*(bottom[2]-top[2]);
 	}
 	
 	dir = 0;
@@ -91,10 +98,15 @@ void SV_SetIdealPitch (void)
 	for (j=1 ; j<i ; j++)
 	{
 		step = z[j] - z[j-1];
-		if (step > -ON_EPSILON && step < ON_EPSILON)
+		
+//		tk_printf("%f\n", step);
+		
+//		if (step > -ON_EPSILON && step < ON_EPSILON)
+		if ((step > -ON_EPSILON) && (step < ON_EPSILON))
 			continue;
 
-		if (dir && ( step-dir > ON_EPSILON || step-dir < -ON_EPSILON ) )
+//		if (dir && ( step-dir > ON_EPSILON || step-dir < -ON_EPSILON ) )
+		if (dir && ( ((step-dir) > ON_EPSILON) || ((step-dir) < -ON_EPSILON) ) )
 			return;		// mixed changes
 
 		steps++;	
@@ -110,6 +122,16 @@ void SV_SetIdealPitch (void)
 	if (steps < 2)
 		return;
 	sv_player->v.idealpitch = -dir * sv_idealpitchscale.value;
+//	sv_player->v.idealpitch = -dir * 0.8;
+	
+	f = -dir * sv_idealpitchscale.value;
+	if(f<-45)f=-45;
+	if(f> 45)f= 45;
+	sv_player->v.idealpitch = f;
+
+//	tk_printf("sv_player->v.idealpitch: %f %d*%f\n",
+//		sv_player->v.idealpitch, -dir, sv_idealpitchscale.value);
+//	tk_printf("angvel=%f\n", angleval);
 }
 
 

@@ -157,6 +157,7 @@ void D_PolysetDraw (void)
 	{
 		if (r_affinetridesc.drawtype)
 //		if(1)	//BGB Debug
+//		if(0)
 		{
 			D_DrawSubdiv ();
 			return;
@@ -937,9 +938,9 @@ void D_PolysetDrawSpans16 (spanpackage_t *pspanpackage)
 	int		px, d, ncount;
 	short	*lpz;
 
-#ifdef _BGBCC
+// #ifdef _BGBCC
 //	return;		//BGB Debug
-#endif
+// #endif
 
 	ncount=1024;
 	do

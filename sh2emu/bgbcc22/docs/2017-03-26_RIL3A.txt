@@ -394,6 +394,12 @@ Opcodes (Structural)
 ** XFVLI value;
 ** Float128 Literal
 
+* 0x1C, TLVBLOB
+** SVLI tag;
+** UVLI size;
+** BYTE[size] data;
+** Uncompressed context-dependent data.
+
 Opcodes (Executable Code)
 * 0x20, MARK ( -- Mark )
 ** Mark a position on the stack (typically for function argument lists).

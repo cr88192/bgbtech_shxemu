@@ -176,6 +176,7 @@ extern "C" {
 
 #define BGBCC_TYFL_NEW				BGBCC_TYFL_CONST
 #define BGBCC_TYFL_OVERRIDE			BGBCC_TYFL_STRICT
+#define BGBCC_TYFL_ALIASPTR			BGBCC_TYFL_STRICT
 
 #define BGBCC_TYFL_CONST2			BGBCC_TYFL_FINAL
 
@@ -214,6 +215,7 @@ extern "C" {
 
 #define BGBCC_REGFL_DEMANDLOAD		0x0010		//demand-load requested
 #define BGBCC_REGFL_LOADED			0x0020		//already loaded
+#define BGBCC_REGFL_ALIASPTR		0x0040		//may be aliased by a pointer
 
 #ifndef BTK_NAME
 #define BTK_NAME	1
@@ -449,6 +451,7 @@ int tuidx;				//translation unit index
 byte arch_sizeof_long;
 byte arch_sizeof_ptr;
 byte arch_sizeof_valist;
+byte arch_demote_d2f;	//for arch, demote double to float
 byte arch_align_max;	//don't use alignments larger than this
 byte arch_align_objmin;	//minimum alignment for value-objects
 

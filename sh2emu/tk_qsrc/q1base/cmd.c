@@ -621,7 +621,7 @@ void	Cmd_ExecuteString (char *text, cmd_source_t src)
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;
 
-	tk_printf("Cmd_ExecuteString: %s\n", text);
+//	tk_printf("Cmd_ExecuteString: %s\n", text);
 
 	cmd_source = src;
 	Cmd_TokenizeString (text);

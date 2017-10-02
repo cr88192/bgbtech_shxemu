@@ -244,9 +244,9 @@ int R_LightPoint (vec3_t p)
 	vec3_t		end;
 	int			r;
 
-#ifdef _BGBCC
-	return 255;
-#endif
+// #ifdef _BGBCC
+//	return 255;
+// #endif
 
 	if (!cl.worldmodel->lightdata)
 		return 255;

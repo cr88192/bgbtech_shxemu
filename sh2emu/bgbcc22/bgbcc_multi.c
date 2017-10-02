@@ -102,11 +102,13 @@
 #include "shcc/shx_conv.c"
 #include "shcc/shx_emit.c"
 #include "shcc/shx_fpreg.c"
+#include "shcc/shx_frame.c"
 #include "shcc/shx_ldix.c"
 #include "shcc/shx_lparith.c"
 #include "shcc/shx_lpreg.c"
 #include "shcc/shx_lxarith.c"
 #include "shcc/shx_register.c"
 #include "shcc/shx_struct.c"
+#include "shcc/shx_vreg.c"
 
 #include "bgbmeta.c"

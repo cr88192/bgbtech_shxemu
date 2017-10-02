@@ -617,6 +617,8 @@ void SCR_ScreenShot_f (void)
 	char		pcxname[80]; 
 	char		checkname[MAX_OSPATH];
 
+//	return;
+
 // 
 // find a file name to save it to 
 // 

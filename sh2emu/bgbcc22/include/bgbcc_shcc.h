@@ -82,6 +82,10 @@
 #define BGBCC_SH_REG_FR3		0x43
 #define BGBCC_SH_REG_FR4		0x44
 
+#define BGBCC_SH_REG_FR8		0x48
+#define BGBCC_SH_REG_FR9		0x49
+#define BGBCC_SH_REG_FR10		0x4A
+#define BGBCC_SH_REG_FR11		0x4B
 #define BGBCC_SH_REG_FR12		0x4C
 #define BGBCC_SH_REG_FR13		0x4D
 #define BGBCC_SH_REG_FR14		0x4E
@@ -308,6 +312,10 @@
 #define BGBCC_SH_NMID_MOVCAL		0x71	//
 #define BGBCC_SH_NMID_PUSH			0x72	//
 #define BGBCC_SH_NMID_POP			0x73	//
+#define BGBCC_SH_NMID_ICLRMD		0x74	//
+#define BGBCC_SH_NMID_ISETMD		0x75	//
+#define BGBCC_SH_NMID_SHLL1			0x76	//
+#define BGBCC_SH_NMID_LDHF16		0x77	//
 
 #define BGBCC_SH_NMID_FABS			0x80	//
 #define BGBCC_SH_NMID_FADD			0x81	//
@@ -337,6 +345,11 @@
 #define BGBCC_SH_NMID_FTRV			0x98	//
 #define BGBCC_SH_NMID_PSETMD4		0x99	//
 #define BGBCC_SH_NMID_PSETMD12		0x9A	//
+#define BGBCC_SH_NMID_FMOVX			0x9B	//
+#define BGBCC_SH_NMID_FMOVIS		0x9C	//
+#define BGBCC_SH_NMID_FMOVID		0x9D	//
+#define BGBCC_SH_NMID_FMOVSI		0x9E	//
+#define BGBCC_SH_NMID_FMOVDI		0x9F	//
 
 #define BGBCC_SH_NMID_MOVI			0xC0	//
 #define BGBCC_SH_NMID_MOVIV			0xC1	//
@@ -424,8 +437,9 @@
 #define BGBCC_SH_CSEG_GOT		0x02		//.got section
 #define BGBCC_SH_CSEG_DATA		0x03		//.data section
 #define BGBCC_SH_CSEG_BSS		0x04		//.bss section
+#define BGBCC_SH_CSEG_RELOC		0x05		//.reloc section
 
-#define BGBCC_SH_CSEG_DYN		0x05		//dynamic sections
+#define BGBCC_SH_CSEG_DYN		0x06		//dynamic sections
 
 #define BGBCC_SH_REGCLS_NONE	0
 #define BGBCC_SH_REGCLS_GR		1	//uses a GPR
@@ -439,14 +453,52 @@
 #define BGBCC_SH_REGCLS_AR_REF	8	//array object, pass by-ref
 
 
+#define BGBCC_SH_FPSCR_DN		0x00040000	//
 #define BGBCC_SH_FPSCR_PR		0x00080000	//
 #define BGBCC_SH_FPSCR_SZ		0x00100000	//
 #define BGBCC_SH_FPSCR_FR		0x00200000	//
+#define BGBCC_SH_FPSCR_VE		0x01000000	//
 
 #define BGBCC_SH_MAX_CACHEVAR 5
 
 #define BGBCC_SH_MAX_CACHEFPVAR 4
 
+
+#define BGBCC_COFF_MACH_SH3			0x01A2
+#define BGBCC_COFF_MACH_SH3DSP		0x01A3
+#define BGBCC_COFF_MACH_SH4			0x01A6
+
+#define BGBCC_COFF_SCNT_NOPAD		0x00000008
+#define BGBCC_COFF_SCNT_CODE		0x00000020
+#define BGBCC_COFF_SCNT_IDATA		0x00000040
+#define BGBCC_COFF_SCNT_UDATA		0x00000080
+
+#define BGBCC_COFF_SCNT_GPREL		0x00008000
+#define BGBCC_COFF_SCNT_MEM6BIT		0x00020000
+
+#define BGBCC_COFF_SCNT_ALGN1B		0x00100000
+#define BGBCC_COFF_SCNT_ALGN2B		0x00200000
+#define BGBCC_COFF_SCNT_ALGN4B		0x00300000
+#define BGBCC_COFF_SCNT_ALGN8B		0x00400000
+#define BGBCC_COFF_SCNT_ALGN16B		0x00500000
+#define BGBCC_COFF_SCNT_ALGN32B		0x00600000
+#define BGBCC_COFF_SCNT_ALGN64B		0x00700000
+#define BGBCC_COFF_SCNT_ALGN128B	0x00800000
+#define BGBCC_COFF_SCNT_ALGN256B	0x00900000
+#define BGBCC_COFF_SCNT_ALGN512B	0x00A00000
+#define BGBCC_COFF_SCNT_ALGN1KB		0x00B00000
+#define BGBCC_COFF_SCNT_ALGN2KB		0x00C00000
+#define BGBCC_COFF_SCNT_ALGN4KB		0x00D00000
+#define BGBCC_COFF_SCNT_ALGN8KB		0x00E00000
+
+#define BGBCC_COFF_SCNT_NRLCOVF		0x01000000
+#define BGBCC_COFF_SCNT_DISCARD		0x02000000
+#define BGBCC_COFF_SCNT_NOCACHE		0x04000000
+#define BGBCC_COFF_SCNT_NOPAGE		0x08000000
+#define BGBCC_COFF_SCNT_SHARED		0x10000000
+#define BGBCC_COFF_SCNT_EXECUTE		0x20000000
+#define BGBCC_COFF_SCNT_READ		0x40000000
+#define BGBCC_COFF_SCNT_WRITE		0x80000000
 
 #define BGBCC_SHX_GenLabelTemp(ctx)		\
 	BGBCC_SHX_GenLabelTempLLn(ctx, __FILE__, __LINE__)
@@ -456,6 +508,8 @@
 
 typedef struct BGBCC_SHX_Context_s BGBCC_SHX_Context;
 typedef struct BGBCC_SHX_OpcodeArg_s BGBCC_SHX_OpcodeArg;
+typedef struct BGBCC_SHX_VarSpan_s BGBCC_SHX_VarSpan;
+typedef struct BGBCC_SHX_VarSpan2_s BGBCC_SHX_VarSpan2;
 
 struct BGBCC_SHX_Context_s {
 char *sec_name[16];
@@ -481,6 +535,7 @@ byte is_vararg;		//function is varargs
 byte is_simpass;	//is simulation pass
 byte is_stable;		//function is stable
 byte is_addr64;		//target uses 64-bit addresses
+byte is_rawasm;		//is raw assembler
 
 byte has_shad;		//has SHAD/SHLD
 byte has_movi20;	//has MOVI20 and friends
@@ -490,7 +545,17 @@ byte has_bjx1jmp;	//has BJX1 Branch I-forms
 byte has_bjx1ari;	//has BJX1 Arithmetic I-forms
 
 int simfnsz;		//simulation's function size
+int simfnmsz;		//simulation's min function size
 int simfnnsz;		//simulation's max function size
+int tr_trnum;		//trace number
+int tr_opnum;		//trace op number
+
+int fnsz_pro;		//size of prolog
+int fnsz_epi;		//size of epilog
+int fnsz_bod;		//size of function body
+int fnsz_vtr[16];
+int fnsz_lvtr[16];
+int fnsz_dvtr[16];
 
 u32 *lbl_ofs;		//label offsets
 u32 *rlc_ofs;		//reloc offsets
@@ -526,6 +591,9 @@ int reg_save;
 int freg_save;
 int reg_vsave;
 int freg_vsave;
+
+int cnt_set_fp32;
+int cnt_set_fp64;
 
 int sim_voffs;		//est' offset between real PC and sim PC
 
@@ -567,6 +635,12 @@ u16 sreg_held;			//scratch registers live-held (multiple ops)
 u16 sfreg_live;			//scratch registers live (per 3AC operation)
 u16 sfreg_held;			//scratch registers live-held (multiple ops)
 
+BGBCC_SHX_VarSpan **vspan;
+int vspan_num;
+int vspan_max;
+int vsp_rsv;
+int vsp_tcnt;
+
 int frm_size;			//allocated size of frame
 int frm_offs_lcl;		//frame offset of local vars
 int frm_offs_tmp;		//frame offset of temporaries
@@ -574,6 +648,7 @@ int frm_offs_fix;		//fixed-size automatic
 int lbl_ret;			//label ID for function exit
 int lbl_got;			//label ID for got
 int frm_offs_retstr;	//offset of return struct
+int frm_offs_save;		//offset of register-save area
 
 BGBCC_SHX_Context *next;
 struct BGBCC_TransState_s *tctx;
@@ -613,4 +688,25 @@ byte breg;		//base for Reg/RM forms, or register
 s64 disp;		//displacement for Reg/RM forms, or immed
 int lbl;		//label
 char *name;		//name
+};
+
+struct BGBCC_SHX_VarSpan2_s {
+int bbeg;				//begin (vop)
+int bend;				//end (vop)
+int tbeg;				//begin (vop)
+int tend;				//end (vop)
+int cnt;				//total times used
+};
+
+struct BGBCC_SHX_VarSpan_s {
+ccxl_register reg;		//register in question
+int bbeg;				//begin (vop)
+int bend;				//end (vop)
+int tbeg;				//begin (vop)
+int tend;				//end (vop)
+int cnt;				//total times used
+int flag;				//span flags
+
+BGBCC_SHX_VarSpan2 seq[64];
+int nseq;
 };

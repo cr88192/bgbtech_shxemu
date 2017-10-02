@@ -63,7 +63,8 @@ int filelength (FILE *f)
 	printf("filelength: C\n");
 	end = ftell (f);
 	printf("filelength: D\n");
-	fseek (f, pos, SEEK_SET);
+//	fseek (f, pos, SEEK_SET);
+	fseek (f, 0, SEEK_SET);
 	printf("filelength: E\n");
 
 	return end;
@@ -116,9 +117,12 @@ void Sys_FileSeek (int handle, int position)
 
 int Sys_FileRead (int handle, void *dest, int count)
 {
-	printf("Sys_FileRead hdl=%d dst=%p sz=%d fd=%p\n",
+	int rlen;
+	tk_printf("Sys_FileRead hdl=%d dst=%p sz=%d fd=%p\n",
 		handle, dest, count, sys_handles[handle]);
-	return fread (dest, 1, count, sys_handles[handle]);
+	rlen = fread (dest, 1, count, sys_handles[handle]);
+	tk_printf("Sys_FileRead rlen=%d\n", rlen);
+	return(rlen);
 }
 
 int Sys_FileWrite (int handle, void *data, int count)

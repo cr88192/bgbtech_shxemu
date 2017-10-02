@@ -690,7 +690,11 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 		MSG_WriteChar (msg, ent->v.view_ofs[2]);
 
 	if (bits & SU_IDEALPITCH)
+	{
+//		tk_printf("SV_WriteClientdataToMessage: idealpitch=%f\n",
+//			ent->v.idealpitch);
 		MSG_WriteChar (msg, ent->v.idealpitch);
+	}
 
 	for (i=0 ; i<3 ; i++)
 	{

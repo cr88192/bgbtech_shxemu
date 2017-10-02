@@ -28,7 +28,7 @@ TK_CFL=-DARCH_SH4 -DARCH_SH4LE -D__32BIT__
 TK_LDFL= $(TK_CFL)
 
 # BASE_CFLAGS=-Dstricmp=strcasecmp
-BASE_CFLAGS=-Itk_clib/include -Ltk_clib
+BASE_CFLAGS=-Itk_clib/include -Ltk_clib -mBJX1L
 
 CFLAGS=$(TK_CFL) $(BASE_CFLAGS)
 LDFLAGS=$(TK_LDFL) -lvxcore

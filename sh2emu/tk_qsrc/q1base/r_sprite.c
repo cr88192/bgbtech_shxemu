@@ -196,9 +196,9 @@ void R_SetupAndDrawSprite ()
 	vec3_t		left, up, right, down, transformed, local;
 	emitpoint_t	outverts[MAXWORKINGVERTS+1], *pout;
 
-#ifdef _BGBCC
+// #ifdef _BGBCC
 //	return; //BGBCC Debug
-#endif
+// #endif
 
 	dot = DotProduct (r_spritedesc.vpn, modelorg);
 

@@ -616,9 +616,9 @@ void D_DrawSprite (void)
 	if (ymin >= ymax)
 		return;		// doesn't cross any scans at all
 
-	tk_printf("D_DrawSprite: ymin=%f ymax=%f\n", ymin, ymax);
-	tk_printf("D_DrawSprite: mini=%d maxi=%d nump=%d\n",
-		minindex, maxindex, numpindex);
+//	tk_printf("D_DrawSprite: ymin=%f ymax=%f\n", ymin, ymax);
+//	tk_printf("D_DrawSprite: mini=%d maxi=%d nump=%d\n",
+//		minindex, maxindex, numpindex);
 
 	if(ymin<0)
 		return;

@@ -1,0 +1,2345 @@
+TK: Start A0
+tk_ird_init: OK 02D2A000
+tk_ird_init: IRD=8ED2A000
+A1
+A2
+A3
+A4
+TK: Start Main
+Q Main
+__allocmem: 90000010..91800010 25165824
+Q A0
+malloc'd: 25165824 @ 00000000..00000000
+Q A1
+Q A2
+Host_Init
+Host_Init: A0
+Z_ClearZone: A0
+Zone=90000040 Block=90000060
+Z_ClearZone: A1
+Zone=90000040 Block=90000060
+Z_ClearZone: A1 B
+Z_ClearZone: A1 C
+Z_ClearZone: A2
+Cvar_RegisterVariable: lcd_x 0 0.000000,0
+Cvar_RegisterVariable: lcd_yaw 0 0.000000,0
+Cvar_RegisterVariable: v_centermove 0.15 0.150000,0
+Cvar_RegisterVariable: v_centerspeed 500 500.000000,500
+Cvar_RegisterVariable: v_iyaw_cycle 2 2.000000,2
+Cvar_RegisterVariable: v_iroll_cycle 0.5 0.500000,0
+Cvar_RegisterVariable: v_ipitch_cycle 1 1.000000,1
+Cvar_RegisterVariable: v_iyaw_level 0.3 0.300000,0
+Cvar_RegisterVariable: v_iroll_level 0.1 0.100000,0
+Cvar_RegisterVariable: v_ipitch_level 0.3 0.300000,0
+Cvar_RegisterVariable: v_idlescale 0 0.000000,0
+Cvar_RegisterVariable: crosshair 0 0.000000,0
+Cvar_RegisterVariable: cl_crossx 0 0.000000,0
+Cvar_RegisterVariable: cl_crossy 0 0.000000,0
+Cvar_RegisterVariable: gl_cshiftpercent 100 100.000000,100
+Cvar_RegisterVariable: scr_ofsx 0 0.000000,0
+Cvar_RegisterVariable: scr_ofsy 0 0.000000,0
+Cvar_RegisterVariable: scr_ofsz 0 0.000000,0
+Cvar_RegisterVariable: cl_rollspeed 200 200.000000,200
+Cvar_RegisterVariable: cl_rollangle 2.0 2.000000,2
+Cvar_RegisterVariable: cl_bob 0.02 0.020000,0
+Cvar_RegisterVariable: cl_bobcycle 0.6 0.600000,0
+Cvar_RegisterVariable: cl_bobup 0.5 0.500000,0
+Cvar_RegisterVariable: v_kicktime 0.5 0.500000,0
+Cvar_RegisterVariable: v_kickroll 0.6 0.600000,0
+Cvar_RegisterVariable: v_kickpitch 0.6 0.600000,0
+Cvar_RegisterVariable: gamma 1 1.000000,1
+Host_Init: A0A
+Cvar_RegisterVariable: chase_back 100 100.000000,100
+Cvar_RegisterVariable: chase_up 16 16.000000,16
+Cvar_RegisterVariable: chase_right 0 0.000000,0
+Cvar_RegisterVariable: chase_active 0 0.000000,0
+Host_Init: A0A0
+Host_Init: A0A1
+Cvar_RegisterVariable: registered 0 0.000000,0
+Cvar_RegisterVariable: cmdline 0 0.000000,0
+COM_InitFilesystem: A0
+COM_InitFilesystem: A1
+COM_InitFilesystem: A2
+COM_AddGameDirectory: ./id1
+COM_AddGameDirectory: A1
+COM_AddGameDirectory: Try ./id1/pak0.pak
+__allocmem: 91801010..91801068 88
+__allocmem: 91801080..918010A8 40
+tk_ird_fopen: id1/pak0.pak 8ED2B000 8FEFDCD3
+__allocmem: 918010E0..918028E8 6152
+filelength: A
+filelength: B
+tk_ird_fseek: 91801080 0 2
+filelength: C
+filelength: D
+tk_ird_fseek: 91801080 0 0
+filelength: E
+COM_LoadPackFile: A
+Sys_FileRead hdl=1 dst=8FFDFA84 sz=12 fd=91801010
+Sys_FileRead rlen=12
+COM_LoadPackFile: B
+tk_ird_fseek: 91801080 18254423 0
+Sys_FileRead hdl=1 dst=8FFDFA90 sz=21696 fd=91801010
+Sys_FileRead rlen=21696
+COM_LoadPackFile: C
+COM_LoadPackFile: D
+COM_LoadPackFile: E
+COM_LoadPackFile: F
+Added packfile ./id1/pak0.pak (339 files)
+Added packfile ./id1/pak0.pak (339 files)
+COM_AddGameDirectory: Got PAK ./id1/pak0.pak 00000000
+COM_AddGameDirectory: Try ./id1/pak1.pak
+__allocmem: 91802AE0..91802B38 88
+tk_ird_fopen: can't find id1/pak1.pak
+osfopen: got error status
+fopen2: error status B
+Couldn't open ./id1/pak1.pak
+COM_AddGameDirectory: Fail ./id1/pak1.pak
+COM_AddGameDirectory: A2
+COM_InitFilesystem: A3
+COM_InitFilesystem: A4
+COM_InitFilesystem: A5
+COM_InitFilesystem: A6
+__allocmem: 91802B50..91802BA8 88
+tk_ird_fopen: can't find id1/gfx/pop.lmp
+osfopen: got error status
+fopen2: error status B
+FindFile: can't find gfx/pop.lmp
+Playing shareware version.
+Host_Init: A0B
+Cvar_RegisterVariable: host_framerate 0 0.000000,0
+Cvar_RegisterVariable: host_speeds 0 0.000000,0
+Cvar_RegisterVariable: sys_ticrate 0.05 0.050000,0
+Cvar_RegisterVariable: serverprofile 0 0.000000,0
+Cvar_RegisterVariable: fraglimit 0 0.000000,0
+Cvar_RegisterVariable: timelimit 0 0.000000,0
+Cvar_RegisterVariable: teamplay 0 0.000000,0
+Cvar_RegisterVariable: samelevel 0 0.000000,0
+Cvar_RegisterVariable: noexit 0 0.000000,0
+Cvar_RegisterVariable: skill 1 1.000000,1
+Cvar_RegisterVariable: developer 0 0.000000,0
+Cvar_RegisterVariable: deathmatch 0 0.000000,0
+Cvar_RegisterVariable: coop 0 0.000000,0
+Cvar_RegisterVariable: pausable 1 1.000000,1
+Cvar_RegisterVariable: temp1 0 0.000000,0
+Host_Init: A0C
+PackFile: ./id1/pak0.pak : gfx.wad 1
+tk_ird_fseek: 91801080 6178640 0
+COM_LoadFile: gfx.wad hdl=1 uh=1
+COM_LoadFile: buf=9001C8A0
+Sys_FileRead hdl=1 dst=9001C8A0 sz=112828 fd=91801010
+Sys_FileRead rlen=112828
+Host_Init: A1
+Console initialized.
+Cvar_RegisterVariable: con_notifytime 3 3.000000,3
+Host_Init: A2
+Cvar_RegisterVariable: nomonsters 0 0.000000,0
+Cvar_RegisterVariable: gamecfg 0 0.000000,0
+Cvar_RegisterVariable: scratch1 0 0.000000,0
+Cvar_RegisterVariable: scratch2 0 0.000000,0
+Cvar_RegisterVariable: scratch3 0 0.000000,0
+Cvar_RegisterVariable: scratch4 0 0.000000,0
+Cvar_RegisterVariable: savedgamecfg 0 0.000000,0
+Cvar_RegisterVariable: saved1 0 0.000000,0
+Cvar_RegisterVariable: saved2 0 0.000000,0
+Cvar_RegisterVariable: saved3 0 0.000000,0
+Cvar_RegisterVariable: saved4 0 0.000000,0
+NET_Init: A0
+NET_Init: A1
+Cvar_RegisterVariable: net_messagetimeout 300 300.000000,300
+Cvar_RegisterVariable: hostname UNNAMED 0.000000,0
+Cvar_RegisterVariable: _config_com_port 0x3f8 1016.000000,1016
+Cvar_RegisterVariable: _config_com_irq 4 4.000000,4
+Cvar_RegisterVariable: _config_com_baud 57600 57600.000000,57600
+Cvar_RegisterVariable: _config_com_modem 1 1.000000,1
+Cvar_RegisterVariable: _config_modem_dialtype T 0.000000,0
+Cvar_RegisterVariable: _config_modem_clear ATZ 0.000000,0
+Cvar_RegisterVariable: _config_modem_init  0.000000,0
+Cvar_RegisterVariable: _config_modem_hangup AT H 0.000000,0
+NET_Init: A2
+NET_Init: A3
+NET_Init: A4
+NET_Init: A5
+SV_Init: A0
+Cvar_RegisterVariable: sv_maxvelocity 2000 2000.000000,2000
+Cvar_RegisterVariable: sv_gravity 800 800.000000,800
+Cvar_RegisterVariable: sv_friction 4 4.000000,4
+Cvar_RegisterVariable: edgefriction 2 2.000000,2
+Cvar_RegisterVariable: sv_stopspeed 100 100.000000,100
+Cvar_RegisterVariable: sv_maxspeed 320 320.000000,320
+Cvar_RegisterVariable: sv_accelerate 10 10.000000,10
+Cvar_RegisterVariable: sv_idealpitchscale 0.8 0.800000,0
+Cvar_RegisterVariable: sv_aim 0.93 0.930000,0
+Cvar_RegisterVariable: sv_nostep 0 0.000000,0
+SV_Init: A1
+SV_Init: A2
+Host_Init: A3
+Exe: 23:59:59 Apr 01 2000
+24.0 megabyte heap
+Host_Init: A4
+Host_Init: A4-1
+PackFile: ./id1/pak0.pak : gfx/palette.lmp 1
+tk_ird_fseek: 91801080 6832530 0
+COM_LoadFile: gfx/palette.lmp hdl=1 uh=1
+COM_LoadFile: buf=90052A50
+Sys_FileRead hdl=1 dst=90052A50 sz=768 fd=91801010
+Sys_FileRead rlen=768
+PackFile: ./id1/pak0.pak : gfx/colormap.lmp 1
+tk_ird_fseek: 91801080 6833298 0
+COM_LoadFile: gfx/colormap.lmp hdl=1 uh=1
+COM_LoadFile: buf=90052D70
+Sys_FileRead hdl=1 dst=90052D70 sz=16385 fd=91801010
+Sys_FileRead rlen=16385
+Host_Init: A4-2
+Host_Init: A4-3
+__allocmem: 91901010..91997010 614400
+__allocmem: 91998010..91A2E010 614400
+__allocmem: 91A2F010..91BF1010 1843200
+VID_Init:
+1800k surface cache
+__allocmem: 91BF2010..91C12010 131072
+VID_Init: B
+VID_Init: C
+Host_Init: A4-4
+Host_Init: A4-4-1
+Cvar_RegisterVariable: fov 90 90.000000,90
+Cvar_RegisterVariable: viewsize 100 100.000000,100
+Cvar_RegisterVariable: scr_conspeed 300 300.000000,300
+Cvar_RegisterVariable: showram 0 0.000000,0
+Cvar_RegisterVariable: showturtle 0 0.000000,0
+Cvar_RegisterVariable: showpause 1 1.000000,1
+Cvar_RegisterVariable: scr_centertime 2 2.000000,2
+Cvar_RegisterVariable: scr_printspeed 8 8.000000,8
+Host_Init: A4-4-2
+R_Init: A0
+Cvar_RegisterVariable: r_draworder 0 0.000000,0
+Cvar_RegisterVariable: r_speeds 0 0.000000,0
+Cvar_RegisterVariable: r_timegraph 0 0.000000,0
+Cvar_RegisterVariable: r_graphheight 10 10.000000,10
+Cvar_RegisterVariable: r_drawflat 0 0.000000,0
+Cvar_RegisterVariable: r_ambient 0 0.000000,0
+Cvar_RegisterVariable: r_clearcolor 2 2.000000,2
+Cvar_RegisterVariable: r_waterwarp 1 1.000000,1
+Cvar_RegisterVariable: r_fullbright 0 0.000000,0
+Cvar_RegisterVariable: r_drawentities 1 1.000000,1
+Cvar_RegisterVariable: r_drawviewmodel 1 1.000000,1
+Cvar_RegisterVariable: r_polymodelstats 0 0.000000,0
+Cvar_RegisterVariable: r_dspeeds 0 0.000000,0
+Cvar_RegisterVariable: r_reportsurfout 0 0.000000,0
+Cvar_RegisterVariable: r_maxsurfs 0 0.000000,0
+Cvar_RegisterVariable: r_numsurfs 0 0.000000,0
+Cvar_RegisterVariable: r_reportedgeout 0 0.000000,0
+Cvar_RegisterVariable: r_maxedges 0 0.000000,0
+Cvar_RegisterVariable: r_numedges 0 0.000000,0
+Cvar_RegisterVariable: r_aliastransbase 200 200.000000,200
+Cvar_RegisterVariable: r_aliastransadj 100 100.000000,100
+Cvar_RegisterVariable: r_novis 0 0.000000,0
+Cvar_RegisterVariable: r_wateralpha 1 1.000000,1
+R_Init: A1
+R_Init: A2
+R_Init: A3
+R_Init: A4
+D_Init: A0
+Cvar_RegisterVariable: d_subdiv16 1 1.000000,1
+Cvar_RegisterVariable: d_mipcap 0 0.000000,0
+Cvar_RegisterVariable: d_mipscale 1 1.000000,1
+D_Init: A1
+D_Init: A2
+D_Init: A3
+R_Init: A5
+Host_Init: A4-5
+
+Sound Initialization
+PackFile: ./id1/pak0.pak : gfx/conback.lmp 1
+tk_ird_fseek: 91801080 6893499 0
+COM_LoadFile: gfx/conback.lmp hdl=1 uh=3
+COM_LoadFile: buf=9006CE58
+Sys_FileRead hdl=1 dst=9006CE58 sz=64008 fd=91801010
+Sys_FileRead rlen=64008
+Cvar_RegisterVariable: nosound 0 0.000000,0
+Cvar_RegisterVariable: volume 0.7 0.700000,0
+Cvar_RegisterVariable: precache 1 1.000000,1
+Cvar_RegisterVariable: loadas8bit 0 0.000000,0
+Cvar_RegisterVariable: bgmvolume 1 1.000000,1
+Cvar_RegisterVariable: bgmbuffer 4096 4096.000000,4096
+Cvar_RegisterVariable: ambient_level 0.3 0.300000,0
+Cvar_RegisterVariable: ambient_fade 100 100.000000,100
+Cvar_RegisterVariable: snd_noextraupdate 0 0.000000,0
+Cvar_RegisterVariable: snd_show 0 0.000000,0
+Cvar_RegisterVariable: _snd_mixahead 0.1 0.100000,0
+Sound sampling rate: 11025
+PackFile: ./id1/pak0.pak : sound/ambience/water1.wav 1
+tk_ird_fseek: 91801080 473982 0
+COM_LoadFile: sound/ambience/water1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9BC loadsz=1024 len=55784
+COM_LoadFile: buf=917F2520
+Sys_FileRead hdl=1 dst=917F2520 sz=55784 fd=91801010
+Sys_FileRead rlen=55784
+PackFile: ./id1/pak0.pak : sound/ambience/wind2.wav 1
+tk_ird_fseek: 91801080 529766 0
+COM_LoadFile: sound/ambience/wind2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9BC loadsz=1024 len=28610
+COM_LoadFile: buf=917F8F40
+Sys_FileRead hdl=1 dst=917F8F40 sz=28610 fd=91801010
+Sys_FileRead rlen=28610
+Host_Init: A4-6
+PackFile: ./id1/pak0.pak : sound/wizard/hit.wav 1
+tk_ird_fseek: 91801080 2441740 0
+COM_LoadFile: sound/wizard/hit.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9E4 loadsz=1024 len=7332
+COM_LoadFile: buf=917FE260
+Sys_FileRead hdl=1 dst=917FE260 sz=7332 fd=91801010
+Sys_FileRead rlen=7332
+PackFile: ./id1/pak0.pak : sound/hknight/hit.wav 1
+tk_ird_fseek: 91801080 2843844 0
+COM_LoadFile: sound/hknight/hit.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9E4 loadsz=1024 len=6260
+COM_LoadFile: buf=917FE690
+Sys_FileRead hdl=1 dst=917FE690 sz=6260 fd=91801010
+Sys_FileRead rlen=6260
+PackFile: ./id1/pak0.pak : sound/weapons/tink1.wav 1
+tk_ird_fseek: 91801080 430388 0
+COM_LoadFile: sound/weapons/tink1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9E4 loadsz=1024 len=1252
+COM_LoadFile: buf=917FFA20
+Sys_FileRead hdl=1 dst=917FFA20 sz=1252 fd=91801010
+Sys_FileRead rlen=1252
+PackFile: ./id1/pak0.pak : sound/weapons/ric1.wav 1
+tk_ird_fseek: 91801080 389962 0
+COM_LoadFile: sound/weapons/ric1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9E4 loadsz=1024 len=4308
+COM_LoadFile: buf=917FEE30
+Sys_FileRead hdl=1 dst=917FEE30 sz=4308 fd=91801010
+Sys_FileRead rlen=4308
+PackFile: ./id1/pak0.pak : sound/weapons/ric2.wav 1
+tk_ird_fseek: 91801080 394270 0
+COM_LoadFile: sound/weapons/ric2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9E4 loadsz=1024 len=10838
+COM_LoadFile: buf=917FD4B0
+Sys_FileRead hdl=1 dst=917FD4B0 sz=10838 fd=91801010
+Sys_FileRead rlen=10838
+PackFile: ./id1/pak0.pak : sound/weapons/ric3.wav 1
+tk_ird_fseek: 91801080 405108 0
+COM_LoadFile: sound/weapons/ric3.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9E4 loadsz=1024 len=12638
+COM_LoadFile: buf=917FCDB0
+Sys_FileRead hdl=1 dst=917FCDB0 sz=12638 fd=91801010
+Sys_FileRead rlen=12638
+PackFile: ./id1/pak0.pak : sound/weapons/r_exp3.wav 1
+tk_ird_fseek: 91801080 325402 0
+COM_LoadFile: sound/weapons/r_exp3.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFF9E4 loadsz=1024 len=17478
+COM_LoadFile: buf=917FBAC0
+Sys_FileRead hdl=1 dst=917FBAC0 sz=17478 fd=91801010
+Sys_FileRead rlen=17478
+Cvar_RegisterVariable: _cl_name player 0.000000,0
+Cvar_RegisterVariable: _cl_color 0 0.000000,0
+Cvar_RegisterVariable: cl_upspeed 200 200.000000,200
+Cvar_RegisterVariable: cl_forwardspeed 200 200.000000,200
+Cvar_RegisterVariable: cl_backspeed 200 200.000000,200
+Cvar_RegisterVariable: cl_sidespeed 350 350.000000,350
+Cvar_RegisterVariable: cl_movespeedkey 2.0 2.000000,2
+Cvar_RegisterVariable: cl_yawspeed 140 140.000000,140
+Cvar_RegisterVariable: cl_pitchspeed 150 150.000000,150
+Cvar_RegisterVariable: cl_anglespeedkey 1.5 1.500000,1
+Cvar_RegisterVariable: cl_shownet 0 0.000000,0
+Cvar_RegisterVariable: cl_nolerp 0 0.000000,0
+Cvar_RegisterVariable: lookspring 0 0.000000,0
+Cvar_RegisterVariable: lookstrafe 0 0.000000,0
+Cvar_RegisterVariable: sensitivity 3 3.000000,3
+Cvar_RegisterVariable: m_pitch 0.022 0.022000,0
+Cvar_RegisterVariable: m_yaw 0.022 0.022000,0
+Cvar_RegisterVariable: m_forward 1 1.000000,1
+Cvar_RegisterVariable: m_side 0.8 0.800000,0
+Host_Init: A4-7
+Host_Init: A5
+Cbuf_InsertText: 0C075647 {{
+exec quake.rc
+Cbuf_InsertText: }}
+========Quake Initialized=========
+Host_Init: A6
+Host_Init: Done
+Q Flt 0: 3.141590
+Q Flt 1: 6.283180
+Q Flt 2: 6.283180
+Q Flt 3: 6.283180
+Q Flt 4: 6.283180
+Q Flt 5: 6.283180
+Q Flt 4-1: 62.831798
+Q Flt 5-1: 0.628318
+Q Flt 6: 3.141590
+-1==-1 -> 1
+-1!=-1 -> 0
+-1< -1 -> 0
+-1> -1 -> 0
+-1<=-1 -> 1
+-1>=-1 -> 1
+-1==-1 -> T
+-1!=-1 -> F
+-1< -1 -> F
+-1> -1 -> F
+-1<=-1 -> T
+-1>=-1 -> T
+-1.000000==-1.000000 -> 1
+-1.000000!=-1.000000 -> 0
+-1.000000< -1.000000 -> 0
+-1.000000> -1.000000 -> 0
+-1.000000<=-1.000000 -> 1
+-1.000000>=-1.000000 -> 1
+-1.000000==-1.000000 -> T
+-1.000000!=-1.000000 -> F
+-1.000000<-1.000000 -> F
+-1.000000>-1.000000 -> F
+-1.000000<=-1.000000 -> T
+-1.000000>=-1.000000 -> T
+-1==0 -> 0
+-1!=0 -> 1
+-1< 0 -> 1
+-1> 0 -> 0
+-1<=0 -> 1
+-1>=0 -> 0
+-1==0 -> F
+-1!=0 -> T
+-1< 0 -> T
+-1> 0 -> F
+-1<=0 -> T
+-1>=0 -> F
+-1.000000==0.000000 -> 0
+-1.000000!=0.000000 -> 1
+-1.000000< 0.000000 -> 1
+-1.000000> 0.000000 -> 0
+-1.000000<=0.000000 -> 1
+-1.000000>=0.000000 -> 0
+-1.000000==0.000000 -> F
+-1.000000!=0.000000 -> T
+-1.000000<0.000000 -> T
+-1.000000>0.000000 -> F
+-1.000000<=0.000000 -> T
+-1.000000>=0.000000 -> F
+-1==1 -> 0
+-1!=1 -> 1
+-1< 1 -> 1
+-1> 1 -> 0
+-1<=1 -> 1
+-1>=1 -> 0
+-1==1 -> F
+-1!=1 -> T
+-1< 1 -> T
+-1> 1 -> F
+-1<=1 -> T
+-1>=1 -> F
+-1.000000==1.000000 -> 0
+-1.000000!=1.000000 -> 1
+-1.000000< 1.000000 -> 1
+-1.000000> 1.000000 -> 0
+-1.000000<=1.000000 -> 1
+-1.000000>=1.000000 -> 0
+-1.000000==1.000000 -> F
+-1.000000!=1.000000 -> T
+-1.000000<1.000000 -> T
+-1.000000>1.000000 -> F
+-1.000000<=1.000000 -> T
+-1.000000>=1.000000 -> F
+0==-1 -> 0
+0!=-1 -> 1
+0< -1 -> 0
+0> -1 -> 1
+0<=-1 -> 0
+0>=-1 -> 1
+0==-1 -> F
+0!=-1 -> T
+0< -1 -> F
+0> -1 -> T
+0<=-1 -> F
+0>=-1 -> T
+0.000000==-1.000000 -> 0
+0.000000!=-1.000000 -> 1
+0.000000< -1.000000 -> 0
+0.000000> -1.000000 -> 1
+0.000000<=-1.000000 -> 0
+0.000000>=-1.000000 -> 1
+0.000000==-1.000000 -> F
+0.000000!=-1.000000 -> T
+0.000000<-1.000000 -> F
+0.000000>-1.000000 -> T
+0.000000<=-1.000000 -> F
+0.000000>=-1.000000 -> T
+0==0 -> 1
+0!=0 -> 0
+0< 0 -> 0
+0> 0 -> 0
+0<=0 -> 1
+0>=0 -> 1
+0==0 -> T
+0!=0 -> F
+0< 0 -> F
+0> 0 -> F
+0<=0 -> T
+0>=0 -> T
+0.000000==0.000000 -> 1
+0.000000!=0.000000 -> 0
+0.000000< 0.000000 -> 0
+0.000000> 0.000000 -> 0
+0.000000<=0.000000 -> 1
+0.000000>=0.000000 -> 1
+0.000000==0.000000 -> T
+0.000000!=0.000000 -> F
+0.000000<0.000000 -> F
+0.000000>0.000000 -> F
+0.000000<=0.000000 -> T
+0.000000>=0.000000 -> T
+0==1 -> 0
+0!=1 -> 1
+0< 1 -> 1
+0> 1 -> 0
+0<=1 -> 1
+0>=1 -> 0
+0==1 -> F
+0!=1 -> T
+0< 1 -> T
+0> 1 -> F
+0<=1 -> T
+0>=1 -> F
+0.000000==1.000000 -> 0
+0.000000!=1.000000 -> 1
+0.000000< 1.000000 -> 1
+0.000000> 1.000000 -> 0
+0.000000<=1.000000 -> 1
+0.000000>=1.000000 -> 0
+0.000000==1.000000 -> F
+0.000000!=1.000000 -> T
+0.000000<1.000000 -> T
+0.000000>1.000000 -> F
+0.000000<=1.000000 -> T
+0.000000>=1.000000 -> F
+1==-1 -> 0
+1!=-1 -> 1
+1< -1 -> 0
+1> -1 -> 1
+1<=-1 -> 0
+1>=-1 -> 1
+1==-1 -> F
+1!=-1 -> T
+1< -1 -> F
+1> -1 -> T
+1<=-1 -> F
+1>=-1 -> T
+1.000000==-1.000000 -> 0
+1.000000!=-1.000000 -> 1
+1.000000< -1.000000 -> 0
+1.000000> -1.000000 -> 1
+1.000000<=-1.000000 -> 0
+1.000000>=-1.000000 -> 1
+1.000000==-1.000000 -> F
+1.000000!=-1.000000 -> T
+1.000000<-1.000000 -> F
+1.000000>-1.000000 -> T
+1.000000<=-1.000000 -> F
+1.000000>=-1.000000 -> T
+1==0 -> 0
+1!=0 -> 1
+1< 0 -> 0
+1> 0 -> 1
+1<=0 -> 0
+1>=0 -> 1
+1==0 -> F
+1!=0 -> T
+1< 0 -> F
+1> 0 -> T
+1<=0 -> F
+1>=0 -> T
+1.000000==0.000000 -> 0
+1.000000!=0.000000 -> 1
+1.000000< 0.000000 -> 0
+1.000000> 0.000000 -> 1
+1.000000<=0.000000 -> 0
+1.000000>=0.000000 -> 1
+1.000000==0.000000 -> F
+1.000000!=0.000000 -> T
+1.000000<0.000000 -> F
+1.000000>0.000000 -> T
+1.000000<=0.000000 -> F
+1.000000>=0.000000 -> T
+1==1 -> 1
+1!=1 -> 0
+1< 1 -> 0
+1> 1 -> 0
+1<=1 -> 1
+1>=1 -> 1
+1==1 -> T
+1!=1 -> F
+1< 1 -> F
+1> 1 -> F
+1<=1 -> T
+1>=1 -> T
+1.000000==1.000000 -> 1
+1.000000!=1.000000 -> 0
+1.000000< 1.000000 -> 0
+1.000000> 1.000000 -> 0
+1.000000<=1.000000 -> 1
+1.000000>=1.000000 -> 1
+1.000000==1.000000 -> T
+1.000000!=1.000000 -> F
+1.000000<1.000000 -> F
+1.000000>1.000000 -> F
+1.000000<=1.000000 -> T
+1.000000>=1.000000 -> T
+i=0: a=0.000000 sin=0.000000 cos=1.000000 sqrt(i)=0.000000(^2=0.000000)
+i=1: a=0.392699 sin=0.382683 cos=0.923879 sqrt(i)=1.000000(^2=1.000000)
+i=2: a=0.785398 sin=0.707106 cos=0.707106 sqrt(i)=1.414213(^2=2.000000)
+i=3: a=1.178097 sin=0.923879 cos=0.382683 sqrt(i)=1.732050(^2=2.000000)
+i=4: a=1.570796 sin=1.000000 cos=0.000000 sqrt(i)=2.000000(^2=4.000000)
+i=5: a=1.963495 sin=0.923879 cos=-0.382683 sqrt(i)=2.236068(^2=5.000000)
+i=6: a=2.356194 sin=0.707106 cos=-0.707106 sqrt(i)=2.449489(^2=5.000000)
+i=7: a=2.748893 sin=0.382683 cos=-0.923879 sqrt(i)=2.645751(^2=7.000000)
+i=8: a=3.141592 sin=0.000000 cos=-1.000000 sqrt(i)=2.828427(^2=8.000000)
+i=9: a=3.534291 sin=-0.382683 cos=-0.923879 sqrt(i)=3.000000(^2=9.000000)
+i=10: a=3.926990 sin=-0.707106 cos=-0.707106 sqrt(i)=3.162277(^2=10.000000)
+i=11: a=4.319689 sin=-0.923879 cos=-0.382683 sqrt(i)=3.316624(^2=11.000000)
+i=12: a=4.712389 sin=-1.000000 cos=0.000000 sqrt(i)=3.464101(^2=11.000000)
+i=13: a=5.105088 sin=-0.923879 cos=0.382683 sqrt(i)=3.605551(^2=12.000000)
+i=14: a=5.497787 sin=-0.707106 cos=0.707106 sqrt(i)=3.741657(^2=14.000000)
+i=15: a=5.890486 sin=-0.382683 cos=0.923879 sqrt(i)=3.872983(^2=15.000000)
+i=16: a=6.283185 sin=-0.000000 cos=0.000000 sqrt(i)=4.000000(^2=16.000000)
+i=17: a=6.675884 sin=0.382683 cos=0.923879 sqrt(i)=4.123105(^2=17.000000)
+i=18: a=7.068583 sin=0.707106 cos=0.707106 sqrt(i)=4.242640(^2=17.000000)
+i=19: a=7.461282 sin=0.923879 cos=0.382683 sqrt(i)=4.358899(^2=19.000000)
+i=20: a=7.853981 sin=0.000000 cos=0.000000 sqrt(i)=4.472136(^2=20.000000)
+i=21: a=8.246680 sin=0.923879 cos=-0.382683 sqrt(i)=4.582575(^2=21.000000)
+i=22: a=8.639379 sin=0.707106 cos=-0.707106 sqrt(i)=4.690415(^2=22.000000)
+i=23: a=9.032078 sin=0.382683 cos=-0.923879 sqrt(i)=4.795831(^2=22.000000)
+i=24: a=9.424778 sin=0.000000 cos=-0.000000 sqrt(i)=4.898979(^2=23.000000)
+i=25: a=9.817477 sin=-0.382683 cos=-0.923879 sqrt(i)=5.000000(^2=25.000000)
+i=26: a=10.210176 sin=-0.707106 cos=-0.707106 sqrt(i)=5.099019(^2=25.000000)
+i=27: a=10.602874 sin=-0.923879 cos=-0.382683 sqrt(i)=5.196152(^2=27.000000)
+i=28: a=10.995574 sin=-0.000000 cos=-0.000000 sqrt(i)=5.291502(^2=28.000000)
+i=29: a=11.388273 sin=-0.923879 cos=0.382683 sqrt(i)=5.385164(^2=28.000000)
+i=30: a=11.780972 sin=-0.707106 cos=0.707106 sqrt(i)=5.477225(^2=30.000000)
+i=31: a=12.173671 sin=-0.382683 cos=0.923879 sqrt(i)=5.567764(^2=30.000000)
+Check for: Int Stomp
+Check for: Double Stomp
+Check for: Float Stomp
+Enter Main Loop
+PackFile: ./id1/pak0.pak : quake.rc 1
+tk_ird_fseek: 91801080 6291468 0
+COM_LoadFile: quake.rc hdl=1 uh=1
+COM_LoadFile: buf=90076070
+Sys_FileRead hdl=1 dst=90076070 sz=293 fd=91801010
+Sys_FileRead rlen=293
+execing quake.rc
+Cbuf_InsertText: 90076070 {{
+
+// load the base configuration
+exec default.cfg
+
+// load the last saved configuration
+exec config.cfg
+
+// run a user script file if present
+exec autoexec.cfg
+
+//
+// stuff command line statements
+//
+stuffcmds
+
+// start demos if not allready running a server
+startdemos demo1 demo2 demo3
+Cbuf_InsertText: }}
+PackFile: ./id1/pak0.pak : default.cfg 1
+tk_ird_fseek: 91801080 6291761 0
+COM_LoadFile: default.cfg hdl=1 uh=1
+COM_LoadFile: buf=90076070
+Sys_FileRead hdl=1 dst=90076070 sz=1914 fd=91801010
+Sys_FileRead rlen=1914
+execing default.cfg
+Cbuf_InsertText: 90076070 {{
+//
+// load keybindings
+//
+// commands with a leading + will also be called for key up events with
+// the + changed to a -
+unbindall
+
+//
+// character controls
+//
+
+bind	ALT				+strafe
+
+bind	,				+moveleft
+bind	.				+moveright
+bind	DEL				+lookdown
+bind	PGDN			+lookup
+bind	END				centerview
+bind	z				+lookdown
+bind	a				+lookup
+
+bind	d				+moveup
+bind	c				+movedown
+bind	SHIFT			+speed
+bind	CTRL			+attack
+bind	UPARROW			+forward
+bind	DOWNARROW		+back
+bind	LEFTARROW		+left
+bind	RIGHTARROW		+right
+
+bind	SPACE			+jump 
+bind	ENTER			+jump
+
+bind	TAB				+showscores
+
+bind	1				"impulse 1"
+bind	2				"impulse 2"
+bind	3				"impulse 3"
+bind	4				"impulse 4"
+bind	5				"impulse 5"
+bind	6				"impulse 6"
+bind	7				"impulse 7"
+bind	8				"impulse 8"
+
+bind	0				"impulse 0"
+
+bind	/				"impulse 10"		// change weapon
+
+// zoom
+alias zoom_in "sensitivity 2;fov 90;wait;fov 70;wait;fov 50;wait;fov 30;wait;fov 10;wait;fov 5;bind F11 zoom_out"
+alias zoom_out "sensitivity 4;fov 5;wait;fov 10;wait;fov 30;wait;fov 50;wait;fov 70;wait;fov 90;bind F11 zoom_in; sensitivity 3"
+bind F11 zoom_in
+
+// Function keys
+bind	F1			"help"
+bind	F2			"menu_save"
+bind	F3			"menu_load"
+bind	F4			"menu_options"
+bind	F5			"menu_multiplayer"
+bind	F6			"echo Quicksaving...; wait; save quick"
+bind	F9			"echo Quickloading...; wait; load quick"
+bind	F10			"quit"
+bind    F12                     "screenshot"
+
+// mouse options
+bind	\				+mlook
+
+//
+// client environment commands
+//
+bind	PAUSE			"pause"
+bind	ESCAPE		"togglemenu"
+bind	~				"toggleconsole"
+bind	`				"toggleconsole"
+
+bind	t				"messagemode"
+
+bind	+				"sizeup"
+bind	=				"sizeup"
+bind	-				"sizedown"
+
+bind	INS			+klook
+
+//
+// mouse buttons
+//
+bind	MOUSE1		+attack
+bind	MOUSE2		+forward
+bind	MOUSE3		+mlook
+
+//
+// default cvars
+//
+viewsize 		100
+gamma 			1.0
+volume 			0.7
+sensitivity 	3
+
+Cbuf_InsertText: }}
+Key_SetBinding: 132 +strafe
+Key_SetBinding: 44 +moveleft
+Key_SetBinding: 46 +moveright
+Key_SetBinding: 148 +lookdown
+Key_SetBinding: 149 +lookup
+Key_SetBinding: 152 centerview
+Key_SetBinding: 122 +lookdown
+Key_SetBinding: 97 +lookup
+Key_SetBinding: 100 +moveup
+Key_SetBinding: 99 +movedown
+Key_SetBinding: 134 +speed
+Key_SetBinding: 133 +attack
+Key_SetBinding: 128 +forward
+Key_SetBinding: 129 +back
+Key_SetBinding: 130 +left
+Key_SetBinding: 131 +right
+Key_SetBinding: 32 +jump
+Key_SetBinding: 13 +jump
+Key_SetBinding: 9 +showscores
+Key_SetBinding: 49 impulse 1
+Key_SetBinding: 50 impulse 2
+Key_SetBinding: 51 impulse 3
+Key_SetBinding: 52 impulse 4
+Key_SetBinding: 53 impulse 5
+Key_SetBinding: 54 impulse 6
+Key_SetBinding: 55 impulse 7
+Key_SetBinding: 56 impulse 8
+Key_SetBinding: 48 impulse 0
+Key_SetBinding: 47 impulse 10
+Key_SetBinding: 145 zoom_in
+Key_SetBinding: 135 help
+Key_SetBinding: 136 menu_save
+Key_SetBinding: 137 menu_load
+Key_SetBinding: 138 menu_options
+Key_SetBinding: 139 menu_multiplayer
+Key_SetBinding: 140 echo Quicksaving...; wait; save quick
+Key_SetBinding: 143 echo Quickloading...; wait; load quick
+Key_SetBinding: 144 quit
+Key_SetBinding: 146 screenshot
+Key_SetBinding: 92 +mlook
+Key_SetBinding: 255 pause
+Key_SetBinding: 27 togglemenu
+Key_SetBinding: 126 toggleconsole
+Key_SetBinding: 96 toggleconsole
+Key_SetBinding: 116 messagemode
+Key_SetBinding: 43 sizeup
+Key_SetBinding: 61 sizeup
+Key_SetBinding: 45 sizedown
+Key_SetBinding: 147 +klook
+Key_SetBinding: 200 +attack
+Key_SetBinding: 201 +forward
+Key_SetBinding: 202 +mlook
+__allocmem: 91802BC0..91802C18 88
+__allocmem: 91802C30..91802C58 40
+tk_ird_fopen: id1/config.cfg 8ED2A400 8ED2ACF7
+__allocmem: 91802C90..91804498 6152
+FindFile: ./id1/config.cfg
+__allocmem: 91804690..918046E8 88
+__allocmem: 91804700..91804728 40
+tk_ird_fopen: id1/config.cfg 8ED2A400 8ED2ACF7
+__allocmem: 91804760..91805F68 6152
+filelength: A
+filelength: B
+tk_ird_fseek: 91804700 0 2
+filelength: C
+filelength: D
+tk_ird_fseek: 91804700 0 0
+filelength: E
+COM_LoadFile: config.cfg hdl=2 uh=1
+COM_LoadFile: buf=90076070
+Sys_FileRead hdl=2 dst=90076070 sz=2295 fd=91804690
+Sys_FileRead rlen=2295
+execing config.cfg
+Cbuf_InsertText: 90076070 {{
+bind "TAB" "+showscores"
+bind "ENTER" "+jump"
+bind "ESCAPE" "togglemenu"
+bind "SPACE" "+jump"
+bind "+" "sizeup"
+bind "," "+moveleft"
+bind "-" "sizedown"
+bind "." "+moveright"
+bind "/" "impulse 10"
+bind "0" "impulse 0"
+bind "1" "impulse 1"
+bind "2" "impulse 2"
+bind "3" "impulse 3"
+bind "4" "impulse 4"
+bind "5" "impulse 5"
+bind "6" "impulse 6"
+bind "7" "impulse 7"
+bind "8" "impulse 8"
+bind "=" "sizeup"
+bind "\" "impulse 10"
+bind "`" "toggleconsole"
+bind "a" "+moveleft"
+bind "c" "+movedown"
+bind "d" "+moveright"
+bind "f" "+moveup"
+bind "s" "+back"
+bind "t" "messagemode"
+bind "v" "+movedown"
+bind "w" "+forward"
+bind "z" "+lookdown"
+bind "~" "toggleconsole"
+bind "UPARROW" "+forward"
+bind "DOWNARROW" "+back"
+bind "LEFTARROW" "+left"
+bind "RIGHTARROW" "+right"
+bind "ALT" "+strafe"
+bind "CTRL" "+attack"
+bind "SHIFT" "+speed"
+bind "F1" "help"
+bind "F2" "menu_save"
+bind "F3" "menu_load"
+bind "F4" "menu_options"
+bind "F5" "menu_multiplayer"
+bind "F6" "echo Quicksaving...; wait; save quick"
+bind "F9" "echo Quickloading...; wait; load quick"
+bind "F10" "quit"
+bind "F11" "zoom_out"
+bind "F12" "screenshot"
+bind "INS" "+klook"
+bind "DEL" "+lookdown"
+bind "PGDN" "+lookdown"
+bind "PGUP" "+lookup"
+bind "END" "+jump"
+bind "MOUSE1" "+attack"
+bind "MOUSE2" "+forward"
+bind "MOUSE3" "+mlook"
+bind "PAUSE" "pause"
+joystick "0"
+m_side "0.8"
+m_forward "1"
+m_yaw "0.022"
+m_pitch "0.022"
+sensitivity "4.000000"
+lookstrafe "0"
+lookspring "0"
+cl_backspeed "400.000000"
+cl_forwardspeed "400.000000"
+_cl_color "0"
+_cl_name "player"
+viewsize "100"
+_snd_mixahead "0.1"
+bgmvolume "1.000000"
+volume "0.7"
+vid_window_y "220.000000"
+vid_window_x "552.000000"
+block_switch "0"
+vid_windowed_mode "0"
+vid_fullscreen_mode "3"
+_windowed_mouse "1.000000"
+vid_stretch_by_2 "1"
+vid_config_y "600"
+vid_config_x "800"
+_vid_default_mode_win "3"
+_vid_default_mode "0"
+_vid_wait_override "0"
+vid_nopageflip "0"
+_config_modem_hangup "AT H"
+_config_modem_init ""
+_config_modem_clear "ATZ"
+_config_modem_dialtype "T"
+_config_com_modem "1.000000"
+_config_com_baud "57600.000000"
+_config_com_irq "4.000000"
+_config_com_port "1016.000000"
+saved4 "0"
+saved3 "0"
+saved2 "0"
+saved1 "0"
+savedgamecfg "0"
+gamma "0.700000"
+crosshair "1"
+Cbuf_InsertText: }}
+Key_SetBinding: 9 +showscores
+Key_SetBinding: 13 +jump
+Key_SetBinding: 27 togglemenu
+Key_SetBinding: 32 +jump
+Key_SetBinding: 43 sizeup
+Key_SetBinding: 44 +moveleft
+Key_SetBinding: 45 sizedown
+Key_SetBinding: 46 +moveright
+Key_SetBinding: 47 impulse 10
+Key_SetBinding: 48 impulse 0
+Key_SetBinding: 49 impulse 1
+Key_SetBinding: 50 impulse 2
+Key_SetBinding: 51 impulse 3
+Key_SetBinding: 52 impulse 4
+Key_SetBinding: 53 impulse 5
+Key_SetBinding: 54 impulse 6
+Key_SetBinding: 55 impulse 7
+Key_SetBinding: 56 impulse 8
+Key_SetBinding: 61 sizeup
+Key_SetBinding: 92 impulse 10
+Key_SetBinding: 96 toggleconsole
+Key_SetBinding: 97 +moveleft
+Key_SetBinding: 99 +movedown
+Key_SetBinding: 100 +moveright
+Key_SetBinding: 102 +moveup
+Key_SetBinding: 115 +back
+Key_SetBinding: 116 messagemode
+Key_SetBinding: 118 +movedown
+Key_SetBinding: 119 +forward
+Key_SetBinding: 122 +lookdown
+Key_SetBinding: 126 toggleconsole
+Key_SetBinding: 128 +forward
+Key_SetBinding: 129 +back
+Key_SetBinding: 130 +left
+Key_SetBinding: 131 +right
+Key_SetBinding: 132 +strafe
+Key_SetBinding: 133 +attack
+Key_SetBinding: 134 +speed
+Key_SetBinding: 135 help
+Key_SetBinding: 136 menu_save
+Key_SetBinding: 137 menu_load
+Key_SetBinding: 138 menu_options
+Key_SetBinding: 139 menu_multiplayer
+Key_SetBinding: 140 echo Quicksaving...; wait; save quick
+Key_SetBinding: 143 echo Quickloading...; wait; load quick
+Key_SetBinding: 144 quit
+Key_SetBinding: 145 zoom_out
+Key_SetBinding: 146 screenshot
+Key_SetBinding: 147 +klook
+Key_SetBinding: 148 +lookdown
+Key_SetBinding: 149 +lookdown
+Key_SetBinding: 150 +lookup
+Key_SetBinding: 152 +jump
+Key_SetBinding: 200 +attack
+Key_SetBinding: 201 +forward
+Key_SetBinding: 202 +mlook
+Key_SetBinding: 255 pause
+Unknown command "joystick"
+Unknown command "vid_window_y"
+Unknown command "vid_window_x"
+Unknown command "block_switch"
+Unknown command "vid_windowed_mode"
+Unknown command "vid_fullscreen_mode"
+Unknown command "_windowed_mouse"
+Unknown command "vid_stretch_by_2"
+Unknown command "vid_config_y"
+Unknown command "vid_config_x"
+Unknown command "_vid_default_mode_win"
+Unknown command "_vid_default_mode"
+Unknown command "_vid_wait_override"
+Unknown command "vid_nopageflip"
+__allocmem: 91806160..918061B8 88
+tk_ird_fopen: can't find id1/autoexec.cfg
+osfopen: got error status
+fopen2: error status B
+FindFile: can't find autoexec.cfg
+couldn't exec autoexec.cfg
+3 demo(s) in loop
+Cbuf_InsertText: 8FFFD3C0 {{
+playdemo demo1
+Cbuf_InsertText: }}
+Playing demo from demo1.dem.
+PackFile: ./id1/pak0.pak : demo1.dem 1
+__allocmem: 918061D0..91806228 88
+__allocmem: 91806240..91806268 40
+tk_ird_fopen: id1/pak0.pak 8ED2B000 8FEFDCD3
+__allocmem: 918062A0..91807AA8 6152
+tk_ird_fseek: 91806240 6297675 0
+
+
+the Necropolis
+PackFile: ./id1/pak0.pak : maps/e1m3.bsp 1
+tk_ird_fseek: 91801080 11672351 0
+COM_LoadFile: maps/e1m3.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=1249944
+COM_LoadFile: buf=916CEC70
+Sys_FileRead hdl=1 dst=916CEC70 sz=1249944 fd=91801010
+Sys_FileRead rlen=1249944
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=901E03A0
+Mod_LoadBrushModel: B nodes=901E03A0 surfs=9016D400
+Mod_MakeHull0: Mod=0C0CB2E4 Hulls=0C0CB3B4
+Mod_MakeHull0: A Nodes=901E03A0
+Mod_MakeHull0: Mod=0C0CB2E4 Hull=0C0CB3B4
+Mod_MakeHull0: A-1 Nodes=901E03A0
+Mod_MakeHull0: A-2 Nodes=901E03A0
+Mod_MakeHull0: C Nodes=901E03A0
+Mod_LoadBrushModel: C 0C0CB2E4 nodes=901E03A0
+Mod_LoadBrushModel: D 0C0D53AC nodes=901E03A0
+PackFile: ./id1/pak0.pak : progs/player.mdl 1
+tk_ird_fseek: 91801080 3372364 0
+COM_LoadFile: progs/player.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=191852
+COM_LoadFile: buf=917D11A0
+Sys_FileRead hdl=1 dst=917D11A0 sz=191852 fd=91801010
+Sys_FileRead rlen=191852
+PackFile: ./id1/pak0.pak : progs/eyes.mdl 1
+tk_ird_fseek: 91801080 3564216 0
+COM_LoadFile: progs/eyes.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=4372
+COM_LoadFile: buf=917FEDF0
+Sys_FileRead hdl=1 dst=917FEDF0 sz=4372 fd=91801010
+Sys_FileRead rlen=4372
+PackFile: ./id1/pak0.pak : progs/h_player.mdl 1
+tk_ird_fseek: 91801080 3568588 0
+COM_LoadFile: progs/h_player.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=14708
+COM_LoadFile: buf=917FC590
+Sys_FileRead hdl=1 dst=917FC590 sz=14708 fd=91801010
+Sys_FileRead rlen=14708
+PackFile: ./id1/pak0.pak : progs/gib1.mdl 1
+tk_ird_fseek: 91801080 3583296 0
+COM_LoadFile: progs/gib1.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=5716
+COM_LoadFile: buf=917FE8B0
+Sys_FileRead hdl=1 dst=917FE8B0 sz=5716 fd=91801010
+Sys_FileRead rlen=5716
+PackFile: ./id1/pak0.pak : progs/gib2.mdl 1
+tk_ird_fseek: 91801080 3589012 0
+COM_LoadFile: progs/gib2.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=16228
+COM_LoadFile: buf=917FBFA0
+Sys_FileRead hdl=1 dst=917FBFA0 sz=16228 fd=91801010
+Sys_FileRead rlen=16228
+PackFile: ./id1/pak0.pak : progs/gib3.mdl 1
+tk_ird_fseek: 91801080 3605240 0
+COM_LoadFile: progs/gib3.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=22228
+COM_LoadFile: buf=917FA830
+Sys_FileRead hdl=1 dst=917FA830 sz=22228 fd=91801010
+Sys_FileRead rlen=22228
+PackFile: ./id1/pak0.pak : progs/s_bubble.spr 1
+tk_ird_fseek: 91801080 3627468 0
+COM_LoadFile: progs/s_bubble.spr hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=588
+COM_LoadFile: buf=8FFF1610
+Sys_FileRead hdl=1 dst=8FFF1610 sz=588 fd=91801010
+Sys_FileRead rlen=588
+PackFile: ./id1/pak0.pak : progs/s_explod.spr 1
+tk_ird_fseek: 91801080 3628056 0
+COM_LoadFile: progs/s_explod.spr hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=18972
+COM_LoadFile: buf=917FB4F0
+Sys_FileRead hdl=1 dst=917FB4F0 sz=18972 fd=91801010
+Sys_FileRead rlen=18972
+PackFile: ./id1/pak0.pak : progs/v_axe.mdl 1
+tk_ird_fseek: 91801080 3647028 0
+COM_LoadFile: progs/v_axe.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=57908
+COM_LoadFile: buf=917F1CD0
+Sys_FileRead hdl=1 dst=917F1CD0 sz=57908 fd=91801010
+Sys_FileRead rlen=57908
+PackFile: ./id1/pak0.pak : progs/v_shot.mdl 1
+tk_ird_fseek: 91801080 3704936 0
+COM_LoadFile: progs/v_shot.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=43852
+COM_LoadFile: buf=917F53C0
+Sys_FileRead hdl=1 dst=917F53C0 sz=43852 fd=91801010
+Sys_FileRead rlen=43852
+PackFile: ./id1/pak0.pak : progs/v_nail.mdl 1
+tk_ird_fseek: 91801080 3748788 0
+COM_LoadFile: progs/v_nail.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=54472
+COM_LoadFile: buf=917F2A40
+Sys_FileRead hdl=1 dst=917F2A40 sz=54472 fd=91801010
+Sys_FileRead rlen=54472
+PackFile: ./id1/pak0.pak : progs/v_rock.mdl 1
+tk_ird_fseek: 91801080 3803260 0
+COM_LoadFile: progs/v_rock.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=58548
+COM_LoadFile: buf=917F1A50
+Sys_FileRead hdl=1 dst=917F1A50 sz=58548 fd=91801010
+Sys_FileRead rlen=58548
+PackFile: ./id1/pak0.pak : progs/v_shot2.mdl 1
+tk_ird_fseek: 91801080 3861808 0
+COM_LoadFile: progs/v_shot2.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=50816
+COM_LoadFile: buf=917F3880
+Sys_FileRead hdl=1 dst=917F3880 sz=50816 fd=91801010
+Sys_FileRead rlen=50816
+PackFile: ./id1/pak0.pak : progs/v_nail2.mdl 1
+tk_ird_fseek: 91801080 3912624 0
+COM_LoadFile: progs/v_nail2.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=68732
+COM_LoadFile: buf=917EF290
+Sys_FileRead hdl=1 dst=917EF290 sz=68732 fd=91801010
+Sys_FileRead rlen=68732
+PackFile: ./id1/pak0.pak : progs/v_rock2.mdl 1
+tk_ird_fseek: 91801080 3981356 0
+COM_LoadFile: progs/v_rock2.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=58188
+COM_LoadFile: buf=917F1BC0
+Sys_FileRead hdl=1 dst=917F1BC0 sz=58188 fd=91801010
+Sys_FileRead rlen=58188
+PackFile: ./id1/pak0.pak : progs/bolt.mdl 1
+tk_ird_fseek: 91801080 4039544 0
+COM_LoadFile: progs/bolt.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=20644
+COM_LoadFile: buf=917FAE60
+Sys_FileRead hdl=1 dst=917FAE60 sz=20644 fd=91801010
+Sys_FileRead rlen=20644
+PackFile: ./id1/pak0.pak : progs/bolt2.mdl 1
+tk_ird_fseek: 91801080 4060188 0
+COM_LoadFile: progs/bolt2.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=11860
+COM_LoadFile: buf=917FD0B0
+Sys_FileRead hdl=1 dst=917FD0B0 sz=11860 fd=91801010
+Sys_FileRead rlen=11860
+PackFile: ./id1/pak0.pak : progs/bolt3.mdl 1
+tk_ird_fseek: 91801080 4072048 0
+COM_LoadFile: progs/bolt3.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=11860
+COM_LoadFile: buf=917FD0B0
+Sys_FileRead hdl=1 dst=917FD0B0 sz=11860 fd=91801010
+Sys_FileRead rlen=11860
+PackFile: ./id1/pak0.pak : progs/lavaball.mdl 1
+tk_ird_fseek: 91801080 4083908 0
+COM_LoadFile: progs/lavaball.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=8788
+COM_LoadFile: buf=917FDCB0
+Sys_FileRead hdl=1 dst=917FDCB0 sz=8788 fd=91801010
+Sys_FileRead rlen=8788
+PackFile: ./id1/pak0.pak : progs/missile.mdl 1
+tk_ird_fseek: 91801080 4092696 0
+COM_LoadFile: progs/missile.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=57796
+COM_LoadFile: buf=917F1D40
+Sys_FileRead hdl=1 dst=917F1D40 sz=57796 fd=91801010
+Sys_FileRead rlen=57796
+PackFile: ./id1/pak0.pak : progs/grenade.mdl 1
+tk_ird_fseek: 91801080 4150492 0
+COM_LoadFile: progs/grenade.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=2244
+COM_LoadFile: buf=917FF640
+Sys_FileRead hdl=1 dst=917FF640 sz=2244 fd=91801010
+Sys_FileRead rlen=2244
+PackFile: ./id1/pak0.pak : progs/spike.mdl 1
+tk_ird_fseek: 91801080 4152736 0
+COM_LoadFile: progs/spike.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=1684
+COM_LoadFile: buf=917FF870
+Sys_FileRead hdl=1 dst=917FF870 sz=1684 fd=91801010
+Sys_FileRead rlen=1684
+PackFile: ./id1/pak0.pak : progs/s_spike.mdl 1
+tk_ird_fseek: 91801080 4154420 0
+COM_LoadFile: progs/s_spike.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=1684
+COM_LoadFile: buf=917FF870
+Sys_FileRead hdl=1 dst=917FF870 sz=1684 fd=91801010
+Sys_FileRead rlen=1684
+PackFile: ./id1/pak0.pak : progs/backpack.mdl 1
+tk_ird_fseek: 91801080 4156104 0
+COM_LoadFile: progs/backpack.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=19348
+COM_LoadFile: buf=917FB370
+Sys_FileRead hdl=1 dst=917FB370 sz=19348 fd=91801010
+Sys_FileRead rlen=19348
+PackFile: ./id1/pak0.pak : progs/zom_gib.mdl 1
+tk_ird_fseek: 91801080 4175452 0
+COM_LoadFile: progs/zom_gib.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=10196
+COM_LoadFile: buf=917FD730
+Sys_FileRead hdl=1 dst=917FD730 sz=10196 fd=91801010
+Sys_FileRead rlen=10196
+PackFile: ./id1/pak0.pak : progs/v_light.mdl 1
+tk_ird_fseek: 91801080 4185648 0
+COM_LoadFile: progs/v_light.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=56204
+COM_LoadFile: buf=917F2380
+Sys_FileRead hdl=1 dst=917F2380 sz=56204 fd=91801010
+Sys_FileRead rlen=56204
+PackFile: ./id1/pak0.pak : progs/flame2.mdl 1
+tk_ird_fseek: 91801080 4289296 0
+COM_LoadFile: progs/flame2.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=64572
+COM_LoadFile: buf=917F02D0
+Sys_FileRead hdl=1 dst=917F02D0 sz=64572 fd=91801010
+Sys_FileRead rlen=64572
+PackFile: ./id1/pak0.pak : progs/flame.mdl 1
+tk_ird_fseek: 91801080 4242932 0
+COM_LoadFile: progs/flame.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=46364
+COM_LoadFile: buf=917F49F0
+Sys_FileRead hdl=1 dst=917F49F0 sz=46364 fd=91801010
+Sys_FileRead rlen=46364
+PackFile: ./id1/pak0.pak : progs/zombie.mdl 1
+tk_ird_fseek: 91801080 5365620 0
+COM_LoadFile: progs/zombie.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=186084
+COM_LoadFile: buf=917D2820
+Sys_FileRead hdl=1 dst=917D2820 sz=186084 fd=91801010
+Sys_FileRead rlen=186084
+PackFile: ./id1/pak0.pak : progs/h_zombie.mdl 1
+tk_ird_fseek: 91801080 5551704 0
+COM_LoadFile: progs/h_zombie.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=4484
+COM_LoadFile: buf=917FED80
+Sys_FileRead hdl=1 dst=917FED80 sz=4484 fd=91801010
+Sys_FileRead rlen=4484
+PackFile: ./id1/pak0.pak : progs/w_g_key.mdl 1
+tk_ird_fseek: 91801080 3209232 0
+COM_LoadFile: progs/w_g_key.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=7252
+COM_LoadFile: buf=917FE2B0
+Sys_FileRead hdl=1 dst=917FE2B0 sz=7252 fd=91801010
+Sys_FileRead rlen=7252
+PackFile: ./id1/pak0.pak : progs/ogre.mdl 1
+tk_ird_fseek: 91801080 4364088 0
+COM_LoadFile: progs/ogre.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=162036
+COM_LoadFile: buf=917D8610
+Sys_FileRead hdl=1 dst=917D8610 sz=162036 fd=91801010
+Sys_FileRead rlen=162036
+PackFile: ./id1/pak0.pak : progs/h_ogre.mdl 1
+tk_ird_fseek: 91801080 4526124 0
+COM_LoadFile: progs/h_ogre.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=14900
+COM_LoadFile: buf=917FC4D0
+Sys_FileRead hdl=1 dst=917FC4D0 sz=14900 fd=91801010
+Sys_FileRead rlen=14900
+PackFile: ./id1/pak0.pak : progs/wizard.mdl 1
+tk_ird_fseek: 91801080 5101516 0
+COM_LoadFile: progs/wizard.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=64472
+COM_LoadFile: buf=917F0330
+Sys_FileRead hdl=1 dst=917F0330 sz=64472 fd=91801010
+Sys_FileRead rlen=64472
+PackFile: ./id1/pak0.pak : progs/h_wizard.mdl 1
+tk_ird_fseek: 91801080 5165988 0
+COM_LoadFile: progs/h_wizard.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=14804
+COM_LoadFile: buf=917FC530
+Sys_FileRead hdl=1 dst=917FC530 sz=14804 fd=91801010
+Sys_FileRead rlen=14804
+PackFile: ./id1/pak0.pak : progs/w_spike.mdl 1
+tk_ird_fseek: 91801080 5180792 0
+COM_LoadFile: progs/w_spike.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=14336
+COM_LoadFile: buf=917FC700
+Sys_FileRead hdl=1 dst=917FC700 sz=14336 fd=91801010
+Sys_FileRead rlen=14336
+PackFile: ./id1/pak0.pak : progs/demon.mdl 1
+tk_ird_fseek: 91801080 4541024 0
+COM_LoadFile: progs/demon.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=102120
+COM_LoadFile: buf=917E7020
+Sys_FileRead hdl=1 dst=917E7020 sz=102120 fd=91801010
+Sys_FileRead rlen=102120
+PackFile: ./id1/pak0.pak : progs/h_demon.mdl 1
+tk_ird_fseek: 91801080 4643144 0
+COM_LoadFile: progs/h_demon.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=34884
+COM_LoadFile: buf=917F76C0
+Sys_FileRead hdl=1 dst=917F76C0 sz=34884 fd=91801010
+Sys_FileRead rlen=34884
+PackFile: ./id1/pak0.pak : progs/g_nail.mdl 1
+tk_ird_fseek: 91801080 2948724 0
+COM_LoadFile: progs/g_nail.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=34700
+COM_LoadFile: buf=917F7780
+Sys_FileRead hdl=1 dst=917F7780 sz=34700 fd=91801010
+Sys_FileRead rlen=34700
+PackFile: ./id1/pak0.pak : maps/b_shell1.bsp 1
+tk_ird_fseek: 91801080 3153420 0
+COM_LoadFile: maps/b_shell1.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=5044
+COM_LoadFile: buf=917FEB50
+Sys_FileRead hdl=1 dst=917FEB50 sz=5044 fd=91801010
+Sys_FileRead rlen=5044
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=90225E70
+Mod_LoadBrushModel: B nodes=90225E70 surfs=90225B50
+Mod_MakeHull0: Mod=0C0D90EC Hulls=0C0D91BC
+Mod_MakeHull0: A Nodes=90225E70
+Mod_MakeHull0: Mod=0C0D90EC Hull=0C0D91BC
+Mod_MakeHull0: A-1 Nodes=90225E70
+Mod_MakeHull0: A-2 Nodes=90225E70
+Mod_MakeHull0: C Nodes=90225E70
+Mod_LoadBrushModel: C 0C0D90EC nodes=90225E70
+Mod_LoadBrushModel: D 0C0D90EC nodes=90225E70
+PackFile: ./id1/pak0.pak : maps/b_bh25.bsp 1
+tk_ird_fseek: 91801080 2862860 0
+COM_LoadFile: maps/b_bh25.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=8872
+COM_LoadFile: buf=917FDC60
+Sys_FileRead hdl=1 dst=917FDC60 sz=8872 fd=91801010
+Sys_FileRead rlen=8872
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=90228680
+Mod_LoadBrushModel: B nodes=90228680 surfs=90228360
+Mod_MakeHull0: Mod=0C0D9274 Hulls=0C0D9344
+Mod_MakeHull0: A Nodes=90228680
+Mod_MakeHull0: Mod=0C0D9274 Hull=0C0D9344
+Mod_MakeHull0: A-1 Nodes=90228680
+Mod_MakeHull0: A-2 Nodes=90228680
+Mod_MakeHull0: C Nodes=90228680
+Mod_LoadBrushModel: C 0C0D9274 nodes=90228680
+Mod_LoadBrushModel: D 0C0D9274 nodes=90228680
+PackFile: ./id1/pak0.pak : maps/b_bh10.bsp 1
+tk_ird_fseek: 91801080 2850104 0
+COM_LoadFile: maps/b_bh10.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=3936
+COM_LoadFile: buf=917FEFA0
+Sys_FileRead hdl=1 dst=917FEFA0 sz=3936 fd=91801010
+Sys_FileRead rlen=3936
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=90229AA0
+Mod_LoadBrushModel: B nodes=90229AA0 surfs=90229780
+Mod_MakeHull0: Mod=0C0D93FC Hulls=0C0D94CC
+Mod_MakeHull0: A Nodes=90229AA0
+Mod_MakeHull0: Mod=0C0D93FC Hull=0C0D94CC
+Mod_MakeHull0: A-1 Nodes=90229AA0
+Mod_MakeHull0: A-2 Nodes=90229AA0
+Mod_MakeHull0: C Nodes=90229AA0
+Mod_LoadBrushModel: C 0C0D93FC nodes=90229AA0
+Mod_LoadBrushModel: D 0C0D93FC nodes=90229AA0
+PackFile: ./id1/pak0.pak : progs/g_shot.mdl 1
+tk_ird_fseek: 91801080 2915808 0
+COM_LoadFile: progs/g_shot.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=32916
+COM_LoadFile: buf=917F7E70
+Sys_FileRead hdl=1 dst=917F7E70 sz=32916 fd=91801010
+Sys_FileRead rlen=32916
+PackFile: ./id1/pak0.pak : maps/b_shell0.bsp 1
+tk_ird_fseek: 91801080 3158464 0
+COM_LoadFile: maps/b_shell0.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=5044
+COM_LoadFile: buf=917FEB50
+Sys_FileRead hdl=1 dst=917FEB50 sz=5044 fd=91801010
+Sys_FileRead rlen=5044
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=9022B330
+Mod_LoadBrushModel: B nodes=9022B330 surfs=9022B010
+Mod_MakeHull0: Mod=0C0D970C Hulls=0C0D97DC
+Mod_MakeHull0: A Nodes=9022B330
+Mod_MakeHull0: Mod=0C0D970C Hull=0C0D97DC
+Mod_MakeHull0: A-1 Nodes=9022B330
+Mod_MakeHull0: A-2 Nodes=9022B330
+Mod_MakeHull0: C Nodes=9022B330
+Mod_LoadBrushModel: C 0C0D970C nodes=9022B330
+Mod_LoadBrushModel: D 0C0D970C nodes=9022B330
+PackFile: ./id1/pak0.pak : maps/b_rock0.bsp 1
+tk_ird_fseek: 91801080 3176540 0
+COM_LoadFile: maps/b_rock0.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=2956
+COM_LoadFile: buf=917FF380
+Sys_FileRead hdl=1 dst=917FF380 sz=2956 fd=91801010
+Sys_FileRead rlen=2956
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=9022C340
+Mod_LoadBrushModel: B nodes=9022C340 surfs=9022C020
+Mod_MakeHull0: Mod=0C0D9894 Hulls=0C0D9964
+Mod_MakeHull0: A Nodes=9022C340
+Mod_MakeHull0: Mod=0C0D9894 Hull=0C0D9964
+Mod_MakeHull0: A-1 Nodes=9022C340
+Mod_MakeHull0: A-2 Nodes=9022C340
+Mod_MakeHull0: C Nodes=9022C340
+Mod_LoadBrushModel: C 0C0D9894 nodes=9022C340
+Mod_LoadBrushModel: D 0C0D9894 nodes=9022C340
+PackFile: ./id1/pak0.pak : maps/b_nail1.bsp 1
+tk_ird_fseek: 91801080 3163508 0
+COM_LoadFile: maps/b_nail1.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=5044
+COM_LoadFile: buf=917FEB50
+Sys_FileRead hdl=1 dst=917FEB50 sz=5044 fd=91801010
+Sys_FileRead rlen=5044
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=9022DC10
+Mod_LoadBrushModel: B nodes=9022DC10 surfs=9022D8F0
+Mod_MakeHull0: Mod=0C0D9A1C Hulls=0C0D9AEC
+Mod_MakeHull0: A Nodes=9022DC10
+Mod_MakeHull0: Mod=0C0D9A1C Hull=0C0D9AEC
+Mod_MakeHull0: A-1 Nodes=9022DC10
+Mod_MakeHull0: A-2 Nodes=9022DC10
+Mod_MakeHull0: C Nodes=9022DC10
+Mod_LoadBrushModel: C 0C0D9A1C nodes=9022DC10
+Mod_LoadBrushModel: D 0C0D9A1C nodes=9022DC10
+PackFile: ./id1/pak0.pak : progs/armor.mdl 1
+tk_ird_fseek: 91801080 2871732 0
+COM_LoadFile: progs/armor.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=44076
+COM_LoadFile: buf=917F52E0
+Sys_FileRead hdl=1 dst=917F52E0 sz=44076 fd=91801010
+Sys_FileRead rlen=44076
+PackFile: ./id1/pak0.pak : maps/b_nail0.bsp 1
+tk_ird_fseek: 91801080 3168552 0
+COM_LoadFile: maps/b_nail0.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=5044
+COM_LoadFile: buf=917FEB50
+Sys_FileRead hdl=1 dst=917FEB50 sz=5044 fd=91801010
+Sys_FileRead rlen=5044
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=9022F4A0
+Mod_LoadBrushModel: B nodes=9022F4A0 surfs=9022F180
+Mod_MakeHull0: Mod=0C0D9D2C Hulls=0C0D9DFC
+Mod_MakeHull0: A Nodes=9022F4A0
+Mod_MakeHull0: Mod=0C0D9D2C Hull=0C0D9DFC
+Mod_MakeHull0: A-1 Nodes=9022F4A0
+Mod_MakeHull0: A-2 Nodes=9022F4A0
+Mod_MakeHull0: C Nodes=9022F4A0
+Mod_LoadBrushModel: C 0C0D9D2C nodes=9022F4A0
+Mod_LoadBrushModel: D 0C0D9D2C nodes=9022F4A0
+PackFile: ./id1/pak0.pak : maps/b_rock1.bsp 1
+tk_ird_fseek: 91801080 3173596 0
+COM_LoadFile: maps/b_rock1.bsp hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=2944
+COM_LoadFile: buf=917FF380
+Sys_FileRead hdl=1 dst=917FF380 sz=2944 fd=91801010
+Sys_FileRead rlen=2944
+Mod_LoadBrushModel: A nodes=00000000
+Mod_LoadBrushModel: A1 nodes=902304C0
+Mod_LoadBrushModel: B nodes=902304C0 surfs=902301A0
+Mod_MakeHull0: Mod=0C0D9EB4 Hulls=0C0D9F84
+Mod_MakeHull0: A Nodes=902304C0
+Mod_MakeHull0: Mod=0C0D9EB4 Hull=0C0D9F84
+Mod_MakeHull0: A-1 Nodes=902304C0
+Mod_MakeHull0: A-2 Nodes=902304C0
+Mod_MakeHull0: C Nodes=902304C0
+Mod_LoadBrushModel: C 0C0D9EB4 nodes=902304C0
+Mod_LoadBrushModel: D 0C0D9EB4 nodes=902304C0
+PackFile: ./id1/pak0.pak : progs/g_rock.mdl 1
+tk_ird_fseek: 91801080 3014144 0
+COM_LoadFile: progs/g_rock.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=48244
+COM_LoadFile: buf=917F4290
+Sys_FileRead hdl=1 dst=917F4290 sz=48244 fd=91801010
+Sys_FileRead rlen=48244
+PackFile: ./id1/pak0.pak : progs/invisibl.mdl 1
+tk_ird_fseek: 91801080 3325280 0
+COM_LoadFile: progs/invisibl.mdl hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF1610 loadsz=1024 len=7092
+COM_LoadFile: buf=917FE350
+Sys_FileRead hdl=1 dst=917FE350 sz=7092 fd=91801010
+Sys_FileRead rlen=7092
+PackFile: ./id1/pak0.pak : sound/weapons/rocket1i.wav 1
+tk_ird_fseek: 91801080 342880 0
+COM_LoadFile: sound/weapons/rocket1i.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=9660
+COM_LoadFile: buf=917FD950
+Sys_FileRead hdl=1 dst=917FD950 sz=9660 fd=91801010
+Sys_FileRead rlen=9660
+PackFile: ./id1/pak0.pak : sound/weapons/sgun1.wav 1
+tk_ird_fseek: 91801080 352540 0
+COM_LoadFile: sound/weapons/sgun1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=22992
+COM_LoadFile: buf=917FA530
+Sys_FileRead hdl=1 dst=917FA530 sz=22992 fd=91801010
+Sys_FileRead rlen=22992
+PackFile: ./id1/pak0.pak : sound/weapons/guncock.wav 1
+tk_ird_fseek: 91801080 375532 0
+COM_LoadFile: sound/weapons/guncock.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=14430
+COM_LoadFile: buf=917FC6B0
+Sys_FileRead hdl=1 dst=917FC6B0 sz=14430 fd=91801010
+Sys_FileRead rlen=14430
+PackFile: ./id1/pak0.pak : sound/weapons/spike2.wav 1
+tk_ird_fseek: 91801080 417746 0
+COM_LoadFile: sound/weapons/spike2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=12642
+COM_LoadFile: buf=917FCDA0
+Sys_FileRead hdl=1 dst=917FCDA0 sz=12642 fd=91801010
+Sys_FileRead rlen=12642
+PackFile: ./id1/pak0.pak : sound/weapons/grenade.wav 1
+tk_ird_fseek: 91801080 431640 0
+COM_LoadFile: sound/weapons/grenade.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8364
+COM_LoadFile: buf=917FDE60
+Sys_FileRead hdl=1 dst=917FDE60 sz=8364 fd=91801010
+Sys_FileRead rlen=8364
+PackFile: ./id1/pak0.pak : sound/weapons/bounce.wav 1
+tk_ird_fseek: 91801080 440004 0
+COM_LoadFile: sound/weapons/bounce.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=5864
+COM_LoadFile: buf=917FE820
+Sys_FileRead hdl=1 dst=917FE820 sz=5864 fd=91801010
+Sys_FileRead rlen=5864
+PackFile: ./id1/pak0.pak : sound/weapons/shotgn2.wav 1
+tk_ird_fseek: 91801080 445868 0
+COM_LoadFile: sound/weapons/shotgn2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8694
+COM_LoadFile: buf=917FDD10
+Sys_FileRead hdl=1 dst=917FDD10 sz=8694 fd=91801010
+Sys_FileRead rlen=8694
+PackFile: ./id1/pak0.pak : sound/demon/dland2.wav 1
+tk_ird_fseek: 91801080 558376 0
+COM_LoadFile: sound/demon/dland2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=4400
+COM_LoadFile: buf=917FEDD0
+Sys_FileRead hdl=1 dst=917FEDD0 sz=4400 fd=91801010
+Sys_FileRead rlen=4400
+PackFile: ./id1/pak0.pak : sound/misc/h2ohit1.wav 1
+tk_ird_fseek: 91801080 562776 0
+COM_LoadFile: sound/misc/h2ohit1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=12972
+COM_LoadFile: buf=917FCC60
+Sys_FileRead hdl=1 dst=917FCC60 sz=12972 fd=91801010
+Sys_FileRead rlen=12972
+PackFile: ./id1/pak0.pak : sound/items/itembk2.wav 1
+tk_ird_fseek: 91801080 575748 0
+COM_LoadFile: sound/items/itembk2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=9910
+COM_LoadFile: buf=917FD850
+Sys_FileRead hdl=1 dst=917FD850 sz=9910 fd=91801010
+Sys_FileRead rlen=9910
+PackFile: ./id1/pak0.pak : sound/player/plyrjmp8.wav 1
+tk_ird_fseek: 91801080 585658 0
+COM_LoadFile: sound/player/plyrjmp8.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3888
+COM_LoadFile: buf=917FEFD0
+Sys_FileRead hdl=1 dst=917FEFD0 sz=3888 fd=91801010
+Sys_FileRead rlen=3888
+PackFile: ./id1/pak0.pak : sound/player/land.wav 1
+tk_ird_fseek: 91801080 589546 0
+COM_LoadFile: sound/player/land.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=2434
+COM_LoadFile: buf=917FF580
+Sys_FileRead hdl=1 dst=917FF580 sz=2434 fd=91801010
+Sys_FileRead rlen=2434
+PackFile: ./id1/pak0.pak : sound/player/land2.wav 1
+tk_ird_fseek: 91801080 591980 0
+COM_LoadFile: sound/player/land2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=6204
+COM_LoadFile: buf=917FE6D0
+Sys_FileRead hdl=1 dst=917FE6D0 sz=6204 fd=91801010
+Sys_FileRead rlen=6204
+PackFile: ./id1/pak0.pak : sound/player/drown1.wav 1
+tk_ird_fseek: 91801080 598184 0
+COM_LoadFile: sound/player/drown1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8908
+COM_LoadFile: buf=917FDC40
+Sys_FileRead hdl=1 dst=917FDC40 sz=8908 fd=91801010
+Sys_FileRead rlen=8908
+PackFile: ./id1/pak0.pak : sound/player/drown2.wav 1
+tk_ird_fseek: 91801080 607092 0
+COM_LoadFile: sound/player/drown2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3114
+COM_LoadFile: buf=917FF2E0
+Sys_FileRead hdl=1 dst=917FF2E0 sz=3114 fd=91801010
+Sys_FileRead rlen=3114
+PackFile: ./id1/pak0.pak : sound/player/gasp1.wav 1
+tk_ird_fseek: 91801080 610206 0
+COM_LoadFile: sound/player/gasp1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8702
+COM_LoadFile: buf=917FDD10
+Sys_FileRead hdl=1 dst=917FDD10 sz=8702 fd=91801010
+Sys_FileRead rlen=8702
+PackFile: ./id1/pak0.pak : sound/player/gasp2.wav 1
+tk_ird_fseek: 91801080 618908 0
+COM_LoadFile: sound/player/gasp2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=13134
+COM_LoadFile: buf=917FCBC0
+Sys_FileRead hdl=1 dst=917FCBC0 sz=13134 fd=91801010
+Sys_FileRead rlen=13134
+PackFile: ./id1/pak0.pak : sound/player/h2odeath.wav 1
+tk_ird_fseek: 91801080 632042 0
+COM_LoadFile: sound/player/h2odeath.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=18104
+COM_LoadFile: buf=917FB850
+Sys_FileRead hdl=1 dst=917FB850 sz=18104 fd=91801010
+Sys_FileRead rlen=18104
+PackFile: ./id1/pak0.pak : sound/misc/talk.wav 1
+tk_ird_fseek: 91801080 650146 0
+COM_LoadFile: sound/misc/talk.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=1810
+COM_LoadFile: buf=917FF7F0
+Sys_FileRead hdl=1 dst=917FF7F0 sz=1810 fd=91801010
+Sys_FileRead rlen=1810
+PackFile: ./id1/pak0.pak : sound/player/teledth1.wav 1
+tk_ird_fseek: 91801080 651956 0
+COM_LoadFile: sound/player/teledth1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=14414
+COM_LoadFile: buf=917FC6C0
+Sys_FileRead hdl=1 dst=917FC6C0 sz=14414 fd=91801010
+Sys_FileRead rlen=14414
+PackFile: ./id1/pak0.pak : sound/misc/r_tele1.wav 1
+tk_ird_fseek: 91801080 666370 0
+COM_LoadFile: sound/misc/r_tele1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8036
+COM_LoadFile: buf=917FDFA0
+Sys_FileRead hdl=1 dst=917FDFA0 sz=8036 fd=91801010
+Sys_FileRead rlen=8036
+PackFile: ./id1/pak0.pak : sound/misc/r_tele2.wav 1
+tk_ird_fseek: 91801080 674406 0
+COM_LoadFile: sound/misc/r_tele2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=17324
+COM_LoadFile: buf=917FBB60
+Sys_FileRead hdl=1 dst=917FBB60 sz=17324 fd=91801010
+Sys_FileRead rlen=17324
+PackFile: ./id1/pak0.pak : sound/misc/r_tele3.wav 1
+tk_ird_fseek: 91801080 691730 0
+COM_LoadFile: sound/misc/r_tele3.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=18016
+COM_LoadFile: buf=917FB8A0
+Sys_FileRead hdl=1 dst=917FB8A0 sz=18016 fd=91801010
+Sys_FileRead rlen=18016
+PackFile: ./id1/pak0.pak : sound/misc/r_tele4.wav 1
+tk_ird_fseek: 91801080 709746 0
+COM_LoadFile: sound/misc/r_tele4.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=9068
+COM_LoadFile: buf=917FDBA0
+Sys_FileRead hdl=1 dst=917FDBA0 sz=9068 fd=91801010
+Sys_FileRead rlen=9068
+PackFile: ./id1/pak0.pak : sound/misc/r_tele5.wav 1
+tk_ird_fseek: 91801080 718814 0
+COM_LoadFile: sound/misc/r_tele5.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=22042
+COM_LoadFile: buf=917FA8F0
+Sys_FileRead hdl=1 dst=917FA8F0 sz=22042 fd=91801010
+Sys_FileRead rlen=22042
+PackFile: ./id1/pak0.pak : sound/weapons/lock4.wav 1
+tk_ird_fseek: 91801080 740856 0
+COM_LoadFile: sound/weapons/lock4.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3876
+COM_LoadFile: buf=917FEFE0
+Sys_FileRead hdl=1 dst=917FEFE0 sz=3876 fd=91801010
+Sys_FileRead rlen=3876
+PackFile: ./id1/pak0.pak : sound/weapons/pkup.wav 1
+tk_ird_fseek: 91801080 744732 0
+COM_LoadFile: sound/weapons/pkup.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=5174
+COM_LoadFile: buf=917FEAD0
+Sys_FileRead hdl=1 dst=917FEAD0 sz=5174 fd=91801010
+Sys_FileRead rlen=5174
+PackFile: ./id1/pak0.pak : sound/items/armor1.wav 1
+tk_ird_fseek: 91801080 749906 0
+COM_LoadFile: sound/items/armor1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=7714
+COM_LoadFile: buf=917FE0E0
+Sys_FileRead hdl=1 dst=917FE0E0 sz=7714 fd=91801010
+Sys_FileRead rlen=7714
+PackFile: ./id1/pak0.pak : sound/weapons/lhit.wav 1
+tk_ird_fseek: 91801080 757620 0
+COM_LoadFile: sound/weapons/lhit.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=26028
+COM_LoadFile: buf=917F9960
+Sys_FileRead hdl=1 dst=917F9960 sz=26028 fd=91801010
+Sys_FileRead rlen=26028
+PackFile: ./id1/pak0.pak : sound/player/gib.wav 1
+tk_ird_fseek: 91801080 859858 0
+COM_LoadFile: sound/player/gib.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=14424
+COM_LoadFile: buf=917FC6B0
+Sys_FileRead hdl=1 dst=917FC6B0 sz=14424 fd=91801010
+Sys_FileRead rlen=14424
+PackFile: ./id1/pak0.pak : sound/player/udeath.wav 1
+tk_ird_fseek: 91801080 874282 0
+COM_LoadFile: sound/player/udeath.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=16082
+COM_LoadFile: buf=917FC030
+Sys_FileRead hdl=1 dst=917FC030 sz=16082 fd=91801010
+Sys_FileRead rlen=16082
+PackFile: ./id1/pak0.pak : sound/player/tornoff2.wav 1
+tk_ird_fseek: 91801080 890364 0
+COM_LoadFile: sound/player/tornoff2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=7726
+COM_LoadFile: buf=917FE0E0
+Sys_FileRead hdl=1 dst=917FE0E0 sz=7726 fd=91801010
+Sys_FileRead rlen=7726
+PackFile: ./id1/pak0.pak : sound/player/pain1.wav 1
+tk_ird_fseek: 91801080 898090 0
+COM_LoadFile: sound/player/pain1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3394
+COM_LoadFile: buf=917FF1C0
+Sys_FileRead hdl=1 dst=917FF1C0 sz=3394 fd=91801010
+Sys_FileRead rlen=3394
+PackFile: ./id1/pak0.pak : sound/player/pain2.wav 1
+tk_ird_fseek: 91801080 901484 0
+COM_LoadFile: sound/player/pain2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=2710
+COM_LoadFile: buf=917FF470
+Sys_FileRead hdl=1 dst=917FF470 sz=2710 fd=91801010
+Sys_FileRead rlen=2710
+PackFile: ./id1/pak0.pak : sound/player/pain3.wav 1
+tk_ird_fseek: 91801080 904194 0
+COM_LoadFile: sound/player/pain3.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=4854
+COM_LoadFile: buf=917FEC10
+Sys_FileRead hdl=1 dst=917FEC10 sz=4854 fd=91801010
+Sys_FileRead rlen=4854
+PackFile: ./id1/pak0.pak : sound/player/pain4.wav 1
+tk_ird_fseek: 91801080 909048 0
+COM_LoadFile: sound/player/pain4.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=4840
+COM_LoadFile: buf=917FEC20
+Sys_FileRead hdl=1 dst=917FEC20 sz=4840 fd=91801010
+Sys_FileRead rlen=4840
+PackFile: ./id1/pak0.pak : sound/player/pain5.wav 1
+tk_ird_fseek: 91801080 913888 0
+COM_LoadFile: sound/player/pain5.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8020
+COM_LoadFile: buf=917FDFB0
+Sys_FileRead hdl=1 dst=917FDFB0 sz=8020 fd=91801010
+Sys_FileRead rlen=8020
+PackFile: ./id1/pak0.pak : sound/player/pain6.wav 1
+tk_ird_fseek: 91801080 921908 0
+COM_LoadFile: sound/player/pain6.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=5462
+COM_LoadFile: buf=917FE9B0
+Sys_FileRead hdl=1 dst=917FE9B0 sz=5462 fd=91801010
+Sys_FileRead rlen=5462
+PackFile: ./id1/pak0.pak : sound/player/death1.wav 1
+tk_ird_fseek: 91801080 927370 0
+COM_LoadFile: sound/player/death1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=10170
+COM_LoadFile: buf=917FD750
+Sys_FileRead hdl=1 dst=917FD750 sz=10170 fd=91801010
+Sys_FileRead rlen=10170
+PackFile: ./id1/pak0.pak : sound/player/death2.wav 1
+tk_ird_fseek: 91801080 937540 0
+COM_LoadFile: sound/player/death2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8026
+COM_LoadFile: buf=917FDFB0
+Sys_FileRead hdl=1 dst=917FDFB0 sz=8026 fd=91801010
+Sys_FileRead rlen=8026
+PackFile: ./id1/pak0.pak : sound/player/death3.wav 1
+tk_ird_fseek: 91801080 945566 0
+COM_LoadFile: sound/player/death3.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=10918
+COM_LoadFile: buf=917FD460
+Sys_FileRead hdl=1 dst=917FD460 sz=10918 fd=91801010
+Sys_FileRead rlen=10918
+PackFile: ./id1/pak0.pak : sound/player/death4.wav 1
+tk_ird_fseek: 91801080 956484 0
+COM_LoadFile: sound/player/death4.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=14126
+COM_LoadFile: buf=917FC7E0
+Sys_FileRead hdl=1 dst=917FC7E0 sz=14126 fd=91801010
+Sys_FileRead rlen=14126
+PackFile: ./id1/pak0.pak : sound/player/death5.wav 1
+tk_ird_fseek: 91801080 970610 0
+COM_LoadFile: sound/player/death5.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=14946
+COM_LoadFile: buf=917FC4A0
+Sys_FileRead hdl=1 dst=917FC4A0 sz=14946 fd=91801010
+Sys_FileRead rlen=14946
+PackFile: ./id1/pak0.pak : sound/weapons/ax1.wav 1
+tk_ird_fseek: 91801080 985556 0
+COM_LoadFile: sound/weapons/ax1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3308
+COM_LoadFile: buf=917FF220
+Sys_FileRead hdl=1 dst=917FF220 sz=3308 fd=91801010
+Sys_FileRead rlen=3308
+PackFile: ./id1/pak0.pak : sound/player/axhit1.wav 1
+tk_ird_fseek: 91801080 988864 0
+COM_LoadFile: sound/player/axhit1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=6906
+COM_LoadFile: buf=917FE410
+Sys_FileRead hdl=1 dst=917FE410 sz=6906 fd=91801010
+Sys_FileRead rlen=6906
+PackFile: ./id1/pak0.pak : sound/player/axhit2.wav 1
+tk_ird_fseek: 91801080 995770 0
+COM_LoadFile: sound/player/axhit2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=2434
+COM_LoadFile: buf=917FF580
+Sys_FileRead hdl=1 dst=917FF580 sz=2434 fd=91801010
+Sys_FileRead rlen=2434
+PackFile: ./id1/pak0.pak : sound/player/h2ojump.wav 1
+tk_ird_fseek: 91801080 998204 0
+COM_LoadFile: sound/player/h2ojump.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=11438
+COM_LoadFile: buf=917FD260
+Sys_FileRead hdl=1 dst=917FD260 sz=11438 fd=91801010
+Sys_FileRead rlen=11438
+PackFile: ./id1/pak0.pak : sound/player/slimbrn2.wav 1
+tk_ird_fseek: 91801080 1009642 0
+COM_LoadFile: sound/player/slimbrn2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=12468
+COM_LoadFile: buf=917FCE50
+Sys_FileRead hdl=1 dst=917FCE50 sz=12468 fd=91801010
+Sys_FileRead rlen=12468
+PackFile: ./id1/pak0.pak : sound/player/inh2o.wav 1
+tk_ird_fseek: 91801080 1022110 0
+COM_LoadFile: sound/player/inh2o.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=11340
+COM_LoadFile: buf=917FD2C0
+Sys_FileRead hdl=1 dst=917FD2C0 sz=11340 fd=91801010
+Sys_FileRead rlen=11340
+PackFile: ./id1/pak0.pak : sound/player/inlava.wav 1
+tk_ird_fseek: 91801080 1033450 0
+COM_LoadFile: sound/player/inlava.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=10958
+COM_LoadFile: buf=917FD440
+Sys_FileRead hdl=1 dst=917FD440 sz=10958 fd=91801010
+Sys_FileRead rlen=10958
+PackFile: ./id1/pak0.pak : sound/misc/outwater.wav 1
+tk_ird_fseek: 91801080 1044408 0
+COM_LoadFile: sound/misc/outwater.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=5018
+COM_LoadFile: buf=917FEB70
+Sys_FileRead hdl=1 dst=917FEB70 sz=5018 fd=91801010
+Sys_FileRead rlen=5018
+PackFile: ./id1/pak0.pak : sound/player/lburn1.wav 1
+tk_ird_fseek: 91801080 1049426 0
+COM_LoadFile: sound/player/lburn1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=6682
+COM_LoadFile: buf=917FE4F0
+Sys_FileRead hdl=1 dst=917FE4F0 sz=6682 fd=91801010
+Sys_FileRead rlen=6682
+PackFile: ./id1/pak0.pak : sound/player/lburn2.wav 1
+tk_ird_fseek: 91801080 1056108 0
+COM_LoadFile: sound/player/lburn2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=6076
+COM_LoadFile: buf=917FE750
+Sys_FileRead hdl=1 dst=917FE750 sz=6076 fd=91801010
+Sys_FileRead rlen=6076
+PackFile: ./id1/pak0.pak : sound/misc/water1.wav 1
+tk_ird_fseek: 91801080 1062184 0
+COM_LoadFile: sound/misc/water1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3926
+COM_LoadFile: buf=917FEFB0
+Sys_FileRead hdl=1 dst=917FEFB0 sz=3926 fd=91801010
+Sys_FileRead rlen=3926
+PackFile: ./id1/pak0.pak : sound/misc/water2.wav 1
+tk_ird_fseek: 91801080 1066110 0
+COM_LoadFile: sound/misc/water2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3340
+COM_LoadFile: buf=917FF200
+Sys_FileRead hdl=1 dst=917FF200 sz=3340 fd=91801010
+Sys_FileRead rlen=3340
+PackFile: ./id1/pak0.pak : sound/doors/medtry.wav 1
+tk_ird_fseek: 91801080 1069450 0
+COM_LoadFile: sound/doors/medtry.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=7828
+COM_LoadFile: buf=917FE070
+Sys_FileRead hdl=1 dst=917FE070 sz=7828 fd=91801010
+Sys_FileRead rlen=7828
+PackFile: ./id1/pak0.pak : sound/doors/meduse.wav 1
+tk_ird_fseek: 91801080 1077278 0
+COM_LoadFile: sound/doors/meduse.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=10718
+COM_LoadFile: buf=917FD530
+Sys_FileRead hdl=1 dst=917FD530 sz=10718 fd=91801010
+Sys_FileRead rlen=10718
+PackFile: ./id1/pak0.pak : sound/doors/stndr1.wav 1
+tk_ird_fseek: 91801080 1195776 0
+COM_LoadFile: sound/doors/stndr1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=12620
+COM_LoadFile: buf=917FCDC0
+Sys_FileRead hdl=1 dst=917FCDC0 sz=12620 fd=91801010
+Sys_FileRead rlen=12620
+PackFile: ./id1/pak0.pak : sound/doors/stndr2.wav 1
+tk_ird_fseek: 91801080 1208396 0
+COM_LoadFile: sound/doors/stndr2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=11470
+COM_LoadFile: buf=917FD240
+Sys_FileRead hdl=1 dst=917FD240 sz=11470 fd=91801010
+Sys_FileRead rlen=11470
+PackFile: ./id1/pak0.pak : sound/misc/null.wav 1
+tk_ird_fseek: 91801080 1145888 0
+COM_LoadFile: sound/misc/null.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=1244
+COM_LoadFile: buf=917FFA30
+Sys_FileRead hdl=1 dst=917FFA30 sz=1244 fd=91801010
+Sys_FileRead rlen=1244
+PackFile: ./id1/pak0.pak : sound/plats/train2.wav 1
+tk_ird_fseek: 91801080 1466984 0
+COM_LoadFile: sound/plats/train2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=5870
+COM_LoadFile: buf=917FE820
+Sys_FileRead hdl=1 dst=917FE820 sz=5870 fd=91801010
+Sys_FileRead rlen=5870
+PackFile: ./id1/pak0.pak : sound/plats/train1.wav 1
+tk_ird_fseek: 91801080 1472854 0
+COM_LoadFile: sound/plats/train1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=21430
+COM_LoadFile: buf=917FAB50
+Sys_FileRead hdl=1 dst=917FAB50 sz=21430 fd=91801010
+Sys_FileRead rlen=21430
+PackFile: ./id1/pak0.pak : sound/buttons/switch02.wav 1
+tk_ird_fseek: 91801080 1319124 0
+COM_LoadFile: sound/buttons/switch02.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3746
+COM_LoadFile: buf=917FF060
+Sys_FileRead hdl=1 dst=917FF060 sz=3746 fd=91801010
+Sys_FileRead rlen=3746
+PackFile: ./id1/pak0.pak : sound/doors/drclos4.wav 1
+tk_ird_fseek: 91801080 1147132 0
+COM_LoadFile: sound/doors/drclos4.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=12814
+COM_LoadFile: buf=917FCD00
+Sys_FileRead hdl=1 dst=917FCD00 sz=12814 fd=91801010
+Sys_FileRead rlen=12814
+PackFile: ./id1/pak0.pak : sound/doors/doormv1.wav 1
+tk_ird_fseek: 91801080 1159946 0
+COM_LoadFile: sound/doors/doormv1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=14036
+COM_LoadFile: buf=917FC830
+Sys_FileRead hdl=1 dst=917FC830 sz=14036 fd=91801010
+Sys_FileRead rlen=14036
+PackFile: ./id1/pak0.pak : sound/ambience/fire1.wav 1
+tk_ird_fseek: 91801080 1580746 0
+COM_LoadFile: sound/ambience/fire1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=24064
+COM_LoadFile: buf=917FA100
+Sys_FileRead hdl=1 dst=917FA100 sz=24064 fd=91801010
+Sys_FileRead rlen=24064
+PackFile: ./id1/pak0.pak : sound/doors/basesec1.wav 1
+tk_ird_fseek: 91801080 1277966 0
+COM_LoadFile: sound/doors/basesec1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=13930
+COM_LoadFile: buf=917FC8A0
+Sys_FileRead hdl=1 dst=917FC8A0 sz=13930 fd=91801010
+Sys_FileRead rlen=13930
+PackFile: ./id1/pak0.pak : sound/doors/basesec2.wav 1
+tk_ird_fseek: 91801080 1291896 0
+COM_LoadFile: sound/doors/basesec2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=10238
+COM_LoadFile: buf=917FD710
+Sys_FileRead hdl=1 dst=917FD710 sz=10238 fd=91801010
+Sys_FileRead rlen=10238
+PackFile: ./id1/pak0.pak : sound/doors/latch2.wav 1
+tk_ird_fseek: 91801080 1233508 0
+COM_LoadFile: sound/doors/latch2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=7338
+COM_LoadFile: buf=917FE260
+Sys_FileRead hdl=1 dst=917FE260 sz=7338 fd=91801010
+Sys_FileRead rlen=7338
+PackFile: ./id1/pak0.pak : sound/doors/winch2.wav 1
+tk_ird_fseek: 91801080 1240846 0
+COM_LoadFile: sound/doors/winch2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=14872
+COM_LoadFile: buf=917FC4F0
+Sys_FileRead hdl=1 dst=917FC4F0 sz=14872 fd=91801010
+Sys_FileRead rlen=14872
+PackFile: ./id1/pak0.pak : sound/zombie/z_idle.wav 1
+tk_ird_fseek: 91801080 2597888 0
+COM_LoadFile: sound/zombie/z_idle.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=16734
+COM_LoadFile: buf=917FBDB0
+Sys_FileRead hdl=1 dst=917FBDB0 sz=16734 fd=91801010
+Sys_FileRead rlen=16734
+PackFile: ./id1/pak0.pak : sound/zombie/z_idle1.wav 1
+tk_ird_fseek: 91801080 2614622 0
+COM_LoadFile: sound/zombie/z_idle1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=13244
+COM_LoadFile: buf=917FCB50
+Sys_FileRead hdl=1 dst=917FCB50 sz=13244 fd=91801010
+Sys_FileRead rlen=13244
+PackFile: ./id1/pak0.pak : sound/zombie/z_shot1.wav 1
+tk_ird_fseek: 91801080 2627866 0
+COM_LoadFile: sound/zombie/z_shot1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3068
+COM_LoadFile: buf=917FF310
+Sys_FileRead hdl=1 dst=917FF310 sz=3068 fd=91801010
+Sys_FileRead rlen=3068
+PackFile: ./id1/pak0.pak : sound/zombie/z_gib.wav 1
+tk_ird_fseek: 91801080 2630934 0
+COM_LoadFile: sound/zombie/z_gib.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=16226
+COM_LoadFile: buf=917FBFA0
+Sys_FileRead hdl=1 dst=917FBFA0 sz=16226 fd=91801010
+Sys_FileRead rlen=16226
+PackFile: ./id1/pak0.pak : sound/zombie/z_pain.wav 1
+tk_ird_fseek: 91801080 2647160 0
+COM_LoadFile: sound/zombie/z_pain.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=12218
+COM_LoadFile: buf=917FCF50
+Sys_FileRead hdl=1 dst=917FCF50 sz=12218 fd=91801010
+Sys_FileRead rlen=12218
+PackFile: ./id1/pak0.pak : sound/zombie/z_pain1.wav 1
+tk_ird_fseek: 91801080 2659378 0
+COM_LoadFile: sound/zombie/z_pain1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=15374
+COM_LoadFile: buf=917FC300
+Sys_FileRead hdl=1 dst=917FC300 sz=15374 fd=91801010
+Sys_FileRead rlen=15374
+PackFile: ./id1/pak0.pak : sound/zombie/z_fall.wav 1
+tk_ird_fseek: 91801080 2674752 0
+COM_LoadFile: sound/zombie/z_fall.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=3062
+COM_LoadFile: buf=917FF310
+Sys_FileRead hdl=1 dst=917FF310 sz=3062 fd=91801010
+Sys_FileRead rlen=3062
+PackFile: ./id1/pak0.pak : sound/zombie/z_miss.wav 1
+tk_ird_fseek: 91801080 2677814 0
+COM_LoadFile: sound/zombie/z_miss.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=10734
+COM_LoadFile: buf=917FD520
+Sys_FileRead hdl=1 dst=917FD520 sz=10734 fd=91801010
+Sys_FileRead rlen=10734
+PackFile: ./id1/pak0.pak : sound/zombie/z_hit.wav 1
+tk_ird_fseek: 91801080 2688548 0
+COM_LoadFile: sound/zombie/z_hit.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=6166
+COM_LoadFile: buf=917FE6F0
+Sys_FileRead hdl=1 dst=917FE6F0 sz=6166 fd=91801010
+Sys_FileRead rlen=6166
+PackFile: ./id1/pak0.pak : sound/zombie/idle_w2.wav 1
+tk_ird_fseek: 91801080 2694714 0
+COM_LoadFile: sound/zombie/idle_w2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=17192
+COM_LoadFile: buf=917FBBE0
+Sys_FileRead hdl=1 dst=917FBBE0 sz=17192 fd=91801010
+Sys_FileRead rlen=17192
+PackFile: ./id1/pak0.pak : sound/plats/medplat1.wav 1
+tk_ird_fseek: 91801080 1443268 0
+COM_LoadFile: sound/plats/medplat1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=16378
+COM_LoadFile: buf=917FBF10
+Sys_FileRead hdl=1 dst=917FBF10 sz=16378 fd=91801010
+Sys_FileRead rlen=16378
+PackFile: ./id1/pak0.pak : sound/plats/medplat2.wav 1
+tk_ird_fseek: 91801080 1459646 0
+COM_LoadFile: sound/plats/medplat2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=7338
+COM_LoadFile: buf=917FE260
+Sys_FileRead hdl=1 dst=917FE260 sz=7338 fd=91801010
+Sys_FileRead rlen=7338
+PackFile: ./id1/pak0.pak : sound/buttons/airbut1.wav 1
+tk_ird_fseek: 91801080 1302134 0
+COM_LoadFile: sound/buttons/airbut1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=10672
+COM_LoadFile: buf=917FD550
+Sys_FileRead hdl=1 dst=917FD550 sz=10672 fd=91801010
+Sys_FileRead rlen=10672
+PackFile: ./id1/pak0.pak : sound/misc/medkey.wav 1
+tk_ird_fseek: 91801080 22240 0
+COM_LoadFile: sound/misc/medkey.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=10020
+COM_LoadFile: buf=917FD7E0
+Sys_FileRead hdl=1 dst=917FD7E0 sz=10020 fd=91801010
+Sys_FileRead rlen=10020
+PackFile: ./id1/pak0.pak : sound/ambience/hum1.wav 1
+tk_ird_fseek: 91801080 1353376 0
+COM_LoadFile: sound/ambience/hum1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=40166
+COM_LoadFile: buf=917F6220
+Sys_FileRead hdl=1 dst=917F6220 sz=40166 fd=91801010
+Sys_FileRead rlen=40166
+PackFile: ./id1/pak0.pak : sound/ogre/ogdrag.wav 1
+tk_ird_fseek: 91801080 2112736 0
+COM_LoadFile: sound/ogre/ogdrag.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=12396
+COM_LoadFile: buf=917FCEA0
+Sys_FileRead hdl=1 dst=917FCEA0 sz=12396 fd=91801010
+Sys_FileRead rlen=12396
+PackFile: ./id1/pak0.pak : sound/ogre/ogdth.wav 1
+tk_ird_fseek: 91801080 2125132 0
+COM_LoadFile: sound/ogre/ogdth.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=13892
+COM_LoadFile: buf=917FC8C0
+Sys_FileRead hdl=1 dst=917FC8C0 sz=13892 fd=91801010
+Sys_FileRead rlen=13892
+PackFile: ./id1/pak0.pak : sound/ogre/ogidle.wav 1
+tk_ird_fseek: 91801080 2139024 0
+COM_LoadFile: sound/ogre/ogidle.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=12894
+COM_LoadFile: buf=917FCCB0
+Sys_FileRead hdl=1 dst=917FCCB0 sz=12894 fd=91801010
+Sys_FileRead rlen=12894
+PackFile: ./id1/pak0.pak : sound/ogre/ogidle2.wav 1
+tk_ird_fseek: 91801080 2151918 0
+COM_LoadFile: sound/ogre/ogidle2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=11254
+COM_LoadFile: buf=917FD310
+Sys_FileRead hdl=1 dst=917FD310 sz=11254 fd=91801010
+Sys_FileRead rlen=11254
+PackFile: ./id1/pak0.pak : sound/ogre/ogpain1.wav 1
+tk_ird_fseek: 91801080 2163172 0
+COM_LoadFile: sound/ogre/ogpain1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=7898
+COM_LoadFile: buf=917FE030
+Sys_FileRead hdl=1 dst=917FE030 sz=7898 fd=91801010
+Sys_FileRead rlen=7898
+PackFile: ./id1/pak0.pak : sound/ogre/ogsawatk.wav 1
+tk_ird_fseek: 91801080 2171070 0
+COM_LoadFile: sound/ogre/ogsawatk.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=16154
+COM_LoadFile: buf=917FBFF0
+Sys_FileRead hdl=1 dst=917FBFF0 sz=16154 fd=91801010
+Sys_FileRead rlen=16154
+PackFile: ./id1/pak0.pak : sound/ogre/ogwake.wav 1
+tk_ird_fseek: 91801080 2187224 0
+COM_LoadFile: sound/ogre/ogwake.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=19356
+COM_LoadFile: buf=917FB370
+Sys_FileRead hdl=1 dst=917FB370 sz=19356 fd=91801010
+Sys_FileRead rlen=19356
+PackFile: ./id1/pak0.pak : sound/wizard/wattack.wav 1
+tk_ird_fseek: 91801080 2449072 0
+COM_LoadFile: sound/wizard/wattack.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=25912
+COM_LoadFile: buf=917F99D0
+Sys_FileRead hdl=1 dst=917F99D0 sz=25912 fd=91801010
+Sys_FileRead rlen=25912
+PackFile: ./id1/pak0.pak : sound/wizard/wdeath.wav 1
+tk_ird_fseek: 91801080 2474984 0
+COM_LoadFile: sound/wizard/wdeath.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=20684
+COM_LoadFile: buf=917FAE40
+Sys_FileRead hdl=1 dst=917FAE40 sz=20684 fd=91801010
+Sys_FileRead rlen=20684
+PackFile: ./id1/pak0.pak : sound/wizard/widle1.wav 1
+tk_ird_fseek: 91801080 2495668 0
+COM_LoadFile: sound/wizard/widle1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=13464
+COM_LoadFile: buf=917FCA70
+Sys_FileRead hdl=1 dst=917FCA70 sz=13464 fd=91801010
+Sys_FileRead rlen=13464
+PackFile: ./id1/pak0.pak : sound/wizard/widle2.wav 1
+tk_ird_fseek: 91801080 2509132 0
+COM_LoadFile: sound/wizard/widle2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=23094
+COM_LoadFile: buf=917FA4D0
+Sys_FileRead hdl=1 dst=917FA4D0 sz=23094 fd=91801010
+Sys_FileRead rlen=23094
+PackFile: ./id1/pak0.pak : sound/wizard/wpain.wav 1
+tk_ird_fseek: 91801080 2532226 0
+COM_LoadFile: sound/wizard/wpain.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8686
+COM_LoadFile: buf=917FDD20
+Sys_FileRead hdl=1 dst=917FDD20 sz=8686 fd=91801010
+Sys_FileRead rlen=8686
+PackFile: ./id1/pak0.pak : sound/wizard/wsight.wav 1
+tk_ird_fseek: 91801080 2540912 0
+COM_LoadFile: sound/wizard/wsight.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=13078
+COM_LoadFile: buf=917FCBF0
+Sys_FileRead hdl=1 dst=917FCBF0 sz=13078 fd=91801010
+Sys_FileRead rlen=13078
+PackFile: ./id1/pak0.pak : sound/demon/ddeath.wav 1
+tk_ird_fseek: 91801080 2206580 0
+COM_LoadFile: sound/demon/ddeath.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=9140
+COM_LoadFile: buf=917FDB50
+Sys_FileRead hdl=1 dst=917FDB50 sz=9140 fd=91801010
+Sys_FileRead rlen=9140
+PackFile: ./id1/pak0.pak : sound/demon/dhit2.wav 1
+tk_ird_fseek: 91801080 2215720 0
+COM_LoadFile: sound/demon/dhit2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=7142
+COM_LoadFile: buf=917FE320
+Sys_FileRead hdl=1 dst=917FE320 sz=7142 fd=91801010
+Sys_FileRead rlen=7142
+PackFile: ./id1/pak0.pak : sound/demon/djump.wav 1
+tk_ird_fseek: 91801080 2222862 0
+COM_LoadFile: sound/demon/djump.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8494
+COM_LoadFile: buf=917FDDE0
+Sys_FileRead hdl=1 dst=917FDDE0 sz=8494 fd=91801010
+Sys_FileRead rlen=8494
+PackFile: ./id1/pak0.pak : sound/demon/dpain1.wav 1
+tk_ird_fseek: 91801080 2231356 0
+COM_LoadFile: sound/demon/dpain1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=6282
+COM_LoadFile: buf=917FE680
+Sys_FileRead hdl=1 dst=917FE680 sz=6282 fd=91801010
+Sys_FileRead rlen=6282
+PackFile: ./id1/pak0.pak : sound/demon/idle1.wav 1
+tk_ird_fseek: 91801080 2237638 0
+COM_LoadFile: sound/demon/idle1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=9098
+COM_LoadFile: buf=917FDB80
+Sys_FileRead hdl=1 dst=917FDB80 sz=9098 fd=91801010
+Sys_FileRead rlen=9098
+PackFile: ./id1/pak0.pak : sound/demon/sight2.wav 1
+tk_ird_fseek: 91801080 2246736 0
+COM_LoadFile: sound/demon/sight2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=8804
+COM_LoadFile: buf=917FDCA0
+Sys_FileRead hdl=1 dst=917FDCA0 sz=8804 fd=91801010
+Sys_FileRead rlen=8804
+PackFile: ./id1/pak0.pak : sound/items/health1.wav 1
+tk_ird_fseek: 91801080 14282 0
+COM_LoadFile: sound/items/health1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=7958
+COM_LoadFile: buf=917FDFF0
+Sys_FileRead hdl=1 dst=917FDFF0 sz=7958 fd=91801010
+Sys_FileRead rlen=7958
+PackFile: ./id1/pak0.pak : sound/items/r_item1.wav 1
+tk_ird_fseek: 91801080 12 0
+COM_LoadFile: sound/items/r_item1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=6822
+COM_LoadFile: buf=917FE460
+Sys_FileRead hdl=1 dst=917FE460 sz=6822 fd=91801010
+Sys_FileRead rlen=6822
+PackFile: ./id1/pak0.pak : sound/misc/secret.wav 1
+tk_ird_fseek: 91801080 1326536 0
+COM_LoadFile: sound/misc/secret.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=6610
+COM_LoadFile: buf=917FE530
+Sys_FileRead hdl=1 dst=917FE530 sz=6610 fd=91801010
+Sys_FileRead rlen=6610
+PackFile: ./id1/pak0.pak : sound/items/inv1.wav 1
+tk_ird_fseek: 91801080 175858 0
+COM_LoadFile: sound/items/inv1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=13728
+COM_LoadFile: buf=917FC960
+Sys_FileRead hdl=1 dst=917FC960 sz=13728 fd=91801010
+Sys_FileRead rlen=13728
+PackFile: ./id1/pak0.pak : sound/items/inv2.wav 1
+tk_ird_fseek: 91801080 189586 0
+COM_LoadFile: sound/items/inv2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=33216
+COM_LoadFile: buf=917F7D40
+Sys_FileRead hdl=1 dst=917F7D40 sz=33216 fd=91801010
+Sys_FileRead rlen=33216
+PackFile: ./id1/pak0.pak : sound/items/inv3.wav 1
+tk_ird_fseek: 91801080 222802 0
+COM_LoadFile: sound/items/inv3.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=33320
+COM_LoadFile: buf=917F7CE0
+Sys_FileRead hdl=1 dst=917F7CE0 sz=33320 fd=91801010
+Sys_FileRead rlen=33320
+PackFile: ./id1/pak0.pak : sound/ambience/drip1.wav 1
+tk_ird_fseek: 91801080 1733724 0
+COM_LoadFile: sound/ambience/drip1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=137736
+COM_LoadFile: buf=917DE500
+Sys_FileRead hdl=1 dst=917DE500 sz=137736 fd=91801010
+Sys_FileRead rlen=137736
+PackFile: ./id1/pak0.pak : sound/ambience/swamp2.wav 1
+tk_ird_fseek: 91801080 2044210 0
+COM_LoadFile: sound/ambience/swamp2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=68526
+COM_LoadFile: buf=917EF360
+Sys_FileRead hdl=1 dst=917EF360 sz=68526 fd=91801010
+Sys_FileRead rlen=68526
+PackFile: ./id1/pak0.pak : sound/ambience/swamp1.wav 1
+tk_ird_fseek: 91801080 1975686 0
+COM_LoadFile: sound/ambience/swamp1.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=68524
+COM_LoadFile: buf=917EF360
+Sys_FileRead hdl=1 dst=917EF360 sz=68524 fd=91801010
+Sys_FileRead rlen=68524
+A cl.worldmodel=0C0CB2E4
+B cl.worldmodel=0C0CB2E4
+You got the shells
+You got the Grenade Launcher
+You receive 25 health
+You get 2 rockets  
+You got the rockets
+PackFile: ./id1/pak0.pak : gfx/qplaque.lmp 1
+tk_ird_fseek: 91801080 6957507 0
+COM_LoadFile: gfx/qplaque.lmp hdl=1 uh=3
+COM_LoadFile: buf=906994A8
+Sys_FileRead hdl=1 dst=906994A8 sz=4616 fd=91801010
+Sys_FileRead rlen=4616
+PackFile: ./id1/pak0.pak : gfx/ttl_main.lmp 1
+tk_ird_fseek: 91801080 7034923 0
+COM_LoadFile: gfx/ttl_main.lmp hdl=1 uh=3
+COM_LoadFile: buf=9069A6E8
+Sys_FileRead hdl=1 dst=9069A6E8 sz=2312 fd=91801010
+Sys_FileRead rlen=2312
+PackFile: ./id1/pak0.pak : gfx/mainmenu.lmp 1
+tk_ird_fseek: 91801080 6989123 0
+COM_LoadFile: gfx/mainmenu.lmp hdl=1 uh=3
+COM_LoadFile: buf=9069B028
+Sys_FileRead hdl=1 dst=9069B028 sz=26888 fd=91801010
+Sys_FileRead rlen=26888
+PackFile: ./id1/pak0.pak : gfx/menudot6.lmp 1
+tk_ird_fseek: 91801080 6964083 0
+COM_LoadFile: gfx/menudot6.lmp hdl=1 uh=3
+COM_LoadFile: buf=90233718
+Sys_FileRead hdl=1 dst=90233718 sz=392 fd=91801010
+Sys_FileRead rlen=392
+PackFile: ./id1/pak0.pak : sound/misc/menu2.wav 1
+tk_ird_fseek: 91801080 460300 0
+COM_LoadFile: sound/misc/menu2.wav hdl=1 uh=4
+COM_LoadFile: loadbuf=8FFFD854 loadsz=1024 len=10672
+COM_LoadFile: buf=917FD550
+Sys_FileRead hdl=1 dst=917FD550 sz=10672 fd=91801010
+Sys_FileRead rlen=10672
+PackFile: ./id1/pak0.pak : gfx/menudot1.lmp 1
+tk_ird_fseek: 91801080 6962123 0
+COM_LoadFile: gfx/menudot1.lmp hdl=1 uh=3
+COM_LoadFile: buf=90259C78
+Sys_FileRead hdl=1 dst=90259C78 sz=392 fd=91801010
+Sys_FileRead rlen=392
+PackFile: ./id1/pak0.pak : gfx/menudot2.lmp 1
+tk_ird_fseek: 91801080 6962515 0
+COM_LoadFile: gfx/menudot2.lmp hdl=1 uh=3
+COM_LoadFile: buf=9025CD68
+Sys_FileRead hdl=1 dst=9025CD68 sz=392 fd=91801010
+Sys_FileRead rlen=392
+PackFile: ./id1/pak0.pak : gfx/menudot3.lmp 1
+tk_ird_fseek: 91801080 6962907 0
+COM_LoadFile: gfx/menudot3.lmp hdl=1 uh=3
+COM_LoadFile: buf=906A42D8
+Sys_FileRead hdl=1 dst=906A42D8 sz=392 fd=91801010
+Sys_FileRead rlen=392
+You got the nailgun
+PackFile: ./id1/pak0.pak : gfx/menudot4.lmp 1
+tk_ird_fseek: 91801080 6963299 0
+COM_LoadFile: gfx/menudot4.lmp hdl=1 uh=3
+COM_LoadFile: buf=906A4498
+Sys_FileRead hdl=1 dst=906A4498 sz=392 fd=91801010
+Sys_FileRead rlen=392
+PackFile: ./id1/pak0.pak : gfx/menudot5.lmp 1
+tk_ird_fseek: 91801080 6963691 0
+COM_LoadFile: gfx/menudot5.lmp hdl=1 uh=3
+COM_LoadFile: buf=906A4658
+Sys_FileRead hdl=1 dst=906A4658 sz=392 fd=91801010
+Sys_FileRead rlen=392

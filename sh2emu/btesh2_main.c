@@ -38,7 +38,11 @@ int kirq;
 u64 btesh2_msec;
 u64 btesh2_tops;
 double btesh2_ips;
+double btesh2_ips1s;
+double btesh2_maxips;
 
+int btesh2_mutator;
+int btesh2_mutator_rst;
 
 FILE *btesh2_conout;
 
@@ -559,20 +563,20 @@ u32 btesh2_spanmmreg_GetD(BTESH2_PhysSpan *sp,
 
 	switch((int)(reladdr>>2))
 	{
-	case 0: v=cpu->regs[BTESH2_REG_PTEH]; break;
-	case 1: v=cpu->regs[BTESH2_REG_PTEL]; break;
-	case 2: v=cpu->regs[BTESH2_REG_TTB]; break;
-	case 3: v=cpu->regs[BTESH2_REG_TEA]; break;
-	case 4: v=cpu->regs[BTESH2_REG_MMUCR]; break;
+	case 0x00: v=cpu->regs[BTESH2_REG_PTEH]; break;
+	case 0x01: v=cpu->regs[BTESH2_REG_PTEL]; break;
+	case 0x02: v=cpu->regs[BTESH2_REG_TTB]; break;
+	case 0x03: v=cpu->regs[BTESH2_REG_TEA]; break;
+	case 0x04: v=cpu->regs[BTESH2_REG_MMUCR]; break;
 
-	case  8: v=cpu->regs[BTESH2_REG_TRAEVT]; break;
-	case  9: v=cpu->regs[BTESH2_REG_EXPEVT]; break;
-	case 10: v=cpu->regs[BTESH2_REG_INTEVT]; break;
+	case 0x08: v=cpu->regs[BTESH2_REG_TRAEVT]; break;
+	case 0x09: v=cpu->regs[BTESH2_REG_EXPEVT]; break;
+	case 0x0A: v=cpu->regs[BTESH2_REG_INTEVT]; break;
 
 	default:
 		printf("MMREG: Unhandled Get A=%08X\n", (int)reladdr);
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
-		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+//		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		v=0; break;
 	}
 	return(v);
@@ -583,23 +587,23 @@ int btesh2_spanmmreg_SetD(BTESH2_PhysSpan *sp,
 {
 	switch((int)(reladdr>>2))
 	{
-	case 0: cpu->regs[BTESH2_REG_PTEH]=val; break;
-	case 1: cpu->regs[BTESH2_REG_PTEL]=val; break;
-	case 2: cpu->regs[BTESH2_REG_TTB]=val; break;
-	case 3: cpu->regs[BTESH2_REG_TEA]=val; break;
-	case 4:
+	case 0x00: cpu->regs[BTESH2_REG_PTEH]=val; break;
+	case 0x01: cpu->regs[BTESH2_REG_PTEL]=val; break;
+	case 0x02: cpu->regs[BTESH2_REG_TTB]=val; break;
+	case 0x03: cpu->regs[BTESH2_REG_TEA]=val; break;
+	case 0x04:
 		cpu->regs[BTESH2_REG_MMUCR]=val;
 		BTESH2_SetupUpdateFMMU(cpu);
 		break;
 
-	case  8: cpu->regs[BTESH2_REG_TRAEVT]=val; break;
-	case  9: cpu->regs[BTESH2_REG_EXPEVT]=val; break;
-	case 10: cpu->regs[BTESH2_REG_INTEVT]=val; break;
+	case 0x08: cpu->regs[BTESH2_REG_TRAEVT]=val; break;
+	case 0x09: cpu->regs[BTESH2_REG_EXPEVT]=val; break;
+	case 0x0A: cpu->regs[BTESH2_REG_INTEVT]=val; break;
 
 	default:
 		printf("MMREG: Unhandled Set A=%08X V=%08X\n", (int)reladdr, val);
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
-		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+//		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 		break;
 	}
 	return(0);
@@ -618,7 +622,7 @@ u32 btesh2_peridbg_GetD(BTESH2_PhysSpan *sp,
 			sp->name, (int)reladdr);
 
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
-		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+//		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 
 		v=0; break;
 	}
@@ -757,6 +761,7 @@ BTESH2_CpuState *btesh2_cpu;
 int t0, t1, t2, t3;
 int t4, t5, t6, t7;
 double dt;
+double dt1s;
 s64 tdt;
 s64 rtops;
 s32 rtmsec;
@@ -876,7 +881,11 @@ void btesh_main_bootmenu()
 
 int btesh_main_iterate_2i()
 {
+	static double cyclim=1000;
+	static double avgips=1000;
 	BTESH2_CpuState *cpu;
+	double f, g;
+	int i, j, k;
 
 	cpu=btesh2_cpu;
 
@@ -892,6 +901,29 @@ int btesh_main_iterate_2i()
 		btesh2_msec+=dt;
 		rtmsec+=dt;
 		cpu->tr_tdt+=dt;
+
+		if(btesh2_mutator>=0)
+		{
+			btesh2_mutator-=dt;
+			if(btesh2_mutator<=0)
+			{
+				btesh2_mutator=btesh2_mutator_rst;
+//				for(j=0; j<2; j++)
+				if(1)
+				{
+					k=rand()*4093+rand();
+//					k=0x0C000000+(k&0x3FFFFFF);
+//					k=0x0C800000+(k&0x3FFFFFF);
+//					k=0x10000000+(k&0x0FFFFFF);
+					k=0x0F000000+(k&0x0FFFFFF);
+//					k=0x0F000000+(k&0x07FFFFF);
+//					k=0x10000000+(k&0x07FFFFF);
+//					k=0x0C000000+(k&0x07FFFFF);
+//					BTESH2_SetAddrByte(cpu, k, rand());
+					BTESH2_SetAddrBytePhy(cpu, k, rand());
+				}
+			}
+		}
 	}
 
 	t2=t1-t0;
@@ -913,6 +945,12 @@ int btesh_main_iterate_2i()
 	}
 #endif
 
+	if(rtmsec>1000)
+	{
+		rtmsec=0;
+		rtops=cpu->tr_tops;
+	}
+
 	btesh2_tops=cpu->tr_tops-rtops;
 	
 	if(btesh2_tops>0)
@@ -920,9 +958,26 @@ int btesh_main_iterate_2i()
 //		dt=rtmsec*(1.0/((double)CLOCKS_PER_SEC))+0.000001;
 		dt=rtmsec*(1.0/1000.0)+0.000001;
 		btesh2_ips=((double)btesh2_tops)/dt+0.000001;
+
+//		if((btesh2_maxips>1000.0) && (btesh2_ips>btesh2_maxips))
+		if(btesh2_maxips>1000.0)
+		{		
+//			avgips=(0.99*avgips)+(btesh2_ips*0.01);
+			f=btesh2_maxips/btesh2_ips;
+//			f=btesh2_maxips/avgips;
+			f=1.0+(f-1.0)*0.00005;
+			cyclim*=f;
+			if(cyclim<5)cyclim=5;
+			if(cyclim>1000)cyclim=1000;
+//			break;
+		}else
+		{
+			cyclim=1000;
+		}
 	}else
 	{
 		btesh2_ips=999999999.0;
+//		cyclim=1000;
 	}
 
 	if((kirq>0) && (kbictrl&0x10))
@@ -943,7 +998,8 @@ int btesh_main_iterate_2i()
 	}
 
 //	t4=FRGL_TimeMS();
-	err=BTESH2_RunCpu(cpu, 1000);
+	err=BTESH2_RunCpu(cpu, (int)cyclim);
+//	err=BTESH2_RunCpu(cpu, 1000);
 //	err=BTESH2_RunCpu(cpu, 10000);
 //	err=BTESH2_RunCpu(cpu, 100000);
 
@@ -959,7 +1015,7 @@ void btesh_main_iterate()
 	u16 *kb;
 	byte *kb2;
 	char *str;
-	int i, j, k, l;
+	int i, j, k, l, n;
 
 	GfxDrv_BeginDrawing();
 
@@ -1164,12 +1220,21 @@ void btesh_main_iterate()
 		return;
 	}
 
+	n=0;
 	t4=FRGL_TimeMS(); t6=0;
 	while(!err && (t6>=0) && (t6<14))
 	{
 		err=btesh_main_iterate_2i();
 		t5=FRGL_TimeMS();
 		t6=t5-t4;
+		n++;
+
+//		if(!err && (btesh2_maxips>1000.0) && (btesh2_ips>btesh2_maxips))
+		if(!err && (btesh2_maxips>1000.0))
+		{
+			if(n>1000)
+				break;
+		}
 
 #if 1
 		if(err==BTESH2_EXC_TRAPSLEEP)
@@ -1265,8 +1330,8 @@ int btesh2_main_startimage()
 //		BTESH2_MemoryDefineSpan_InitFF(
 //			img, 0x00000000, 0x003FFFFF, NULL, "BIOS");
 
-//		BTESH2_MemoryDefineSpanRegs(img, 0x00000000, 0x003FFFFF, "BIOS",
-//			btesh2_peridbg_GetD, btesh2_peridbg_SetD);
+		BTESH2_MemoryDefineSpanRegs(img, 0x00000000, 0x003FFFFF, "BIOS",
+			btesh2_peridbg_GetD, btesh2_peridbg_SetD);
 
 		if(romname)
 		{
@@ -1453,7 +1518,8 @@ int btesh2_main_startimage()
 
 		if(ibuf)
 		{
-			i=BTESH2_BootLoadElf(cpu, ibuf, sz, 0x10000000);
+//			i=BTESH2_BootLoadElf(cpu, ibuf, sz, 0x10000000);
+			i=BTESH2_BootLoadImage(cpu, ibuf, sz, 0x10000000);
 			if(i<0)
 			{
 				printf("Load Failed\n");
@@ -1580,6 +1646,9 @@ int main(int argc, char *argv[])
 	irdname=NULL;
 	kerninit=NULL;
 	romname=NULL;
+	btesh2_maxips=0.0;
+	btesh2_mutator=-1;
+	btesh2_mutator_rst=-1;
 	
 	for(i=1; i<argc; i++)
 	{
@@ -1630,6 +1699,9 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
+			if(!strcmp(argv[i], "-maxmips"))
+				{ btesh2_maxips=atof(argv[i+1])*1000000.0; i++; continue; }
+
 			if(!strcmp(argv[i], "-map"))
 				{ mapname=argv[i+1]; i++; continue; }
 
@@ -1642,6 +1714,15 @@ int main(int argc, char *argv[])
 				{ sdclname=argv[i+1]; i++; continue; }
 			if(!strcmp(argv[i], "-ird"))
 				{ irdname=argv[i+1]; i++; continue; }
+
+			if(!strcmp(argv[i], "--encorr"))
+			{
+				btesh2_mutator_rst=atof(argv[i+1]);
+				i++;
+				btesh2_mutator=1000;
+				btesh2_mutator_rst=1000;
+				continue;
+			}
 
 			if(!strcmp(argv[i], "--help"))
 				{ sh4=127; continue; }

@@ -729,8 +729,8 @@ void R_AliasDrawModel (alight_t *plighting)
 	r_affinetridesc.drawtype = (currententity->trivial_accept == 3) &&
 			r_recursiveaffinetriangles;
 
-//	if (r_affinetridesc.drawtype)
-	if(1)	//BGB Debug
+	if (r_affinetridesc.drawtype)
+//	if(1)	//BGB Debug
 	{
 		D_PolysetUpdateTables ();		// FIXME: precalc...
 	}

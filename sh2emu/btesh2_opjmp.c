@@ -168,6 +168,20 @@ void BTSH_Op_ISETMD_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[BTESH2_REG_SR]=i;
 }
 
+void BTSH_Op_TRAPSP_SET_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i;
+	BTESH2_SetAddrDWord(cpu, cpu->regs[BTESH2_REG_SP]-4, 0x12345678);
+}
+
+void BTSH_Op_TRAPSP_CLR_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i;
+	i=BTESH2_GetAddrDWord(cpu, cpu->regs[BTESH2_REG_SP]-4);
+	if(i!=0x12345678)
+		{ cpu->status=BTESH2_EXC_STACK2; }
+}
+
 void BTSH_Op_NOP_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 }

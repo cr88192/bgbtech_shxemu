@@ -526,7 +526,10 @@ void CL_ParseClientdata (int bits)
 		cl.viewheight = DEFAULT_VIEWHEIGHT;
 
 	if (bits & SU_IDEALPITCH)
+	{
 		cl.idealpitch = MSG_ReadChar ();
+//		tk_printf("CL_ParseClientdata: idealpitch=%f\n", cl.idealpitch);
+	}
 	else
 		cl.idealpitch = 0;
 	

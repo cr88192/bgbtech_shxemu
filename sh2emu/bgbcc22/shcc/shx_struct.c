@@ -74,9 +74,15 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 
 	if(nm1>=0)
 	{
-		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
-//		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
-		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		if(BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, sreg))
+		{
+			cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+			csreg=cdreg;
+		}else
+		{
+			csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+			cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		}
 	
 		if(((csreg&15)==15) && ((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
 			{ BGBCC_DBGBREAK }
@@ -100,7 +106,8 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 			{ BGBCC_SHX_EmitOpRegReg(sctx, nm2, cdreg, cdreg); }
 
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
-		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		if(!BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, sreg))
+			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
 		return(1);
 	}
 

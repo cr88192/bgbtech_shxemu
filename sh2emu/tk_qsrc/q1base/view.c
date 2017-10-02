@@ -212,6 +212,9 @@ void V_DriftPitch (void)
 		cl.pitchvel = 0;
 		return;
 	}
+	
+//	tk_printf("V_DriftPitch: %f %f %f\n",
+//		delta, cl.idealpitch, cl.viewangles[PITCH]);
 
 	move = host_frametime * cl.pitchvel;
 	cl.pitchvel += host_frametime * v_centerspeed.value;

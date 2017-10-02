@@ -406,15 +406,22 @@ int BTESH2_JitLoadVMDReg(UAX_Context *jctx, int idx, int reg)
 {
 	if(UAX_Asm_RegIsXmmP(reg))
 	{
+#if 1
 		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
-			UAX_REG_RAX, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, fregs)+(idx*4));
-		UAX_AsmInsnRegImm(jctx, UAX_OP_ROL, UAX_REG_RAX, 32);
+			UAX_REG_RAX, UAX_REG_RCCTX,
+			offsetof(BTESH2_CpuState, fregs)+(idx*4));
+//		UAX_AsmInsnRegImm(jctx, UAX_OP_ROL, UAX_REG_RAX, 32);
 		UAX_AsmInsnRegReg(jctx, UAX_OP_MOVQ, reg, UAX_REG_RAX);
+#endif
+
+//		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOVQ,
+//			reg, UAX_REG_RCCTX,
+//			offsetof(BTESH2_CpuState, fregs)+(idx*4));
 	}else
 	{
 		UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
 			reg, UAX_REG_RCCTX, offsetof(BTESH2_CpuState, fregs)+(idx*4));
-		UAX_AsmInsnRegImm(jctx, UAX_OP_ROL, reg, 32);
+//		UAX_AsmInsnRegImm(jctx, UAX_OP_ROL, reg, 32);
 	}
 	return(0);
 }
@@ -423,15 +430,21 @@ int BTESH2_JitStoreVMDReg(UAX_Context *jctx, int idx, int reg)
 {
 	if(UAX_Asm_RegIsXmmP(reg))
 	{
+#if 1
 		UAX_AsmInsnRegReg(jctx, UAX_OP_MOVQ, UAX_REG_RAX, reg);
-		UAX_AsmInsnRegImm(jctx, UAX_OP_ROL, UAX_REG_RAX, 32);
+//		UAX_AsmInsnRegImm(jctx, UAX_OP_ROL, UAX_REG_RAX, 32);
 		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
 			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, fregs)+(idx*4),
 			UAX_REG_RAX);
+#endif
+
+//		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOVQ,
+//			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, fregs)+(idx*4),
+//			reg);
 	}else
 	{
 		UAX_AsmInsnRegReg(jctx, UAX_OP_MOVQ, UAX_REG_RAX, reg);
-		UAX_AsmInsnRegImm(jctx, UAX_OP_ROL, UAX_REG_RAX, 32);
+//		UAX_AsmInsnRegImm(jctx, UAX_OP_ROL, UAX_REG_RAX, 32);
 		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
 			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, fregs)+(idx*4),
 			UAX_REG_RAX);
@@ -1076,6 +1089,8 @@ int BTESH2_JitSyncRestoreRegs(UAX_Context *jctx,
 	return(0);
 }
 
+int btesh2_nmid_jitmiss[256*64];
+
 int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 {
 	byte uax_cachereg[6]={
@@ -1339,6 +1354,10 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 //		UAX_AsmMovRegImm(jctx, UAX_REG_RAX, (nlint)(tr->ops[i]->Run));
 //		UAX_AsmInsnReg(jctx, UAX_OP_CALL, UAX_REG_RAX);
 		BTESH2_JitEmitCallFPtr(jctx, cpu, tr->ops[i]->Run);
+		
+		j=tr->ops[i]->nmid;
+		k=tr->ops[i]->fmid;
+		btesh2_nmid_jitmiss[j*64+k]++;
 	}
 
 //	UAX_AsmInsnRegReg(jctx, UAX_OP_XOR, UAX_REG_RAX, UAX_REG_RAX);

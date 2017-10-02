@@ -1,5 +1,11 @@
 Redesign of the WVSIMD and NVSIMD Ideas.
-* Optional Extension of the BJX1 ISA [[SH-BJX1-ISA]]
+* Optional Extension of the BJX1 ISA [[BJX1-Core-ISA]]
+* If support is absent, Basic FPU is used.
+
+
+== Overview ==
+
+This is an optional extension to the BJX1 ISA.
 * Packed Byte, Word, Long, Float, Double
 * FPUL register may be extended to 64-bits as-needed.
 * SIMD Operations will optionally replace the FPU instructions.
@@ -30,8 +36,10 @@ Registers (VE=1):
 ** DR1=XF0,XF1 (Alias to XD0)
 ** DR2=FR2,FR3
 ** DR3=XF2,XF3 (Alias to XD2)
-* DX0..DX15: Will consist of the pairs (FRn,XFn).
-** FR will only effect 32-bit float operations.
+* (Drop) DX0..DX15: Will consist of the pairs (FRn,XFn).
+** (Drop) FR will only effect 32-bit float operations.
+* FR will swap Bank A and B.
+** Maybe also C and D?
 * XR0..XR15: Paired registers will be 128 bit (FR0,FR1,XF0,XF1)
 ** XR0=FR0,FR1,XF0,XF1
 ** XR1=YF0,YF1,ZF0,ZF1
@@ -78,13 +86,13 @@ Flags (VE=1)
 ** 01: Packed Half or Float (FRn/DRn)
 *** Packed half-float mode: 4x half-float in 64 bits.
 *** In packed float mode, operations would apply to a pair of floats.
-** 10: Packed Long/Resv (DXn/XRn)
+** / 10: Packed Long/Resv (DXn/XRn)
 ** 11: Packed Float/Double (DRn/XRn)
-* FPSCR.SW0
+* (Drop) FPSCR.SW0
 ** Swap Low/High DWords on 64-bit load/store.
 ** Swap DWord pairs for 128 bit load/store.
 ** May be implemented as an XOR against address bit 2.
-* FPSCR.SW1
+* (Drop) FPSCR.SW1
 ** Swap Low/High Halves on 128-bit load/store.
 ** 0: FR0,FR1,XF0,XF1
 ** 1: XF0,XF1,FR0,FR1
@@ -99,11 +107,11 @@ Non-extended Instructions
 FPSCR SIMD Modes (SZ,PR,RM):
 * 0,0,00: 4x Packed Byte (FRn)
 * 0,0,01: 2x Packed Half (FRn)
-* 0,0,10: 2x Packed Long (DXn)
+* 0,0,10: 2x Packed Long (DRn)
 * 0,0,11: 2x Packed Float (DRn)
 * 0,1,00: 2x Packed Word (FRn)
 * 0,1,01: Float (FRn, Scalar)
-* 0,1,10: Double (DXn, Scalar)
+* 0,1,10: / Double (DRn, Scalar)
 * 0,1,11: Double (DRn, Scalar)
 * 1,0,00: 8x Packed Byte (DRn)
 * 1,0,01: 4x Packed Half (DRn)
@@ -136,15 +144,15 @@ VV (FMOV/PMOV):
 ** 0011:  Rm, FRn	//Copy GPR to FRn (FMOV.IS)
 ** 0100:
 ** 0101: DRm, DRn	//Copy DRn
-** 0110: ? Rm, DXn	//Copy GPR to DXn
+** 0110: / Rm, DXn	//Copy GPR to DXn
 ** 0111: Rm, DRn	//Copy GPR to DRn
 ** 1000: Rm, Rn		//Copy GPR (MOV.L)
-** 1001: ? DXm,  Rn	//Copy DXm to GPR (Rn, RHn)
+** 1001: / DXm,  Rn	//Copy DXm to GPR (Rn, RHn)
 ** 1010: Rm, Rn		//Copy GPR (MOV.Q)
-** 1011: ? DRm, DXn	//Copy DRm to DXn (FR0,XF0)->(FR0,FR1)
+** 1011: / DRm, DXn	//Copy DRm to DXn (FR0,XF0)->(FR0,FR1)
 ** 1100: FRm,  Rn	//Copy FRm to GPR (FMOV.SI)
 ** 1101: DRm,  Rn	//Copy DRm to GPR (Rn, RHn)
-** 1110: ? DXm, DRn	//Copy DXm to DRn (FR0,FR1)->(FR0,XF0)
+** 1110: / DXm, DRn	//Copy DXm to DRn (FR0,FR1)->(FR0,XF0)
 ** 1111: XRm, XRn	//Copy XRn (FR0,XF0,FR1,XF1)
 * xx: Bit4/5 of Rn
 * yy: Bit4/5 of Rm
@@ -155,12 +163,14 @@ VV (PMOV.S):
 * ww=00: FRn
 * ww=01: DRn
 ** Loads (FRn+0,FRn+1)
-** Order depends on SW0
-** SW1 must be 0
-* ww=10: DXn
-** Loads (FRn,XFn)
-** Order depends on SW0
-** SW1 must be 0
+** / Order depends on SW0
+** / SW1 must be 0
+* ww=10: / DXn
+** / Loads (FRn,XFn)
+** / Order depends on SW0
+** / SW1 must be 0
+* ww=10: DRn
+** Load value in correct order for Double.
 * ww=11: XRn
 ** Order depends on SW0 and SW1
 * x: Bit4 of Rn (FRn) / Bit5 of DRn/XRn
@@ -220,11 +230,19 @@ PSHUF (Shuf2: 4-bit, 2-elem)
 * 3: YY
 
 PSETMD 4-bit
-* imm4=zpmm
+* imm4=zpmm / zprf
 ** z: FPSCR.SZ
 ** p: FPSCR.PR
-** mm: Rounding Mode
-* Other bits for FPSCR are left as-is.
+** r: Reset Mode
+** f: FPSCR.FR (If VE=0)
+** mm: Rounding Mode (If VE=1)
+* If VE=0
+** SZ, PR, and FR are set as given.
+** If R=0, All other bits for FPSCR are left as-is.
+** If R=1, All other bits are cleared.
+* If VE=1
+** Other bits for FPSCR are left as-is.
+
 
 PSETMD 12-bit
 * imm12=000v-wwfz-pdmm
@@ -248,6 +266,12 @@ Notation:
 * V: Operation in Vector Mode (VE=1)
 * IV: Operation specific to integer vectors
 * FV: Operation specific to floating point vectors
+
+
+== Instruction Coding ==
+
+General:
+* Shares the same opcode space and registers as Basic FPU.
 
 
 === Instructions (16-bit I-Forms) ===
@@ -332,15 +356,16 @@ Instructions
 ****			F4FD / FSCA			//
 ****			F5FD / FTRV2
 ****			F6FD / FSCA			//
-****			F7FD / FPCHG		//Flips FPSCR.PR
+****			F7FD FPCHG		//Flips FPSCR.PR
 ****			F8FD / FSCA			//
 ****			F9FD / FTRV2
 ****			FAFD / FSCA			//
-****			FBFD / FRCHG		//Flips FPSCR.FR
+****			FBFD FRCHG		//Flips FPSCR.FR
 ****			FCFD / FSCA			//
 ****			FDFD / FTRV2
 ****			FEFD / FSCA			//
-**	FnmE ? (Reserved Ops)
+**	FnmE FMAC FRm, FRn		//S, PR=0
+**  FnmE Reserved for extended ops (V or PR!=0)
 **	FooF ? (Escape 32 for FPU/SIMD Ops)
 
 
@@ -392,40 +417,29 @@ Instructions (Extended)
 ***		8Evv-Fn5D PABS FRn		//Absolute of packed values
 ***		8Evv-Fn6D ? FRn
 ***		8Evm-Fn7D PSHUF Rm, FRn			//Shuffle (R0=Mask)
-***		8Ev0-Fn8D PCNVBH FPUL, FRn	//packed conv byte->half
-***		8Ev0-Fn9D PCNVHB FRm, FPUL	//packed conv half->byte
-***		8Ev0-FnAD PCNVBW FPUL, FRn	//packed conv byte->word
-***		8Ev0-FnBD PCNVWB FRm, FPUL	//packed conv word->byte
+***		8Ev0-Fn8D PCNVBH FPUL, FRn	//IV: packed conv byte->half
+***		8Ev0-Fn9D PCNVHB FRm, FPUL	//IV: packed conv half->byte
+***		8Ev0-FnAD PCNVBW FPUL, FRn	//IV: packed conv byte->word
+***		8Ev0-FnBD PCNVWB FRm, FPUL	//IV: packed conv word->byte
 ***		8Evv-F-CD -
 ***		8Eii-FiDD PSETMD	//Packed Set Mode (Ext/Resv)
 ***		8Evv-FnED PDDPR		//Packed Dot Product
 ***		F-FD
-****			F0FD / FSCA			//Sin/Cos
-****			F1FD / FTRV2
-****			F2FD / FSCA			//
-****			F3FD FSCHG			//Flips FPSCR.SZ
-****			F4FD / FSCA			//
-****			F5FD / FTRV2
-****			F6FD / FSCA			//
-****			F7FD / FPCHG		//Flips FPSCR.PR
-****			F8FD / FSCA			//
-****			F9FD / FTRV2
-****			FAFD / FSCA			//
-****			FBFD / FRCHG		//Flips FPSCR.FR
-****			FCFD / FSCA			//
-****			FDFD / FTRV2
-****			FEFD / FSCA			//
-**	FnmE FMAC FRm, FRn
-**	FooF ? (Escape 32 for FPU/SIMD Ops)
-
-
-=== Instructions (Drop, 64-bit I-Forms) ===
-
-64-Bit I-Forms
-*	8EFn-8Em6-vodd-dddd PMOV.S @(Ro,Rm,disp24), FRn
-*	8EFn-8Em7-vodd-dddd PMOV.S FRm, @(Ro,Rn,disp24)
-*	8EFn-8Em8-vddd-dddd PMOV.S @(Rm,disp28), FRn
-* 	8EFn-8Em9-vddd-dddd PMOV.S -
-*	8EFn-8EmA-vddd-dddd PMOV.S FRm, @(Rn,disp28)
-* 	8EFn-8EmB-vddd-dddd PMOV.S -
+****			8Evv-F0FD -
+****			8Evv-F1FD -
+****			8Evv-F2FD -
+****			8Evv-F3FD -
+****			8Evv-F4FD -
+****			8Evv-F5FD -
+****			8Evv-F6FD -
+****			8Evv-F7FD -
+****			8Evv-F8FD -
+****			8Evv-F9FD -
+****			8Evv-FAFD -
+****			8Evv-FBFD -
+****			8Evv-FCFD -
+****			8Evv-FDFD -
+****			8Evv-FEFD -
+**	8Evv-FnmE -
+**	8Evv-FooF -
 

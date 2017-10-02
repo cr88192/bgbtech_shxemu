@@ -845,7 +845,10 @@ u32 BGBCC_CCXLR3_ReadOpVLI(BGBCC_TransState *ctx, byte **rcs)
 		tv=(tv<<8)|(*cs++);
 		*rcs=cs; return(tv);
 	}
+
 	BGBCC_DBGBREAK
+	tv=i;
+	*rcs=cs; return(tv);
 }
 
 int BGBCC_CCXLR3_ReadTag(BGBCC_TransState *ctx, byte **rcs)
@@ -1473,6 +1476,41 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 	case BGBCC_RIL3OP_XOR:	BGBCC_CCXL_StackBinaryOp(ctx, "^"); break;
 	case BGBCC_RIL3OP_SHL:	BGBCC_CCXL_StackBinaryOp(ctx, "<<"); break;
 	case BGBCC_RIL3OP_SAR:	BGBCC_CCXL_StackBinaryOp(ctx, ">>"); break;
+
+	case BGBCC_RIL3OP_STLDSLOT:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackLoadSlotStore(ctx, s0, s1);
+		break;
+	case BGBCC_RIL3OP_STLDSLOTA:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackLoadSlotAddrStore(ctx, s0, s1);
+		break;
+
+	case BGBCC_RIL3OP_STLDIXC:
+		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackLoadIndexConstStore(ctx, i0, s0);
+		break;
+	case BGBCC_RIL3OP_STLDIXAC:
+		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+//		BGBCC_CCXL_StackLoadIndexAddrConstStore(ctx, i0, s0);
+		break;
+	case BGBCC_RIL3OP_STLDIX:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackLoadIndexStore(ctx, s0);
+		break;
+	case BGBCC_RIL3OP_STLDIXA:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+//		BGBCC_CCXL_StackLoadIndexAddrStore(ctx, s0);
+		break;
+	case BGBCC_RIL3OP_STCASTSIG:
+		s0=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
+		BGBCC_CCXL_StackCastSigStore(ctx, s0, s1);
+		break;
 
 	default:
 		__debugbreak();

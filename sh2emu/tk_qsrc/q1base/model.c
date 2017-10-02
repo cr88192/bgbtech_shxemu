@@ -491,9 +491,9 @@ void Mod_LoadTextures (lump_t *l)
 		if (!tx || (tx->name[0] != '+'))
 			continue;
 			
-#ifdef _BGBCC
+// #ifdef _BGBCC
 //		continue;
-#endif
+// #endif
 
 		if (tx->anim_next)
 			continue;	// allready sequenced
@@ -511,9 +511,9 @@ void Mod_LoadTextures (lump_t *l)
 //		__debugbreak();
 #endif
 
-#ifdef _BGBCC
+// #ifdef _BGBCC
 //		continue;
-#endif
+// #endif
 
 		max = tx->name[1];
 		altmax = 0;

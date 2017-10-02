@@ -777,9 +777,9 @@ void R_RenderPoly (msurface_t *fa, int clipflags)
 // FIXME: clean this up and make it faster
 // FIXME: guard against running out of vertices
 
-#ifdef _BGBCC
+// #ifdef _BGBCC
 //	return;
-#endif
+// #endif
 
 	s_axis = t_axis = 0;	// keep compiler happy
 

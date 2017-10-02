@@ -109,14 +109,11 @@ ccxl_status BGBCC_CCXL_EmitJumpRegZero(BGBCC_TransState *ctx,
 	return(0);
 }
 
-ccxl_status BGBCC_CCXL_EmitJumpRegCmp(BGBCC_TransState *ctx,
+ccxl_status BGBCC_CCXL_EmitJumpRegCmpI(BGBCC_TransState *ctx,
 	ccxl_type type, int cmpop, ccxl_register sreg, ccxl_register treg,
 	ccxl_label lbl)
 {
 	BGBCC_CCXL_VirtOp *op;
-
-	if(ctx->cgif_no3ac)
-		return(0);
 
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_JCMP;
@@ -128,6 +125,60 @@ ccxl_status BGBCC_CCXL_EmitJumpRegCmp(BGBCC_TransState *ctx,
 	BGBCC_CCXL_AddVirtOp(ctx, op);
 	BGBCC_CCXL_EmitMarkEndTrace(ctx);
 	return(0);
+}
+
+ccxl_status BGBCC_CCXL_EmitJumpRegCmp(BGBCC_TransState *ctx,
+	ccxl_type type, int cmpop, ccxl_register sreg, ccxl_register treg,
+	ccxl_label lbl)
+{
+	BGBCC_CCXL_VirtOp *op;
+	int cmp1;
+	s32 imm;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
+#if 1
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, treg))
+	{
+		imm=BGBCC_CCXL_GetRegImmIntValue(ctx, treg);
+		if(imm==0)
+		{
+			return(BGBCC_CCXL_EmitJumpRegZero(ctx,
+				type, cmpop, sreg, lbl));
+		}
+
+		return(BGBCC_CCXL_EmitJumpRegCmpI(ctx,
+			type, cmpop, sreg, treg, lbl));
+	}
+
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, sreg))
+	{
+		switch(cmpop)
+		{
+		case CCXL_CMP_EQ:	cmp1=CCXL_CMP_EQ;	break;
+		case CCXL_CMP_NE:	cmp1=CCXL_CMP_NE;	break;
+		case CCXL_CMP_LT:	cmp1=CCXL_CMP_GT;	break;
+		case CCXL_CMP_GT:	cmp1=CCXL_CMP_LT;	break;
+		case CCXL_CMP_LE:	cmp1=CCXL_CMP_GE;	break;
+		case CCXL_CMP_GE:	cmp1=CCXL_CMP_LE;	break;
+		default:			cmp1=-1;			break;
+		}
+
+		imm=BGBCC_CCXL_GetRegImmIntValue(ctx, sreg);
+		if(imm==0)
+		{
+			return(BGBCC_CCXL_EmitJumpRegZero(ctx,
+				type, cmp1, treg, lbl));
+		}
+
+		return(BGBCC_CCXL_EmitJumpRegCmpI(ctx,
+			type, cmp1, treg, sreg, lbl));
+	}
+#endif
+
+	return(BGBCC_CCXL_EmitJumpRegCmpI(ctx,
+		type, cmpop, sreg, treg, lbl));
 }
 
 ccxl_status BGBCC_CCXL_EmitMov(BGBCC_TransState *ctx,

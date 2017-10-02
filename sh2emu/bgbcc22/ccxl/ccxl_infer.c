@@ -256,7 +256,7 @@ int BGBCC_CCXL_InferExpr(BGBCC_TransState *ctx,
 		s0=BCCX_GetCst(l, &bgbcc_rcst_name, "name");
 		if(s0)
 		{
-			i0=BGBCC_CCXL_LookupAsRegister(ctx, s0, &treg);
+			i0=BGBCC_CCXL_TryLookupAsRegister(ctx, s0, &treg, false);
 			if(i0<0)
 				return(0);
 			tty=BGBCC_CCXL_GetRegReturnType(ctx, treg);

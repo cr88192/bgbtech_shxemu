@@ -778,9 +778,9 @@ void R_DrawBEntitiesOnList (void)
 	if (!r_drawentities.value)
 		return;
 
-#ifdef _BGBCC
+// #ifdef _BGBCC
 //	return; //BGBCC Debug
-#endif
+// #endif
 
 	VectorCopy (modelorg, oldorigin);
 	insubmodel = true;

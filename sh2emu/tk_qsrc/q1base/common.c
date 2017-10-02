@@ -158,6 +158,12 @@ void Q_memcpy (void *dest, void *src, int count)
 	if (( ( ((nlint)dest) | ((nlint)src) | count) & 3) == 0 )
 //	if(0)
 	{
+#ifdef __BGBCC
+		memcpy((int *)dest, (int *)src, count);
+		return;
+#endif
+
+#if 1
 		count>>=2;
 
 		for (i=0; (i+4)<=count; i+=4)
@@ -171,6 +177,7 @@ void Q_memcpy (void *dest, void *src, int count)
 //		for (i=0 ; i<count ; i++)
 		for (; i<count ; i++)
 			((int *)dest)[i] = ((int *)src)[i];
+#endif
 	}
 	else
 	{
@@ -1651,7 +1658,7 @@ byte *COM_LoadFile (char *path, int usehunk)
 // extract the filename base name for hunk tag
 	COM_FileBase (path, base);
 	
-	printf("COM_LoadFile: %s hdl=%d uh=%d\n", path, h, usehunk);
+	tk_printf("COM_LoadFile: %s hdl=%d uh=%d\n", path, h, usehunk);
 	
 	if (usehunk == 1)
 		buf = Hunk_AllocName (len+1, base);
@@ -1663,7 +1670,7 @@ byte *COM_LoadFile (char *path, int usehunk)
 		buf = Cache_Alloc (loadcache, len+1, base);
 	else if (usehunk == 4)
 	{
-		printf("COM_LoadFile: loadbuf=%p loadsz=%d len=%d\n",
+		tk_printf("COM_LoadFile: loadbuf=%p loadsz=%d len=%d\n",
 			loadbuf, loadsize, len);
 
 		if (len+1 > loadsize)
@@ -1677,7 +1684,7 @@ byte *COM_LoadFile (char *path, int usehunk)
 	if (!buf)
 		Sys_Error ("COM_LoadFile: not enough space for %s", path);
 	
-	printf("COM_LoadFile: buf=%p\n", buf);
+	tk_printf("COM_LoadFile: buf=%p\n", buf);
 	
 	((byte *)buf)[len] = 0;
 

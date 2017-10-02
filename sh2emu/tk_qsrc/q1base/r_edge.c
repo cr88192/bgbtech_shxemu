@@ -256,9 +256,9 @@ void R_StepActiveU (edge_t *pedge)
 	edge_t		*pnext_edge, *pwedge;
 	int n, n1;
 
-#ifdef _BGBCC
+// #ifdef _BGBCC
 //	return;
-#endif
+// #endif
 
 	if(!pedge)
 		return;
@@ -817,9 +817,9 @@ void R_ScanEdges (void)
 	espan_t	*basespan_p;
 	surf_t	*s;
 
-#ifdef _BGBCC
+// #ifdef _BGBCC
 //	return; //BGBCC Debug
-#endif
+// #endif
 
 	basespan_p = (espan_t *)
 			((nlint)(basespans + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));

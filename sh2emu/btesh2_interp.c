@@ -267,8 +267,62 @@ char *btesh2_print_NameForNameID(int id)
 	case BTESH2_NMID_SHARQ:		s="SHAR.Q"; break;
 	case BTESH2_NMID_LDSH16:	s="LDSH16.Q"; break;
 
+	case BTESH2_NMID_LDHF16:	s="LDHF16"; break;
+
 	default: s="?"; break;
 	}
+	return(s);
+}
+
+char *btesh2_print_NameForFormID(int id)
+{
+	char *s;
+	s="?";
+	switch(id)
+	{
+	case BTESH2_FMID_REGREG: s="Rm, Rn"; break;
+	case BTESH2_FMID_REGRM: s="Rm"; break;
+	case BTESH2_FMID_REGRN: s="Rn"; break;
+	case BTESH2_FMID_REGIMM: s="#imm, Rn"; break;
+	case BTESH2_FMID_REGLDABS: s="@Abs, Rn"; break;
+	case BTESH2_FMID_REGST: s="Rm, @Rn"; break;
+	case BTESH2_FMID_REGLD: s="@Rm, Rn"; break;
+	case BTESH2_FMID_REGDECST: s="Rm, @-Rn"; break;
+	case BTESH2_FMID_REGINCLD: s="@Rm+, Rn"; break;
+
+	case BTESH2_FMID_REGSTR0N:		s="Rm, @(Ro+Rn)"; break;
+	case BTESH2_FMID_REGLDR0M:		s="@(Ro+Rm), Rn"; break;
+	case BTESH2_FMID_REGSTDISP:		s="Rm, @(Rn+Disp)"; break;
+	case BTESH2_FMID_REGLDDISP:		s="@(Rm+Disp), Rn"; break;
+	case BTESH2_FMID_ABS:			s="@(Abs)"; break;
+	case BTESH2_FMID_NONE:			s="-"; break;
+
+	case BTESH2_FMID_IMM:			s="Imm"; break;
+	case BTESH2_FMID_LDREG:			s="@Rm"; break;
+	case BTESH2_FMID_STREG:			s="@Rn"; break;
+	case BTESH2_FMID_IMMSTRMN:		s="Imm, @(Rm+Rn)"; break;
+	case BTESH2_FMID_REGVIMM:		s="<Imm>, Rn"; break;
+	case BTESH2_FMID_FREGREG:		s="FRm, FRn"; break;
+	case BTESH2_FMID_FREGRM	:		s="FRm"; break;
+	case BTESH2_FMID_FREGRN	:		s="FRn"; break;
+
+	case BTESH2_FMID_DREGREG:		s="DRm, DRn"; break;
+	case BTESH2_FMID_DREGRM:		s="DRm"; break;
+	case BTESH2_FMID_DREGRN:		s="DRn"; break;
+	case BTESH2_FMID_IMMSTRN:		s="Imm, @Rn"; break;
+	case BTESH2_FMID_IMMDECSTRN:	s="Imm, @-Rn"; break;
+	case BTESH2_FMID_REGREGREG:		s="Rn, Rm, Ro"; break;
+	case BTESH2_FMID_REGINCST:		s="Rm, @+Rn"; break;
+	case BTESH2_FMID_REGDECLD:		s="@Rm-, Rn"; break;
+
+	case BTESH2_FMID_REGSTRODISP:	s="Rm, @(Rn,Ro,Disp)"; break;
+	case BTESH2_FMID_REGLDRODISP:	s="@(Rm,Ro,Disp), Rn"; break;
+	case BTESH2_FMID_REGIMMREG:		s="Rm, Imm, Rn"; break;
+
+	default:
+		break;
+	}
+
 	return(s);
 }
 
@@ -330,6 +384,7 @@ char *btesh2_print_NameForFRegID(int id)
 	char *s;
 	switch(id)
 	{
+#if 0
 	case  0: s="FR0"; break;
 	case  1: s="FR1"; break;
 	case  2: s="FR2"; break;
@@ -346,6 +401,27 @@ char *btesh2_print_NameForFRegID(int id)
 	case 13: s="FR13"; break;
 	case 14: s="FR14"; break;
 	case 15: s="FR15"; break;
+#endif
+
+#if 1
+	case  0: s="FR1"; break;
+	case  1: s="FR0"; break;
+	case  2: s="FR3"; break;
+	case  3: s="FR2"; break;
+	case  4: s="FR5"; break;
+	case  5: s="FR4"; break;
+	case  6: s="FR7"; break;
+	case  7: s="FR6"; break;
+	case  8: s="FR9"; break;
+	case  9: s="FR8"; break;
+	case 10: s="FR11"; break;
+	case 11: s="FR10"; break;
+	case 12: s="FR13"; break;
+	case 13: s="FR12"; break;
+	case 14: s="FR15"; break;
+	case 15: s="FR14"; break;
+#endif
+
 	default: s="?"; break;
 	}
 	return(s);
@@ -390,6 +466,7 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 {
 	BTESH2_Opcode *op;
 	u32 baddr;
+	u32 laspc;
 	char *snm;
 	int i;
 
@@ -438,18 +515,25 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 	for(i=0; i<tr->nops; i++)
 	{
 		op=tr->ops[i];
+		
+		if(i && op->pc!=laspc)
+		{
+			printf("  %08X ==> %08X\n", laspc, op->pc);
+		}
+		
 		if(op->fl&BTESH2_OPFL_EXTRAWORD)
 		{
 //			printf("  %08X %04X-%04X ", op->pc, op->opw, op->opw2);
 //			printf("  %08llX %04X-%04X ", op->pc, op->opw, op->opw2);
 			if(op->pc>>32)
 			{
-				printf("  %08X_%08X %04X_%04X ",
+				printf("  %08X_%08X %04X_%04X  ",
 					(u32)(op->pc>>32), (u32)op->pc, op->opw, op->opw2);
 			}else
 			{
-				printf("  %08X %04X_%04X ", (u32)op->pc, op->opw, op->opw2);
+				printf("  %08X %04X_%04X  ", (u32)op->pc, op->opw, op->opw2);
 			}
+			laspc=op->pc+4;
 		}else
 		{
 //			printf("  %08X %04X      ", tr->srcpc+i*2, op->opw);
@@ -458,12 +542,13 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 
 			if(op->pc>>32)
 			{
-				printf("  %08X_%08X %04X      ",
+				printf("  %08X_%08X %04X       ",
 					(u32)(op->pc>>32), (u32)op->pc, op->opw);
 			}else
 			{
-				printf("  %08X %04X      ", (u32)op->pc, op->opw);
+				printf("  %08X %04X       ", (u32)op->pc, op->opw);
 			}
+			laspc=op->pc+2;
 		}
 		
 		snm=btesh2_print_NameForNameID(op->nmid);
@@ -631,6 +716,126 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 				btesh2_print_NameForRegID(op->ro),
 				(s32)op->imm);
 			break;
+
+
+#if 1
+		case BTESH2_FMID_FREGST:
+			printf("%s, @%s",
+				btesh2_print_NameForFRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGLD:
+			printf("@%s, %s",
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForFRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGDECST:
+			printf("%s, @-%s",
+				btesh2_print_NameForFRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGINCLD:
+			printf("@%s+, %s",
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForFRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGLDDISP:
+			printf("@(%s, %d), %s",
+				btesh2_print_NameForRegID(op->rm), (s32)op->imm,
+				btesh2_print_NameForFRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGSTDISP:
+			printf("%s, @(%s, %d)",
+				btesh2_print_NameForFRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn), (s32)op->imm);
+			break;
+		case BTESH2_FMID_FREGSTR0N:
+			printf("%s, @(%s, %s)",
+				btesh2_print_NameForFRegID(op->rm),
+				btesh2_print_NameForRegID(op->ro),
+				btesh2_print_NameForRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGLDR0M:
+			printf("@(%s, %s), %s",
+				btesh2_print_NameForRegID(op->ro),
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForFRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGLDRODISP:
+			printf("@(%s, %s, %d), %s",
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForRegID(op->ro),
+				(s32)op->imm,
+				btesh2_print_NameForFRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGSTRODISP:
+			printf("%s, @(%s, %s, %d)",
+				btesh2_print_NameForFRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn),
+				btesh2_print_NameForRegID(op->ro),
+				(s32)op->imm);
+			break;
+#endif
+
+#if 1
+		case BTESH2_FMID_DREGST:
+			printf("%s, @%s",
+				btesh2_print_NameForDRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn));
+			break;
+		case BTESH2_FMID_DREGLD:
+			printf("@%s, %s",
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForDRegID(op->rn));
+			break;
+		case BTESH2_FMID_DREGDECST:
+			printf("%s, @-%s",
+				btesh2_print_NameForDRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn));
+			break;
+		case BTESH2_FMID_DREGINCLD:
+			printf("@%s+, %s",
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForDRegID(op->rn));
+			break;
+		case BTESH2_FMID_DREGLDDISP:
+			printf("@(%s, %d), %s",
+				btesh2_print_NameForRegID(op->rm), (s32)op->imm,
+				btesh2_print_NameForDRegID(op->rn));
+			break;
+		case BTESH2_FMID_DREGSTDISP:
+			printf("%s, @(%s, %d)",
+				btesh2_print_NameForDRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn), (s32)op->imm);
+			break;
+		case BTESH2_FMID_DREGSTR0N:
+			printf("%s, @(%s, %s)",
+				btesh2_print_NameForDRegID(op->rm),
+				btesh2_print_NameForRegID(op->ro),
+				btesh2_print_NameForRegID(op->rn));
+			break;
+		case BTESH2_FMID_DREGLDR0M:
+			printf("@(%s, %s), %s",
+				btesh2_print_NameForRegID(op->ro),
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForDRegID(op->rn));
+			break;
+		case BTESH2_FMID_DREGLDRODISP:
+			printf("@(%s, %s, %d), %s",
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForRegID(op->ro),
+				(s32)op->imm,
+				btesh2_print_NameForDRegID(op->rn));
+			break;
+		case BTESH2_FMID_DREGSTRODISP:
+			printf("%s, @(%s, %s, %d)",
+				btesh2_print_NameForDRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn),
+				btesh2_print_NameForRegID(op->ro),
+				(s32)op->imm);
+			break;
+#endif
+
 
 		case BTESH2_FMID_NONE:
 			break;
@@ -904,6 +1109,44 @@ int BTESH2_StatTraces(BTESH2_CpuState *cpu)
 	}
 #endif
 
+
+#if 1
+	ntp=0;
+	for(i=0; i<256*64; i++)
+	{
+		j=btesh2_nmid_jitmiss[i];
+		if(j)
+		{
+			tpair_v[ntp]=i;
+			tpair_c[ntp]=j;
+			ntp++;
+		}
+	}
+	
+	for(i=0; i<ntp; i++)
+	{
+		for(j=i+1; j<ntp; j++)
+		{
+			if(tpair_c[j]>tpair_c[i])
+			{
+				k=tpair_c[i]; tpair_c[i]=tpair_c[j]; tpair_c[j]=k;
+				k=tpair_v[i]; tpair_v[i]=tpair_v[j]; tpair_v[j]=k;
+			}
+		}
+	}
+	
+	for(i=0; i<32; i++)
+	{
+		j=tpair_v[i];
+		printf("%2d %-8s %-8s %6d\n", i,
+			btesh2_print_NameForNameID((j>>6)&255),
+			btesh2_print_NameForFormID((j   )&63),
+			tpair_c[i]);
+	}
+#endif
+
+
+
 #if 1
 	if(BTESH2_CpuNolink(cpu))
 	{
@@ -996,6 +1239,8 @@ int BTESH2_DumpRegs_Reg32(BTESH2_CpuState *cpu)
 		printf("SSR  =%08X | SPC =%08X | SGR  =%08X | DBR  =%08X\n",
 			cpu->regs[40], cpu->regs[41], cpu->regs[42], cpu->regs[43]);
 	}
+
+	return(0);
 }
 
 int BTESH2_DumpRegs_Reg64(BTESH2_CpuState *cpu)
@@ -1108,12 +1353,37 @@ int BTESH2_DumpRegs_Reg64(BTESH2_CpuState *cpu)
 		cpu->regs[BTESH2_REG_RLO+BTESH2_REG_INTEVT],
 		cpu->regs[BTESH2_REG_RHI+47],
 		cpu->regs[BTESH2_REG_RLO+47]);
+
+	return(0);
 }
 
 int BTESH2_DumpRegs_FPU(BTESH2_CpuState *cpu)
 {
 	if(cpu->arch==BTESH2_ARCH_SH4)
 	{
+#if 1
+		printf("FPU Regs (FR):\n");
+		printf("FR0  =%08X | FR1 =%08X | FR2  =%08X | FR3  =%08X\n",
+			cpu->fregs[ 1], cpu->fregs[ 0], cpu->fregs[ 3], cpu->fregs[ 2]);
+		printf("FR4  =%08X | FR5 =%08X | FR6  =%08X | FR7  =%08X\n",
+			cpu->fregs[ 5], cpu->fregs[ 4], cpu->fregs[ 7], cpu->fregs[ 6]);
+		printf("FR8  =%08X | FR9 =%08X | FR10 =%08X | FR11 =%08X\n",
+			cpu->fregs[ 9], cpu->fregs[ 8], cpu->fregs[11], cpu->fregs[10]);
+		printf("FR12 =%08X | FR13=%08X | FR14 =%08X | FR15 =%08X\n",
+			cpu->fregs[13], cpu->fregs[12], cpu->fregs[15], cpu->fregs[14]);
+
+		printf("FPU Regs (XF):\n");
+		printf("XF0  =%08X | XF1 =%08X | XF2  =%08X | XF3  =%08X\n",
+			cpu->fregs[17], cpu->fregs[16], cpu->fregs[19], cpu->fregs[18]);
+		printf("XF4  =%08X | XF5 =%08X | XF6  =%08X | XF7  =%08X\n",
+			cpu->fregs[21], cpu->fregs[20], cpu->fregs[23], cpu->fregs[22]);
+		printf("XF8  =%08X | XF9 =%08X | XF10 =%08X | XF11 =%08X\n",
+			cpu->fregs[25], cpu->fregs[24], cpu->fregs[27], cpu->fregs[26]);
+		printf("XF12 =%08X | XF13=%08X | XF14 =%08X | XF15 =%08X\n",
+			cpu->fregs[29], cpu->fregs[28], cpu->fregs[31], cpu->fregs[30]);
+#endif
+
+#if 0
 		printf("FPU Regs (FR):\n");
 		printf("FR0  =%08X | FR1 =%08X | FR2  =%08X | FR3  =%08X\n",
 			cpu->fregs[ 0], cpu->fregs[ 1], cpu->fregs[ 2], cpu->fregs[ 3]);
@@ -1133,6 +1403,8 @@ int BTESH2_DumpRegs_FPU(BTESH2_CpuState *cpu)
 			cpu->fregs[24], cpu->fregs[25], cpu->fregs[26], cpu->fregs[27]);
 		printf("XF12 =%08X | XF13=%08X | XF14 =%08X | XF15 =%08X\n",
 			cpu->fregs[28], cpu->fregs[29], cpu->fregs[30], cpu->fregs[31]);
+#endif
+
 
 #if 0
 		printf("FPU Regs (Float):\n");
@@ -1205,13 +1477,49 @@ int BTESH2_DumpRegs_FPU(BTESH2_CpuState *cpu)
 //		printf("\n");
 #endif
 	}
+
+	return(0);
 }
 
 int BTESH2_DumpRegs_FPUYZ(BTESH2_CpuState *cpu)
 {
+	u32 u0, v0;
+	
+	u0 =cpu->fregs[32] | cpu->fregs[33] | cpu->fregs[34] | cpu->fregs[35] |
+		cpu->fregs[36] | cpu->fregs[37] | cpu->fregs[38] | cpu->fregs[39] |
+		cpu->fregs[40] | cpu->fregs[41] | cpu->fregs[42] | cpu->fregs[43] |
+		cpu->fregs[44] | cpu->fregs[45] | cpu->fregs[46] | cpu->fregs[47] ;
+	v0 =cpu->fregs[48] | cpu->fregs[49] | cpu->fregs[50] | cpu->fregs[51] |
+		cpu->fregs[52] | cpu->fregs[53] | cpu->fregs[54] | cpu->fregs[55] |
+		cpu->fregs[56] | cpu->fregs[57] | cpu->fregs[58] | cpu->fregs[59] |
+		cpu->fregs[60] | cpu->fregs[61] | cpu->fregs[62] | cpu->fregs[63] ;
+
 //	if(cpu->arch==BTESH2_ARCH_SH4)
-	if(1)
+//	if(1)
+	if(u0|v0)
 	{
+#if 1
+		printf("FPU Regs (YF):\n");
+		printf("YF0  =%08X | YF1 =%08X | YF2  =%08X | YF3  =%08X\n",
+			cpu->fregs[33], cpu->fregs[32], cpu->fregs[35], cpu->fregs[34]);
+		printf("YF4  =%08X | YF5 =%08X | YF6  =%08X | YF7  =%08X\n",
+			cpu->fregs[37], cpu->fregs[36], cpu->fregs[39], cpu->fregs[38]);
+		printf("YF8  =%08X | YF9 =%08X | YF10 =%08X | YF11 =%08X\n",
+			cpu->fregs[41], cpu->fregs[40], cpu->fregs[43], cpu->fregs[42]);
+		printf("YF12 =%08X | YF13=%08X | YF14 =%08X | YF15 =%08X\n",
+			cpu->fregs[45], cpu->fregs[44], cpu->fregs[47], cpu->fregs[46]);
+		printf("FPU Regs (ZF):\n");
+		printf("ZF0  =%08X | ZF1 =%08X | ZF2  =%08X | ZF3  =%08X\n",
+			cpu->fregs[49], cpu->fregs[48], cpu->fregs[51], cpu->fregs[50]);
+		printf("ZF4  =%08X | ZF5 =%08X | ZF6  =%08X | ZF7  =%08X\n",
+			cpu->fregs[53], cpu->fregs[52], cpu->fregs[55], cpu->fregs[54]);
+		printf("ZF8  =%08X | ZF9 =%08X | ZF10 =%08X | ZF11 =%08X\n",
+			cpu->fregs[57], cpu->fregs[56], cpu->fregs[59], cpu->fregs[58]);
+		printf("ZF12 =%08X | ZF13=%08X | ZF14 =%08X | ZF15 =%08X\n",
+			cpu->fregs[61], cpu->fregs[60], cpu->fregs[63], cpu->fregs[62]);
+#endif
+
+#if 0
 		printf("FPU Regs (YF):\n");
 		printf("YF0  =%08X | YF1 =%08X | YF2  =%08X | YF3  =%08X\n",
 			cpu->fregs[32], cpu->fregs[33], cpu->fregs[34], cpu->fregs[35]);
@@ -1231,8 +1539,12 @@ int BTESH2_DumpRegs_FPUYZ(BTESH2_CpuState *cpu)
 			cpu->fregs[56], cpu->fregs[57], cpu->fregs[58], cpu->fregs[59]);
 		printf("ZF12 =%08X | ZF13=%08X | ZF14 =%08X | ZF15 =%08X\n",
 			cpu->fregs[60], cpu->fregs[61], cpu->fregs[62], cpu->fregs[63]);
+#endif
 	}
+
+	return(0);
 }
+
 int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 {
 	u64 d0, d1, d2, d3;
@@ -1241,8 +1553,17 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 	BTESH2_DumpTraces(cpu);
 	BTESH2_StatTraces(cpu);
 	
+	if((cpu->regs[BTESH2_REG_RHI+BTESH2_REG_SR]&BTESH2_SRFL_JQ) ||
+		(cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SR]&BTESH2_SRFL_JQ))
+	{
+		BTESH2_DumpRegs_Reg64(cpu);
+	}else
+	{
+		BTESH2_DumpRegs_Reg32(cpu);
+	}
+	
 //	BTESH2_DumpRegs_Reg32(cpu);
-	BTESH2_DumpRegs_Reg64(cpu);
+//	BTESH2_DumpRegs_Reg64(cpu);
 	BTESH2_DumpRegs_FPU(cpu);
 	BTESH2_DumpRegs_FPUYZ(cpu);
 
@@ -1281,5 +1602,6 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 		cpu->trapregs[20], cpu->trapregs[21],
 		cpu->trapregs[22], cpu->trapregs[23]);
 #endif
+
 	return(0);
 }

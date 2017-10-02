@@ -307,6 +307,8 @@ ccxl_type BGBCC_CCXL_GetRegReturnType(
 		return(dty);
 	}
 
+	printf("BGBCC_CCXL_GetRegReturnType: ty=%X\n", bty.val);
+
 	BGBCC_CCXL_StubWarn(ctx);
 	dty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_I);
 

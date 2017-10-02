@@ -130,6 +130,8 @@ int tk_ird_fseek(TK_FILE *fd, int ofs, int rel)
 {
 	if(fd->ram_base)
 	{
+		tk_printf("tk_ird_fseek: %p %d %d\n", fd, ofs, rel);
+
 		if(rel==0)
 		{
 			if(ofs<0)
@@ -174,13 +176,22 @@ int tk_ird_fread(void *buf, int sz1, int sz2, TK_FILE *fd)
 	{
 		sz=sz1*sz2;
 		if((fd->ram_ofs+sz)>fd->ram_end)
-			{ sz=fd->ram_end-fd->ram_ofs; }
-		if(sz<=0)return(0);
+		{
+			tk_printf("tk_ird_fread: EOF, rng=%p..%p ofs=%p sz=%d\n",
+				fd->ram_base, fd->ram_end, fd->ram_ofs, sz);
+			sz=fd->ram_end-fd->ram_ofs;
+		}
+		if(sz<=0)
+		{
+			tk_printf("tk_ird_fread: sz=%d, sz1=%d, sz2=%d\n", sz, sz1, sz2);
+			return(0);
+		}
 		memcpy(buf, fd->ram_ofs, sz);
 		fd->ram_ofs+=sz;
 		return(sz);
 	}
 
+	tk_printf("tk_ird_fread: base=%p\n", fd->ram_base);
 	return(-1);
 }
 

@@ -2064,10 +2064,16 @@ __PDPCLIB_API__ int fseek(FILE *stream, long int offset, int whence)
 //		   /* do nothing */
 //		}
 	}
-	else if ((newpos >= stream->bufStartR)
-		&& (newpos < (stream->bufStartR + (stream->endbuf - stream->fbuf)))
-		&& (stream->update || (stream->mode == __READ_MODE)))
+//	else if ((newpos >= stream->bufStartR)
+//		&& (newpos < (stream->bufStartR + (stream->endbuf - stream->fbuf)))
+//		&& (stream->update || (stream->mode == __READ_MODE)))
+	else if(0)
 	{
+		tk_printf("%d %d %d\n",
+			((newpos >= stream->bufStartR)),
+			(newpos < (stream->bufStartR + (stream->endbuf - stream->fbuf))),
+			(stream->update || (stream->mode == __READ_MODE)));
+
 		stream->upto = stream->fbuf + (size_t)(newpos - stream->bufStartR);
 	}
 	else

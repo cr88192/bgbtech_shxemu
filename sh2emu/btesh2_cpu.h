@@ -82,6 +82,8 @@
 #define BTESH2_EXC_UART1		0x17		//UART/Console (1)
 #define BTESH2_EXC_AICCNTDN		0x19		//AIC Countdown
 
+#define BTESH2_EXC_FPUERR		0x20		//FPU Operation Error
+
 #define BTESH2_EXC_TRAPSMC		0x1000		//Trapped Self-Modifying Code
 #define BTESH2_EXC_TRAPSLEEP	0x1001		//Sleep
 
@@ -254,6 +256,8 @@
 #define BTESH2_NMID_POP			0x73	//
 #define BTESH2_NMID_ICLRMD		0x74	//
 #define BTESH2_NMID_ISETMD		0x75	//
+#define BTESH2_NMID_SHLL1		0x76	//
+#define BTESH2_NMID_LDHF16		0x77	//
 
 #define BTESH2_NMID_FABS		0x80	//
 #define BTESH2_NMID_FADD		0x81	//
@@ -318,7 +322,6 @@
 #define BTESH2_FMID_REGLDABS	0x05	//@(Abs), Rn
 #define BTESH2_FMID_REGST		0x06	//Rm, @Rn
 #define BTESH2_FMID_REGLD		0x07	//@Rm, Rn
-
 #define BTESH2_FMID_REGDECST	0x08	//Rm, @-Rn
 #define BTESH2_FMID_REGINCLD	0x09	//@Rm+, Rn
 #define BTESH2_FMID_REGSTR0N	0x0A	//Rm, @(Ro+Rn)
@@ -336,7 +339,6 @@
 #define BTESH2_FMID_FREGREG		0x15	//FRm, FRn
 #define BTESH2_FMID_FREGRM		0x16	//FRm
 #define BTESH2_FMID_FREGRN		0x17	//FRn
-
 #define BTESH2_FMID_DREGREG		0x18	//DRm, DRn
 #define BTESH2_FMID_DREGRM		0x19	//DRm
 #define BTESH2_FMID_DREGRN		0x1A	//DRn
@@ -346,9 +348,33 @@
 #define BTESH2_FMID_REGINCST	0x1E	//Rm, @+Rn
 #define BTESH2_FMID_REGDECLD	0x1F	//@Rm-, Rn
 
-#define BTESH2_FMID_REGSTRODISP	0x20	//Rm, @(Rn,Ro,Disp)
-#define BTESH2_FMID_REGLDRODISP	0x21	//@(Rm,Ro,Disp), Rn
-#define BTESH2_FMID_REGIMMREG	0x22	//Rm, Imm, Rn
+#define BTESH2_FMID_REGSTRODISP		0x20	//Rm, @(Rn,Ro,Disp)
+#define BTESH2_FMID_REGLDRODISP		0x21	//@(Rm,Ro,Disp), Rn
+#define BTESH2_FMID_REGIMMREG		0x22	//Rm, Imm, Rn
+#define BTESH2_FMID_FREGREGREG		0x23	//FRm, FRo, FRn
+#define BTESH2_FMID_DREGREGREG		0x24	//DRm, DRo, DRn
+
+#define BTESH2_FMID_FREGST			0x26	//FRm, @Rn
+#define BTESH2_FMID_FREGLD			0x27	//@Rm, FRn
+#define BTESH2_FMID_FREGDECST		0x28	//FRm, @-Rn
+#define BTESH2_FMID_FREGINCLD		0x29	//@Rm+, FRn
+#define BTESH2_FMID_FREGSTR0N		0x2A	//FRm, @(Ro+Rn)
+#define BTESH2_FMID_FREGLDR0M		0x2B	//@(Ro+Rm), FRn
+#define BTESH2_FMID_FREGSTDISP		0x2C	//FRm, @(Rn+Disp)
+#define BTESH2_FMID_FREGLDDISP		0x2D	//@(Rm+Disp), FRn
+#define BTESH2_FMID_FREGSTRODISP	0x2E	//FRm, @(Rn,Ro,Disp)
+#define BTESH2_FMID_FREGLDRODISP	0x2F	//@(Rm,Ro,Disp), FRn
+
+#define BTESH2_FMID_DREGST			0x36	//DRm, @Rn
+#define BTESH2_FMID_DREGLD			0x37	//@Rm, DRn
+#define BTESH2_FMID_DREGDECST		0x38	//DRm, @-Rn
+#define BTESH2_FMID_DREGINCLD		0x39	//@Rm+, DRn
+#define BTESH2_FMID_DREGSTR0N		0x3A	//DRm, @(Ro+Rn)
+#define BTESH2_FMID_DREGLDR0M		0x3B	//@(Ro+Rm), DRn
+#define BTESH2_FMID_DREGSTDISP		0x3C	//DRm, @(Rn+Disp)
+#define BTESH2_FMID_DREGLDDISP		0x3D	//@(Rm+Disp), DRn
+#define BTESH2_FMID_DREGSTRODISP	0x3E	//DRm, @(Rn,Ro,Disp)
+#define BTESH2_FMID_DREGLDRODISP	0x3F	//@(Rm,Ro,Disp), DRn
 
 
 typedef unsigned char byte;
