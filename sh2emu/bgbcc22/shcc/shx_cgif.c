@@ -2502,6 +2502,7 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 	ct[0x40]='P';	ct[0x41]='E';	ct[0x42]=0;		ct[0x43]=0;
 
 	k=sctx->is_le?0x0080:0x8000;
+	k|=0x0302;
 
 //	bgbcc_setu16en(ct+0x44, en, 0x14C);		//mMachine
 	bgbcc_setu16en(ct+0x44, en, 0x1A6);		//mMachine
@@ -2565,7 +2566,6 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 		lva=sctx->sec_lva[i];
 		rva=sctx->sec_rva[i];
 		lsz=sctx->sec_lsz[i];
-		k=BGBCC_SHXC_CoffSectionFlags(ctx, sctx, s0);
 
 		if(strlen(s0)<=8)
 			{ strncpy(ct+0, s0, 8); }
@@ -2580,6 +2580,8 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 		bgbcc_setu32en(ct+0x1C, en, 0);		//mPointerToLinenumbers
 		bgbcc_setu16en(ct+0x20, en, 0);		//mNumberOfRealocations
 		bgbcc_setu16en(ct+0x22, en, 0);		//mNumberOfLinenumbers
+
+		k=BGBCC_SHXC_CoffSectionFlags(ctx, sctx, s0);
 		bgbcc_setu32en(ct+0x24, en, k);		//mCharacteristics
 		ct+=40;
 	}
