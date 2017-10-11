@@ -509,6 +509,8 @@ fourcc BGBCP_ImageFormatForName(char *name)
 		if(!bgbcc_stricmp(name, "OBJ"))fmt=BGBCC_IMGFMT_OBJ;
 		if(!bgbcc_stricmp(name, "EXE"))fmt=BGBCC_IMGFMT_EXE;
 		if(!bgbcc_stricmp(name, "DLL"))fmt=BGBCC_IMGFMT_DLL;
+		if(!bgbcc_stricmp(name, "ELF"))fmt=BGBCC_IMGFMT_ELXE;
+		if(!bgbcc_stricmp(name, "SO"))fmt=BGBCC_IMGFMT_ELSO;
 		if(!bgbcc_stricmp(name, "RIL3"))fmt=BGBCC_IMGFMT_RIL3;
 		if(fmt)return(fmt);
 
@@ -520,8 +522,8 @@ fourcc BGBCP_ImageFormatForName(char *name)
 
 		if(!bgbcc_stricmp(s, ".exe"))fmt=BGBCC_IMGFMT_EXE;
 		if(!bgbcc_stricmp(s, ".dll"))fmt=BGBCC_IMGFMT_DLL;
-		if(!bgbcc_stricmp(s, ".elf"))fmt=BGBCC_IMGFMT_EXE;
-		if(!bgbcc_stricmp(s, ".so"))fmt=BGBCC_IMGFMT_DLL;
+		if(!bgbcc_stricmp(s, ".elf"))fmt=BGBCC_IMGFMT_ELXE;
+		if(!bgbcc_stricmp(s, ".so"))fmt=BGBCC_IMGFMT_ELSO;
 		if(!bgbcc_stricmp(s, ".ril"))fmt=BGBCC_IMGFMT_RIL3;
 		if(!bgbcc_stricmp(s, ".ril3"))fmt=BGBCC_IMGFMT_RIL3;
 	}

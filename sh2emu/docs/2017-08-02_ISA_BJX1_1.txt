@@ -294,7 +294,7 @@ Basic I-Forms (16-bit)
 **	0--3
 ***		0m03 BSRF Rm			//Branch to Subroutine (PC+Rm+4)
 ***		0-13 -
-***		0m23 BSAF Rm			//Branch to Label (PC+Rn+4)
+***		0m23 BRAF Rm			//Branch to Label (PC+Rn+4)
 ***             ..
 
 ***		0n63 -
@@ -410,7 +410,11 @@ Basic I-Forms (16-bit)
 ***             ..		
 ***		4n81 -
 ***		4n91 -
-***		4nE1 -
+***		4nA1 -
+***		4nB1 -
+***		4mC1 ! MOV.B Rm, @(PC, R0)
+***		4mD1 ! MOV.W/Q Rm, @(PC, R0)
+***		4mE1 ! MOV.L Rm, @(PC, R0)
 ***		4mF1 -
 **	4--2
 ***		4n02 STS.L/Q MACH, @-Rn
@@ -459,9 +463,12 @@ Basic I-Forms (16-bit)
 ***		4n75 / MOV.Q @PC+, Rn		//Inline load Imm64
 ***		4n85 -
 ***		4n95 -
-***             ..		
-***		4mE5 -
-***		4nF5 -
+***		4nA5 -
+***		4nB5 -
+***		4nC5 ! MOV.B @(PC, R0), Rn
+***		4nD5 ! MOV.W/Q @(PC, R0), Rn
+***		4nE5 ! MOV.L @(PC, R0), Rn
+***		4nF5 ! LEA.B @(PC, R0), Rn
 **	4--6
 ***		4m06 LDS.L/Q @Rm+, MACH
 ***		4m16 LDS.L/Q @Rm+, MACL

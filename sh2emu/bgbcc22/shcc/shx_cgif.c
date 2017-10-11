@@ -2775,8 +2775,17 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 	BGBCC_SHX_SetSectionName(sctx, ".bss");
 	BGBCC_SHX_EmitNamedLabel(sctx, "_end");
 
-	BGBCC_SHXC_FlattenImagePECOFF(ctx, obuf, rosz, imgfmt);
+	if((imgfmt==BGBCC_IMGFMT_EXE) ||
+		(imgfmt==BGBCC_IMGFMT_DLL))
+	{
+		BGBCC_SHXC_FlattenImagePECOFF(ctx, obuf, rosz, imgfmt);
+		return(1);
+	}
 
-//	BGBCC_SHXC_FlattenImageELF(ctx, obuf, rosz, imgfmt);
-	return(1);
+	if((imgfmt==BGBCC_IMGFMT_ELXE) ||
+		(imgfmt==BGBCC_IMGFMT_ELSO))
+	{
+		BGBCC_SHXC_FlattenImageELF(ctx, obuf, rosz, imgfmt);
+		return(1);
+	}
 }
