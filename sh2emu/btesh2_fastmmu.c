@@ -685,10 +685,25 @@ int BTESH2_SetAddrQWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, u64 val)
 	return(BTESH2_SetAddrQWordPhy2(cpu, addr1, val));
 }
 
+void BTESH2_FMMU_LDTLB(BTESH2_CpuState *cpu)
+{
+}
+
+void BTSH_Op_LDTLB_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->OpLdTlb(cpu);
+}
+
 int BTESH2_SetupUpdateFMMU(BTESH2_CpuState *cpu)
 {
 	if(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)
 	{
+		if(cpu->mmu_usetmmu)
+		{
+			BTESH2_SetupUpdateTMMU(cpu);
+			return(0);
+		}
+	
 		cpu->GetAddrByte=BTESH2_GetAddrByteFMMU;
 		cpu->GetAddrWord=BTESH2_GetAddrWordFMMU;
 		cpu->GetAddrDWord=BTESH2_GetAddrDWordFMMU;
@@ -698,6 +713,8 @@ int BTESH2_SetupUpdateFMMU(BTESH2_CpuState *cpu)
 		cpu->SetAddrWord=BTESH2_SetAddrWordFMMU;
 		cpu->SetAddrDWord=BTESH2_SetAddrDWordFMMU;
 		cpu->SetAddrQWord=BTESH2_SetAddrQWordFMMU;
+
+		cpu->OpLdTlb=BTESH2_FMMU_LDTLB;
 	}else
 	{
 		cpu->GetAddrByte=BTESH2_GetAddrByteFMMU_NoAT;
@@ -711,6 +728,8 @@ int BTESH2_SetupUpdateFMMU(BTESH2_CpuState *cpu)
 		cpu->SetAddrDWord=BTESH2_SetAddrDWordFMMU_NoAT;
 //		cpu->SetAddrQWord=BTESH2_SetAddrQWordFMMU_NoAT;
 		cpu->SetAddrQWord=BTESH2_SetAddrQWordFMMU;
+
+		cpu->OpLdTlb=BTESH2_FMMU_LDTLB;
 	}
 	cpu->jit_needflush=1;
 	return(0);

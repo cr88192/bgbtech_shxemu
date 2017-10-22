@@ -86,6 +86,7 @@
 
 #define BTESH2_EXC_TRAPSMC		0x1000		//Trapped Self-Modifying Code
 #define BTESH2_EXC_TRAPSLEEP	0x1001		//Sleep
+#define BTESH2_EXC_TLBMISS		0x1002		//TLB Miss
 
 #define BTESH2_SRFL_T			0x00000001	//
 #define BTESH2_SRFL_S			0x00000002	//
@@ -258,6 +259,9 @@
 #define BTESH2_NMID_ISETMD		0x75	//
 #define BTESH2_NMID_SHLL1		0x76	//
 #define BTESH2_NMID_LDHF16		0x77	//
+#define BTESH2_NMID_BRAN		0x78	//
+#define BTESH2_NMID_BSRN		0x79	//
+#define BTESH2_NMID_RTSN		0x7A	//
 
 #define BTESH2_NMID_FABS		0x80	//
 #define BTESH2_NMID_FADD		0x81	//
@@ -281,7 +285,6 @@
 #define BTESH2_NMID_FSTS		0x93	//
 #define BTESH2_NMID_FSUB		0x94	//
 #define BTESH2_NMID_FTRC		0x95	//
-// #define BTESH2_NMID_MOVCAL		0x96	//
 #define BTESH2_NMID_FSRRA		0x96	//
 #define BTESH2_NMID_FIPR		0x97	//
 #define BTESH2_NMID_FTRV		0x98	//
@@ -300,7 +303,6 @@
 #define BTESH2_NMID_OCBP		0xC4	//
 #define BTESH2_NMID_OCBWB		0xC5	//
 #define BTESH2_NMID_ICBI		0xC6	//
-
 #define BTESH2_NMID_MOVQ		0xC7	//SUB
 #define BTESH2_NMID_ADDQ		0xC8	//ADD
 #define BTESH2_NMID_SUBQ		0xC9	//SUB
@@ -313,6 +315,13 @@
 #define BTESH2_NMID_SHARQ		0xD0	//SUB
 #define BTESH2_NMID_LDSH16		0xD1	//SUB
 #define BTESH2_NMID_TSTQ		0xD2	//SUB
+
+#define BTESH2_NMID_BREQ		0xD8	//
+#define BTESH2_NMID_BRNE		0xD9	//
+#define BTESH2_NMID_BRGT		0xDA	//
+#define BTESH2_NMID_BRLE		0xDB	//
+#define BTESH2_NMID_BRGE		0xDC	//
+#define BTESH2_NMID_BRLT		0xDD	//
 
 
 #define BTESH2_FMID_REGREG		0x01	//Rm, Rn
@@ -364,6 +373,9 @@
 #define BTESH2_FMID_FREGLDDISP		0x2D	//@(Rm+Disp), FRn
 #define BTESH2_FMID_FREGSTRODISP	0x2E	//FRm, @(Rn,Ro,Disp)
 #define BTESH2_FMID_FREGLDRODISP	0x2F	//@(Rm,Ro,Disp), FRn
+
+#define BTESH2_FMID_REG1ABS			0x30	//Rn, @(Abs)
+#define BTESH2_FMID_REG2ABS			0x31	//Rm, Rn, @(Abs)
 
 #define BTESH2_FMID_DREGST			0x36	//DRm, @Rn
 #define BTESH2_FMID_DREGLD			0x37	//@Rm, DRn
@@ -565,7 +577,10 @@ BTESH2_Trace *cur_trace;
 u32 *smcdbm[128];		//SMC detection bitmap
 u64 tlbe[128];			//TLB entries
 byte jit_needflush;
+byte mmu_usetmmu;
 int lsmc;
+
+u64 tmmu_tlb[64][4];	//TLB for TLBMMU
 
 u32 dbg_lpc;
 int dbg_ld;
@@ -594,6 +609,7 @@ int (*SetAddrByte)(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val);
 int (*SetAddrWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val);
 int (*SetAddrDWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr, u32 val);
 int (*SetAddrQWord)(BTESH2_CpuState *cpu, btesh2_vaddr addr, u64 val);
+int (*OpLdTlb)(BTESH2_CpuState *cpu);
 
 u32 *logpc;
 u32 *logsp;

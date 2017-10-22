@@ -614,7 +614,8 @@ void BTSH_Op_LDSH16_RegImm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	int sh;
 	i=cpu->regs[op->rn+BTESH2_REG_RLO]|
 		((u64)cpu->regs[op->rn+BTESH2_REG_RHI]<<32);
-	k=(i<<16)+(op->imm);
+//	k=(i<<16)+(op->imm);
+	k=(i<<16)+((s32)op->imm);
 	cpu->regs[op->rn+BTESH2_REG_RLO]=k;
 	cpu->regs[op->rn+BTESH2_REG_RHI]=k>>32;
 }

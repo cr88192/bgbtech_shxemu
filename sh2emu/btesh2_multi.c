@@ -15,6 +15,7 @@
 
 #include "btesh2_memimg.c"
 #include "btesh2_fastmmu.c"
+#include "btesh2_tlbmmu.c"
 
 #include "btesh2_oparith.c"
 #include "btesh2_opbit.c"

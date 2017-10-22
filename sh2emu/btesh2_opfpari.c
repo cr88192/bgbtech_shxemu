@@ -1193,6 +1193,23 @@ void BTSH_Op_PSETMD12_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	BTSH_Op_SetFPSCR(cpu, v);
 }
 
+u32 BTESH2_LDHF16_ImmToFU32(BTESH2_CpuState *cpu, u16 i)
+{
+	u32 v;
+	int sg, e;
+
+	if(i&0x7FFF)
+	{
+		sg=(i>>15)&1;
+		e=(((i>>10)&31)-15)+127;
+		v=(sg<<31)|(e<<23)|((i&1023)<<13);
+	}else
+	{
+		v=0;
+	}
+	return(v);
+}
+
 void BTSH_Op_LDHF16_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 v;

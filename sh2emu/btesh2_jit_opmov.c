@@ -1,6 +1,7 @@
 int BTESH2_TryJitOpcode_MovReg(UAX_Context *jctx,
 	BTESH2_CpuState *cpu, BTESH2_Trace *tr, BTESH2_Opcode *op)
 {
+	u32 v;
 	int reg1, reg2;
 
 	if(op->nmid==BTESH2_NMID_MOV)
@@ -64,6 +65,14 @@ int BTESH2_TryJitOpcode_MovReg(UAX_Context *jctx,
 		(op->fmid==BTESH2_FMID_REGIMM))
 	{
 		BTESH2_JitStoreVMRegImm(jctx, op->rn, (s32)(op->imm));
+		return(1);
+	}
+
+	if((op->nmid==BTESH2_NMID_LDHF16) &&
+		(op->fmid==BTESH2_FMID_IMM))
+	{
+		v=BTESH2_LDHF16_ImmToFU32(NULL, op->imm);
+		BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_FPUL, v);
 		return(1);
 	}
 
@@ -1094,6 +1103,27 @@ int BTESH2_TryJitOpcode_MovMem(UAX_Context *jctx,
 			BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EDX);
 			return(1);
 		}
+
+#if 1
+		if(op->fmid==BTESH2_FMID_REGLDDISP)
+		{
+			i=1;
+			if(op->nmid==BTESH2_NMID_LEAB)i=1;
+			if(op->nmid==BTESH2_NMID_LEAW)i=2;
+			if(op->nmid==BTESH2_NMID_LEAL)i=4;
+			if(op->nmid==BTESH2_NMID_LEAQ)i=8;
+			if(op->ro==BTESH2_REG_R0)i=1;
+		
+			BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EDX);
+//			BTESH2_JitLoadVMReg(jctx, op->ro, UAX_REG_ECX);
+//			UAX_AsmInsnRegLdRegIxDisp(jctx, UAX_OP_LEA,
+//				UAX_REG_EDX, UAX_REG_EDX, i, UAX_REG_ECX, (s32)(op->imm));
+			UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_LEA,
+				UAX_REG_EDX, UAX_REG_EDX, (s32)(op->imm));
+			BTESH2_JitStoreVMReg(jctx, op->rn, UAX_REG_EDX);
+			return(1);
+		}
+#endif
 	}
 
 #ifdef UAX_WINX64

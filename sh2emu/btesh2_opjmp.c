@@ -83,6 +83,145 @@ void BTSH_Op_BSRF_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 }
 
 
+void BTSH_Op_BREQ_RegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i;
+	i=cpu->regs[op->rn];
+	if(i==0)
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRNE_RegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i;
+	i=cpu->regs[op->rn];
+	if(i!=0)
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRGT_RegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i;
+	i=cpu->regs[op->rn];
+	if(((s32)i)>0)
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRLE_RegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i;
+	i=cpu->regs[op->rn];
+	if(((s32)i)<=0)
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRGE_RegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i;
+	i=cpu->regs[op->rn];
+	if(((s32)i)>=0)
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRLT_RegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i;
+	i=cpu->regs[op->rn];
+	if(((s32)i)<0)
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BREQ_RegRegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	if(((s32)i)==((s32)j))
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRNE_RegRegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	if(((s32)i)!=((s32)j))
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRLT_RegRegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	if(((s32)i)<((s32)j))
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRGT_RegRegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	if(((s32)i)>((s32)j))
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRLE_RegRegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	if(((s32)i)<=((s32)j))
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+void BTSH_Op_BRGE_RegRegAbs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u32 i, j;
+	i=cpu->regs[op->rn];
+	j=cpu->regs[op->rm];
+	if(((s32)i)>=((s32)j))
+	{
+		cpu->regs[BTESH2_REG_PC]=op->imm;
+		cpu->trnext=cpu->trjmpnext;
+	}
+}
+
+
 void BTSH_Op_JMP_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i;

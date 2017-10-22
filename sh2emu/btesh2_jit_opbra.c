@@ -99,7 +99,8 @@ int BTESH2_TryJitOpcode_BranchOp(UAX_Context *jctx,
 #endif
 
 #if 1
-	if((op->nmid==BTESH2_NMID_BRA) &&
+	if(((op->nmid==BTESH2_NMID_BRA) ||
+		(op->nmid==BTESH2_NMID_BRAN)) &&
 		(op->fmid==BTESH2_FMID_ABS))
 	{
 		if(op->imm==tr->nxtpc)
@@ -113,7 +114,8 @@ int BTESH2_TryJitOpcode_BranchOp(UAX_Context *jctx,
 #endif
 
 #if 1
-	if((op->nmid==BTESH2_NMID_BSR) &&
+	if(((op->nmid==BTESH2_NMID_BSR) ||
+		(op->nmid==BTESH2_NMID_BSRN)) &&
 		(op->fmid==BTESH2_FMID_ABS))
 	{
 		BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PR, (s32)(tr->nxtpc));
@@ -128,7 +130,8 @@ int BTESH2_TryJitOpcode_BranchOp(UAX_Context *jctx,
 #endif
 
 #if 1
-	if((op->nmid==BTESH2_NMID_RTS) &&
+	if(((op->nmid==BTESH2_NMID_RTS) ||
+		(op->nmid==BTESH2_NMID_RTSN)) &&
 		(op->fmid==BTESH2_FMID_NONE))
 	{
 		BTESH2_JitLoadVMReg(jctx, BTESH2_REG_PR, UAX_REG_EAX);

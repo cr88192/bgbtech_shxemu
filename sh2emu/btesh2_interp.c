@@ -119,6 +119,9 @@ char *btesh2_print_NameForNameID(int id)
 	case BTESH2_NMID_BF: s="BF"; break;
 	case BTESH2_NMID_BTS: s="BT/S"; break;
 	case BTESH2_NMID_BFS: s="BF/S"; break;
+	case BTESH2_NMID_BRAN: s="BRA/N"; break;
+	case BTESH2_NMID_BSRN: s="BSR/N"; break;
+	case BTESH2_NMID_RTSN: s="RTS/N"; break;
 
 	case BTESH2_NMID_DIV1: s="DIV1"; break;
 	case BTESH2_NMID_DMULU: s="DMULU"; break;
@@ -269,6 +272,13 @@ char *btesh2_print_NameForNameID(int id)
 
 	case BTESH2_NMID_LDHF16:	s="LDHF16"; break;
 
+	case BTESH2_NMID_BREQ:		s="BR/EQ"; break;
+	case BTESH2_NMID_BRNE:		s="BR/NE"; break;
+	case BTESH2_NMID_BRGT:		s="BR/GT"; break;
+	case BTESH2_NMID_BRLE:		s="BR/LE"; break;
+	case BTESH2_NMID_BRGE:		s="BR/GE"; break;
+	case BTESH2_NMID_BRLT:		s="BR/LT"; break;
+
 	default: s="?"; break;
 	}
 	return(s);
@@ -318,6 +328,9 @@ char *btesh2_print_NameForFormID(int id)
 	case BTESH2_FMID_REGSTRODISP:	s="Rm, @(Rn,Ro,Disp)"; break;
 	case BTESH2_FMID_REGLDRODISP:	s="@(Rm,Ro,Disp), Rn"; break;
 	case BTESH2_FMID_REGIMMREG:		s="Rm, Imm, Rn"; break;
+
+	case BTESH2_FMID_REG1ABS: s="Rn, @Abs"; break;
+	case BTESH2_FMID_REG2ABS: s="Rm, Rn, @Abs"; break;
 
 	default:
 		break;
@@ -622,11 +635,27 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 			break;
 
 		case BTESH2_FMID_REGLDDISP:
+			if(op->imm>=0x100000)
+			{
+				printf("@(0x%08X, %s), %s",
+					(s32)op->imm,
+					btesh2_print_NameForRegID(op->rm),
+					btesh2_print_NameForRegID(op->rn));
+				break;
+			}
 			printf("@(%s, %d), %s",
 				btesh2_print_NameForRegID(op->rm), (s32)op->imm,
 				btesh2_print_NameForRegID(op->rn));
 			break;
 		case BTESH2_FMID_REGSTDISP:
+			if(op->imm>=0x100000)
+			{
+				printf("%s, @(0x%08X, %s)",
+					btesh2_print_NameForRegID(op->rm),
+					(s32)op->imm,
+					btesh2_print_NameForRegID(op->rn));
+				break;
+			}
 			printf("%s, @(%s, %d)",
 				btesh2_print_NameForRegID(op->rm),
 				btesh2_print_NameForRegID(op->rn), (s32)op->imm);
@@ -703,18 +732,36 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 			break;
 
 		case BTESH2_FMID_REGLDRODISP:
-			printf("@(%s, %s, %d), %s",
-				btesh2_print_NameForRegID(op->rm),
-				btesh2_print_NameForRegID(op->ro),
-				(s32)op->imm,
-				btesh2_print_NameForRegID(op->rn));
+			if(op->imm)
+			{
+				printf("@(%s, %s, %d), %s",
+					btesh2_print_NameForRegID(op->rm),
+					btesh2_print_NameForRegID(op->ro),
+					(s32)op->imm,
+					btesh2_print_NameForRegID(op->rn));
+			}else
+			{
+				printf("@(%s, %s), %s",
+					btesh2_print_NameForRegID(op->rm),
+					btesh2_print_NameForRegID(op->ro),
+					btesh2_print_NameForRegID(op->rn));
+			}
 			break;
 		case BTESH2_FMID_REGSTRODISP:
-			printf("%s, @(%s, %s, %d)",
-				btesh2_print_NameForRegID(op->rm),
-				btesh2_print_NameForRegID(op->rn),
-				btesh2_print_NameForRegID(op->ro),
-				(s32)op->imm);
+			if(op->imm)
+			{
+				printf("%s, @(%s, %s, %d)",
+					btesh2_print_NameForRegID(op->rm),
+					btesh2_print_NameForRegID(op->rn),
+					btesh2_print_NameForRegID(op->ro),
+					(s32)op->imm);
+			}else
+			{
+				printf("%s, @(%s, %s)",
+					btesh2_print_NameForRegID(op->rm),
+					btesh2_print_NameForRegID(op->rn),
+					btesh2_print_NameForRegID(op->ro));
+			}
 			break;
 
 
@@ -799,11 +846,27 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 				btesh2_print_NameForDRegID(op->rn));
 			break;
 		case BTESH2_FMID_DREGLDDISP:
+			if(op->imm>=0x100000)
+			{
+				printf("@(0x%08X, %s), %s",
+					(s32)op->imm,
+					btesh2_print_NameForRegID(op->rm),
+					btesh2_print_NameForDRegID(op->rn));
+				break;
+			}
 			printf("@(%s, %d), %s",
 				btesh2_print_NameForRegID(op->rm), (s32)op->imm,
 				btesh2_print_NameForDRegID(op->rn));
 			break;
 		case BTESH2_FMID_DREGSTDISP:
+			if(op->imm>=0x100000)
+			{
+				printf("%s, @(0x%08X, %s)",
+					btesh2_print_NameForRegID(op->rm),
+					(s32)op->imm,
+					btesh2_print_NameForDRegID(op->rn));
+				break;
+			}
 			printf("%s, @(%s, %d)",
 				btesh2_print_NameForDRegID(op->rm),
 				btesh2_print_NameForRegID(op->rn), (s32)op->imm);
@@ -836,6 +899,17 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 			break;
 #endif
 
+		case BTESH2_FMID_REG1ABS:
+			printf("%s, @(0x%08X)",
+				btesh2_print_NameForRegID(op->rn),
+				(s32)op->imm);
+			break;
+		case BTESH2_FMID_REG2ABS:
+			printf("%s, %s, @(0x%08X)",
+				btesh2_print_NameForRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn),
+				(s32)op->imm);
+			break;
 
 		case BTESH2_FMID_NONE:
 			break;

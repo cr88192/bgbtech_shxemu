@@ -1244,7 +1244,7 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	}
 #endif
 
-#if 1
+#if 0
 	if(!tr->trjmpnext && tr->jmppc && !nolink)
 	{
 		trj=BTESH2_TraceForAddr(cpu, tr->jmppc);
