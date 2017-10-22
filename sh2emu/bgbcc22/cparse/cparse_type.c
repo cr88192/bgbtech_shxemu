@@ -481,6 +481,7 @@ int BGBCP_DefTypeFlag(BGBCP_ParseState *ctx, char *tag)
 		}else if(c0=='r')
 		{
 			if(!bgbcp_strcmp(tag, "register"))i=BGBCC_TYFL_INLINE;
+			if(!bgbcp_strcmp(tag, "restrict"))i=BGBCC_TYFL_RESTRICT;
 		}else if(c0=='_')
 		{
 			if(tag[1]=='_')
@@ -506,6 +507,7 @@ int BGBCP_DefTypeFlag(BGBCP_ParseState *ctx, char *tag)
 				if(!bgbcp_strcmp(tag, "__gc"))i=BGBCC_TYFL_GC;
 				if(!bgbcp_strcmp(tag, "__nogc"))i=BGBCC_TYFL_NOGC;
 				if(!bgbcp_strcmp(tag, "__unaligned"))i=BGBCC_TYFL_PACKED;
+				if(!bgbcp_strcmp(tag, "__restrict"))i=BGBCC_TYFL_RESTRICT;
 
 				if(!bgbcp_strcmp(tag, "__wide"))i=BGBCC_TYFL_WIDE;
 

@@ -3389,6 +3389,7 @@ int BGBCC_CCXL_CompileModuleCTX(
 {
 	BCCX_Node *c;
 	char *s;
+	int i;
 
 	ctx->n_warn=0;
 	ctx->n_error=0;
@@ -3398,6 +3399,9 @@ int BGBCC_CCXL_CompileModuleCTX(
 
 	s=BCCX_GetCst(l, &bgbcc_rcst_arch, "arch");
 	ctx->arch=BGBCP_ArchForName(s);
+
+	i=BCCX_GetIntCst(l, &bgbcc_rcst_index, "index");
+	ctx->tuidx=i;
 
 	ctx->types=BCCX_Fetch(l, "types");
 	ctx->structs=BCCX_Fetch(l, "structs");

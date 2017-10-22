@@ -37,13 +37,19 @@ SRCS=\
 	shcc/shx_bufasm.c \
 	shcc/shx_cgif.c \
 	shcc/shx_conv.c \
+	shcc/shx_elf.c \
 	shcc/shx_emit.c \
+	shcc/shx_emit_sec.c \
+	shcc/shx_emit_lbl.c \
+	shcc/shx_emit_opc.c \
+	shcc/shx_emit_bra.c \
 	shcc/shx_fpreg.c \
 	shcc/shx_frame.c \
 	shcc/shx_ldix.c \
 	shcc/shx_lparith.c \
 	shcc/shx_lpreg.c \
 	shcc/shx_lxarith.c \
+	shcc/shx_pecoff.c \
 	shcc/shx_register.c \
 	shcc/shx_struct.c \
 	shcc/shx_vreg.c \

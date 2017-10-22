@@ -316,6 +316,9 @@
 #define BGBCC_SH_NMID_ISETMD		0x75	//
 #define BGBCC_SH_NMID_SHLL1			0x76	//
 #define BGBCC_SH_NMID_LDHF16		0x77	//
+#define BGBCC_SH_NMID_BRAN			0x78	//BRA/N
+#define BGBCC_SH_NMID_BSRN			0x79	//BSR/N
+#define BGBCC_SH_NMID_RTSN			0x7A	//
 
 #define BGBCC_SH_NMID_FABS			0x80	//
 #define BGBCC_SH_NMID_FADD			0x81	//
@@ -370,6 +373,15 @@
 #define BGBCC_SH_NMID_SHLRQ			0xCF	//SUB
 #define BGBCC_SH_NMID_SHARQ			0xD0	//SUB
 #define BGBCC_SH_NMID_LDSH16		0xD1	//SUB
+#define BGBCC_SH_NMID_TSTQ			0xD2	//SUB
+
+#define BGBCC_SH_NMID_BREQ			0xD8	//
+#define BGBCC_SH_NMID_BRNE			0xD9	//
+#define BGBCC_SH_NMID_BRGT			0xDA	//
+#define BGBCC_SH_NMID_BRLE			0xDB	//
+#define BGBCC_SH_NMID_BRGE			0xDC	//
+#define BGBCC_SH_NMID_BRLT			0xDD	//
+
 
 
 #define BGBCC_SH_FMID_REGREG		0x01	//Rm, Rn
@@ -431,6 +443,10 @@
 #define BGBCC_SH_RLC_REL20_2A		0x0D	//Relative 20 bit (BYTE, SH2A)
 #define BGBCC_SH_RLC_RELW16_BJX		0x0E	//Relative 16 bit (WORD, BJX1)
 #define BGBCC_SH_RLC_RELW20_BJX		0x0F	//Relative 20 bit (WORD, BJX1)
+#define BGBCC_SH_RLC_REL24_BJX		0x10	//Relative 24 bit (BYTE, BJX1)
+#define BGBCC_SH_RLC_REL24B_BJX		0x11	//Relative 24 bit (BYTE, BJX1, Rev)
+#define BGBCC_SH_RLC_RVA32			0x12	//RVA (DWORD)
+#define BGBCC_SH_RLC_RELW24_BJX		0x13	//Relative 24 bit (WORD, BJX1)
 
 #define BGBCC_SH_CSEG_TEXT		0x00		//.text section
 #define BGBCC_SH_CSEG_STRTAB	0x01		//.strtab section
@@ -536,6 +552,7 @@ byte is_simpass;	//is simulation pass
 byte is_stable;		//function is stable
 byte is_addr64;		//target uses 64-bit addresses
 byte is_rawasm;		//is raw assembler
+byte is_leaf;		//function is a leaf function
 
 byte has_shad;		//has SHAD/SHLD
 byte has_movi20;	//has MOVI20 and friends
@@ -543,6 +560,8 @@ byte has_misalgn;	//has misaligned load/store
 byte has_bjx1mov;	//has BJX1 MOV I-forms
 byte has_bjx1jmp;	//has BJX1 Branch I-forms
 byte has_bjx1ari;	//has BJX1 Arithmetic I-forms
+byte has_bjx1breq;	//has BJX1 BREQ/BRNE/... I-forms
+byte use_onlyimm;	//use only inline immediates
 
 int simfnsz;		//simulation's function size
 int simfnmsz;		//simulation's min function size

@@ -176,7 +176,8 @@ extern "C" {
 
 #define BGBCC_TYFL_NEW				BGBCC_TYFL_CONST
 #define BGBCC_TYFL_OVERRIDE			BGBCC_TYFL_STRICT
-#define BGBCC_TYFL_ALIASPTR			BGBCC_TYFL_STRICT
+// #define BGBCC_TYFL_ALIASPTR			BGBCC_TYFL_STRICT
+#define BGBCC_TYFL_RESTRICT			BGBCC_TYFL_STRICT
 
 #define BGBCC_TYFL_CONST2			BGBCC_TYFL_FINAL
 
@@ -522,6 +523,8 @@ int cur_objstackpos;
 BGBCC_CCXL_VirtOp *virtop_free;
 BGBCC_CCXL_VirtTr *virttr_free;
 
+char *imgbasename;
+
 BGBCC_CCXL_BackendFuncs_vt *back_vt;
 void *uctx;		//context for backend
 };
@@ -536,6 +539,8 @@ ccxl_status (*FlattenImage)(BGBCC_TransState *ctx,
 	byte *obuf, int *rosz, fourcc imgfmt);
 ccxl_status (*EndFunction)(BGBCC_TransState *ctx,
 	BGBCC_CCXL_LiteralInfo *obj);
+ccxl_status (*LoadBufferDLL)(BGBCC_TransState *ctx,
+	byte *buf, int sz);
 };
 
 #include <bgbcc_auto.h>

@@ -18,6 +18,14 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 		if((opr==CCXL_BINOP_SUB) && ((-j)==(sbyte)(-j)))
 			{ nm1=BGBCC_SH_NMID_ADD; k=-j; }
 
+		if(sctx->has_bjx1ari && (nm1<0))
+		{
+			if((opr==CCXL_BINOP_ADD) && (j==(s16)j))
+				{ nm1=BGBCC_SH_NMID_ADD; k=j; }
+			if((opr==CCXL_BINOP_SUB) && ((-j)==(s16)(-j)))
+				{ nm1=BGBCC_SH_NMID_ADD; k=-j; }
+		}
+
 		if(nm1>=0)
 		{
 			cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
@@ -496,7 +504,8 @@ int BGBCC_SHXC_EmitBinaryVRegVRegVRegInt(
 	{
 		j=BGBCC_CCXL_GetRegImmIntValue(ctx, treg);
 
-		if((j==0) && ((opr==CCXL_BINOP_ADD) || (opr==CCXL_BINOP_SUB)))
+		if((j==0) && ((opr==CCXL_BINOP_ADD) || (opr==CCXL_BINOP_SUB) ||
+			(opr==CCXL_BINOP_OR) || (opr==CCXL_BINOP_XOR)))
 		{
 			BGBCC_SHXC_EmitMovVRegVReg(ctx, sctx, type, dreg, sreg);
 			return(1);
@@ -531,6 +540,28 @@ int BGBCC_SHXC_EmitBinaryVRegVRegVRegInt(
 				{ nm1=BGBCC_SH_NMID_OR; k=j; }
 			if((opr==CCXL_BINOP_XOR) && (j==(byte)j))
 				{ nm1=BGBCC_SH_NMID_XOR; k=j; }
+
+			if((nm1<0) && (j==((j<<12)>>12)))
+			{
+				if(opr==CCXL_BINOP_ADD)
+					{ nm1=BGBCC_SH_NMID_ADD; k=j; }
+				if(opr==CCXL_BINOP_SUB)
+					{ nm1=BGBCC_SH_NMID_SUB; k=j; }
+				if(opr==CCXL_BINOP_MUL)
+					{ nm1=BGBCC_SH_NMID_MULL; k=j; }
+
+				if(opr==CCXL_BINOP_AND)
+					{ nm1=BGBCC_SH_NMID_AND; k=j; }
+				if(opr==CCXL_BINOP_OR)
+					{ nm1=BGBCC_SH_NMID_OR; k=j; }
+				if(opr==CCXL_BINOP_XOR)
+					{ nm1=BGBCC_SH_NMID_XOR; k=j; }
+
+				if((opr==CCXL_BINOP_ADD) && (j==(s16)j))
+					{ nm1=-1; }		/* more efficient special case */
+				if(j==((j<<20)>>20))
+					{ nm1=-1; }		/* more efficient special case */
+			}
 
 #if 1
 			if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
@@ -1270,11 +1301,15 @@ int BGBCC_SHXC_EmitCsrvVReg(
 	int rcls;
 	int i, j, k;
 
+	sctx->is_leaf=0;
+
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, type) ||
 		BGBCC_CCXL_TypePointerP(ctx, type))
 	{
-#if 0
-		if(sctx->frm_size>56)
+#if 1
+//		if(sctx->frm_size>56)
+		if(sctx->has_bjx1mov && !sctx->is_pic &&
+			BGBCC_CCXL_IsRegGlobalP(ctx, dreg))
 		{
 //			ctreg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_GR);
 			BGBCC_SHXC_EmitMovRegReg(ctx, sctx,
@@ -1499,7 +1534,23 @@ int BGBCC_SHXC_EmitCallFcnVReg(
 	BGBCC_SHX_Context *sctx,
 	ccxl_register fcn)
 {
-	int i;
+	ccxl_type tty;
+	int i, j, k;
+
+	sctx->is_leaf=0;
+
+	tty=BGBCC_CCXL_GetRegType(ctx, fcn);
+	if(sctx->has_bjx1mov && !sctx->is_pic &&
+		BGBCC_CCXL_IsRegGlobalP(ctx, fcn) &&
+		BGBCC_CCXL_TypeFunctionP(ctx, tty) &&
+		!BGBCC_CCXL_TypePointerP(ctx, tty))
+	{
+		j=BGBCC_CCXL_GetRegID(ctx, fcn);
+		k=BGBCC_SHXC_GetGblIndexLabel(ctx, sctx, j);
+		BGBCC_SHX_EmitLoadRegLabelVarRel24(sctx, BGBCC_SH_NMID_JSR,
+			BGBCC_SH_REG_R3, k);
+		return(1);
+	}
 
 	BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx,
 		fcn, BGBCC_SH_REG_R3);
@@ -1517,8 +1568,12 @@ int BGBCC_SHXC_EmitCallName(
 {
 	int i;
 
+	sctx->is_leaf=0;
+
+	sctx->sreg_live&=~1;
 	BGBCC_SHXC_EmitLoadGblNameReg(ctx, sctx,
 		name, BGBCC_SH_REG_R3);
+//	sctx->sreg_live|=1;
 	i=BGBCC_SHX_EmitOpReg(sctx,
 		BGBCC_SH_NMID_JSR, BGBCC_SH_REG_R3);
 	BGBCC_SHX_EmitOpNone(sctx,

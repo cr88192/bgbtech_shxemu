@@ -1168,6 +1168,17 @@ ccxl_status BGBCC_CCXL_StackCastSig(BGBCC_TransState *ctx, char *sig)
 	i=BGBCC_CCXL_PopRegister(ctx, &sreg);
 	sty=BGBCC_CCXL_GetRegType(ctx, sreg);
 	BGBCC_CCXL_TypeFromSig(ctx, &dty, sig);
+
+#if 1
+	if(BGBCC_CCXL_TypeCompatibleArchP(ctx, dty, sty) &&
+//	if(BGBCC_CCXL_TypeCompatibleP(ctx, dty, sty) &&
+		(BGBCC_CCXL_GetRegAsType(ctx, sreg, dty, &dreg)>0))
+	{
+		BGBCC_CCXL_PushRegister(ctx, dreg);
+		return(CCXL_STATUS_YES);
+	}
+#endif
+
 	BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &dreg);
 	BGBCC_CCXL_EmitConv(ctx, dty, sty, dreg, sreg);
 	BGBCC_CCXL_PushRegister(ctx, dreg);

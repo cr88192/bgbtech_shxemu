@@ -30,6 +30,9 @@ char **bgbcc_argv;
 
 u32 bgbcc_gshash;
 
+char *bgbcc_imgname;
+
+
 #if 0
 // BGBCC_API int BGBCC_BindSig(BGBCC_State *ctx, char *name, char *sig)
 {
@@ -546,10 +549,30 @@ int BGBCC_LoadCSourcesCCXL(
 	int t0, t1, t2;
 	BCCX_Node *t, *c, *n;
 	byte *buf;
+	char *dllname;
+	char *s0, *s1;
 	fourcc lang;
 	int i, sz, omsz;
 
 	omsz=*rsz;
+	
+	s0=bgbcc_imgname;
+	s0=s0+strlen(s0);
+	while(s0>bgbcc_imgname)
+	{
+		if((*s0=='/') || (*s0=='\\'))
+			break;
+		s0--;
+	}
+	if((*s0=='/') || (*s0=='\\'))
+		s0++;
+
+	s1=tb;
+	while(*s0 && (*s0!='.'))
+		*s1++=*s0++;
+	*s1++=0;
+	
+	dllname=bgbcc_strdup(tb);
 
 //	BIPRO_ProfilerSetActive(1);
 
@@ -557,11 +580,14 @@ int BGBCC_LoadCSourcesCCXL(
 	memset(ctx, 0, sizeof(BGBCC_TransState));
 
 //	ctx->gs_seq=bgbcc_gshash;
-	bgbcc_gshash*=65521;
+//	bgbcc_gshash*=65521;
+	bgbcc_gshash=bgbcc_gshash*65521+1;
 	BGBCC_SeedGenSym(bgbcc_gshash);
 	
 	ctx->arch=bgbcc_arch;
 	ctx->sub_arch=bgbcc_subarch;
+	ctx->imgbasename=dllname;
+
 	BGBCC_CCXL_SetupContextForArch(ctx);
 
 //	if(1)
@@ -573,7 +599,24 @@ int BGBCC_LoadCSourcesCCXL(
 	for(i=0; i<nnames; i++)
 	{
 		printf("BGBCC_LoadCSourcesCCXL: %s\n", names[i]);
-		
+
+		if((names[i][0]=='-') && (names[i][1]=='l'))
+		{
+			sprintf(tb, "lib%s.ril", names[i]+2);
+			buf=bgbcc_loadfile2(tb, &sz);
+			if(buf)
+				{ BGBCC_CCXLR3_LoadBufferRIL(ctx, buf, sz); continue; }
+
+			sprintf(tb, "%s.dll", names[i]+2);
+			buf=bgbcc_loadfile2(tb, &sz);
+			if(buf)
+				{ BGBCC_CCXL_LoadBufferDLL(ctx, buf, sz); continue; }
+
+			printf("BGBCC_LoadCSourcesCCXL: Can't Find Library %s\n", names[i]);
+			continue;
+		}
+
+#if 0
 		lang=BGBCP_LangForName(names[i]);
 		if(lang==BGBCC_IMGFMT_RIL3)
 		{
@@ -582,6 +625,15 @@ int BGBCC_LoadCSourcesCCXL(
 				{ BGBCC_CCXLR3_LoadBufferRIL(ctx, buf, sz); }
 			continue;
 		}
+
+		if(lang==BGBCC_IMGFMT_DLL)
+		{
+			buf=bgbcc_loadfile2(names[i], &sz);
+			if(buf)
+				{ BGBCC_CCXL_LoadBufferDLL(ctx, buf, sz); }
+			continue;
+		}
+#endif
 		
 		t=BGBCC_LoadCSourceAST(names[i]);
 		if(!t)
@@ -747,7 +799,7 @@ int BGBCC_InitEnv(int argc, char **argv, char **env)
 	for(i=1; i<argc; i++)
 	{
 		for(j=0; argv[i][j]; j++)
-			bgbcc_gshash=(bgbcc_gshash*65521)+argv[i][j];
+			bgbcc_gshash=(bgbcc_gshash*65521+1)+argv[i][j];
 
 #if 1
 		if((argv[i][0]=='/') || (argv[i][0]=='-'))
@@ -1281,7 +1333,8 @@ int main(int argc, char *argv[], char **env)
 
 			if(!strncmp(argv[i]+1, "l", 1))
 			{
-				sprintf(tb, "lib%s.ril", argv[i]+2);
+				sprintf(tb, "-l%s", argv[i]+2);
+//				sprintf(tb, "lib%s.ril", argv[i]+2);
 //				uds[nuds++]=bgbcc_strdup(tb);
 				j=nuds++;
 				while(j>0)
@@ -1482,6 +1535,8 @@ int main(int argc, char *argv[], char **env)
 
 	if(frbcfn)
 	{
+		bgbcc_imgname=frbcfn;
+	
 //		fmt=BGBCC_IMGFMT_OBJ;
 		fmt=BGBCP_ImageFormatForName(frbcfn);
 	

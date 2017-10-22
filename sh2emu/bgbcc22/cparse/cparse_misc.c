@@ -278,6 +278,15 @@ fourcc BGBCP_LangForName(char *name)
 		if(!bgbcp_strcmp(s, ".RIL"))lang=BGBCC_IMGFMT_RIL3;
 		if(!bgbcp_strcmp(s, ".ril3"))lang=BGBCC_IMGFMT_RIL3;
 		if(!bgbcp_strcmp(s, ".RIL3"))lang=BGBCC_IMGFMT_RIL3;
+
+		if(!bgbcp_strcmp(s, ".dll"))lang=BGBCC_IMGFMT_DLL;
+		if(!bgbcp_strcmp(s, ".DLL"))lang=BGBCC_IMGFMT_DLL;
+		if(!bgbcp_strcmp(s, ".exe"))lang=BGBCC_IMGFMT_EXE;
+		if(!bgbcp_strcmp(s, ".EXE"))lang=BGBCC_IMGFMT_EXE;
+		if(!bgbcp_strcmp(s, ".elf"))lang=BGBCC_IMGFMT_ELXE;
+		if(!bgbcp_strcmp(s, ".ELF"))lang=BGBCC_IMGFMT_ELXE;
+		if(!bgbcp_strcmp(s, ".so"))lang=BGBCC_IMGFMT_ELSO;
+		if(!bgbcp_strcmp(s, ".SO"))lang=BGBCC_IMGFMT_ELSO;
 	}
 	
 	return(lang);

@@ -13,12 +13,33 @@ int BGBCC_SHXC_InitIface()
 	bgbgc_shx_vt.SetupContextForArch=	BGBCC_SHXC_SetupContextForArch;
 	bgbgc_shx_vt.FlattenImage=			BGBCC_SHXC_FlattenImage;
 	bgbgc_shx_vt.EndFunction=			BGBCC_SHXC_EndFunction;
+	bgbgc_shx_vt.LoadBufferDLL=			BGBCC_SHXC_LoadBufferDLL;
 
 	BGBCC_CCXL_RegisterBackend(&bgbgc_shx_vt);
 
 	return(1);
 }
 
+ccxl_status BGBCC_SHXC_LoadBufferDLL(BGBCC_TransState *ctx,
+	byte *buf, int sz)
+{
+	BGBCC_SHX_Context *sctx;
+	BGBCC_CCXL_RegisterInfo *obj;
+	BGBCC_CCXL_LiteralInfo *litobj;
+	int l0;
+	u32 addr;
+	int i, j, k;
+
+	sctx=ctx->uctx;
+
+	if((buf[0]=='M') && (buf[1]=='Z'))
+	{
+		i=BGBCC_SHXC_CoffLoadBufferDLL(ctx, sctx, buf, sz);
+		return(i);
+	}
+	
+	return(-1);
+}
 
 ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 {
@@ -78,6 +99,7 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	shctx->has_misalgn=0;
 	shctx->has_bjx1mov=0;
 	shctx->has_bjx1ari=0;
+	shctx->has_bjx1breq=0;
 
 	switch(ctx->sub_arch)
 	{
@@ -98,11 +120,15 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 		shctx->has_shad=1;
 //		shctx->has_movi20=0;
 //		shctx->has_bjx1jmp=0;
-		shctx->has_movi20=1;
+//		shctx->has_movi20=1;
 		shctx->has_misalgn=1;
 		shctx->has_bjx1mov=1;
 		shctx->has_bjx1jmp=1;
 		shctx->has_bjx1ari=1;
+		shctx->has_bjx1breq=1;
+
+//		shctx->use_onlyimm=1;
+//		shctx->use_onlyimm=3;
 		break;
 
 	default:
@@ -925,6 +951,7 @@ ccxl_status BGBCC_SHXC_CompileVirtTr(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
 	BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtTr *tr, int idx)
 {
+	BGBCC_CCXL_VirtOp *vop, *vop1, *vop2;
 	int i, j, k;
 
 #if 0
@@ -940,7 +967,60 @@ ccxl_status BGBCC_SHXC_CompileVirtTr(BGBCC_TransState *ctx,
 	for(i=0; i<tr->n_ops; i++)
 	{
 		sctx->tr_opnum=tr->b_ops+i;
-		BGBCC_SHXC_CompileVirtOp(ctx, sctx, obj, obj->vop[tr->b_ops+i]);
+		vop=obj->vop[tr->b_ops+i];
+		vop1=NULL;
+		if((i+1)<tr->n_ops)
+			vop1=obj->vop[tr->b_ops+i+1];
+
+#if 1
+		/* Hacky Special Case Opt: arr[expr+imm] */
+		if(	vop && vop1 && sctx->has_bjx1mov &&
+			(vop->opn==CCXL_VOP_BINARY) &&
+			(vop->opr==CCXL_BINOP_ADD) &&
+			(vop1->opn==CCXL_VOP_LDIX) &&
+			BGBCC_CCXL_RegisterSequenceEqualP(ctx,
+				vop->dst, vop1->srcb) &&
+			BGBCC_CCXL_TypeSmallIntP(ctx, vop1->type) &&
+			BGBCC_CCXL_IsRegTempP(ctx, vop->dst) &&
+			BGBCC_CCXL_IsRegImmIntP(ctx, vop->srcb)	)
+		{
+			j=BGBCC_CCXL_GetRegImmIntValue(ctx, vop->srcb);
+			if((j>=0) && (j<16))
+			{
+				BGBCC_SHXC_EmitLdixVRegVRegVRegImm(
+					ctx, sctx, vop1->type,
+					vop1->dst, vop1->srca, vop->srca, j);
+				i++;
+				continue;
+			}
+		}
+
+#if 1
+		/* Hacky Special Case Opt: arr[expr+imm]=val */
+		if(	vop && vop1 && sctx->has_bjx1mov &&
+			(vop->opn==CCXL_VOP_BINARY) &&
+			(vop->opr==CCXL_BINOP_ADD) &&
+			(vop1->opn==CCXL_VOP_STIX) &&
+			BGBCC_CCXL_RegisterSequenceEqualP(ctx,
+				vop->dst, vop1->srca) &&
+			BGBCC_CCXL_TypeSmallIntP(ctx, vop1->type) &&
+			BGBCC_CCXL_IsRegTempP(ctx, vop->dst) &&
+			BGBCC_CCXL_IsRegImmIntP(ctx, vop->srcb)	)
+		{
+			j=BGBCC_CCXL_GetRegImmIntValue(ctx, vop->srcb);
+			if((j>=0) && (j<16))
+			{
+				BGBCC_SHXC_EmitStixVRegVRegVRegImm(
+					ctx, sctx, vop1->type,
+					vop1->dst, vop->srca, vop1->srcb, j);
+				i++;
+				continue;
+			}
+		}
+#endif
+#endif
+		
+		BGBCC_SHXC_CompileVirtOp(ctx, sctx, obj, vop);
 	}
 
 	BGBCC_SHX_EmitCheckFlushIndexImm(sctx);
@@ -984,6 +1064,7 @@ ccxl_status BGBCC_SHXC_BuildFunctionBody(
 	sctx->fnsz_bod=co-bo;
 
 	BGBCC_SHXC_EmitFrameEpilog(ctx, sctx, obj);
+	return(0);
 }
 
 ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
@@ -995,13 +1076,46 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 	int fnsz_epi[8];
 	int fnsz_bod[8];
 	int otrov, issta;
-	int l0, np, co, lo, bo, bo1, co1, sz, sz1, msz, nsz;
+	int l0, l1, np, co, lo, bo, bo1, co1, sz, sz1, msz, nsz;
 	int i, j, k;
 
 	sctx=ctx->uctx;
 
 	if(obj->regflags&BGBCC_REGFL_CULL)
 		return(0);
+
+	if((obj->flagsint&BGBCC_TYFL_DLLIMPORT) && (obj->n_vtr<=0))
+	{
+		l0=obj->fxoffs;
+		if(l0<=0)
+		{
+			l0=BGBCC_SHX_GetNamedLabel(sctx, obj->name);
+			obj->fxoffs=l0;
+		}
+
+		l1=obj->fxnoffs;
+		if(l1<=0)
+		{
+			l1=BGBCC_SHX_GetNamedLabel(sctx, obj->name);
+			obj->fxnoffs=l1;
+		}
+
+		BGBCC_SHX_SetSectionName(sctx, ".text");
+		BGBCC_SHX_EmitBAlign(sctx, 4);
+//		BGBCC_SHX_EmitBAlign(sctx, 16);
+
+//		bo=BGBCC_SHX_EmitGetOffs(sctx);
+
+		BGBCC_SHX_EmitLabel(sctx, l0);
+		BGBCC_SHX_EmitWord(sctx, 0xD301);
+		BGBCC_SHX_EmitWord(sctx, 0x6332);
+		BGBCC_SHX_EmitWord(sctx, 0x432B);
+		BGBCC_SHX_EmitWord(sctx, 0x0009);
+		BGBCC_SHX_EmitLabel(sctx, l1);
+		BGBCC_SHX_EmitDWord(sctx, 0);
+
+		return(0);
+	}
 
 	if(sctx->cgen_log)
 	{
@@ -1047,6 +1161,7 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 	sctx->need_farjmp=1;
 	sctx->need_f16jmp=1;
 	sctx->need_n12jmp=1;
+	sctx->is_leaf=2;
 
 	for(np=0; np<6; np++)
 	{
@@ -1211,8 +1326,9 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 //	if(sz1<msz)
 //		{ BGBCC_DBGBREAK }
 //	if(sz1>nsz)
-	if(sz1>sctx->simfnsz)
-		{ BGBCC_DBGBREAK }
+
+//	if(sz1>sctx->simfnsz)
+//		{ BGBCC_DBGBREAK }
 
 	if(sctx->cgen_log)
 	{
@@ -1884,6 +2000,12 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 			bgbcc_sets32en(ctr, en, b+d1);
 			break;
 
+		case BGBCC_SH_RLC_RVA32:
+			d1=(ctl-imgbase);
+			b=bgbcc_gets32en(ctr, en);
+			bgbcc_sets32en(ctr, en, b+d1);
+			break;
+
 		case BGBCC_SH_RLC_RELW12:
 			b=bgbcc_getu16en(ctr, en);
 			b1=(b<<20)>>20;
@@ -1946,7 +2068,8 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 			w1=bgbcc_getu16en(ctr+2, en);
 			
 //			b=(w0&255)|((w1&255)<<8);
-			b=((w0&255)<<8)|(w1&255);
+//			b=((w0&255)<<8)|(w1&255);
+			b=((w0&255)<<12)|(w1&4095);
 			b1=(b<<12)>>12;
 
 			d1=b1+((d-6)>>1);
@@ -1958,657 +2081,38 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 			bgbcc_setu16en(ctr+2, en, w1);
 			break;
 
+		case BGBCC_SH_RLC_REL24_BJX:
+			w0=bgbcc_getu16en(ctr+0, en);
+			w1=bgbcc_getu16en(ctr+2, en);
+			b=((w0&255)<<16)|(w1&65535);
+			b1=(b<<8)>>8;
+			d1=b1+d;
+			if(((d1<<8)>>8)!=d1)
+				__debugbreak();
+			w0=(w0&0xFF00)|((d1>>16)&0x00FF);
+			w1=d1&0xFFFF;
+			bgbcc_setu16en(ctr+0, en, w0);
+			bgbcc_setu16en(ctr+2, en, w1);
+			break;
+		case BGBCC_SH_RLC_REL24B_BJX:
+			w0=bgbcc_getu16en(ctr+0, en);
+			w1=bgbcc_getu16en(ctr+2, en);
+			b=((w0&255)<<16)|(w1&65535);
+			b1=(b<<8)>>8;
+			d1=b1-d;
+			if(((d1<<8)>>8)!=d1)
+				__debugbreak();
+			w0=(w0&0xFF00)|((d1>>16)&0x00FF);
+			w1=d1&0xFFFF;
+			bgbcc_setu16en(ctr+0, en, w0);
+			bgbcc_setu16en(ctr+2, en, w1);
+			break;
+
 		default:
 			__debugbreak();
 		}
 	}
 	
-	return(0);
-}
-
-ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
-	byte *obuf, int *rosz, fourcc imgfmt)
-{
-	BGBCC_SHX_Context *sctx;
-	FILE *mapfd;
-	char *s0;
-	byte *ct;
-	int en, ofs, ofs_sdat, ofs_iend, ofs_mend;
-	int of_phdr, ne_phdr;
-	int of_shdr, ne_shdr;
-	int lb_strt, va_strt;
-	int nm, fl, lva, rva, lsz, sn_strs, imty;
-	int i, j, k;
-
-	sctx=ctx->uctx;
-
-	BGBCC_SHX_EmitGetStrtabLabel(sctx, "");
-
-	for(i=0; i<sctx->nsec; i++)
-	{
-		s0=sctx->sec_name[i];
-		if(s0)
-		{
-			BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
-		}else
-		{
-			switch(i)
-			{
-			case BGBCC_SH_CSEG_TEXT: s0=".text"; break;
-			case BGBCC_SH_CSEG_STRTAB: s0=".strtab"; break;
-			case BGBCC_SH_CSEG_GOT: s0=".got"; break;
-			case BGBCC_SH_CSEG_DATA: s0=".data"; break;
-			case BGBCC_SH_CSEG_BSS: s0=".bss"; break;
-			default: s0=".unknown"; break;
-			}
-
-			BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
-			sctx->sec_name[i]=s0;
-		}
-	}
-
-	en=(sctx->is_le==0);
-	ne_phdr=1;
-	ne_shdr=sctx->nsec+1;
-	
-	of_phdr=64;
-	
-	of_shdr=of_phdr+(ne_phdr*32);
-	of_shdr=(of_shdr+15)&(~15);
-
-	ofs_sdat=of_shdr+(ne_shdr*40);
-	ofs_sdat=(ofs_sdat+63)&(~63);
-
-	k=ofs_sdat;
-	for(i=0; i<sctx->nsec; i++)
-	{
-		if(i==BGBCC_SH_CSEG_BSS)
-			continue;
-		j=sctx->sec_pos[i]-sctx->sec_buf[i];
-		sctx->sec_rva[i]=k;
-		sctx->sec_lva[i]=0x0C000000+k;
-		sctx->sec_lsz[i]=j;
-		memcpy(obuf+k, sctx->sec_buf[i], j);
-		k+=j;
-		k=(k+63)&(~63);
-
-		s0=sctx->sec_name[i];
-		printf("%d: %s %08X..%08X %d\n", i, s0,
-			sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
-			sctx->sec_lsz[i]);
-
-	}
-	ofs_iend=k;
-
-	i=BGBCC_SH_CSEG_BSS;
-	j=sctx->sec_pos[i]-sctx->sec_buf[i];
-	sctx->sec_rva[i]=k;
-	sctx->sec_lva[i]=0x0C000000+k;
-	sctx->sec_lsz[i]=j;
-	k+=j;
-	k=(k+63)&(~63);
-
-	s0=sctx->sec_name[i];
-	printf("%d: %s %08X..%08X %d\n", i, s0,
-		sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
-		sctx->sec_lsz[i]);
-
-	ofs_mend=k;
-	
-	lb_strt=0;
-//	lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "__start");
-//	if(lb_strt<=0)
-//		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "___start");
-	if(lb_strt<=0)
-		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "_start");
-	if(lb_strt<=0)
-		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "__start");
-	
-	if(lb_strt>0)
-		{ va_strt=BGBCC_SHXC_LookupLabelImgVA(ctx, sctx, lb_strt); }
-	else
-	{
-		printf("BGBCC_SHXC_FlattenImageELF: No Entry Point Found\n");
-		va_strt=0;
-	}
-
-	ct=obuf;
-	ct[ 0]=0x7F;	ct[ 1]='E';			//magic
-	ct[ 2]='L';		ct[ 3]='F';			//magic
-	ct[ 4]=1;		ct[ 5]=en?2:1;		//width, endian
-	ct[ 6]=1;		ct[ 7]=0;			//ELF version, OS ABI
-	ct[ 8]=0;		ct[ 9]=0;			//pad
-	ct[10]=0;		ct[11]=0;			//pad
-	ct[12]=0;		ct[13]=0;			//pad
-	ct[14]=0;		ct[15]=0;			//pad
-
-	sn_strs=BGBCC_SH_CSEG_STRTAB+1;
-
-	imty=2;
-//	if(sctx->is_pic)
-//		imty=3;
-
-	bgbcc_setu16en(ct+16, en, imty);	//image type
-	bgbcc_setu16en(ct+18, en, 0x2A);	//arch
-	bgbcc_setu32en(ct+20, en, 1);		//ELF version
-	bgbcc_setu32en(ct+24, en, va_strt);	//entry point
-	bgbcc_setu32en(ct+28, en, of_phdr);	//program headers offset
-	bgbcc_setu32en(ct+32, en, of_shdr);	//section headers offset
-	bgbcc_setu32en(ct+36, en, 0);		//arch flags
-	bgbcc_setu16en(ct+40, en, 52);		//header size
-	bgbcc_setu16en(ct+42, en, 32);		//size of program header entry
-	bgbcc_setu16en(ct+44, en, ne_phdr);	//number of program header entries
-	bgbcc_setu16en(ct+46, en, 40);		//section header entry size
-	bgbcc_setu16en(ct+48, en, ne_shdr);	//number of entries in section header
-	bgbcc_setu16en(ct+50, en, sn_strs);	//index of section-header names
-
-	ct=obuf+of_phdr;
-	bgbcc_setu32en(ct+ 0, en, 1);			//segment type
-	bgbcc_setu32en(ct+ 4, en, 0);			//segment image offset
-	bgbcc_setu32en(ct+ 8, en, 0x0C000000);	//segment load address
-	bgbcc_setu32en(ct+12, en, 0x0C000000);	//undefined (phys address)
-	bgbcc_setu32en(ct+16, en, ofs_iend);	//size of segment in file
-	bgbcc_setu32en(ct+20, en, ofs_mend);	//size of segment in memory
-	bgbcc_setu32en(ct+24, en, 7);			//access flags
-	bgbcc_setu32en(ct+28, en, 4096);		//alignment
-
-	ct=obuf+of_shdr;
-	ct+=40;
-	for(i=0; i<sctx->nsec; i++)
-	{
-		s0=sctx->sec_name[i];
-		if(s0)
-		{
-			nm=BGBCC_SHX_EmitGetStrtabSecOfs(sctx, s0);
-		}
-
-		fl=3;
-		if(i==BGBCC_SH_CSEG_TEXT)fl|=4;
-
-		lva=sctx->sec_lva[i];
-		rva=sctx->sec_rva[i];
-		lsz=sctx->sec_lsz[i];
-
-		bgbcc_setu32en(ct+ 0, en, nm);		//name
-		bgbcc_setu32en(ct+ 4, en, 1);		//type
-		bgbcc_setu32en(ct+ 8, en, fl);		//flags
-		bgbcc_setu32en(ct+12, en, lva);		//addr
-		bgbcc_setu32en(ct+16, en, rva);		//offset
-		bgbcc_setu32en(ct+20, en, lsz);		//size
-		bgbcc_setu32en(ct+24, en, 0);		//link
-		bgbcc_setu32en(ct+28, en, 0);		//info
-		bgbcc_setu32en(ct+32, en, 64);		//addralign
-		bgbcc_setu32en(ct+36, en, 0);		//entsize
-		ct+=40;
-	}
-
-	BGBCC_SHXC_ApplyImageRelocs(ctx, sctx, obuf);
-
-#if 1
-	mapfd=fopen("aout.map", "wt");
-	for(i=0; i<sctx->nlbln; i++)
-	{
-//		if(!strcmp(ctx->lbln_name[i], name))
-//			return(ctx->lbln_id[i]);
-
-		lva=BGBCC_SHXC_LookupLabelImgVA(ctx, sctx, sctx->lbln_id[i]);
-		fprintf(mapfd, "%08X T %s\n", lva, sctx->lbln_name[i]);
-	}
-	fclose(mapfd);
-#endif
-
-	*rosz=ofs_iend;
-
-	return(0);
-}
-
-
-
-int BGBCC_SHXC_CoffSectionFlags(
-	BGBCC_TransState *ctx,
-	BGBCC_SHX_Context *sctx,
-	char *name)
-{
-	if(!strcmp(name, ".text"))
-	{
-		return(BGBCC_COFF_SCNT_CODE|
-			BGBCC_COFF_SCNT_EXECUTE|
-			BGBCC_COFF_SCNT_READ);
-	}
-	if(!strcmp(name, ".data") ||
-		!strcmp(name, ".idata") ||
-		!strcmp(name, ".vsdata") ||
-		!strcmp(name, ".tls") ||
-		!strcmp(name, ".sdata"))
-	{
-		return(BGBCC_COFF_SCNT_IDATA|
-			BGBCC_COFF_SCNT_READ|
-			BGBCC_COFF_SCNT_WRITE);
-	}
-	if(!strcmp(name, ".bss") ||
-		!strcmp(name, ".sbss"))
-	{
-		return(BGBCC_COFF_SCNT_UDATA|
-			BGBCC_COFF_SCNT_READ|
-			BGBCC_COFF_SCNT_WRITE);
-	}
-	if(!strcmp(name, ".rdata") ||
-		!strcmp(name, ".edata") ||
-		!strcmp(name, ".xdata") ||
-		!strcmp(name, ".srdata") ||
-		!strcmp(name, ".rsrc") ||
-		!strcmp(name, ".strtab"))
-	{
-		return(BGBCC_COFF_SCNT_IDATA|
-			BGBCC_COFF_SCNT_READ);
-	}
-	if(!strcmp(name, ".reloc"))
-	{
-		return(BGBCC_COFF_SCNT_IDATA|
-			BGBCC_COFF_SCNT_READ|
-			BGBCC_COFF_SCNT_DISCARD);
-	}
-
-	return(BGBCC_COFF_SCNT_IDATA|
-		BGBCC_COFF_SCNT_READ|
-		BGBCC_COFF_SCNT_WRITE);
-//	return(0);
-}
-
-int bgbcc_shxc_qrsort(u32 *arr, int cnt, int rd)
-{
-	int lo, hi, cn, pvt;
-	u32 v, v0, v1, v2;
-	int i, j, k;
-	
-	if((cnt<8) || (rd>=20))
-	{
-		for(i=0; i<cnt; i++)
-			for(j=i+1; j<cnt; j++)
-		{
-			if(arr[j]<arr[i])
-				{ v=arr[i]; arr[i]=arr[j]; arr[j]=v; }
-		}
-		return(0);
-	}
-	
-	cn=cnt>>1;
-	v0=arr[cn>>1];
-	v1=arr[cn];
-	v2=arr[cn+(cn>>1)];
-	if(v0>v1) { v=v0; v0=v1; v1=v; }
-	if(v0>v2) { v=v0; v0=v2; v2=v; }
-	if(v1>v2) { v=v1; v1=v2; v2=v; }
-	pvt=v1;
-	
-	lo=0; hi=cnt;
-	
-	while(lo<hi)
-	{
-		v=arr[lo];
-		if(v<=pvt)
-			{ lo++; continue; }
-		hi--;		v1=arr[hi];
-		arr[hi]=v;	arr[lo]=v1;
-	}
-	
-	bgbcc_shxc_qrsort(arr, lo, rd+1);
-	bgbcc_shxc_qrsort(arr+lo, cnt-lo, rd+1);
-	return(0);
-}
-
-ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
-	byte *obuf, int *rosz, fourcc imgfmt)
-{
-//	int rlc_rva_page[4096];
-//	int rlc_sz_page[4096];
-	u32 rlctab[65536];
-
-	BGBCC_SHX_Context *sctx;
-	FILE *mapfd;
-	char *s0;
-	byte *ct, *ct0, *ct1, *ctb;
-	int en, ofs, ofs_sdat, ofs_iend, ofs_mend;
-	int of_phdr, ne_phdr;
-	int of_shdr, ne_shdr;
-	int lb_strt, va_strt;
-	int img_base;
-	int nm, fl, lva, rva, lsz, sn_strs, imty;
-	int lpg, szrlc, ofsrlc, nrlce;
-	int i, j, k;
-
-	sctx=ctx->uctx;
-
-	img_base=0x0C000000;
-	k=0x400;
-	for(i=0; i<sctx->nsec; i++)
-	{
-		if(i==BGBCC_SH_CSEG_BSS)
-			continue;
-		j=sctx->sec_pos[i]-sctx->sec_buf[i];
-		sctx->sec_rva[i]=k;
-		sctx->sec_lva[i]=img_base+k;
-		sctx->sec_lsz[i]=j;
-		k+=j;
-		k=(k+63)&(~63);
-	}
-
-	lpg=-1; szrlc=0; nrlce=0;
-	for(i=0; i<sctx->nrlc; i++)
-	{
-		if(	(sctx->rlc_ty[i]!=BGBCC_SH_RLC_ABS16) &&
-			(sctx->rlc_ty[i]!=BGBCC_SH_RLC_ABS32) &&
-			(sctx->rlc_ty[i]!=BGBCC_SH_RLC_ABS64))
-				continue;
-			
-		j=sctx->rlc_sec[i];
-		rva=sctx->sec_rva[j]+
-			sctx->rlc_ofs[i];
-
-		rlctab[nrlce++]=rva;
-
-		if((rva>>12)!=lpg)
-		{
-			szrlc=(szrlc+3)&(~3);
-			szrlc+=8;
-			lpg=rva>>12;
-		}
-		szrlc+=2;
-	}
-	
-#if 0
-	for(i=0; i<nrlce; i++)
-		for(j=i+1; j<nrlce; j++)
-	{
-		if(rlctab[j]<rlctab[i])
-		{
-			k=rlctab[i];
-			rlctab[i]=rlctab[j];
-			rlctab[j]=k;
-		}
-	}
-#endif
-
-	bgbcc_shxc_qrsort(rlctab, nrlce, 0);
-
-	BGBCC_SHX_SetSectionName(sctx, ".reloc");
-	BGBCC_SHX_EmitBAlign(sctx, 4);
-	ofsrlc=BGBCC_SHX_EmitGetOffs(sctx);
-	BGBCC_SHX_EmitRawBytes(sctx, NULL, szrlc+256);
-
-	BGBCC_SHX_EmitGetStrtabLabel(sctx, "");
-
-	ne_shdr=0;
-	for(i=0; i<sctx->nsec; i++)
-	{
-		j=sctx->sec_pos[i]-sctx->sec_buf[i];
-		if(j>0)
-			ne_shdr++;
-
-		s0=sctx->sec_name[i];
-		if(s0)
-		{
-			BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
-		}else
-		{
-			switch(i)
-			{
-			case BGBCC_SH_CSEG_TEXT: s0=".text"; break;
-			case BGBCC_SH_CSEG_STRTAB: s0=".strtab"; break;
-			case BGBCC_SH_CSEG_GOT: s0=".got"; break;
-			case BGBCC_SH_CSEG_DATA: s0=".data"; break;
-			case BGBCC_SH_CSEG_BSS: s0=".bss"; break;
-			default: s0=".unknown"; break;
-			}
-
-			BGBCC_SHX_EmitGetStrtabLabel(sctx, s0);
-			sctx->sec_name[i]=s0;
-		}
-	}
-
-	en=(sctx->is_le==0);
-//	ne_phdr=1;
-//	ne_shdr=sctx->nsec;
-	
-//	of_phdr=64;
-	
-//	of_shdr=of_phdr+(ne_phdr*32);
-//	of_shdr=(of_shdr+15)&(~15);
-
-	of_shdr=0x0138;
-//	of_shdr=0x00E8;
-
-	ofs_sdat=of_shdr+(ne_shdr*40);
-	ofs_sdat=(ofs_sdat+63)&(~63);
-
-//	k=ofs_sdat;
-	k=0x400;
-	for(i=0; i<sctx->nsec; i++)
-	{
-//		if(sctx->sec_lsz[i]<=0)
-//			continue;
-
-		if(i==BGBCC_SH_CSEG_BSS)
-			continue;
-		j=sctx->sec_pos[i]-sctx->sec_buf[i];
-		sctx->sec_rva[i]=k;
-		sctx->sec_lva[i]=img_base+k;
-		sctx->sec_lsz[i]=j;
-		memcpy(obuf+k, sctx->sec_buf[i], j);
-		k+=j;
-		k=(k+63)&(~63);
-
-		s0=sctx->sec_name[i];
-		printf("%d: %s %08X..%08X %d\n", i, s0,
-			sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
-			sctx->sec_lsz[i]);
-
-	}
-	ofs_iend=k;
-
-	i=BGBCC_SH_CSEG_BSS;
-	j=sctx->sec_pos[i]-sctx->sec_buf[i];
-	sctx->sec_rva[i]=k;
-	sctx->sec_lva[i]=0x0C000000+k;
-	sctx->sec_lsz[i]=j;
-	k+=j;
-	k=(k+63)&(~63);
-
-	s0=sctx->sec_name[i];
-	printf("%d: %s %08X..%08X %d\n", i, s0,
-		sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
-		sctx->sec_lsz[i]);
-
-	ofs_mend=k;
-	
-	lb_strt=0;
-//	lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "__start");
-//	if(lb_strt<=0)
-//		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "___start");
-	if(lb_strt<=0)
-		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "_start");
-	if(lb_strt<=0)
-		lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "__start");
-	
-	if(lb_strt>0)
-		{ va_strt=BGBCC_SHXC_LookupLabelImgVA(ctx, sctx, lb_strt); }
-	else
-	{
-		printf("BGBCC_SHXC_FlattenImageELF: No Entry Point Found\n");
-		va_strt=0;
-	}
-
-	ofsrlc=sctx->sec_rva[BGBCC_SH_CSEG_RELOC]+ofsrlc;
-	ctb=obuf+ofsrlc;
-	szrlc=0; ct=ctb; ct0=ctb; lpg=-1;
-//	for(i=0; i<sctx->nrlc; i++)
-	for(i=0; i<nrlce; i++)
-	{
-//		if(	(sctx->rlc_ty[i]!=BGBCC_SH_RLC_ABS16) &&
-//			(sctx->rlc_ty[i]!=BGBCC_SH_RLC_ABS32) &&
-//			(sctx->rlc_ty[i]!=BGBCC_SH_RLC_ABS64))
-//				continue;
-			
-//		j=sctx->rlc_sec[i];
-//		rva=sctx->sec_rva[j]+
-//			sctx->rlc_ofs[i];
-
-		k=rlctab[i];
-		rva=k&0x0FFFFFFF;
-
-		if((rva>>12)!=lpg)
-		{
-			j=ct-ctb;
-			j=(j+3)&(~3);
-			ct=ctb+j;
-			j=ct-ct0;
-			bgbcc_setu32en(ct0+4, en, j);
-
-			ct0=ct;
-			ct+=8;
-			lpg=rva>>12;
-			bgbcc_setu32en(ct0+0, en, (lpg<<12));
-			bgbcc_setu32en(ct0+4, en, 0);
-		}
-
-#if 1
-		switch(k>>28)
-		{
-		case 0:		j=0x3000|(rva&0xFFF);	break;
-		case 1:		j=0xA000|(rva&0xFFF);	break;
-		case 2:		j=0x2000|(rva&0xFFF);	break;
-		default:	BGBCC_DBGBREAK			break;
-		}
-#endif
-
-		bgbcc_setu16en(ct, en, j);
-		ct+=2;
-	}
-	if(1)
-	{
-		j=ct-ctb;
-		j=(j+3)&(~3);
-		ct=ctb+j;
-		j=ct-ct0;
-		bgbcc_setu32en(ct0+4, en, j);
-	}
-	szrlc=ct-ctb;
-
-	ct=obuf;
-	
-//	memset(ct, 0, 0x400);
-	ct[0x00]='M';	ct[0x01]='Z';	ct[0x02]=0;		ct[0x03]=0;
-	ct[0x3C]=0x40;	ct[0x3D]=0;		ct[0x3E]=0;		ct[0x3F]=0;
-	ct[0x40]='P';	ct[0x41]='E';	ct[0x42]=0;		ct[0x43]=0;
-
-	k=sctx->is_le?0x0080:0x8000;
-	k|=0x0302;
-
-//	bgbcc_setu16en(ct+0x44, en, 0x14C);		//mMachine
-	bgbcc_setu16en(ct+0x44, en, 0x1A6);		//mMachine
-	bgbcc_setu16en(ct+0x46, en, ne_shdr);	//mNumberOfSections
-	bgbcc_setu32en(ct+0x48, en, 0);			//mTimeDateStamp
-	bgbcc_setu32en(ct+0x4C, en, 0);			//mPointerToSymbolTable
-	bgbcc_setu32en(ct+0x50, en, 0);			//mNumberOfSymbols
-	bgbcc_setu16en(ct+0x54, en, 224);		//mSizeOfOptionalHeader
-//	bgbcc_setu16en(ct+0x54, en, 144);		//mSizeOfOptionalHeader
-	bgbcc_setu16en(ct+0x56, en, k);			//mCharacteristics
-
-	bgbcc_setu16en(ct+0x58, en, 0x010B);	//mMagic
-	bgbcc_setu16en(ct+0x5A, en, 0x0000);	//mLinkerVersion
-
-	j=sctx->sec_lsz[BGBCC_SH_CSEG_TEXT];
-	bgbcc_setu32en(ct+0x5C, en, j);			//mSizeOfCode
-	j=sctx->sec_lsz[BGBCC_SH_CSEG_DATA];
-	bgbcc_setu32en(ct+0x60, en, j);			//mSizeOfInitializedData
-	j=sctx->sec_lsz[BGBCC_SH_CSEG_BSS];
-	bgbcc_setu32en(ct+0x64, en, j);			//mSizeOfUninitializedData
-	j=va_strt-img_base;
-	bgbcc_setu32en(ct+0x68, en, j);			//rvaAddressOfEntryPoint
-	j=sctx->sec_rva[BGBCC_SH_CSEG_TEXT];
-	bgbcc_setu32en(ct+0x6C, en, j);			//mBaseOfCode
-	j=sctx->sec_rva[BGBCC_SH_CSEG_DATA];
-	bgbcc_setu32en(ct+0x70, en, j);			//mBaseOfData
-	bgbcc_setu32en(ct+0x74, en, img_base);	//mImageBase
-	bgbcc_setu32en(ct+0x78, en, 64);		//mSectionAlignment
-	bgbcc_setu32en(ct+0x7C, en, 64);		//mFileAlignment
-
-	bgbcc_setu32en(ct+0x90, en, ofs_mend);	//mSizeOfImage
-	bgbcc_setu32en(ct+0x94, en, ofs_sdat);	//mSizeOfHeaders
-
-	bgbcc_setu32en(ct+0xA0, en, 0x100000);	//mSizeOfHeapReserve
-	bgbcc_setu32en(ct+0xA4, en, 0x10000);	//mSizeOfHeapCommit
-	bgbcc_setu32en(ct+0xA8, en, 0);			//mSizeOfHeapReserve
-	bgbcc_setu32en(ct+0xAC, en, 0);			//mSizeOfHeapCommit
-	bgbcc_setu32en(ct+0xB0, en, 0);			//mLoaderFlags
-	bgbcc_setu32en(ct+0xB4, en, 6);			//mNumberOfRvaAndSizes
-
-	bgbcc_setu32en(ct+0xE0, en, ofsrlc);	//rvaBaseRelocTable
-	bgbcc_setu32en(ct+0xE4, en, szrlc);		//szBaseRelocTable
-
-
-	ct=obuf+of_shdr;
-	for(i=0; i<sctx->nsec; i++)
-	{
-		if(sctx->sec_lsz[i]<=0)
-			continue;
-
-		s0=sctx->sec_name[i];
-		if(s0)
-		{
-			nm=BGBCC_SHX_EmitGetStrtabSecOfs(sctx, s0);
-			nm+=sctx->sec_rva[BGBCC_SH_CSEG_STRTAB];
-		}
-
-		fl=3;
-		if(i==BGBCC_SH_CSEG_TEXT)fl|=4;
-
-		lva=sctx->sec_lva[i];
-		rva=sctx->sec_rva[i];
-		lsz=sctx->sec_lsz[i];
-
-		if(strlen(s0)<=8)
-			{ strncpy(ct+0, s0, 8); }
-		else
-			{ bgbcc_setu32en(ct+0x04, en, nm); }
-		bgbcc_setu32en(ct+0x08, en, lsz);	//mVirtualSize
-		bgbcc_setu32en(ct+0x0C, en, lva);	//mVirtualAddress
-		k=(i==BGBCC_SH_CSEG_BSS)?0:lsz;
-		bgbcc_setu32en(ct+0x10, en, k);		//mSizeOfRawData
-		bgbcc_setu32en(ct+0x14, en, rva);	//mPointerToRawData
-		bgbcc_setu32en(ct+0x18, en, 0);		//mPointerToRealocations
-		bgbcc_setu32en(ct+0x1C, en, 0);		//mPointerToLinenumbers
-		bgbcc_setu16en(ct+0x20, en, 0);		//mNumberOfRealocations
-		bgbcc_setu16en(ct+0x22, en, 0);		//mNumberOfLinenumbers
-
-		k=BGBCC_SHXC_CoffSectionFlags(ctx, sctx, s0);
-		bgbcc_setu32en(ct+0x24, en, k);		//mCharacteristics
-		ct+=40;
-	}
-
-//	sn_strs=BGBCC_SH_CSEG_STRTAB+1;
-
-	imty=2;
-//	if(sctx->is_pic)
-//		imty=3;
-
-	BGBCC_SHXC_ApplyImageRelocs(ctx, sctx, obuf);
-
-#if 1
-	mapfd=fopen("aout.map", "wt");
-	for(i=0; i<sctx->nlbln; i++)
-	{
-//		if(!strcmp(ctx->lbln_name[i], name))
-//			return(ctx->lbln_id[i]);
-
-		lva=BGBCC_SHXC_LookupLabelImgVA(ctx, sctx, sctx->lbln_id[i]);
-		fprintf(mapfd, "%08X T %s\n", lva, sctx->lbln_name[i]);
-	}
-	fclose(mapfd);
-#endif
-
-	*rosz=ofs_iend;
-
 	return(0);
 }
 
@@ -2788,4 +2292,6 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 		BGBCC_SHXC_FlattenImageELF(ctx, obuf, rosz, imgfmt);
 		return(1);
 	}
+
+	return(0);
 }

@@ -165,3 +165,21 @@ The relocations are given as 16 bit numbers:
 ** 9: MIPS-specific fixup.
 *** uPE(SH): Fixup PBO Index Offset (16-bit Op)
 ** 10: Fixup a 64-bit address.
+
+
+=== Exports ===
+
+struct uPeExportDirectory
+{
+	DWORD mExportFlags;				//0x00, export flags
+	DWORD mTimeDate;				//0x04, time/date
+	WORD mMajorVersion;				//0x08, major version
+	WORD mMinorVersion;				//0x0A, minor version
+	DWORD rvaDllName;				//0x0C, name RVA
+	DWORD mOrdinalBase;				//0x10, ordinal base
+	DWORD mNumberAddressEntries;	//0x14, address table entries
+	DWORD nNumberNameEntries;		//0x18, number of name pointers
+	DWORD rvaExportAddressTable;	//0x1C, export address table RVA
+	DWORD rvaNamePointerTable;		//0x20, name pointer table RVA
+	DWORD rvaOrdinalTable;			//0x24, ordinal table RVA
+};

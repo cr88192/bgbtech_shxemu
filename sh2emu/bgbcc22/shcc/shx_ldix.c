@@ -240,6 +240,141 @@ int BGBCC_SHXC_EmitLdixVRegVRegVReg(
 
 
 
+#if 1
+int BGBCC_SHXC_EmitLdixVRegVRegVRegImm(
+	BGBCC_TransState *ctx,
+	BGBCC_SHX_Context *sctx,
+	ccxl_type type, ccxl_register dreg,
+	ccxl_register sreg, ccxl_register treg, int imm)
+{
+	ccxl_type tty;
+	int csreg, ctreg, cdreg;
+	int nm1, nm2, ty, sz, asz, bsz;
+	int i, j, k;
+
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, treg))
+	{
+		j=BGBCC_CCXL_GetRegImmIntValue(ctx, treg);
+		i=BGBCC_SHXC_EmitLdixVRegVRegImm(ctx, sctx, type, dreg, sreg, j+imm);
+		return(i);
+	}
+
+	ty=type.val;
+
+#if 0
+//	if(BGBCC_CCXL_TypeArrayP(ctx, type))
+	if(BGBCC_CCXL_TypeArrayP(ctx, type) ||
+		BGBCC_CCXL_TypeValueObjectP(ctx, type))
+	{
+//		BGBCC_CCXL_TypeDerefType(ctx, type, &tty);
+
+		if(BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, sreg))
+		{
+			ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+			cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+			
+			nm1=BGBCC_SH_NMID_MOVL;
+			sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, type);
+			BGBCC_SHXC_EmitLeaBRegIRegScReg(ctx, sctx,
+				nm1, cdreg, ctreg, sz, cdreg);
+
+			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, treg);
+			return(1);
+		}
+
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		
+		nm1=BGBCC_SH_NMID_MOVL;
+//		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, tty);
+		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, type);
+		BGBCC_SHXC_EmitLeaBRegIRegScReg(ctx, sctx,
+			nm1, csreg, ctreg, sz, cdreg);
+
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, treg);
+		return(1);
+	}
+#endif
+
+	sz=-1; nm1=-1;
+	switch(ty)
+	{
+	case CCXL_TY_I:		case CCXL_TY_UI:
+	case CCXL_TY_NL:	case CCXL_TY_UNL:
+		sz=4; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
+	case CCXL_TY_SB:
+		sz=1; nm1=BGBCC_SH_NMID_MOVB; nm2=-1; break;
+	case CCXL_TY_UB:
+		sz=1; nm1=BGBCC_SH_NMID_MOVB; nm2=BGBCC_SH_NMID_EXTUB; break;
+	case CCXL_TY_SS:
+		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=-1; break;
+	case CCXL_TY_US:
+		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=BGBCC_SH_NMID_EXTUW; break;
+
+	case CCXL_TY_F:
+		sz=4; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
+	case CCXL_TY_D:
+		sz=8; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
+	case CCXL_TY_L:	case CCXL_TY_UL:
+		sz=8; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
+	}
+
+	if(BGBCC_CCXL_TypePointerP(ctx, type))
+		{ sz=4; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; }
+
+	if(BGBCC_CCXL_TypeValueObjectP(ctx, type))
+	{
+		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, type);
+		nm1=BGBCC_SH_NMID_MOVL; nm2=-1;
+	}
+
+	if(nm1>=0)
+	{
+//		if(BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, sreg) ||
+//			BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, treg))
+//				__debugbreak();
+
+		if(BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, sreg))
+		{
+			ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+			cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+			
+			BGBCC_SHXC_EmitLoadBRegIRegScDispReg(ctx, sctx,
+				nm1, cdreg, ctreg, sz, imm*sz, cdreg);
+			if(nm2>=0)
+				{ BGBCC_SHX_EmitOpRegReg(sctx, nm2, cdreg, cdreg); }
+
+			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, treg);
+			return(1);
+		}
+
+//		cdreg=BGBCC_SHXC_EmitGetRegisterDirty(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+		cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+		
+		BGBCC_SHXC_EmitLoadBRegIRegScDispReg(ctx, sctx,
+			nm1, csreg, ctreg, sz, imm*sz, cdreg);
+		if(nm2>=0)
+			{ BGBCC_SHX_EmitOpRegReg(sctx, nm2, cdreg, cdreg); }
+
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, treg);
+		return(1);
+	}
+
+	BGBCC_CCXL_StubError(ctx);
+	return(0);
+}
+#endif
+
+
 int BGBCC_SHXC_EmitStixVRegVRegImm(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
@@ -452,6 +587,123 @@ int BGBCC_SHXC_EmitStixVRegVRegVReg(
 	BGBCC_CCXL_StubError(ctx);
 	return(0);
 }
+
+#if 1
+int BGBCC_SHXC_EmitStixVRegVRegVRegImm(
+	BGBCC_TransState *ctx,
+	BGBCC_SHX_Context *sctx,
+	ccxl_type type, ccxl_register dreg,
+	ccxl_register sreg, ccxl_register treg, int imm)
+{
+	int csreg, ctreg, cdreg;
+	int tr0;
+	int nm1, nm2, ty, sz, al;
+	int i, j, k;
+
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, sreg))
+	{
+		j=BGBCC_CCXL_GetRegImmIntValue(ctx, sreg);
+		i=BGBCC_SHXC_EmitStixVRegVRegImm(ctx, sctx, type, dreg, treg, j+imm);
+		return(i);
+	}
+
+#if 0
+	if(BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+		BGBCC_DBGBREAK
+		BGBCC_CCXL_StubError(ctx);
+		return(0);
+	}
+#endif
+
+	ty=type.val;
+	
+	sz=-1; nm1=-1;
+	switch(ty)
+	{
+	case CCXL_TY_I:		case CCXL_TY_UI:
+	case CCXL_TY_NL:	case CCXL_TY_UNL:
+		sz=4; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
+	case CCXL_TY_SB:
+		sz=1; nm1=BGBCC_SH_NMID_MOVB; nm2=-1; break;
+	case CCXL_TY_UB:
+		sz=1; nm1=BGBCC_SH_NMID_MOVB; nm2=BGBCC_SH_NMID_EXTUB; break;
+	case CCXL_TY_SS:
+		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=-1; break;
+	case CCXL_TY_US:
+		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=BGBCC_SH_NMID_EXTUW; break;
+
+	case CCXL_TY_F:
+		sz=4; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
+	case CCXL_TY_D:
+		sz=8; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
+	case CCXL_TY_L:	case CCXL_TY_UL:
+		sz=8; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
+	}
+
+	if(BGBCC_CCXL_TypePointerP(ctx, type))
+		{ sz=4; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; }
+
+#if 0
+	if(BGBCC_CCXL_TypeValueObjectP(ctx, type) ||
+		BGBCC_CCXL_TypeArrayP(ctx, type))
+	{
+		sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, type);
+		nm1=BGBCC_SH_NMID_MOVL; nm2=-1;
+
+		al=4;
+		if(sz&2)al=2;
+		if(sz&1)al=1;
+
+		cdreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+		tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+		
+//		BGBCC_SHXC_EmitStoreBRegOfsReg(ctx, sctx,
+//			nm1, cdreg, imm*sz, csreg);
+
+//		BGBCC_SHXC_EmitLeaBRegOfsReg(ctx, sctx,
+//			nm1, cdreg, imm*sz, ctreg);
+
+		BGBCC_SHXC_EmitLeaBRegIRegScReg(ctx, sctx,
+			nm1, cdreg, csreg, sz, tr0);
+
+		BGBCC_SHXC_EmitValueCopyRegRegSz(ctx, sctx, tr0, ctreg, sz, al);
+
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, treg);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
+		return(1);
+	}
+#endif
+
+	if(nm1>=0)
+	{
+		cdreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, dreg);
+		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+		ctreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, treg);
+
+#if 1	//Debug: Deref pointers to check validity
+//		if(BGBCC_CCXL_TypePointerP(ctx, type))
+//			BGBCC_SHX_EmitOpMReg(sctx, BGBCC_SH_NMID_PREF, ctreg);
+		BGBCC_SHXC_EmitDebugCheckReg(ctx, sctx, type, ctreg);
+#endif
+		
+		BGBCC_SHXC_EmitStoreBRegIRegScDispReg(ctx, sctx,
+			nm1, cdreg, csreg, sz, imm*sz, ctreg);
+
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, treg);
+		return(1);
+	}
+
+	BGBCC_CCXL_StubError(ctx);
+	return(0);
+}
+#endif
 
 
 int BGBCC_SHXC_EmitLeaVRegVRegImm(
@@ -1282,10 +1534,35 @@ int BGBCC_SHXC_EmitLeaBRegIRegScReg(
 		}
 		if((opw1>0) && (breg!=BGBCC_SH_REG_R0))
 		{
+			if((breg==dreg) && (shl==0) && !(sctx->is_addr64))
+			{
+				BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, ireg, dreg);
+				return(1);
+			}
+
 			i=BGBCC_SHX_TryEmitOpLdReg2Reg(sctx,
 				opw1, breg, ireg, dreg);
 			if(i>0)
 				return(1);
+		}
+		
+		if(sctx->has_bjx1ari && !sctx->is_addr64)
+		{
+			if(breg==dreg)
+			{
+				treg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+				BGBCC_SHX_EmitOpRegImmReg(sctx,
+					BGBCC_SH_NMID_SHAD, ireg, shl, treg);
+				BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, treg, dreg);
+				BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, treg);
+				return(1);
+			}else
+			{
+				BGBCC_SHX_EmitOpRegImmReg(sctx,
+					BGBCC_SH_NMID_SHAD, ireg, shl, dreg);
+				BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, breg, dreg);
+				return(1);
+			}
 		}
 	
 		if(breg==dreg)

@@ -213,6 +213,27 @@ ccxl_type BGBCC_CCXL_GetRegType(
 	return(tty);
 }
 
+int BGBCC_CCXL_GetRegAsType(
+	BGBCC_TransState *ctx,
+	ccxl_register reg, ccxl_type tty, ccxl_register *rtreg)
+{
+	ccxl_register treg;
+	int i;
+	
+	if(((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_TEMP) ||
+		((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_ARG) ||
+		((reg.val&CCXL_REGTY_REGMASK)==CCXL_REGTY_LOCAL))
+	{
+//		tty.val=(reg.val&CCXL_REGID_TYPEMASK)>>CCXL_REGID_TYPESHIFT;
+		treg.val=(reg.val&(~CCXL_REGID_TYPEMASK))|
+			(((u64)tty.val)<<CCXL_REGID_TYPESHIFT);
+		*rtreg=treg;
+		return(1);
+	}
+
+	return(-1);
+}
+
 ccxl_type BGBCC_CCXL_GetRegDerefType(
 	BGBCC_TransState *ctx, ccxl_register reg)
 {

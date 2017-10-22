@@ -198,7 +198,7 @@ Typed signatures are encoded as strings, with characters indicating value types.
 * l: ltlendian ("__ltlendian")
 * m: packed ("__packed" / "__unaligned", struct=packed, pointer=unaligned)
 * n: native ("__native")
-* o: override ("__override")
+* o: override|restrict ("__override", "__restrict", "restrict")
 * p: public ("public")
 * q: private ("private")
 * r: protected ("protected")

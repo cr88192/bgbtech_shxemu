@@ -140,6 +140,7 @@
 #define CCXL_LITID_ARR16		20
 #define CCXL_LITID_ASTD			21
 #define CCXL_LITID_PROTOTYPE	22
+#define CCXL_LITID_EXPLIST		23			//DLL export list
 
 #define CCXL_STATUS_YES					1
 #define CCXL_STATUS_NO					0

@@ -893,6 +893,13 @@ ccxl_status BGBCC_CCXL_SetupParserForArch(BGBCP_ParseState *ctx)
 	return(CCXL_STATUS_ERR_UNIMPLEMENTED);
 }
 
+ccxl_status BGBCC_CCXL_LoadBufferDLL(BGBCC_TransState *ctx,
+	byte *buf, int sz)
+{
+	if(ctx->back_vt && ctx->back_vt->LoadBufferDLL)
+		return(ctx->back_vt->LoadBufferDLL(ctx, buf, sz));
+	return(CCXL_STATUS_ERR_UNIMPLEMENTED);
+}
 
 ccxl_status BGBCC_CCXL_InitTargets(void)
 {

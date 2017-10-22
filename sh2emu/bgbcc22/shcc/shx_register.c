@@ -30,6 +30,32 @@
  *   SP (Stack Ref Point)
  */
 
+int BGBCC_SHXC_ScratchCheckRegFree(
+	BGBCC_TransState *ctx,
+	BGBCC_SHX_Context *sctx,
+	int reg)
+{
+	if((reg&BGBCC_SH_REG_RTMASK)==BGBCC_SH_REG_R0)
+	{
+		if((reg&15)>=8)
+			return(0);
+		if(sctx->sreg_live&(1<<(reg&15)))
+			return(0);
+		return(1);
+	}
+
+	if((reg&BGBCC_SH_REG_RTMASK)==BGBCC_SH_REG_LR0)
+	{
+		if((reg&15)>=7)
+			return(0);
+		if(sctx->sreg_live&(3<<(reg&15)))
+			return(0);
+		return(1);
+	}
+
+	return(0);
+}
+
 int BGBCC_SHXC_ScratchSafeStompReg(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
