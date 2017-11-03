@@ -153,21 +153,32 @@ The relocations are given as 16 bit numbers:
 * Low 12 bits: Offset within page.
 * High 4 bits: Relocation Type
 ** 0: None
-** 1: Fixup the high 16 bits of an address
-** 2: Fixup the low 16 bits of an address
-** 3: Fixup a 32-bit address
-** 4: Fixup a 32 bit address split into a high and low part.
+** 1(HI16): Fixup the high 16 bits of an address
+** 2(LO16): Fixup the low 16 bits of an address
+** 3(DIR32): Fixup a 32-bit address
+** 4(HIADJ): Fixup a 32 bit address split into a high and low part.
 *** The following entry gives the address of the low part.
 ** 5: MIPS-specific fixup.
+*** 5: BJX1(DIR24): Fixup 24-bit address via instruction.
 ** 6: Reserved
-** 7: Reserved
-** 8: Reserved
-** 9: MIPS-specific fixup.
-*** uPE(SH): Fixup PBO Index Offset (16-bit Op)
+** 7: BJX1 MOV32
+*** BJX1: Fixup 32-bit address encoded via an instruction pair.
+** 8: BJX1 PBO
+*** BJX1: Fixup PBO/TLS Index Offset (32-bit Disp12 Op)
+** 9: MIPS-specific fixup / BJX1 PBO.
+*** BJX1: Fixup PBO/TLS Index Offset (16-bit Disp8 Op)
 ** 10: Fixup a 64-bit address.
+
+PBO/TLS Index
+* Meaning depends on starting value.
+* 0, Do a PBO Fixup
+* 1-63, Fixup for TLS.
+** Replaced with the offset for the TLS Slot
 
 
 === Exports ===
+
+This is located within the '.edata' section, and referenced via the optional header.
 
 struct uPeExportDirectory
 {
@@ -183,3 +194,76 @@ struct uPeExportDirectory
 	DWORD rvaNamePointerTable;		//0x20, name pointer table RVA
 	DWORD rvaOrdinalTable;			//0x24, ordinal table RVA
 };
+
+rvaDllName:
+* RVA of a string holding the name of the current DLL.
+
+mOrdinalBase:
+* Starting index for the ordinal table, normally 1.
+
+Export Address Table:
+* Array of exported addresses.
+* If the address is within '.edata', it is a forwarder string.
+* This table is indexed by ordinal (relative to OrdinalBase).
+
+ExportNamePointerTable and ExportOrdinalTable
+* These are used together to find exported symbols.
+* ExportNamePointerTable holds addresses to the exported names as strings.
+* ExportOrdinalTable maps these names to ordinal indices.
+
+
+=== Imports ===
+
+This is located within the '.idata' section, and referenced via the optional header.
+
+
+struct uPeImportDirectory
+{
+	DWORD rvaImportLookupTable;		//0x00
+	DWORD mTimeDate;				//0x04
+	DWORD mForwarderIndex;			//0x08
+	DWORD rvaDllName;				//0x0C
+	DWORD rvaImportAddressTable;	//0x10
+};
+
+rvaDllName:
+* ASCII string identifying the base-name of the DLL.
+* This omits both path and file extension.
+
+rvaImportLookupTable:
+* Table of pointer-sized values.
+* Each Encodes an Name/Hint RVA or Ordinal.
+
+rvaImportAddressTable:
+* Initially same contents as Import Lookup Table.
+* Each entry is replaced by the address of the imported symbol.
+
+Imports are given by a Name/Hint string:
+* Consists of a properly aligned WORD giving a lookup-index hint.
+* The hint is followed by an ASCII string giving the name of the imported symbol.
+* Located within the '.idata' section.
+
+
+=== TLS Directory ===
+
+Located in ".tls" section if TLS is used.
+
+struct uPeTlsDirectory
+{
+	DWORD vaRawDataStart;			//0x00
+	DWORD vaRawDataEnd;				//0x04
+	DWORD vaAddressOfIndex;			//0x08
+	DWORD vaAddressCallbacks;		//0x0C
+	DWORD szSizeOfZeroFill;			//0x10
+	DWORD mCharacteristics;			//0x14
+};
+
+vaAddressOfIndex:
+* Address of a slot used to hold the TLS Index (as a pointer-sized value).
+* The pointed-to address may be initialized with the VA of a string identifying the TLS section.
+
+vaAddressCallbacks:
+* Optional array of callback functions for thread creation and destruction.
+* BJX1/Testkern: Likely to be ignored.
+
+Upon thread creation, a TLS section is allocated and its address is assigned to its associated TLS variable slot.

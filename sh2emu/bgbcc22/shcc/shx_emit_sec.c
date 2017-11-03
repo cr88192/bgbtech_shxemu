@@ -41,6 +41,9 @@ int BGBCC_SHX_LookupSectionID(BGBCC_SHX_Context *ctx, char *name)
 	if(!strcmp(name, ".got"))		sec=BGBCC_SH_CSEG_GOT;
 	if(!strcmp(name, ".strtab"))	sec=BGBCC_SH_CSEG_STRTAB;
 	if(!strcmp(name, ".reloc"))		sec=BGBCC_SH_CSEG_RELOC;
+
+	if(!strcmp(name, ".rdata"))		sec=BGBCC_SH_CSEG_RODATA;
+	if(!strcmp(name, ".rodata"))	sec=BGBCC_SH_CSEG_RODATA;
 	
 	if(sec>=0)
 		return(sec);
@@ -67,7 +70,10 @@ int BGBCC_SHX_SetSectionName(BGBCC_SHX_Context *ctx, char *name)
 	if(!strcmp(name, ".got"))		sec=BGBCC_SH_CSEG_GOT;
 	if(!strcmp(name, ".strtab"))	sec=BGBCC_SH_CSEG_STRTAB;
 	if(!strcmp(name, ".reloc"))		sec=BGBCC_SH_CSEG_RELOC;
-	
+
+	if(!strcmp(name, ".rdata"))		sec=BGBCC_SH_CSEG_RODATA;
+	if(!strcmp(name, ".rodata"))	sec=BGBCC_SH_CSEG_RODATA;
+
 	if(sec>=0)
 	{
 		BGBCC_SHX_SetSection(ctx, sec);
@@ -99,6 +105,17 @@ int BGBCC_SHX_SetSection(BGBCC_SHX_Context *ctx, int sec)
 	ctx->sec=sec;
 	if((sec+1)>ctx->nsec)
 		ctx->nsec=sec+1;
+	return(0);
+}
+
+int BGBCC_SHX_IsSectionReadOnly(BGBCC_SHX_Context *ctx, int sec)
+{
+	if(sec==BGBCC_SH_CSEG_TEXT)
+		return(1);
+	if(sec==BGBCC_SH_CSEG_STRTAB)
+		return(1);
+	if(sec==BGBCC_SH_CSEG_RODATA)
+		return(1);
 	return(0);
 }
 

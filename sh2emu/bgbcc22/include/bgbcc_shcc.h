@@ -319,6 +319,8 @@
 #define BGBCC_SH_NMID_BRAN			0x78	//BRA/N
 #define BGBCC_SH_NMID_BSRN			0x79	//BSR/N
 #define BGBCC_SH_NMID_RTSN			0x7A	//
+#define BGBCC_SH_NMID_LDIF16		0x7B	//
+#define BGBCC_SH_NMID_STHF16		0x7C	//
 
 #define BGBCC_SH_NMID_FABS			0x80	//
 #define BGBCC_SH_NMID_FADD			0x81	//
@@ -450,12 +452,15 @@
 
 #define BGBCC_SH_CSEG_TEXT		0x00		//.text section
 #define BGBCC_SH_CSEG_STRTAB	0x01		//.strtab section
-#define BGBCC_SH_CSEG_GOT		0x02		//.got section
-#define BGBCC_SH_CSEG_DATA		0x03		//.data section
-#define BGBCC_SH_CSEG_BSS		0x04		//.bss section
-#define BGBCC_SH_CSEG_RELOC		0x05		//.reloc section
+#define BGBCC_SH_CSEG_RODATA	0x02		//.rodata section
+#define BGBCC_SH_CSEG_GOT		0x03		//.got section
+#define BGBCC_SH_CSEG_DATA		0x04		//.data section
+#define BGBCC_SH_CSEG_BSS		0x05		//.bss section
+#define BGBCC_SH_CSEG_RELOC		0x06		//.reloc section
 
-#define BGBCC_SH_CSEG_DYN		0x06		//dynamic sections
+#define BGBCC_SH_CSEG_DYN		0x07		//dynamic sections
+
+#define BGBCC_SH_CSEG_ABS		0x7F		//absolute address
 
 #define BGBCC_SH_REGCLS_NONE	0
 #define BGBCC_SH_REGCLS_GR		1	//uses a GPR
@@ -553,6 +558,7 @@ byte is_stable;		//function is stable
 byte is_addr64;		//target uses 64-bit addresses
 byte is_rawasm;		//is raw assembler
 byte is_leaf;		//function is a leaf function
+byte is_rom;		//building a ROM image
 
 byte has_shad;		//has SHAD/SHLD
 byte has_movi20;	//has MOVI20 and friends
@@ -668,6 +674,9 @@ int lbl_ret;			//label ID for function exit
 int lbl_got;			//label ID for got
 int frm_offs_retstr;	//offset of return struct
 int frm_offs_save;		//offset of register-save area
+
+int lbl_rom_data_strt;
+int lbl_rom_data_end;
 
 BGBCC_SHX_Context *next;
 struct BGBCC_TransState_s *tctx;

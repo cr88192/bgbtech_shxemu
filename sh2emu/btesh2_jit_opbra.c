@@ -3,6 +3,7 @@ int BTESH2_TryJitOpcode_BranchOp(UAX_Context *jctx,
 {
 	BTESH2_Trace *trj;
 	int l0, l1, l2;
+	int nm1, nm2, nm3;
 
 #if 1
 	if((	(op->nmid==BTESH2_NMID_BF) ||
@@ -204,6 +205,124 @@ int BTESH2_TryJitOpcode_BranchOp(UAX_Context *jctx,
 		UAX_AsmInsnRegReg(jctx, UAX_OP_XOR, UAX_REG_RCX, UAX_REG_RCX);
 		UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
 			UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_RCX);
+		return(1);
+	}
+#endif
+
+
+#if 1
+	if((	(op->nmid==BTESH2_NMID_BREQ) ||
+			(op->nmid==BTESH2_NMID_BRNE) ||
+			(op->nmid==BTESH2_NMID_BRGT) ||
+			(op->nmid==BTESH2_NMID_BRLT) ||
+			(op->nmid==BTESH2_NMID_BRGE) ||
+			(op->nmid==BTESH2_NMID_BRLE)) &&
+		(op->fmid==BTESH2_FMID_REG1ABS))
+	{
+		if(jctx->jitfl&BTESH2_UAXJFL_PREJMP)
+		{
+			return(1);
+		}
+		
+		if(op->nmid==BTESH2_NMID_BREQ)
+			nm1=UAX_OP_JNE;
+		if(op->nmid==BTESH2_NMID_BRNE)
+			nm1=UAX_OP_JE;
+		if(op->nmid==BTESH2_NMID_BRGE)
+			nm1=UAX_OP_JL;
+		if(op->nmid==BTESH2_NMID_BRLE)
+			nm1=UAX_OP_JG;
+		if(op->nmid==BTESH2_NMID_BRGT)
+			nm1=UAX_OP_JLE;
+		if(op->nmid==BTESH2_NMID_BRLT)
+			nm1=UAX_OP_JGE;
+	
+		if(tr->trjmpnext)
+		{
+			l0=UAX_GenLabelTemp(jctx);
+			BTESH2_JitCmpVMRegImm(jctx, op->rn, 0);
+			UAX_AsmInsnLabel(jctx, nm1, l0|UAX_LBL_NEAR);
+			UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
+				UAX_REG_R8Q, UAX_REG_RCCTX,
+				offsetof(BTESH2_CpuState, trjmpnext));
+			BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(op->imm));
+			UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
+				UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+			UAX_EmitLabel(jctx, l0);
+			return(1);
+		}else
+		{
+			l0=UAX_GenLabelTemp(jctx);
+			BTESH2_JitCmpVMRegImm(jctx, op->rn, 0);
+			UAX_AsmInsnLabel(jctx, nm1, l0|UAX_LBL_NEAR);
+			BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(op->imm));
+			BTESH2_JitFlushJNext(jctx, cpu, tr);
+			UAX_EmitLabel(jctx, l0);
+			return(1);
+		}
+
+		return(1);
+	}
+#endif
+
+#if 1
+	if((	(op->nmid==BTESH2_NMID_BREQ) ||
+			(op->nmid==BTESH2_NMID_BRNE) ||
+			(op->nmid==BTESH2_NMID_BRGT) ||
+			(op->nmid==BTESH2_NMID_BRLT) ||
+			(op->nmid==BTESH2_NMID_BRGE) ||
+			(op->nmid==BTESH2_NMID_BRLE)) &&
+		(op->fmid==BTESH2_FMID_REG2ABS))
+	{
+		if(jctx->jitfl&BTESH2_UAXJFL_PREJMP)
+		{
+			return(1);
+		}
+		
+		if(op->nmid==BTESH2_NMID_BREQ)
+			nm1=UAX_OP_JNE;
+		if(op->nmid==BTESH2_NMID_BRNE)
+			nm1=UAX_OP_JE;
+		if(op->nmid==BTESH2_NMID_BRGE)
+			nm1=UAX_OP_JL;
+		if(op->nmid==BTESH2_NMID_BRLE)
+			nm1=UAX_OP_JG;
+		if(op->nmid==BTESH2_NMID_BRGT)
+			nm1=UAX_OP_JLE;
+		if(op->nmid==BTESH2_NMID_BRLT)
+			nm1=UAX_OP_JGE;
+	
+		if(tr->trjmpnext)
+		{
+			l0=UAX_GenLabelTemp(jctx);
+
+			BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
+			BTESH2_JitCmpVMReg(jctx, op->rn, UAX_REG_EAX);
+
+			UAX_AsmInsnLabel(jctx, nm1, l0|UAX_LBL_NEAR);
+			UAX_AsmInsnRegLdRegDisp(jctx, UAX_OP_MOV,
+				UAX_REG_R8Q, UAX_REG_RCCTX,
+				offsetof(BTESH2_CpuState, trjmpnext));
+			BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(op->imm));
+			UAX_AsmInsnStRegDispReg(jctx, UAX_OP_MOV,
+				UAX_REG_RCCTX, offsetof(BTESH2_CpuState, trnext), UAX_REG_R8Q);
+			UAX_EmitLabel(jctx, l0);
+			return(1);
+		}else
+		{
+			l0=UAX_GenLabelTemp(jctx);
+
+			BTESH2_JitLoadVMReg(jctx, op->rm, UAX_REG_EAX);
+			BTESH2_JitCmpVMReg(jctx, op->rn, UAX_REG_EAX);
+
+//			BTESH2_JitCmpVMRegImm(jctx, op->rn, 0);
+			UAX_AsmInsnLabel(jctx, nm1, l0|UAX_LBL_NEAR);
+			BTESH2_JitStoreVMRegImm(jctx, BTESH2_REG_PC, (s32)(op->imm));
+			BTESH2_JitFlushJNext(jctx, cpu, tr);
+			UAX_EmitLabel(jctx, l0);
+			return(1);
+		}
+
 		return(1);
 	}
 #endif

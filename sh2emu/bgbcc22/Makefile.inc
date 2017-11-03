@@ -43,6 +43,7 @@ SRCS=\
 	shcc/shx_emit_lbl.c \
 	shcc/shx_emit_opc.c \
 	shcc/shx_emit_bra.c \
+	shcc/shx_fltrom.c \
 	shcc/shx_fpreg.c \
 	shcc/shx_frame.c \
 	shcc/shx_ldix.c \

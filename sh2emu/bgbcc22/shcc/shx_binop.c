@@ -108,59 +108,6 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 			case 17: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR; break;
 			case 18: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR2; break;
 			case 24: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR8; break;
-
-#if 0
-			case 11:
-				nm1=BGBCC_SH_NMID_SHLR8; nm2=BGBCC_SH_NMID_SHLR2;
-				nm3=BGBCC_SH_NMID_SHLR; nm4=-1;
-				break;
-			case 12:
-				nm1=BGBCC_SH_NMID_SHLR8; nm2=BGBCC_SH_NMID_SHLR2;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=-1;
-				break;
-			case 13:
-				nm1=BGBCC_SH_NMID_SHLR8; nm2=BGBCC_SH_NMID_SHLR2;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=BGBCC_SH_NMID_SHLR;
-				break;
-			case 14:
-				nm1=BGBCC_SH_NMID_SHLR8; nm2=BGBCC_SH_NMID_SHLR2;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=BGBCC_SH_NMID_SHLR2;
-				break;
-
-			case 19:
-				nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR2;
-				nm3=BGBCC_SH_NMID_SHLR; nm4=-1;
-				break;
-			case 20:
-				nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR2;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=-1;
-				break;
-			case 21:
-				nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR2;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=BGBCC_SH_NMID_SHLR;
-				break;
-			case 22:
-				nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR2;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=BGBCC_SH_NMID_SHLR2;
-				break;
-
-			case 25:
-				nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR8;
-				nm3=BGBCC_SH_NMID_SHLR; nm4=-1;
-				break;
-			case 26:
-				nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR8;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=-1;
-				break;
-			case 27:
-				nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR8;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=BGBCC_SH_NMID_SHLR;
-				break;
-			case 28:
-				nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR8;
-				nm3=BGBCC_SH_NMID_SHLR2; nm4=BGBCC_SH_NMID_SHLR2;
-				break;
-#endif
 			}
 		}
 
@@ -168,6 +115,9 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 			!BGBCC_CCXL_TypeUnsignedP(ctx, type))
 				nm1=BGBCC_SH_NMID_SHAR;
 #endif
+
+		if(sctx->has_bjx1ari && (nm2>=0))
+			{ nm1=-1; }
 
 		if(nm1>=0)
 		{
@@ -433,6 +383,8 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 
 	if(opr==CCXL_BINOP_DIV)
 	{
+		BGBCC_SHXC_EmitScratchSyncRegisters(ctx, sctx);
+	
 		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R4);
 		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R5);
 
@@ -459,6 +411,8 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt(
 
 	if(opr==CCXL_BINOP_MOD)
 	{
+		BGBCC_SHXC_EmitScratchSyncRegisters(ctx, sctx);
+
 		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R4);
 		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R5);
 
@@ -897,7 +851,8 @@ int BGBCC_SHXC_EmitBinaryVRegVRegVReg(
 			type, dreg, opr, sreg, treg));
 	}
 
-	if(BGBCC_CCXL_TypeFloatP(ctx, type) ||
+	if(	BGBCC_CCXL_TypeFloatP(ctx, type) ||
+		BGBCC_CCXL_TypeFloat16P(ctx, type) ||
 		BGBCC_CCXL_TypeDoubleP(ctx, type))
 	{
 		return(BGBCC_SHXC_EmitBinaryVRegVRegVRegFloat(ctx, sctx,
@@ -1076,6 +1031,7 @@ int BGBCC_SHXC_EmitUnaryVRegVReg(
 	}
 
 	if(BGBCC_CCXL_TypeFloatP(ctx, type) ||
+		BGBCC_CCXL_TypeFloat16P(ctx, type) ||
 		BGBCC_CCXL_TypeDoubleP(ctx, type))
 	{
 		return(BGBCC_SHXC_EmitUnaryVRegVRegFloat(ctx, sctx,
@@ -1218,7 +1174,8 @@ int BGBCC_SHXC_EmitCompareVRegVRegVReg(
 			type, dreg, opr, sreg, treg));
 	}
 
-	if(BGBCC_CCXL_TypeFloatP(ctx, type) ||
+	if(	BGBCC_CCXL_TypeFloatP(ctx, type) ||
+		BGBCC_CCXL_TypeFloat16P(ctx, type) ||
 		BGBCC_CCXL_TypeDoubleP(ctx, type))
 	{
 		return(BGBCC_SHXC_EmitCompareVRegVRegVRegFloat(ctx, sctx,
@@ -1347,7 +1304,8 @@ int BGBCC_SHXC_EmitCsrvVReg(
 	}
 
 
-	if(BGBCC_CCXL_TypeFloatP(ctx, type))
+	if(	BGBCC_CCXL_TypeFloatP(ctx, type) ||
+		BGBCC_CCXL_TypeFloat16P(ctx, type))
 	{	
 		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_FR0);
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, BGBCC_SH_REG_FR0);
@@ -1478,6 +1436,7 @@ int BGBCC_SHXC_EmitCallBuiltinArgs(
 			BGBCC_CCXL_TypeSgNLongP(ctx, bty) ||
 			BGBCC_CCXL_TypeSgLongP(ctx, bty) ||
 			BGBCC_CCXL_TypeFloatP(ctx, bty) ||
+			BGBCC_CCXL_TypeFloat16P(ctx, type) ||
 			BGBCC_CCXL_TypeDoubleP(ctx, bty))
 				al=4;
 		if(BGBCC_CCXL_TypeValueObjectP(ctx, bty))

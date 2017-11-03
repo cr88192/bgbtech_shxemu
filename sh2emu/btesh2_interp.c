@@ -268,9 +268,11 @@ char *btesh2_print_NameForNameID(int id)
 	case BTESH2_NMID_SHLLQ:		s="SHLL.Q"; break;
 	case BTESH2_NMID_SHLRQ:		s="SHLR.Q"; break;
 	case BTESH2_NMID_SHARQ:		s="SHAR.Q"; break;
-	case BTESH2_NMID_LDSH16:	s="LDSH16.Q"; break;
+
+	case BTESH2_NMID_LDSH16:	s="LDSH16"; break;
 
 	case BTESH2_NMID_LDHF16:	s="LDHF16"; break;
+	case BTESH2_NMID_LDIF16:	s="LDIF16"; break;
 
 	case BTESH2_NMID_BREQ:		s="BR/EQ"; break;
 	case BTESH2_NMID_BRNE:		s="BR/NE"; break;
@@ -325,12 +327,25 @@ char *btesh2_print_NameForFormID(int id)
 	case BTESH2_FMID_REGINCST:		s="Rm, @+Rn"; break;
 	case BTESH2_FMID_REGDECLD:		s="@Rm-, Rn"; break;
 
+	case BTESH2_FMID_FREGREGREG:	s="FRn, FRm, FRo"; break;
+	case BTESH2_FMID_DREGREGREG:	s="DRn, DRm, DRo"; break;
+
 	case BTESH2_FMID_REGSTRODISP:	s="Rm, @(Rn,Ro,Disp)"; break;
 	case BTESH2_FMID_REGLDRODISP:	s="@(Rm,Ro,Disp), Rn"; break;
 	case BTESH2_FMID_REGIMMREG:		s="Rm, Imm, Rn"; break;
 
 	case BTESH2_FMID_REG1ABS: s="Rn, @Abs"; break;
 	case BTESH2_FMID_REG2ABS: s="Rm, Rn, @Abs"; break;
+
+	case BTESH2_FMID_FREGSTRODISP:	s="FRm, @(Rn,Ro,Disp)"; break;
+	case BTESH2_FMID_FREGLDRODISP:	s="@(Rm,Ro,Disp), FRn"; break;
+	case BTESH2_FMID_FREGSTDISP:	s="FRm, @(Rn,Disp)"; break;
+	case BTESH2_FMID_FREGLDDISP:	s="@(Rm,Disp), FRn"; break;
+
+	case BTESH2_FMID_DREGSTRODISP:	s="DRm, @(Rn,Ro,Disp)"; break;
+	case BTESH2_FMID_DREGLDRODISP:	s="@(Rm,Ro,Disp), DRn"; break;
+	case BTESH2_FMID_DREGSTDISP:	s="DRm, @(Rn,Disp)"; break;
+	case BTESH2_FMID_DREGLDDISP:	s="@(Rm,Disp), DRn"; break;
 
 	default:
 		break;
@@ -447,28 +462,28 @@ char *btesh2_print_NameForDRegID(int id)
 	{
 	case  0: s="DR0"; break;
 	case  1: s="XD0"; break;
-	case  2: s="DR1"; break;
-	case  3: s="XD1"; break;
-	case  4: s="DR2"; break;
-	case  5: s="XD2"; break;
-	case  6: s="DR3"; break;
-	case  7: s="XD3"; break;
-	case  8: s="DR4"; break;
-	case  9: s="XD4"; break;
-	case 10: s="DR5"; break;
-	case 11: s="XD5"; break;
-	case 12: s="DR6"; break;
-	case 13: s="XD6"; break;
-	case 14: s="DR7"; break;
-	case 15: s="XD7"; break;
+	case  2: s="DR2"; break;
+	case  3: s="XD2"; break;
+	case  4: s="DR4"; break;
+	case  5: s="XD4"; break;
+	case  6: s="DR6"; break;
+	case  7: s="XD6"; break;
+	case  8: s="DR8"; break;
+	case  9: s="XD8"; break;
+	case 10: s="DR10"; break;
+	case 11: s="XD10"; break;
+	case 12: s="DR12"; break;
+	case 13: s="XD12"; break;
+	case 14: s="DR14"; break;
+	case 15: s="XD14"; break;
 	case 16: s="XD0"; break;
-	case 18: s="XD1"; break;
-	case 20: s="XD2"; break;
-	case 22: s="XD3"; break;
-	case 24: s="XD4"; break;
-	case 26: s="XD5"; break;
-	case 28: s="XD6"; break;
-	case 30: s="XD7"; break;
+	case 18: s="XD2"; break;
+	case 20: s="XD4"; break;
+	case 22: s="XD6"; break;
+	case 24: s="XD8"; break;
+	case 26: s="XD10"; break;
+	case 28: s="XD12"; break;
+	case 30: s="XD14"; break;
 	default: s="?"; break;
 	}
 	return(s);
@@ -531,7 +546,7 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 		
 		if(i && op->pc!=laspc)
 		{
-			printf("  %08X ==> %08X\n", laspc, op->pc);
+			printf("  %08X ==> %08X\n", (u32)(laspc), (u32)(op->pc));
 		}
 		
 		if(op->fl&BTESH2_OPFL_EXTRAWORD)
@@ -693,6 +708,35 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 				btesh2_print_NameForFRegID(op->rn));
 			break;
 
+#if 0
+		case BTESH2_FMID_FREGLDDISP:
+			if(op->imm>=0x100000)
+			{
+				printf("@(0x%08X, %s), %s",
+					(s32)op->imm,
+					btesh2_print_NameForRegID(op->rm),
+					btesh2_print_NameForFRegID(op->rn));
+				break;
+			}
+			printf("@(%s, %d), %s",
+				btesh2_print_NameForRegID(op->rm), (s32)op->imm,
+				btesh2_print_NameForFRegID(op->rn));
+			break;
+		case BTESH2_FMID_FREGSTDISP:
+			if(op->imm>=0x100000)
+			{
+				printf("%s, @(0x%08X, %s)",
+					btesh2_print_NameForFRegID(op->rm),
+					(s32)op->imm,
+					btesh2_print_NameForRegID(op->rn));
+				break;
+			}
+			printf("%s, @(%s, %d)",
+				btesh2_print_NameForFRegID(op->rm),
+				btesh2_print_NameForRegID(op->rn), (s32)op->imm);
+			break;
+#endif
+
 		case BTESH2_FMID_DREGRM:
 			printf("%s", btesh2_print_NameForDRegID(op->rm));
 			break;
@@ -822,6 +866,13 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 				btesh2_print_NameForRegID(op->ro),
 				(s32)op->imm);
 			break;
+
+		case BTESH2_FMID_FREGREGREG:
+			printf("%s, %s, %s",
+				btesh2_print_NameForFRegID(op->rn),
+				btesh2_print_NameForFRegID(op->rm),
+				btesh2_print_NameForFRegID(op->ro));
+			break;
 #endif
 
 #if 1
@@ -896,6 +947,13 @@ int BTESH2_PrintTrace(BTESH2_CpuState *cpu,
 				btesh2_print_NameForRegID(op->rn),
 				btesh2_print_NameForRegID(op->ro),
 				(s32)op->imm);
+			break;
+
+		case BTESH2_FMID_DREGREGREG:
+			printf("%s, %s, %s",
+				btesh2_print_NameForDRegID(op->rn),
+				btesh2_print_NameForDRegID(op->rm),
+				btesh2_print_NameForDRegID(op->ro));
 			break;
 #endif
 

@@ -685,8 +685,9 @@ int BTESH2_SetAddrQWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, u64 val)
 	return(BTESH2_SetAddrQWordPhy2(cpu, addr1, val));
 }
 
-void BTESH2_FMMU_LDTLB(BTESH2_CpuState *cpu)
+int BTESH2_FMMU_LDTLB(BTESH2_CpuState *cpu)
 {
+	return(0);
 }
 
 void BTSH_Op_LDTLB_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)

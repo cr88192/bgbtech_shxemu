@@ -253,6 +253,7 @@ Attribute/Literal
 * 0x9003, VALUE
 * 0x9004, SRCTOK
 * 0x9005, NAME
+* 0x9006, TUIDX
 
 Commands/Attributes (Alt)
 * 0x01, VARVALUE
@@ -280,6 +281,7 @@ Commands/Attributes (Alt)
 * 0x23, VALUE
 * 0x24, SRCTOK
 * 0x25, NAME
+* 0x26, TUIDX
 
 
 Binary Operator

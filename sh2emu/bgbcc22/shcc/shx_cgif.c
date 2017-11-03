@@ -135,6 +135,11 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 		break;
 	}
 
+	BGBPP_AddStaticDefine(NULL, "__superh__", "");
+	
+	if(shctx->has_bjx1mov)
+		BGBPP_AddStaticDefine(NULL, "__BJX1__", "");
+
 	return(0);
 }
 
@@ -168,6 +173,8 @@ bool BGBCC_SHXC_TypeInt2RegP(BGBCC_TransState *ctx, ccxl_type ty)
 bool BGBCC_SHXC_TypeFloatRegP(BGBCC_TransState *ctx, ccxl_type ty)
 {
 	if(BGBCC_CCXL_TypeFloatP(ctx, ty))
+		return(true);
+	if(BGBCC_CCXL_TypeFloat16P(ctx, ty))
 		return(true);
 //	if(BGBCC_CCXL_TypePointerP(ctx, ty))
 //		return(true);
@@ -1691,7 +1698,7 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 	ccxl_register treg;
 	ccxl_type tty;
 	char *s0;
-	int l0, sz, asz;
+	int l0, sz, asz, iskv;
 	s64 li;
 	int n;
 	int i, j, k;
@@ -1730,7 +1737,25 @@ ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,
 	
 	sz=BGBCC_CCXL_TypeGetLogicalSize(ctx, obj->type);
 
-	BGBCC_SHX_SetSectionName(sctx, ".data");
+	iskv=0;
+
+	if((obj->flagsint&BGBCC_TYFL_CONST) &&
+		!BGBCC_CCXL_TypePointerP(ctx, obj->type))
+			iskv=1;
+	if((obj->flagsint&BGBCC_TYFL_CONST) &&
+		BGBCC_CCXL_TypeArrayP(ctx, obj->type))
+			iskv=1;
+	if(obj->flagsint&BGBCC_TYFL_CONST2)
+		iskv=1;
+
+	if(iskv)
+	{
+		BGBCC_SHX_SetSectionName(sctx, ".rodata");
+	}else
+	{
+		BGBCC_SHX_SetSectionName(sctx, ".data");
+	}
+
 	BGBCC_SHX_EmitBAlign(sctx, 4);
 	BGBCC_SHX_EmitLabel(sctx, l0);
 	
@@ -1925,6 +1950,7 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 	byte *ctl, *ctr;
 	char *s0;
 	int en;
+	s64 val, var;
 	s32 b, d, b1, d1, w0, w1;
 	int i, j, k;
 
@@ -1956,19 +1982,31 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 //			__debugbreak();
 			continue;
 		}
-		ctl=imgbase+sctx->sec_rva[sctx->lbl_sec[j]]+sctx->lbl_ofs[j];
+
+		if(sctx->lbl_sec[j]==BGBCC_SH_CSEG_ABS)
+		{
+			ctl=NULL;
+			val=sctx->lbl_ofs[j];
+		}else
+		{
+			ctl=imgbase+sctx->sec_rva[sctx->lbl_sec[j]]+sctx->lbl_ofs[j];
+			val=sctx->sec_lva[sctx->lbl_sec[j]]+sctx->lbl_ofs[j];
+
+			if((ctl<=imgbase) || (ctl>(imgbase+0x1000000)))
+				__debugbreak();
+			if(		(sctx->lbl_ofs[j]<0) ||
+					(sctx->lbl_ofs[j] > sctx->sec_lsz[sctx->lbl_sec[j]]))
+				__debugbreak();
+		}
+
 		ctr=imgbase+sctx->sec_rva[sctx->rlc_sec[i]]+sctx->rlc_ofs[i];
-		
-		if((ctl<=imgbase) || (ctl>(imgbase+0x1000000)))
-			__debugbreak();
+		var=sctx->sec_lva[sctx->rlc_sec[i]]+sctx->rlc_ofs[i];
+
 		if((ctr<=imgbase) || (ctr>(imgbase+0x1000000)))
 			__debugbreak();
 
-		if(		(sctx->lbl_ofs[j]<0) ||
-				(sctx->lbl_ofs[j] > sctx->sec_lsz[sctx->lbl_sec[j]]))
-			__debugbreak();
-		
-		d=ctl-ctr;
+//		d=ctl-ctr;
+		d=val-var;
 		switch(sctx->rlc_ty[i])
 		{
 		case BGBCC_SH_RLC_REL8:
@@ -2131,6 +2169,22 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 	if(!sctx->cgen_log)
 		sctx->cgen_log=fopen("bgbcc_shxlog.txt", "wt");
 
+	sctx->is_rom=0;
+	if(imgfmt==BGBCC_IMGFMT_ROM)
+	{
+		sctx->is_rom=1;
+		sctx->lbl_rom_data_strt=
+			BGBCC_SHX_GetNamedLabel(sctx, "__rom_data_start");
+		sctx->lbl_rom_data_end=
+			BGBCC_SHX_GetNamedLabel(sctx, "__rom_data_end");
+	}
+
+	BGBCC_SHX_SetSectionName(sctx, ".text");
+	BGBCC_SHX_EmitNamedLabel(sctx, "__text_start");
+
+	BGBCC_SHX_SetSectionName(sctx, ".data");
+	BGBCC_SHX_EmitNamedLabel(sctx, "__data_start");
+
 	BGBCC_SHX_SetSectionName(sctx, ".bss");
 	BGBCC_SHX_EmitNamedLabel(sctx, "__bss_start");
 	
@@ -2276,8 +2330,15 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 		}
 	}
 
+	BGBCC_SHX_SetSectionName(sctx, ".text");
+	BGBCC_SHX_EmitNamedLabel(sctx, "__text_end");
+
+	BGBCC_SHX_SetSectionName(sctx, ".data");
+	BGBCC_SHX_EmitNamedLabel(sctx, "__data_end");
+
 	BGBCC_SHX_SetSectionName(sctx, ".bss");
 	BGBCC_SHX_EmitNamedLabel(sctx, "_end");
+	BGBCC_SHX_EmitNamedLabel(sctx, "__bss_end");
 
 	if((imgfmt==BGBCC_IMGFMT_EXE) ||
 		(imgfmt==BGBCC_IMGFMT_DLL))
@@ -2290,6 +2351,12 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 		(imgfmt==BGBCC_IMGFMT_ELSO))
 	{
 		BGBCC_SHXC_FlattenImageELF(ctx, obuf, rosz, imgfmt);
+		return(1);
+	}
+
+	if(imgfmt==BGBCC_IMGFMT_ROM)
+	{
+		BGBCC_SHXC_FlattenImageROM(ctx, obuf, rosz, imgfmt);
 		return(1);
 	}
 

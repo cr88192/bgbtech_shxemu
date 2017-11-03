@@ -8,6 +8,64 @@ int BGBCC_SHXC_EmitDebugCheckReg(
 	return(0);
 }
 
+int BGBCC_SHXC_EmitConvOpRegReg(
+	BGBCC_TransState *ctx,
+	BGBCC_SHX_Context *sctx,
+	int nmid, int sreg, int dreg)
+{
+	int i, j, k;
+
+#if 0
+	i=BGBCC_SHX_TryEmitOpRegReg(sctx,
+		nmid, sreg, dreg);
+	if(i>0)
+		return(i);
+#endif
+
+	if(nmid==BGBCC_SH_NMID_LDHF16)
+	{
+		BGBCC_SHXC_EmitScratchSyncRegisters(ctx, sctx);
+
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_FR0);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_MOV, sreg, BGBCC_SH_REG_R4);
+		BGBCC_SHXC_EmitCallName(ctx, sctx, "__ldhf16");
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R4);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_FMOV, BGBCC_SH_REG_FR0, dreg);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_FR0);
+		return(1);
+	}
+
+	if(nmid==BGBCC_SH_NMID_STHF16)
+	{
+		BGBCC_SHXC_EmitScratchSyncRegisters(ctx, sctx);
+
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_FR4);
+		BGBCC_SHXC_ScratchSafeStompReg(ctx, sctx, BGBCC_SH_REG_R0);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_FMOV, sreg, BGBCC_SH_REG_FR4);
+		BGBCC_SHXC_EmitCallName(ctx, sctx, "__sthf16");
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_FR4);
+		BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SH_NMID_MOV, BGBCC_SH_REG_R0, dreg);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, BGBCC_SH_REG_R0);
+		return(1);
+	}
+
+#if 1
+	i=BGBCC_SHX_TryEmitOpRegReg(sctx,
+		nmid, sreg, dreg);
+	if(i>0)
+		return(i);
+#endif
+
+	BGBCC_DBGBREAK
+//	BGBCC_CCXL_StubError(ctx);
+	return(0);
+}
+
 int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
@@ -67,6 +125,9 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 		sz=8; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
 	case CCXL_TY_L:		case CCXL_TY_UL:
 		sz=8; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
+
+	case CCXL_TY_F16:
+		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=BGBCC_SH_NMID_LDHF16; break;
 	}
 
 	if(BGBCC_CCXL_TypePointerP(ctx, type))
@@ -89,6 +150,8 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 		if(((cdreg&15)==15) && ((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
 			{ BGBCC_DBGBREAK }
 
+		ctreg=cdreg;
+
 		if(BGBCC_CCXL_TypeDoubleP(ctx, type))
 		{
 			if((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_DR0)
@@ -99,11 +162,20 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 			if((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0)
 				{ BGBCC_DBGBREAK }
 		}
+		else if(BGBCC_CCXL_TypeFloat16P(ctx, type))
+		{
+			if((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0)
+				{ BGBCC_DBGBREAK }
+			ctreg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+		}
 
 		BGBCC_SHXC_EmitLoadBRegOfsReg(ctx, sctx,
-			nm1, csreg, fi->fxoffs, cdreg);
+			nm1, csreg, fi->fxoffs, ctreg);
 		if(nm2>=0)
-			{ BGBCC_SHX_EmitOpRegReg(sctx, nm2, cdreg, cdreg); }
+			{ BGBCC_SHXC_EmitConvOpRegReg(ctx, sctx, nm2, ctreg, cdreg); }
+
+		if(ctreg!=cdreg)
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, ctreg);
 
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 		if(!BGBCC_CCXL_RegisterIdentEqualP(ctx, dreg, sreg))
@@ -176,6 +248,8 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 		sz=8; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
 	case CCXL_TY_L:		case CCXL_TY_UL:
 		sz=8; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
+	case CCXL_TY_F16:
+		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=BGBCC_SH_NMID_STHF16; break;
 	}
 
 	if(BGBCC_CCXL_TypePointerP(ctx, type))
@@ -185,6 +259,8 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 	{
 		csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
 		cdreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, dreg);
+
+		ctreg=csreg;
 
 		if(((csreg&15)==15) && ((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
 			{ BGBCC_DBGBREAK }
@@ -201,6 +277,12 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 			if((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0)
 				{ BGBCC_DBGBREAK }
 		}
+		else if(BGBCC_CCXL_TypeFloat16P(ctx, type))
+		{
+			if((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0)
+				{ BGBCC_DBGBREAK }
+			ctreg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+		}
 
 #if 1	//Debug: Deref pointers to check validity
 //		if(BGBCC_CCXL_TypePointerP(ctx, type))
@@ -215,8 +297,13 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 		BGBCC_SHXC_EmitDebugCheckReg(ctx, sctx, type, csreg);
 #endif
 
+		if(nm2>=0)
+			{ BGBCC_SHXC_EmitConvOpRegReg(ctx, sctx, nm2, csreg, ctreg); }
 		BGBCC_SHXC_EmitStoreBRegOfsReg(ctx, sctx,
-			nm1, cdreg, fi->fxoffs, csreg);
+			nm1, cdreg, fi->fxoffs, ctreg);
+
+		if(ctreg!=csreg)
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, ctreg);
 
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
@@ -288,6 +375,8 @@ int BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(
 		sz=8; nm1=BGBCC_SH_NMID_FMOVS; nm2=-1; break;
 	case CCXL_TY_L:		case CCXL_TY_UL:
 		sz=8; nm1=BGBCC_SH_NMID_MOVL; nm2=-1; break;
+	case CCXL_TY_F16:
+		sz=2; nm1=BGBCC_SH_NMID_MOVW; nm2=-1; break;
 	}
 
 	if(BGBCC_CCXL_TypePointerP(ctx, type))

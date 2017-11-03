@@ -287,6 +287,11 @@ fourcc BGBCP_LangForName(char *name)
 		if(!bgbcp_strcmp(s, ".ELF"))lang=BGBCC_IMGFMT_ELXE;
 		if(!bgbcp_strcmp(s, ".so"))lang=BGBCC_IMGFMT_ELSO;
 		if(!bgbcp_strcmp(s, ".SO"))lang=BGBCC_IMGFMT_ELSO;
+
+		if(!bgbcp_strcmp(s, ".rom"))lang=BGBCC_IMGFMT_ROM;
+		if(!bgbcp_strcmp(s, ".ROM"))lang=BGBCC_IMGFMT_ROM;
+		if(!bgbcp_strcmp(s, ".bin"))lang=BGBCC_IMGFMT_ROM;
+		if(!bgbcp_strcmp(s, ".BIN"))lang=BGBCC_IMGFMT_ROM;
 	}
 	
 	return(lang);
@@ -535,6 +540,9 @@ fourcc BGBCP_ImageFormatForName(char *name)
 		if(!bgbcc_stricmp(s, ".so"))fmt=BGBCC_IMGFMT_ELSO;
 		if(!bgbcc_stricmp(s, ".ril"))fmt=BGBCC_IMGFMT_RIL3;
 		if(!bgbcc_stricmp(s, ".ril3"))fmt=BGBCC_IMGFMT_RIL3;
+
+		if(!bgbcc_stricmp(s, ".rom"))fmt=BGBCC_IMGFMT_ROM;
+		if(!bgbcc_stricmp(s, ".bin"))fmt=BGBCC_IMGFMT_ROM;
 	}
 	
 	return(fmt);

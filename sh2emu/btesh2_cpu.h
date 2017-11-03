@@ -262,6 +262,8 @@
 #define BTESH2_NMID_BRAN		0x78	//
 #define BTESH2_NMID_BSRN		0x79	//
 #define BTESH2_NMID_RTSN		0x7A	//
+#define BTESH2_NMID_LDIF16		0x7B	//
+#define BTESH2_NMID_STHF16		0x7C	//
 
 #define BTESH2_NMID_FABS		0x80	//
 #define BTESH2_NMID_FADD		0x81	//
@@ -419,6 +421,8 @@ typedef struct BTESH2_Opcode_s BTESH2_Opcode;
 typedef struct BTESH2_Trace_s BTESH2_Trace;
 typedef struct BTESH2_CpuState_s BTESH2_CpuState;
 
+typedef struct BTESH2_LoaderImage_s BTESH2_LoaderImage;
+
 /** Represents a physical memory span */
 struct BTESH2_PhysSpan_s {
 btesh2_paddr base;
@@ -542,6 +546,13 @@ BTESH2_Trace *lnknext;		//next trace in linked traces
 // u32 ppn;	//physical page number
 // };
 
+struct BTESH2_LoaderImage_s {
+BTESH2_LoaderImage *next;
+char *dllname;
+btesh2_vaddr imgbase;		//image base address
+int imgsize;				//image size
+};
+
 struct BTESH2_CpuState_s {
 // u32 regs[64];
 // u32 trapregs[64];	//trapped registers
@@ -618,6 +629,8 @@ int nlogpc, mlogpc;
 u32 *map_addr;
 char **map_name;
 int map_nsym, map_msym;
+
+BTESH2_LoaderImage *loadimg;
 };
 
 u32 BTESH2_GetAddrDWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr);

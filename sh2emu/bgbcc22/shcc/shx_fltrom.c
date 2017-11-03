@@ -1,4 +1,4 @@
-ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
+ccxl_status BGBCC_SHXC_FlattenImageROM(BGBCC_TransState *ctx,
 	byte *obuf, int *rosz, fourcc imgfmt)
 {
 	BGBCC_SHX_Context *sctx;
@@ -6,10 +6,13 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	char *s0;
 	byte *ct;
 	int en, ofs, ofs_sdat, ofs_iend, ofs_mend;
+	int ofs_rd_strt;
+	int ofs_rd_end;
 	int of_phdr, ne_phdr;
 	int of_shdr, ne_shdr;
 	int lb_strt, va_strt;
 	int nm, fl, lva, rva, lsz, sn_strs, imty;
+	int va_rom, va_ram;
 	int i, j, k;
 
 	sctx=ctx->uctx;
@@ -44,50 +47,103 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	ne_phdr=1;
 	ne_shdr=sctx->nsec+1;
 	
-	of_phdr=64;
+//	of_phdr=64;
 	
-	of_shdr=of_phdr+(ne_phdr*32);
-	of_shdr=(of_shdr+15)&(~15);
+//	of_shdr=of_phdr+(ne_phdr*32);
+//	of_shdr=(of_shdr+15)&(~15);
 
-	ofs_sdat=of_shdr+(ne_shdr*40);
-	ofs_sdat=(ofs_sdat+63)&(~63);
+//	ofs_sdat=of_shdr+(ne_shdr*40);
+//	ofs_sdat=(ofs_sdat+63)&(~63);
 
-	k=ofs_sdat;
+//	ofs_sdat=64;
+	ofs_sdat=16;
+
+	va_rom=ofs_sdat;
+	va_ram=0x18000000;
+	
 	for(i=0; i<sctx->nsec; i++)
 	{
 		if(i==BGBCC_SH_CSEG_BSS)
 			continue;
 		j=sctx->sec_pos[i]-sctx->sec_buf[i];
-		sctx->sec_rva[i]=k;
-		sctx->sec_lva[i]=0x0C000000+k;
+		if(!BGBCC_SHX_IsSectionReadOnly(sctx, i))
+			continue;
+
+		sctx->sec_rva[i]=va_rom;
+		sctx->sec_lva[i]=0xA0000000+va_rom;
 		sctx->sec_lsz[i]=j;
-		memcpy(obuf+k, sctx->sec_buf[i], j);
-		k+=j;
-		k=(k+63)&(~63);
+
+		memcpy(obuf+va_rom, sctx->sec_buf[i], j);
+		va_rom+=j;
+//		va_rom=(va_rom+63)&(~63);
+		va_rom=(va_rom+15)&(~15);
 
 		s0=sctx->sec_name[i];
-		printf("%d: %s %08X..%08X %d\n", i, s0,
+		printf("%d: %-16s %08X..%08X %08X..%08X %d\n", i, s0,
+			sctx->sec_rva[i], sctx->sec_rva[i]+sctx->sec_lsz[i],
 			sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
 			sctx->sec_lsz[i]);
 
 	}
-	ofs_iend=k;
+
+	ofs_rd_strt=va_rom;
+	for(i=0; i<sctx->nsec; i++)
+	{
+		if(i==BGBCC_SH_CSEG_BSS)
+			continue;
+		j=sctx->sec_pos[i]-sctx->sec_buf[i];
+		if(BGBCC_SHX_IsSectionReadOnly(sctx, i))
+			continue;
+
+		va_ram-=j;
+//		va_ram&=~63;
+		va_ram&=~15;
+	
+		sctx->sec_rva[i]=va_rom;
+		sctx->sec_lva[i]=0xA0000000+va_ram;
+		sctx->sec_lsz[i]=j;
+
+		memcpy(obuf+va_rom, sctx->sec_buf[i], j);
+		va_rom+=j;
+//		va_rom=(va_rom+63)&(~63);
+		va_rom=(va_rom+15)&(~15);
+
+		s0=sctx->sec_name[i];
+		printf("%d: %-16s %08X..%08X %08X..%08X %d\n", i, s0,
+			sctx->sec_rva[i], sctx->sec_rva[i]+sctx->sec_lsz[i],
+			sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
+			sctx->sec_lsz[i]);
+
+	}
+	ofs_rd_end=va_rom;
+
+	ofs_iend=va_rom;
 
 	i=BGBCC_SH_CSEG_BSS;
 	j=sctx->sec_pos[i]-sctx->sec_buf[i];
-	sctx->sec_rva[i]=k;
-	sctx->sec_lva[i]=0x0C000000+k;
+	va_ram-=j;
+//	va_ram&=~63;
+	va_ram&=~15;
+	
+	sctx->sec_rva[i]=va_rom;
+	sctx->sec_lva[i]=0xA0000000+va_ram;
 	sctx->sec_lsz[i]=j;
-	k+=j;
-	k=(k+63)&(~63);
+	va_rom+=j;
+//	va_rom=(va_rom+63)&(~63);
+	va_rom=(va_rom+15)&(~15);
 
 	s0=sctx->sec_name[i];
-	printf("%d: %s %08X..%08X %d\n", i, s0,
+	printf("%d: %-16s %08X..%08X %08X..%08X %d\n", i, s0,
+		sctx->sec_rva[i], sctx->sec_rva[i]+sctx->sec_lsz[i],
 		sctx->sec_lva[i], sctx->sec_lva[i]+sctx->sec_lsz[i],
 		sctx->sec_lsz[i]);
 
-	ofs_mend=k;
+	ofs_mend=va_rom;
 	
+	BGBCC_SHX_EmitLabelAbs(sctx, sctx->lbl_rom_data_strt, ofs_rd_strt);
+	BGBCC_SHX_EmitLabelAbs(sctx, sctx->lbl_rom_data_end, ofs_rd_end);
+
+
 	lb_strt=0;
 //	lb_strt=BGBCC_SHX_LookupNamedLabel(sctx, "__start");
 //	if(lb_strt<=0)
@@ -101,11 +157,19 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 		{ va_strt=BGBCC_SHXC_LookupLabelImgVA(ctx, sctx, lb_strt); }
 	else
 	{
-		printf("BGBCC_SHXC_FlattenImageELF: No Entry Point Found\n");
+		printf("BGBCC_SHXC_FlattenImageROM: No Entry Point Found\n");
 		va_strt=0;
 	}
 
 	ct=obuf;
+
+	bgbcc_setu16en(ct+0, en, 0xD001);	//load entry point
+	bgbcc_setu16en(ct+2, en, 0x402B);	//jump to entry point
+	bgbcc_setu16en(ct+4, en, 0x0009);	//
+	bgbcc_setu16en(ct+6, en, 0x0009);	//
+	bgbcc_setu32en(ct+8, en, va_strt);	//entry point
+
+#if 0
 	ct[ 0]=0x7F;	ct[ 1]='E';			//magic
 	ct[ 2]='L';		ct[ 3]='F';			//magic
 	ct[ 4]=1;		ct[ 5]=en?2:1;		//width, endian
@@ -174,6 +238,7 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 		bgbcc_setu32en(ct+36, en, 0);		//entsize
 		ct+=40;
 	}
+#endif
 
 	BGBCC_SHXC_ApplyImageRelocs(ctx, sctx, obuf);
 

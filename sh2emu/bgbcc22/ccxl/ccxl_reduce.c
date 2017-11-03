@@ -324,7 +324,7 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 	BCCX_Node *c, *t, *v, *x, *ln, *rn;
 	BGBCC_CCXL_RegisterInfo *ri;
 	ccxl_type bty;
-	char *s, *s1, *suf;
+	char *s, *s0, *s1, *suf;
 	double f, g;
 	int i0, i1;
 	s64 i, j;
@@ -1013,6 +1013,62 @@ BCCX_Node *BGBCC_CCXL_ReduceForm(BGBCC_TransState *ctx,
 		if(flag&1)
 			{ BGBCC_DBGBREAK }
 
+		return(BCCX_Clone(l));
+	}
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_cast, "cast"))
+	{
+		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "value"));
+		if(BGBCC_CCXL_IsIntP(ctx, t))
+		{
+			s0=BGBCC_CCXL_VarTypeString(ctx, BCCX_FindTag(l, "type"));
+			i=BCCX_GetIntCst(t, &bgbcc_rcst_value, "value");
+			f=i;
+
+			switch(*s0)
+			{
+			case 'a':	return(BGBCC_CCXL_WrapInt((sbyte)i));
+			case 'b':	return(BGBCC_CCXL_WrapInt(i!=0));
+			case 'c':	return(BGBCC_CCXL_WrapInt((sbyte)i));
+			case 'd':	return(BGBCC_CCXL_WrapRealSuf(f, "D"));
+			case 'f':	return(BGBCC_CCXL_WrapRealSuf(f, "F"));
+			case 'h':	return(BGBCC_CCXL_WrapInt((byte)i));
+			case 'i':	return(BGBCC_CCXL_WrapInt((s32)i));
+			case 'j':	return(BGBCC_CCXL_WrapInt((u32)i));
+			case 'l':	return(BGBCC_CCXL_WrapInt(i));
+			case 'm':	return(BGBCC_CCXL_WrapInt(i));
+			case 's':	return(BGBCC_CCXL_WrapInt((s16)i));
+			case 't':	return(BGBCC_CCXL_WrapInt((u16)i));
+			case 'w':	return(BGBCC_CCXL_WrapInt((u16)i));
+			}
+		}
+
+		if(BGBCC_CCXL_IsRealP(ctx, t))
+		{
+			s0=BGBCC_CCXL_VarTypeString(ctx, BCCX_FindTag(l, "type"));
+			f=BCCX_GetFloatCst(t, &bgbcc_rcst_value, "value");
+			i=f;
+
+			switch(*s0)
+			{
+			case 'a':	return(BGBCC_CCXL_WrapInt((sbyte)i));
+			case 'b':	return(BGBCC_CCXL_WrapInt(i!=0));
+			case 'c':	return(BGBCC_CCXL_WrapInt((sbyte)i));
+			case 'd':	return(BGBCC_CCXL_WrapRealSuf(f, "D"));
+			case 'f':	return(BGBCC_CCXL_WrapRealSuf(f, "F"));
+			case 'h':	return(BGBCC_CCXL_WrapInt((byte)i));
+			case 'i':	return(BGBCC_CCXL_WrapInt((s32)i));
+			case 'j':	return(BGBCC_CCXL_WrapInt((u32)i));
+			case 'l':	return(BGBCC_CCXL_WrapInt(i));
+			case 'm':	return(BGBCC_CCXL_WrapInt(i));
+			case 's':	return(BGBCC_CCXL_WrapInt((s16)i));
+			case 't':	return(BGBCC_CCXL_WrapInt((u16)i));
+			case 'w':	return(BGBCC_CCXL_WrapInt((u16)i));
+			}
+		}
+
+//		i=BGBCC_CCXL_BoolExpr(ctx, t);
+//		return(i);
 		return(BCCX_Clone(l));
 	}
 

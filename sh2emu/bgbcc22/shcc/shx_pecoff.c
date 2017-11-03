@@ -593,6 +593,7 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 			case BGBCC_SH_CSEG_STRTAB: s0=".strtab"; break;
 			case BGBCC_SH_CSEG_GOT: s0=".got"; break;
 			case BGBCC_SH_CSEG_DATA: s0=".data"; break;
+			case BGBCC_SH_CSEG_RODATA: s0=".rdata"; break;
 			case BGBCC_SH_CSEG_BSS: s0=".bss"; break;
 			default: s0=".unknown"; break;
 			}
@@ -782,11 +783,15 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 	bgbcc_setu32en(ct+0x78, en, 64);		//mSectionAlignment
 	bgbcc_setu32en(ct+0x7C, en, 64);		//mFileAlignment
 
+
 	bgbcc_setu32en(ct+0x90, en, ofs_mend);	//mSizeOfImage
 	bgbcc_setu32en(ct+0x94, en, ofs_sdat);	//mSizeOfHeaders
 
-	bgbcc_setu32en(ct+0xA0, en, 0x100000);	//mSizeOfHeapReserve
-	bgbcc_setu32en(ct+0xA4, en, 0x10000);	//mSizeOfHeapCommit
+	bgbcc_setu16en(ct+0x9C, en, 1);			//mSubsystem
+	bgbcc_setu16en(ct+0x9E, en, 0x0140);	//mDllCharacteristics
+
+	bgbcc_setu32en(ct+0xA0, en, 0x100000);	//mSizeOfStackReserve
+	bgbcc_setu32en(ct+0xA4, en, 0x10000);	//mSizeOfStackCommit
 	bgbcc_setu32en(ct+0xA8, en, 0);			//mSizeOfHeapReserve
 	bgbcc_setu32en(ct+0xAC, en, 0);			//mSizeOfHeapCommit
 	bgbcc_setu32en(ct+0xB0, en, 0);			//mLoaderFlags

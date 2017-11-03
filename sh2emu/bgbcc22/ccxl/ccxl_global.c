@@ -1812,6 +1812,16 @@ void BGBCC_CCXL_AttribStr(BGBCC_TransState *ctx, int attr, char *str)
 	BGBCC_CCXLR3_EmitArgString(ctx, str);
 
 	obj=ctx->cur_obj;
+	if(!obj)
+	{
+		switch(attr)
+		{
+		default:
+			break;
+		}
+		return;
+	}
+	
 	switch(obj->littype)
 	{
 	case CCXL_LITID_VAR:
@@ -1879,6 +1889,19 @@ void BGBCC_CCXL_AttribInt(BGBCC_TransState *ctx, int attr, int val)
 	BGBCC_CCXLR3_EmitArgInt(ctx, val);
 
 	obj=ctx->cur_obj;
+	if(!obj)
+	{
+		switch(attr)
+		{
+		case CCXL_ATTR_TUIDX:
+			ctx->tuidx=val;
+			break;
+		default:
+			break;
+		}
+		return;
+	}
+
 	switch(obj->littype)
 	{
 	case CCXL_LITID_VAR:
@@ -1918,6 +1941,19 @@ void BGBCC_CCXL_AttribLong(BGBCC_TransState *ctx, int attr, s64 val)
 	BGBCC_CCXLR3_EmitArgInt(ctx, val);
 
 	obj=ctx->cur_obj;
+	if(!obj)
+	{
+		switch(attr)
+		{
+		case CCXL_ATTR_TUIDX:
+			ctx->tuidx=val;
+			break;
+		default:
+			break;
+		}
+		return;
+	}
+
 	switch(obj->littype)
 	{
 	case CCXL_LITID_VAR:

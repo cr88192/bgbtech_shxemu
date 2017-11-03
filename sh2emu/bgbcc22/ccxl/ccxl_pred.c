@@ -417,6 +417,16 @@ bool BGBCC_CCXL_IsRegSmallIntP(
 	return(false);
 }
 
+bool BGBCC_CCXL_IsRegFloat16P(
+	BGBCC_TransState *ctx, ccxl_register reg)
+{
+	ccxl_type tty;
+	tty=BGBCC_CCXL_GetRegType(ctx, reg);
+	if(BGBCC_CCXL_TypeFloat16P(ctx, tty))
+		return(true);
+	return(false);
+}
+
 bool BGBCC_CCXL_IsRegImmIntP(
 	BGBCC_TransState *ctx, ccxl_register reg)
 {

@@ -521,6 +521,20 @@ void BTSH_Op_MOV_RegLdRoDispQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		BTESH2_GetAddrQWord(cpu,
 			cpu->regs[op->rm]+cpu->regs[op->ro]*8+op->imm));
 }
+
+void BTSH_Op_MOV_RegLdRoDispUB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]=(byte)BTESH2_GetAddrByte(cpu,
+		cpu->regs[op->rm]+cpu->regs[op->ro]+op->imm);
+}
+
+void BTSH_Op_MOV_RegLdRoDispUW(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	cpu->ptcpc=op->pc;
+	cpu->regs[op->rn]=(u16)BTESH2_GetAddrWord(cpu,
+		cpu->regs[op->rm]+cpu->regs[op->ro]*2+op->imm);
+}
 #endif
 
 #if 1

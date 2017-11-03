@@ -353,7 +353,7 @@ Cvar_RegisterVariable: m_forward 1 1.000000,1
 Cvar_RegisterVariable: m_side 0.8 0.800000,0
 Host_Init: A4-7
 Host_Init: A5
-Cbuf_InsertText: 0C06B807 {{
+Cbuf_InsertText: 0C069807 {{
 exec quake.rc
 Cbuf_InsertText: }}
 ========Quake Initialized=========
@@ -616,9 +616,29 @@ i=28: a=10.995574 sin=-0.000000 cos=-0.000000 sqrt(i)=5.291502(^2=28.000000)
 i=29: a=11.388273 sin=-0.923879 cos=0.382683 sqrt(i)=5.385164(^2=28.000000)
 i=30: a=11.780972 sin=-0.707106 cos=0.707106 sqrt(i)=5.477225(^2=30.000000)
 i=31: a=12.173671 sin=-0.382683 cos=0.923879 sqrt(i)=5.567764(^2=30.000000)
+F16 sizeof=2
+F16 A sf1=2.000000 sf2=3.000000 sf3=5.000000
+F16 B sf1=5.000000 sf2=3.000000 sf3=2.000000
+F16 C sf1=4000 sf2=4200 sf3=4500
+F16 D sf1=5.000000 sf2=3.000000 sf3=2.000000
+F16 sizeof=2
+F16 A sf1=2.000000 sf2=3.000000 sf3=5.000000
+F16 B sf1=5.000000 sf2=3.000000 sf3=2.000000
+F16 C sf1=4000 sf2=4200 sf3=4500
+F16 D sf1=5.000000 sf2=3.000000 sf3=2.000000
+F16 sizeof=2
+F16 A sf1=2.000000 sf2=3.000000 sf3=5.000000
+F16 B sf1=5.000000 sf2=3.000000 sf3=2.000000
+F16 C sf1=4000 sf2=4200 sf3=4500
+F16 D sf1=5.000000 sf2=3.000000 sf3=2.000000
 Check for: Int Stomp
 Check for: Double Stomp
 Check for: Float Stomp
+F16 sizeof=2
+F16 A sf1=2.000000 sf2=3.000000 sf3=5.000000
+F16 B sf1=5.000000 sf2=3.000000 sf3=2.000000
+F16 C sf1=4000 sf2=4200 sf3=4500
+F16 D sf1=5.000000 sf2=3.000000 sf3=2.000000
 Enter Main Loop
 PackFile: ./id1/pak0.pak : quake.rc 1
 tk_ird_fseek: 91801080 6291468 0
@@ -1030,14 +1050,14 @@ Sys_FileRead rlen=1249944
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=901E03A0
 Mod_LoadBrushModel: B nodes=901E03A0 surfs=9016D400
-Mod_MakeHull0: Mod=0C0BB4A4 Hulls=0C0BB574
+Mod_MakeHull0: Mod=0C0B9524 Hulls=0C0B95F4
 Mod_MakeHull0: A Nodes=901E03A0
-Mod_MakeHull0: Mod=0C0BB4A4 Hull=0C0BB574
+Mod_MakeHull0: Mod=0C0B9524 Hull=0C0B95F4
 Mod_MakeHull0: A-1 Nodes=901E03A0
 Mod_MakeHull0: A-2 Nodes=901E03A0
 Mod_MakeHull0: C Nodes=901E03A0
-Mod_LoadBrushModel: C 0C0BB4A4 nodes=901E03A0
-Mod_LoadBrushModel: D 0C0C556C nodes=901E03A0
+Mod_LoadBrushModel: C 0C0B9524 nodes=901E03A0
+Mod_LoadBrushModel: D 0C0C35EC nodes=901E03A0
 PackFile: ./id1/pak0.pak : progs/player.mdl 1
 tk_ird_fseek: 91801080 3372364 0
 COM_LoadFile: progs/player.mdl hdl=1 uh=4
@@ -1321,14 +1341,14 @@ Sys_FileRead rlen=5044
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=90225E70
 Mod_LoadBrushModel: B nodes=90225E70 surfs=90225B50
-Mod_MakeHull0: Mod=0C0C92AC Hulls=0C0C937C
+Mod_MakeHull0: Mod=0C0C732C Hulls=0C0C73FC
 Mod_MakeHull0: A Nodes=90225E70
-Mod_MakeHull0: Mod=0C0C92AC Hull=0C0C937C
+Mod_MakeHull0: Mod=0C0C732C Hull=0C0C73FC
 Mod_MakeHull0: A-1 Nodes=90225E70
 Mod_MakeHull0: A-2 Nodes=90225E70
 Mod_MakeHull0: C Nodes=90225E70
-Mod_LoadBrushModel: C 0C0C92AC nodes=90225E70
-Mod_LoadBrushModel: D 0C0C92AC nodes=90225E70
+Mod_LoadBrushModel: C 0C0C732C nodes=90225E70
+Mod_LoadBrushModel: D 0C0C732C nodes=90225E70
 PackFile: ./id1/pak0.pak : maps/b_bh25.bsp 1
 tk_ird_fseek: 91801080 2862860 0
 COM_LoadFile: maps/b_bh25.bsp hdl=1 uh=4
@@ -1339,14 +1359,14 @@ Sys_FileRead rlen=8872
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=90228680
 Mod_LoadBrushModel: B nodes=90228680 surfs=90228360
-Mod_MakeHull0: Mod=0C0C9434 Hulls=0C0C9504
+Mod_MakeHull0: Mod=0C0C74B4 Hulls=0C0C7584
 Mod_MakeHull0: A Nodes=90228680
-Mod_MakeHull0: Mod=0C0C9434 Hull=0C0C9504
+Mod_MakeHull0: Mod=0C0C74B4 Hull=0C0C7584
 Mod_MakeHull0: A-1 Nodes=90228680
 Mod_MakeHull0: A-2 Nodes=90228680
 Mod_MakeHull0: C Nodes=90228680
-Mod_LoadBrushModel: C 0C0C9434 nodes=90228680
-Mod_LoadBrushModel: D 0C0C9434 nodes=90228680
+Mod_LoadBrushModel: C 0C0C74B4 nodes=90228680
+Mod_LoadBrushModel: D 0C0C74B4 nodes=90228680
 PackFile: ./id1/pak0.pak : maps/b_bh10.bsp 1
 tk_ird_fseek: 91801080 2850104 0
 COM_LoadFile: maps/b_bh10.bsp hdl=1 uh=4
@@ -1357,14 +1377,14 @@ Sys_FileRead rlen=3936
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=90229AA0
 Mod_LoadBrushModel: B nodes=90229AA0 surfs=90229780
-Mod_MakeHull0: Mod=0C0C95BC Hulls=0C0C968C
+Mod_MakeHull0: Mod=0C0C763C Hulls=0C0C770C
 Mod_MakeHull0: A Nodes=90229AA0
-Mod_MakeHull0: Mod=0C0C95BC Hull=0C0C968C
+Mod_MakeHull0: Mod=0C0C763C Hull=0C0C770C
 Mod_MakeHull0: A-1 Nodes=90229AA0
 Mod_MakeHull0: A-2 Nodes=90229AA0
 Mod_MakeHull0: C Nodes=90229AA0
-Mod_LoadBrushModel: C 0C0C95BC nodes=90229AA0
-Mod_LoadBrushModel: D 0C0C95BC nodes=90229AA0
+Mod_LoadBrushModel: C 0C0C763C nodes=90229AA0
+Mod_LoadBrushModel: D 0C0C763C nodes=90229AA0
 PackFile: ./id1/pak0.pak : progs/g_shot.mdl 1
 tk_ird_fseek: 91801080 2915808 0
 COM_LoadFile: progs/g_shot.mdl hdl=1 uh=4
@@ -1382,14 +1402,14 @@ Sys_FileRead rlen=5044
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=9022B330
 Mod_LoadBrushModel: B nodes=9022B330 surfs=9022B010
-Mod_MakeHull0: Mod=0C0C98CC Hulls=0C0C999C
+Mod_MakeHull0: Mod=0C0C794C Hulls=0C0C7A1C
 Mod_MakeHull0: A Nodes=9022B330
-Mod_MakeHull0: Mod=0C0C98CC Hull=0C0C999C
+Mod_MakeHull0: Mod=0C0C794C Hull=0C0C7A1C
 Mod_MakeHull0: A-1 Nodes=9022B330
 Mod_MakeHull0: A-2 Nodes=9022B330
 Mod_MakeHull0: C Nodes=9022B330
-Mod_LoadBrushModel: C 0C0C98CC nodes=9022B330
-Mod_LoadBrushModel: D 0C0C98CC nodes=9022B330
+Mod_LoadBrushModel: C 0C0C794C nodes=9022B330
+Mod_LoadBrushModel: D 0C0C794C nodes=9022B330
 PackFile: ./id1/pak0.pak : maps/b_rock0.bsp 1
 tk_ird_fseek: 91801080 3176540 0
 COM_LoadFile: maps/b_rock0.bsp hdl=1 uh=4
@@ -1400,14 +1420,14 @@ Sys_FileRead rlen=2956
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=9022C340
 Mod_LoadBrushModel: B nodes=9022C340 surfs=9022C020
-Mod_MakeHull0: Mod=0C0C9A54 Hulls=0C0C9B24
+Mod_MakeHull0: Mod=0C0C7AD4 Hulls=0C0C7BA4
 Mod_MakeHull0: A Nodes=9022C340
-Mod_MakeHull0: Mod=0C0C9A54 Hull=0C0C9B24
+Mod_MakeHull0: Mod=0C0C7AD4 Hull=0C0C7BA4
 Mod_MakeHull0: A-1 Nodes=9022C340
 Mod_MakeHull0: A-2 Nodes=9022C340
 Mod_MakeHull0: C Nodes=9022C340
-Mod_LoadBrushModel: C 0C0C9A54 nodes=9022C340
-Mod_LoadBrushModel: D 0C0C9A54 nodes=9022C340
+Mod_LoadBrushModel: C 0C0C7AD4 nodes=9022C340
+Mod_LoadBrushModel: D 0C0C7AD4 nodes=9022C340
 PackFile: ./id1/pak0.pak : maps/b_nail1.bsp 1
 tk_ird_fseek: 91801080 3163508 0
 COM_LoadFile: maps/b_nail1.bsp hdl=1 uh=4
@@ -1418,14 +1438,14 @@ Sys_FileRead rlen=5044
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=9022DC10
 Mod_LoadBrushModel: B nodes=9022DC10 surfs=9022D8F0
-Mod_MakeHull0: Mod=0C0C9BDC Hulls=0C0C9CAC
+Mod_MakeHull0: Mod=0C0C7C5C Hulls=0C0C7D2C
 Mod_MakeHull0: A Nodes=9022DC10
-Mod_MakeHull0: Mod=0C0C9BDC Hull=0C0C9CAC
+Mod_MakeHull0: Mod=0C0C7C5C Hull=0C0C7D2C
 Mod_MakeHull0: A-1 Nodes=9022DC10
 Mod_MakeHull0: A-2 Nodes=9022DC10
 Mod_MakeHull0: C Nodes=9022DC10
-Mod_LoadBrushModel: C 0C0C9BDC nodes=9022DC10
-Mod_LoadBrushModel: D 0C0C9BDC nodes=9022DC10
+Mod_LoadBrushModel: C 0C0C7C5C nodes=9022DC10
+Mod_LoadBrushModel: D 0C0C7C5C nodes=9022DC10
 PackFile: ./id1/pak0.pak : progs/armor.mdl 1
 tk_ird_fseek: 91801080 2871732 0
 COM_LoadFile: progs/armor.mdl hdl=1 uh=4
@@ -1443,14 +1463,14 @@ Sys_FileRead rlen=5044
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=9022F4A0
 Mod_LoadBrushModel: B nodes=9022F4A0 surfs=9022F180
-Mod_MakeHull0: Mod=0C0C9EEC Hulls=0C0C9FBC
+Mod_MakeHull0: Mod=0C0C7F6C Hulls=0C0C803C
 Mod_MakeHull0: A Nodes=9022F4A0
-Mod_MakeHull0: Mod=0C0C9EEC Hull=0C0C9FBC
+Mod_MakeHull0: Mod=0C0C7F6C Hull=0C0C803C
 Mod_MakeHull0: A-1 Nodes=9022F4A0
 Mod_MakeHull0: A-2 Nodes=9022F4A0
 Mod_MakeHull0: C Nodes=9022F4A0
-Mod_LoadBrushModel: C 0C0C9EEC nodes=9022F4A0
-Mod_LoadBrushModel: D 0C0C9EEC nodes=9022F4A0
+Mod_LoadBrushModel: C 0C0C7F6C nodes=9022F4A0
+Mod_LoadBrushModel: D 0C0C7F6C nodes=9022F4A0
 PackFile: ./id1/pak0.pak : maps/b_rock1.bsp 1
 tk_ird_fseek: 91801080 3173596 0
 COM_LoadFile: maps/b_rock1.bsp hdl=1 uh=4
@@ -1461,14 +1481,14 @@ Sys_FileRead rlen=2944
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=902304C0
 Mod_LoadBrushModel: B nodes=902304C0 surfs=902301A0
-Mod_MakeHull0: Mod=0C0CA074 Hulls=0C0CA144
+Mod_MakeHull0: Mod=0C0C80F4 Hulls=0C0C81C4
 Mod_MakeHull0: A Nodes=902304C0
-Mod_MakeHull0: Mod=0C0CA074 Hull=0C0CA144
+Mod_MakeHull0: Mod=0C0C80F4 Hull=0C0C81C4
 Mod_MakeHull0: A-1 Nodes=902304C0
 Mod_MakeHull0: A-2 Nodes=902304C0
 Mod_MakeHull0: C Nodes=902304C0
-Mod_LoadBrushModel: C 0C0CA074 nodes=902304C0
-Mod_LoadBrushModel: D 0C0CA074 nodes=902304C0
+Mod_LoadBrushModel: C 0C0C80F4 nodes=902304C0
+Mod_LoadBrushModel: D 0C0C80F4 nodes=902304C0
 PackFile: ./id1/pak0.pak : progs/g_rock.mdl 1
 tk_ird_fseek: 91801080 3014144 0
 COM_LoadFile: progs/g_rock.mdl hdl=1 uh=4
@@ -2274,12 +2294,13 @@ COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=68524
 COM_LoadFile: buf=917EF360
 Sys_FileRead hdl=1 dst=917EF360 sz=68524 fd=91801010
 Sys_FileRead rlen=68524
-A cl.worldmodel=0C0BB4A4
-B cl.worldmodel=0C0BB4A4
+A cl.worldmodel=0C0B9524
+B cl.worldmodel=0C0B9524
 You got the shells
 You got the Grenade Launcher
 You receive 25 health
 You get 2 rockets  
+You got the rockets
 PackFile: ./id1/pak0.pak : gfx/qplaque.lmp 1
 tk_ird_fseek: 91801080 6957507 0
 COM_LoadFile: gfx/qplaque.lmp hdl=1 uh=3
@@ -2298,9 +2319,9 @@ COM_LoadFile: gfx/mainmenu.lmp hdl=1 uh=3
 COM_LoadFile: buf=9069B028
 Sys_FileRead hdl=1 dst=9069B028 sz=26888 fd=91801010
 Sys_FileRead rlen=26888
-PackFile: ./id1/pak0.pak : gfx/menudot3.lmp 1
-tk_ird_fseek: 91801080 6962907 0
-COM_LoadFile: gfx/menudot3.lmp hdl=1 uh=3
+PackFile: ./id1/pak0.pak : gfx/menudot5.lmp 1
+tk_ird_fseek: 91801080 6963691 0
+COM_LoadFile: gfx/menudot5.lmp hdl=1 uh=3
 COM_LoadFile: buf=90233718
 Sys_FileRead hdl=1 dst=90233718 sz=392 fd=91801010
 Sys_FileRead rlen=392
@@ -2311,45 +2332,46 @@ COM_LoadFile: loadbuf=8FFFD854 loadsz=1024 len=10672
 COM_LoadFile: buf=917FD550
 Sys_FileRead hdl=1 dst=917FD550 sz=10672 fd=91801010
 Sys_FileRead rlen=10672
-PackFile: ./id1/pak0.pak : gfx/menudot4.lmp 1
-tk_ird_fseek: 91801080 6963299 0
-COM_LoadFile: gfx/menudot4.lmp hdl=1 uh=3
-COM_LoadFile: buf=90259C78
-Sys_FileRead hdl=1 dst=90259C78 sz=392 fd=91801010
-Sys_FileRead rlen=392
-PackFile: ./id1/pak0.pak : gfx/menudot5.lmp 1
-tk_ird_fseek: 91801080 6963691 0
-COM_LoadFile: gfx/menudot5.lmp hdl=1 uh=3
-COM_LoadFile: buf=9025CD68
-Sys_FileRead hdl=1 dst=9025CD68 sz=392 fd=91801010
-Sys_FileRead rlen=392
-PackFile: ./id1/pak0.pak : gfx/ttl_sgl.lmp 1
-tk_ird_fseek: 91801080 7031843 0
-COM_LoadFile: gfx/ttl_sgl.lmp hdl=1 uh=3
-COM_LoadFile: buf=906A42D8
-Sys_FileRead hdl=1 dst=906A42D8 sz=3080 fd=91801010
-Sys_FileRead rlen=3080
-PackFile: ./id1/pak0.pak : gfx/sp_menu.lmp 1
-tk_ird_fseek: 91801080 7016987 0
-COM_LoadFile: gfx/sp_menu.lmp hdl=1 uh=3
-COM_LoadFile: buf=906A4F18
-Sys_FileRead hdl=1 dst=906A4F18 sz=14856 fd=91801010
-Sys_FileRead rlen=14856
 PackFile: ./id1/pak0.pak : gfx/menudot6.lmp 1
 tk_ird_fseek: 91801080 6964083 0
 COM_LoadFile: gfx/menudot6.lmp hdl=1 uh=3
-COM_LoadFile: buf=906A8958
-Sys_FileRead hdl=1 dst=906A8958 sz=392 fd=91801010
+COM_LoadFile: buf=90259C78
+Sys_FileRead hdl=1 dst=90259C78 sz=392 fd=91801010
 Sys_FileRead rlen=392
 PackFile: ./id1/pak0.pak : gfx/menudot1.lmp 1
 tk_ird_fseek: 91801080 6962123 0
 COM_LoadFile: gfx/menudot1.lmp hdl=1 uh=3
-COM_LoadFile: buf=906A8B18
-Sys_FileRead hdl=1 dst=906A8B18 sz=392 fd=91801010
+COM_LoadFile: buf=9025CD68
+Sys_FileRead hdl=1 dst=9025CD68 sz=392 fd=91801010
 Sys_FileRead rlen=392
 PackFile: ./id1/pak0.pak : gfx/menudot2.lmp 1
 tk_ird_fseek: 91801080 6962515 0
 COM_LoadFile: gfx/menudot2.lmp hdl=1 uh=3
+COM_LoadFile: buf=906A42D8
+Sys_FileRead hdl=1 dst=906A42D8 sz=392 fd=91801010
+Sys_FileRead rlen=392
+You got the nailgun
+PackFile: ./id1/pak0.pak : gfx/ttl_sgl.lmp 1
+tk_ird_fseek: 91801080 7031843 0
+COM_LoadFile: gfx/ttl_sgl.lmp hdl=1 uh=3
+COM_LoadFile: buf=906A4498
+Sys_FileRead hdl=1 dst=906A4498 sz=3080 fd=91801010
+Sys_FileRead rlen=3080
+PackFile: ./id1/pak0.pak : gfx/sp_menu.lmp 1
+tk_ird_fseek: 91801080 7016987 0
+COM_LoadFile: gfx/sp_menu.lmp hdl=1 uh=3
+COM_LoadFile: buf=906A50D8
+Sys_FileRead hdl=1 dst=906A50D8 sz=14856 fd=91801010
+Sys_FileRead rlen=14856
+PackFile: ./id1/pak0.pak : gfx/menudot3.lmp 1
+tk_ird_fseek: 91801080 6962907 0
+COM_LoadFile: gfx/menudot3.lmp hdl=1 uh=3
+COM_LoadFile: buf=906A8B18
+Sys_FileRead hdl=1 dst=906A8B18 sz=392 fd=91801010
+Sys_FileRead rlen=392
+PackFile: ./id1/pak0.pak : gfx/menudot4.lmp 1
+tk_ird_fseek: 91801080 6963299 0
+COM_LoadFile: gfx/menudot4.lmp hdl=1 uh=3
 COM_LoadFile: buf=906A8CD8
 Sys_FileRead hdl=1 dst=906A8CD8 sz=392 fd=91801010
 Sys_FileRead rlen=392
@@ -2383,14 +2405,14 @@ Sys_FileRead rlen=1433792
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=902F4D80
 Mod_LoadBrushModel: B nodes=902F4D80 surfs=9027C530
-Mod_MakeHull0: Mod=0C0CA50C Hulls=0C0CA5DC
+Mod_MakeHull0: Mod=0C0C858C Hulls=0C0C865C
 Mod_MakeHull0: A Nodes=902F4D80
-Mod_MakeHull0: Mod=0C0CA50C Hull=0C0CA5DC
+Mod_MakeHull0: Mod=0C0C858C Hull=0C0C865C
 Mod_MakeHull0: A-1 Nodes=902F4D80
 Mod_MakeHull0: A-2 Nodes=902F4D80
 Mod_MakeHull0: C Nodes=902F4D80
-Mod_LoadBrushModel: C 0C0CA50C nodes=902F4D80
-Mod_LoadBrushModel: D 0C0C0754 nodes=902F4D80
+Mod_LoadBrushModel: C 0C0C858C nodes=902F4D80
+Mod_LoadBrushModel: D 0C0BE7D4 nodes=902F4D80
 PackFile: ./id1/pak0.pak : progs/s_bubble.spr 1
 tk_ird_fseek: 91801080 3627468 0
 COM_LoadFile: progs/s_bubble.spr hdl=1 uh=4
@@ -2451,8 +2473,8 @@ COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=18522
 COM_LoadFile: buf=917FB6B0
 Sys_FileRead hdl=1 dst=917FB6B0 sz=18522 fd=91801010
 Sys_FileRead rlen=18522
-A cl.worldmodel=0C0CA50C
-B cl.worldmodel=0C0CA50C
+A cl.worldmodel=0C0C858C
+B cl.worldmodel=0C0C858C
 player entered the game
 PackFile: ./id1/pak0.pak : gfx/loading.lmp 1
 tk_ird_fseek: 91801080 7524411 0
@@ -2490,14 +2512,14 @@ Sys_FileRead rlen=1365176
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=902E4010
 Mod_LoadBrushModel: B nodes=902E4010 surfs=9026AFA0
-Mod_MakeHull0: Mod=0C0CA694 Hulls=0C0CA764
+Mod_MakeHull0: Mod=0C0C8714 Hulls=0C0C87E4
 Mod_MakeHull0: A Nodes=902E4010
-Mod_MakeHull0: Mod=0C0CA694 Hull=0C0CA764
+Mod_MakeHull0: Mod=0C0C8714 Hull=0C0C87E4
 Mod_MakeHull0: A-1 Nodes=902E4010
 Mod_MakeHull0: A-2 Nodes=902E4010
 Mod_MakeHull0: C Nodes=902E4010
-Mod_LoadBrushModel: C 0C0CA694 nodes=902E4010
-Mod_LoadBrushModel: D 0C0C0BEC nodes=902E4010
+Mod_LoadBrushModel: C 0C0C8714 nodes=902E4010
+Mod_LoadBrushModel: D 0C0BEC6C nodes=902E4010
 PackFile: ./id1/pak0.pak : progs/s_bubble.spr 1
 tk_ird_fseek: 91801080 3627468 0
 COM_LoadFile: progs/s_bubble.spr hdl=1 uh=4
@@ -2536,14 +2558,14 @@ Sys_FileRead rlen=5044
 Mod_LoadBrushModel: A nodes=9022F4A0
 Mod_LoadBrushModel: A1 nodes=903220C0
 Mod_LoadBrushModel: B nodes=903220C0 surfs=90321DA0
-Mod_MakeHull0: Mod=0C0C9EEC Hulls=0C0C9FBC
+Mod_MakeHull0: Mod=0C0C7F6C Hulls=0C0C803C
 Mod_MakeHull0: A Nodes=903220C0
-Mod_MakeHull0: Mod=0C0C9EEC Hull=0C0C9FBC
+Mod_MakeHull0: Mod=0C0C7F6C Hull=0C0C803C
 Mod_MakeHull0: A-1 Nodes=903220C0
 Mod_MakeHull0: A-2 Nodes=903220C0
 Mod_MakeHull0: C Nodes=903220C0
-Mod_LoadBrushModel: C 0C0C9EEC nodes=903220C0
-Mod_LoadBrushModel: D 0C0C9EEC nodes=903220C0
+Mod_LoadBrushModel: C 0C0C7F6C nodes=903220C0
+Mod_LoadBrushModel: D 0C0C7F6C nodes=903220C0
 PackFile: ./id1/pak0.pak : progs/quaddama.mdl 1
 tk_ird_fseek: 91801080 3332372 0
 COM_LoadFile: progs/quaddama.mdl hdl=1 uh=4
@@ -2561,14 +2583,14 @@ Sys_FileRead rlen=8820
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=903258A0
 Mod_LoadBrushModel: B nodes=903258A0 surfs=90325580
-Mod_MakeHull0: Mod=0C0CACB4 Hulls=0C0CAD84
+Mod_MakeHull0: Mod=0C0C8D34 Hulls=0C0C8E04
 Mod_MakeHull0: A Nodes=903258A0
-Mod_MakeHull0: Mod=0C0CACB4 Hull=0C0CAD84
+Mod_MakeHull0: Mod=0C0C8D34 Hull=0C0C8E04
 Mod_MakeHull0: A-1 Nodes=903258A0
 Mod_MakeHull0: A-2 Nodes=903258A0
 Mod_MakeHull0: C Nodes=903258A0
-Mod_LoadBrushModel: C 0C0CACB4 nodes=903258A0
-Mod_LoadBrushModel: D 0C0CACB4 nodes=903258A0
+Mod_LoadBrushModel: C 0C0C8D34 nodes=903258A0
+Mod_LoadBrushModel: D 0C0C8D34 nodes=903258A0
 PackFile: ./id1/pak0.pak : maps/b_shell0.bsp 1
 tk_ird_fseek: 91801080 3158464 0
 COM_LoadFile: maps/b_shell0.bsp hdl=1 uh=4
@@ -2579,14 +2601,14 @@ Sys_FileRead rlen=5044
 Mod_LoadBrushModel: A nodes=9022B330
 Mod_LoadBrushModel: A1 nodes=90327270
 Mod_LoadBrushModel: B nodes=90327270 surfs=90326F50
-Mod_MakeHull0: Mod=0C0C98CC Hulls=0C0C999C
+Mod_MakeHull0: Mod=0C0C794C Hulls=0C0C7A1C
 Mod_MakeHull0: A Nodes=90327270
-Mod_MakeHull0: Mod=0C0C98CC Hull=0C0C999C
+Mod_MakeHull0: Mod=0C0C794C Hull=0C0C7A1C
 Mod_MakeHull0: A-1 Nodes=90327270
 Mod_MakeHull0: A-2 Nodes=90327270
 Mod_MakeHull0: C Nodes=90327270
-Mod_LoadBrushModel: C 0C0C98CC nodes=90327270
-Mod_LoadBrushModel: D 0C0C98CC nodes=90327270
+Mod_LoadBrushModel: C 0C0C794C nodes=90327270
+Mod_LoadBrushModel: D 0C0C794C nodes=90327270
 PackFile: ./id1/pak0.pak : maps/b_bh10.bsp 1
 tk_ird_fseek: 91801080 2850104 0
 COM_LoadFile: maps/b_bh10.bsp hdl=1 uh=4
@@ -2597,14 +2619,14 @@ Sys_FileRead rlen=3936
 Mod_LoadBrushModel: A nodes=90229AA0
 Mod_LoadBrushModel: A1 nodes=903286B0
 Mod_LoadBrushModel: B nodes=903286B0 surfs=90328390
-Mod_MakeHull0: Mod=0C0C95BC Hulls=0C0C968C
+Mod_MakeHull0: Mod=0C0C763C Hulls=0C0C770C
 Mod_MakeHull0: A Nodes=903286B0
-Mod_MakeHull0: Mod=0C0C95BC Hull=0C0C968C
+Mod_MakeHull0: Mod=0C0C763C Hull=0C0C770C
 Mod_MakeHull0: A-1 Nodes=903286B0
 Mod_MakeHull0: A-2 Nodes=903286B0
 Mod_MakeHull0: C Nodes=903286B0
-Mod_LoadBrushModel: C 0C0C95BC nodes=903286B0
-Mod_LoadBrushModel: D 0C0C95BC nodes=903286B0
+Mod_LoadBrushModel: C 0C0C763C nodes=903286B0
+Mod_LoadBrushModel: D 0C0C763C nodes=903286B0
 PackFile: ./id1/pak0.pak : maps/b_bh25.bsp 1
 tk_ird_fseek: 91801080 2862860 0
 COM_LoadFile: maps/b_bh25.bsp hdl=1 uh=4
@@ -2615,14 +2637,14 @@ Sys_FileRead rlen=8872
 Mod_LoadBrushModel: A nodes=90228680
 Mod_LoadBrushModel: A1 nodes=9032AEE0
 Mod_LoadBrushModel: B nodes=9032AEE0 surfs=9032ABC0
-Mod_MakeHull0: Mod=0C0C9434 Hulls=0C0C9504
+Mod_MakeHull0: Mod=0C0C74B4 Hulls=0C0C7584
 Mod_MakeHull0: A Nodes=9032AEE0
-Mod_MakeHull0: Mod=0C0C9434 Hull=0C0C9504
+Mod_MakeHull0: Mod=0C0C74B4 Hull=0C0C7584
 Mod_MakeHull0: A-1 Nodes=9032AEE0
 Mod_MakeHull0: A-2 Nodes=9032AEE0
 Mod_MakeHull0: C Nodes=9032AEE0
-Mod_LoadBrushModel: C 0C0C9434 nodes=9032AEE0
-Mod_LoadBrushModel: D 0C0C9434 nodes=9032AEE0
+Mod_LoadBrushModel: C 0C0C74B4 nodes=9032AEE0
+Mod_LoadBrushModel: D 0C0C74B4 nodes=9032AEE0
 PackFile: ./id1/pak0.pak : maps/b_nail1.bsp 1
 tk_ird_fseek: 91801080 3163508 0
 COM_LoadFile: maps/b_nail1.bsp hdl=1 uh=4
@@ -2633,14 +2655,14 @@ Sys_FileRead rlen=5044
 Mod_LoadBrushModel: A nodes=9022DC10
 Mod_LoadBrushModel: A1 nodes=9032CD40
 Mod_LoadBrushModel: B nodes=9032CD40 surfs=9032CA20
-Mod_MakeHull0: Mod=0C0C9BDC Hulls=0C0C9CAC
+Mod_MakeHull0: Mod=0C0C7C5C Hulls=0C0C7D2C
 Mod_MakeHull0: A Nodes=9032CD40
-Mod_MakeHull0: Mod=0C0C9BDC Hull=0C0C9CAC
+Mod_MakeHull0: Mod=0C0C7C5C Hull=0C0C7D2C
 Mod_MakeHull0: A-1 Nodes=9032CD40
 Mod_MakeHull0: A-2 Nodes=9032CD40
 Mod_MakeHull0: C Nodes=9032CD40
-Mod_LoadBrushModel: C 0C0C9BDC nodes=9032CD40
-Mod_LoadBrushModel: D 0C0C9BDC nodes=9032CD40
+Mod_LoadBrushModel: C 0C0C7C5C nodes=9032CD40
+Mod_LoadBrushModel: D 0C0C7C5C nodes=9032CD40
 PackFile: ./id1/pak0.pak : progs/h_dog.mdl 1
 tk_ird_fseek: 91801080 5195128 0
 COM_LoadFile: progs/h_dog.mdl hdl=1 uh=4
@@ -2672,14 +2694,14 @@ Sys_FileRead rlen=10220
 Mod_LoadBrushModel: A nodes=00000000
 Mod_LoadBrushModel: A1 nodes=90330D70
 Mod_LoadBrushModel: B nodes=90330D70 surfs=90330A50
-Mod_MakeHull0: Mod=0C0CB2D4 Hulls=0C0CB3A4
+Mod_MakeHull0: Mod=0C0C9354 Hulls=0C0C9424
 Mod_MakeHull0: A Nodes=90330D70
-Mod_MakeHull0: Mod=0C0CB2D4 Hull=0C0CB3A4
+Mod_MakeHull0: Mod=0C0C9354 Hull=0C0C9424
 Mod_MakeHull0: A-1 Nodes=90330D70
 Mod_MakeHull0: A-2 Nodes=90330D70
 Mod_MakeHull0: C Nodes=90330D70
-Mod_LoadBrushModel: C 0C0CB2D4 nodes=90330D70
-Mod_LoadBrushModel: D 0C0CB2D4 nodes=90330D70
+Mod_LoadBrushModel: C 0C0C9354 nodes=90330D70
+Mod_LoadBrushModel: D 0C0C9354 nodes=90330D70
 
 VERSION 1.09 SERVER (24778 CRC)
 
@@ -2859,16 +2881,20 @@ COM_LoadFile: loadbuf=8FFF15E8 loadsz=1024 len=62734
 COM_LoadFile: buf=917F0A00
 Sys_FileRead hdl=1 dst=917F0A00 sz=62734 fd=91801010
 Sys_FileRead rlen=62734
-A cl.worldmodel=0C0CA694
-B cl.worldmodel=0C0CA694
+A cl.worldmodel=0C0C8714
+B cl.worldmodel=0C0C8714
 ]god
 godmode ON
 ]notarget 
 notarget ON
-]impulse 
-]impulse 9
+You get 5 shells
+You got the shells
 You got the shells
 You get 5 shells
-You get 5 shells
 You got armor
+You got the shells
+You got the nailgun
+You got the nails
+You get 5 shells
+You get 5 shells
 You get 5 shells

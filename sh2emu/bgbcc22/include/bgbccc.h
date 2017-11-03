@@ -305,6 +305,7 @@ extern "C" {
 #define BGBCC_IMGFMT_DLL	BGBCC_FOURCC('D', 'L', 'L', ' ')
 #define BGBCC_IMGFMT_ELXE	BGBCC_FOURCC('E', 'L', 'X', 'E')
 #define BGBCC_IMGFMT_ELSO	BGBCC_FOURCC('E', 'L', 'S', 'O')
+#define BGBCC_IMGFMT_ROM	BGBCC_FOURCC('R', 'O', 'M', ' ')
 
 #define BGBCC_IMGFMT_RIL3	BGBCC_FOURCC('R', 'I', 'L', '3')
 

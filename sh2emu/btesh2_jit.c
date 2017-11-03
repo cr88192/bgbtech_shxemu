@@ -308,6 +308,9 @@ int BTESH2_JitShlVMRegImm(UAX_Context *jctx, int idx, s32 val)
 	{ return(BTESH2_JitInsnVMRegImm(jctx, UAX_OP_SHL, idx, val)); }
 int BTESH2_JitShrVMRegImm(UAX_Context *jctx, int idx, s32 val)
 	{ return(BTESH2_JitInsnVMRegImm(jctx, UAX_OP_SHR, idx, val)); }
+
+int BTESH2_JitCmpVMRegImm(UAX_Context *jctx, int idx, s32 val)
+	{ return(BTESH2_JitInsnVMRegImm(jctx, UAX_OP_CMP, idx, val)); }
 int BTESH2_JitTestVMRegImm(UAX_Context *jctx, int idx, s32 val)
 	{ return(BTESH2_JitInsnVMRegImm(jctx, UAX_OP_TEST, idx, val)); }
 #endif
@@ -959,13 +962,13 @@ int BTESH2_JitUnlinkTrace(BTESH2_CpuState *cpu, BTESH2_Trace *trj)
 	if(trj->maxpc==0xDEADFEED)
 	{
 		__debugbreak();
-		return;
+		return(-1);
 	}
 
 	if(trj->srcpc==(u32)(-1))
 	{
 		__debugbreak();
-		return;
+		return(-1);
 	}
 
 	if((trj->lnkcnt>0) && (trj->lnkcnt<255))

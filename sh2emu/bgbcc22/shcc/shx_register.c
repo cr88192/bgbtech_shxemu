@@ -478,7 +478,8 @@ int BGBCC_SHXC_EmitTryGetRegister(
 //		return(BGBCC_SHXC_EmitTryGetFpRegister(ctx, sctx, reg, fl));
 //	}
 
-	if(BGBCC_CCXL_IsRegFloatP(ctx, reg))
+	if(	BGBCC_CCXL_IsRegFloatP(ctx, reg) ||
+		BGBCC_CCXL_IsRegFloat16P(ctx, reg))
 	{
 		return(BGBCC_SHXC_EmitTryGetFpRegister(ctx, sctx, reg, fl));
 	}
@@ -659,6 +660,7 @@ int BGBCC_SHXC_EmitGetRegister(
 		return(creg);
 
 	if(BGBCC_CCXL_IsRegFloatP(ctx, reg) ||
+		BGBCC_CCXL_IsRegFloat16P(ctx, reg) ||
 		BGBCC_CCXL_IsRegDoubleP(ctx, reg))
 	{
 		return(BGBCC_SHXC_EmitGetFpRegister(ctx, sctx, reg, fl));
@@ -1078,6 +1080,7 @@ int BGBCC_SHXC_EmitReleaseRegister(
 	int i;
 
 	if(BGBCC_CCXL_IsRegFloatP(ctx, reg) ||
+		BGBCC_CCXL_IsRegFloat16P(ctx, reg) ||
 		BGBCC_CCXL_IsRegDoubleP(ctx, reg))
 	{
 		return(BGBCC_SHXC_EmitReleaseFpRegister(ctx, sctx, reg));
@@ -1273,5 +1276,12 @@ int BGBCC_SHXC_EmitLabelFlushRegisters(
 		sctx->regalc_live&=~(1<<i);
 	}
 	
+	return(0);
+}
+
+int BGBCC_SHXC_EmitScratchSyncRegisters(
+	BGBCC_TransState *ctx,
+	BGBCC_SHX_Context *sctx)
+{
 	return(0);
 }

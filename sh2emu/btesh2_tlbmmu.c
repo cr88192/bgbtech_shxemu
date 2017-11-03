@@ -200,7 +200,7 @@ int BTESH2_SetAddrQWordTMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, u64 val)
 	return(BTESH2_SetAddrQWordPhy2(cpu, addr1, val));
 }
 
-void BTESH2_TMMU_LDTLB(BTESH2_CpuState *cpu)
+int BTESH2_TMMU_LDTLB(BTESH2_CpuState *cpu)
 {
 	u64 tlbe0, tlbe1, tlbe2, tlbe3, tlbe4;
 	u32 tlbh, ptde, pte;
@@ -225,6 +225,7 @@ void BTESH2_TMMU_LDTLB(BTESH2_CpuState *cpu)
 	cpu->tmmu_tlb[h][1]=tlbe0;
 	cpu->tmmu_tlb[h][2]=tlbe1;
 	cpu->tmmu_tlb[h][3]=tlbe2;
+	return(0);
 }
 
 int BTESH2_SetupUpdateTMMU(BTESH2_CpuState *cpu)

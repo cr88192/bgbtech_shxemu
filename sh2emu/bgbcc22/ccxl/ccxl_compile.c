@@ -3402,6 +3402,7 @@ int BGBCC_CCXL_CompileModuleCTX(
 
 	i=BCCX_GetIntCst(l, &bgbcc_rcst_index, "index");
 	ctx->tuidx=i;
+	BGBCC_CCXL_AttribInt(ctx, CCXL_ATTR_TUIDX, i);
 
 	ctx->types=BCCX_Fetch(l, "types");
 	ctx->structs=BCCX_Fetch(l, "structs");
@@ -3445,6 +3446,7 @@ char *BGBCC_CCXL_CompileModule(char *name, BCCX_Node *l)
 
 	i=BCCX_GetIntCst(l, &bgbcc_rcst_index, "index");
 	ctx->tuidx=i;
+	BGBCC_CCXL_AttribInt(ctx, CCXL_ATTR_TUIDX, i);
 
 	ctx->types=BCCX_Fetch(l, "types");
 	ctx->structs=BCCX_Fetch(l, "structs");

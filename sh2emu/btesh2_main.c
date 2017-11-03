@@ -1519,7 +1519,8 @@ int btesh2_main_startimage()
 		if(ibuf)
 		{
 //			i=BTESH2_BootLoadElf(cpu, ibuf, sz, 0x10000000);
-			i=BTESH2_BootLoadImage(cpu, ibuf, sz, 0x10000000);
+//			i=BTESH2_BootLoadImage(cpu, ibuf, sz, 0x10000000);
+			i=BTESH2_BootLoadImage(cpu, ibuf, sz, 0);
 			if(i<0)
 			{
 				printf("Load Failed\n");

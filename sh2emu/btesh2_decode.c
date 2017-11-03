@@ -805,14 +805,37 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_CMPPZ_Reg;
 				break;
-			case 0x2: /* 4-11 */
+			case 0x2: /* 4-21 */
 				op->rn=(opw>>8)&15;
 				op->nmid=BTESH2_NMID_SHAR;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_SHAR_Reg;
 				break;
 
+			case 0x6: /* 4-61 */
+				op->rn=(opw>>8)&15;
+				op->nmid=BTESH2_NMID_STHF16;
+				op->fmid=BTESH2_FMID_REGRN;
+				op->Run=BTSH_Op_STHF16_Reg;
+				break;
+			case 0x7: /* 4-71 */
+				op->rm=(opw>>8)&15;
+				op->nmid=BTESH2_NMID_LDHF16;
+				op->fmid=BTESH2_FMID_REGRM;
+				op->Run=BTSH_Op_LDHF16_Reg;
+				break;
 
+
+			case 0xB: /* 4-B1 */
+				op->rm=(opw>>8)&15;
+				op->rn=0;
+				op->imm=(pc+4)&(~3);
+				op->nmid=BTESH2_NMID_FMOVS;
+				op->fmid=BTESH2_FMID_REGSTDISP;
+				op->Run=BTSH_Op_FMOV_RegStDisp;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegStDispB;
+				break;
 			case 0xC: /* 4-C1 */
 				op->rm=(opw>>8)&15;
 				op->rn=0;
@@ -978,6 +1001,16 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->Run=BTSH_Op_ROTCR_Reg;
 				break;
 
+			case 0xB: /* 4-B5 */
+				op->rn=(opw>>8)&15;
+				op->rm=0;
+				op->imm=(pc+4)&(~3);
+				op->nmid=BTESH2_NMID_FMOVS;
+				op->fmid=BTESH2_FMID_REGLDDISP;
+				op->Run=BTSH_Op_FMOV_RegLdDisp;
+//				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+//					op->Run=BTSH_OpJQ_MOV_RegLdDispB;
+				break;
 			case 0xC: /* 4-C5 */
 				op->rn=(opw>>8)&15;
 				op->rm=0;
