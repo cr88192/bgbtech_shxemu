@@ -2,6 +2,7 @@
  * SH-ISA
  */
 
+/* 00-1F: GPR R00-R31, 32/64 */
 #define BGBCC_SH_REG_R0			0x00
 #define BGBCC_SH_REG_R1			0x01
 #define BGBCC_SH_REG_R2			0x02
@@ -18,180 +19,251 @@
 #define BGBCC_SH_REG_R13		0x0D
 #define BGBCC_SH_REG_R14		0x0E
 #define BGBCC_SH_REG_R15		0x0F
+#define BGBCC_SH_REG_R16		0x10
+#define BGBCC_SH_REG_R17		0x11
+#define BGBCC_SH_REG_R18		0x12
+#define BGBCC_SH_REG_R19		0x13
+#define BGBCC_SH_REG_R20		0x14
+#define BGBCC_SH_REG_R21		0x15
+#define BGBCC_SH_REG_R22		0x16
+#define BGBCC_SH_REG_R23		0x17
+#define BGBCC_SH_REG_R24		0x18	
+#define BGBCC_SH_REG_R25		0x19
+#define BGBCC_SH_REG_R26		0x1A
+#define BGBCC_SH_REG_R27		0x1B
+#define BGBCC_SH_REG_R28		0x1C
+#define BGBCC_SH_REG_R29		0x1D
+#define BGBCC_SH_REG_R30		0x1E
+#define BGBCC_SH_REG_R31		0x1F
 
 #define BGBCC_SH_REG_BP			0x0E
 #define BGBCC_SH_REG_SP			0x0F
 
-#define BGBCC_SH_REG_SR			0x10
-#define BGBCC_SH_REG_GBR		0x11
-#define BGBCC_SH_REG_VBR		0x12
-#define BGBCC_SH_REG_SSR		0x13
-#define BGBCC_SH_REG_SPC		0x14
 
-#define BGBCC_SH_REG_R0B		0x18
-#define BGBCC_SH_REG_R1B		0x19
-#define BGBCC_SH_REG_R2B		0x1A
-#define BGBCC_SH_REG_R3B		0x1B
-#define BGBCC_SH_REG_R4B		0x1C
-#define BGBCC_SH_REG_R5B		0x1D
-#define BGBCC_SH_REG_R6B		0x1E
-#define BGBCC_SH_REG_R7B		0x1F
+/* 20-3F: GPR RQ00-RQ31, 64 */
+#define BGBCC_SH_REG_RQ0		0x20
+#define BGBCC_SH_REG_RQ1		0x21
+#define BGBCC_SH_REG_RQ2		0x22
+#define BGBCC_SH_REG_RQ3		0x23
+#define BGBCC_SH_REG_RQ4		0x24
+#define BGBCC_SH_REG_RQ5		0x25
+#define BGBCC_SH_REG_RQ6		0x26
+#define BGBCC_SH_REG_RQ7		0x27
+#define BGBCC_SH_REG_RQ8		0x28
+#define BGBCC_SH_REG_RQ9		0x29
+#define BGBCC_SH_REG_RQ10		0x2A
+#define BGBCC_SH_REG_RQ11		0x2B
+#define BGBCC_SH_REG_RQ12		0x2C
+#define BGBCC_SH_REG_RQ13		0x2D
+#define BGBCC_SH_REG_RQ14		0x2E
+#define BGBCC_SH_REG_RQ15		0x2F
+#define BGBCC_SH_REG_RQ16		0x30
+#define BGBCC_SH_REG_RQ17		0x31
+#define BGBCC_SH_REG_RQ18		0x32
+#define BGBCC_SH_REG_RQ19		0x33
+#define BGBCC_SH_REG_RQ20		0x34
+#define BGBCC_SH_REG_RQ21		0x35
+#define BGBCC_SH_REG_RQ22		0x36
+#define BGBCC_SH_REG_RQ23		0x37
+#define BGBCC_SH_REG_RQ24		0x38	
+#define BGBCC_SH_REG_RQ25		0x39
+#define BGBCC_SH_REG_RQ26		0x3A
+#define BGBCC_SH_REG_RQ27		0x3B
+#define BGBCC_SH_REG_RQ28		0x3C
+#define BGBCC_SH_REG_RQ29		0x3D
+#define BGBCC_SH_REG_RQ30		0x3E
+#define BGBCC_SH_REG_RQ31		0x3F
 
-#define BGBCC_SH_REG_MACH		0x20	//S
-#define BGBCC_SH_REG_MACL		0x21	//S
-#define BGBCC_SH_REG_PR			0x22	//S
-#define BGBCC_SH_REG_SGR		0x23	//C
+/* 40-5F: GPR RD00-RD31, 32 */
+#define BGBCC_SH_REG_RD0		0x40
+#define BGBCC_SH_REG_RD1		0x41
+#define BGBCC_SH_REG_RD2		0x42
+#define BGBCC_SH_REG_RD3		0x43
+#define BGBCC_SH_REG_RD4		0x44
+#define BGBCC_SH_REG_RD5		0x45
+#define BGBCC_SH_REG_RD6		0x46
+#define BGBCC_SH_REG_RD7		0x47
+#define BGBCC_SH_REG_RD8		0x48
+#define BGBCC_SH_REG_RD9		0x49
+#define BGBCC_SH_REG_RD10		0x4A
+#define BGBCC_SH_REG_RD11		0x4B
+#define BGBCC_SH_REG_RD12		0x4C
+#define BGBCC_SH_REG_RD13		0x4D
+#define BGBCC_SH_REG_RD14		0x4E
+#define BGBCC_SH_REG_RD15		0x4F
+#define BGBCC_SH_REG_RD16		0x50
+#define BGBCC_SH_REG_RD17		0x51
+#define BGBCC_SH_REG_RD18		0x52
+#define BGBCC_SH_REG_RD19		0x53
+#define BGBCC_SH_REG_RD20		0x54
+#define BGBCC_SH_REG_RD21		0x55
+#define BGBCC_SH_REG_RD22		0x56
+#define BGBCC_SH_REG_RD23		0x57
+#define BGBCC_SH_REG_RD24		0x58	
+#define BGBCC_SH_REG_RD25		0x59
+#define BGBCC_SH_REG_RD26		0x5A
+#define BGBCC_SH_REG_RD27		0x5B
+#define BGBCC_SH_REG_RD28		0x5C
+#define BGBCC_SH_REG_RD29		0x5D
+#define BGBCC_SH_REG_RD30		0x5E
+#define BGBCC_SH_REG_RD31		0x5F
 
-#define BGBCC_SH_REG_FPUL		0x25
-#define BGBCC_SH_REG_FPSCR		0x26
-#define BGBCC_SH_REG_PC			0x27
+/* 60-6F: Control Regs */
+#define BGBCC_SH_REG_CR0		0x60
 
-#define BGBCC_SH_REG_DBR		0x2F
+#define BGBCC_SH_REG_SR			0x60
+#define BGBCC_SH_REG_GBR		0x61
+#define BGBCC_SH_REG_VBR		0x62
+#define BGBCC_SH_REG_SSR		0x63
+#define BGBCC_SH_REG_SPC		0x64
 
-#define BGBCC_SH_REG_DR0		0x30
-#define BGBCC_SH_REG_DR1		0x31
-#define BGBCC_SH_REG_DR2		0x32
-#define BGBCC_SH_REG_DR3		0x33
-#define BGBCC_SH_REG_DR4		0x34
-#define BGBCC_SH_REG_DR5		0x35
-#define BGBCC_SH_REG_DR6		0x36
-#define BGBCC_SH_REG_DR7		0x37
-#define BGBCC_SH_REG_DR8		0x38	
-#define BGBCC_SH_REG_DR9		0x39
-#define BGBCC_SH_REG_DR10		0x3A
-#define BGBCC_SH_REG_DR11		0x3B
-#define BGBCC_SH_REG_DR12		0x3C
-#define BGBCC_SH_REG_DR13		0x3D
-#define BGBCC_SH_REG_DR14		0x3E
-#define BGBCC_SH_REG_DR15		0x3F
+#define BGBCC_SH_REG_R0B		0x68
+#define BGBCC_SH_REG_R1B		0x69
+#define BGBCC_SH_REG_R2B		0x6A
+#define BGBCC_SH_REG_R3B		0x6B
+#define BGBCC_SH_REG_R4B		0x6C
+#define BGBCC_SH_REG_R5B		0x6D
+#define BGBCC_SH_REG_R6B		0x6E
+#define BGBCC_SH_REG_R7B		0x6F
 
-//#define BGBCC_SH_REG_XD0		0x38	
-//#define BGBCC_SH_REG_XD1		0x39
-//#define BGBCC_SH_REG_XD2		0x3A
-//#define BGBCC_SH_REG_XD3		0x3B
-//#define BGBCC_SH_REG_XD4		0x3C
-//#define BGBCC_SH_REG_XD5		0x3D
-//#define BGBCC_SH_REG_XD6		0x3E
-//#define BGBCC_SH_REG_XD7		0x3F
+/* 70-7F: Status Regs */
+#define BGBCC_SH_REG_SR0		0x70
 
-//#define BGBCC_SH_REG_PC			0x3E
+#define BGBCC_SH_REG_MACH		0x70	//S
+#define BGBCC_SH_REG_MACL		0x71	//S
+#define BGBCC_SH_REG_PR			0x72	//S
+#define BGBCC_SH_REG_SGR		0x73	//C
 
-#define BGBCC_SH_REG_FR0		0x40
-#define BGBCC_SH_REG_FR1		0x41
-#define BGBCC_SH_REG_FR2		0x42
-#define BGBCC_SH_REG_FR3		0x43
-#define BGBCC_SH_REG_FR4		0x44
+#define BGBCC_SH_REG_FPUL		0x75
+#define BGBCC_SH_REG_FPSCR		0x76
+#define BGBCC_SH_REG_PC			0x77
 
-#define BGBCC_SH_REG_FR8		0x48
-#define BGBCC_SH_REG_FR9		0x49
-#define BGBCC_SH_REG_FR10		0x4A
-#define BGBCC_SH_REG_FR11		0x4B
-#define BGBCC_SH_REG_FR12		0x4C
-#define BGBCC_SH_REG_FR13		0x4D
-#define BGBCC_SH_REG_FR14		0x4E
-#define BGBCC_SH_REG_FR15		0x4F
+#define BGBCC_SH_REG_DBR		0x7F
 
-#define BGBCC_SH_REG_LR0		0x50
-#define BGBCC_SH_REG_LR1		0x51
-#define BGBCC_SH_REG_LR2		0x52
-#define BGBCC_SH_REG_LR3		0x53
-#define BGBCC_SH_REG_LR4		0x54
-#define BGBCC_SH_REG_LR5		0x55
-#define BGBCC_SH_REG_LR6		0x56
-#define BGBCC_SH_REG_LR7		0x57
-#define BGBCC_SH_REG_LR8		0x58
-#define BGBCC_SH_REG_LR9		0x59
-#define BGBCC_SH_REG_LR10		0x5A
-#define BGBCC_SH_REG_LR11		0x5B
-#define BGBCC_SH_REG_LR12		0x5C
-#define BGBCC_SH_REG_LR13		0x5D
-#define BGBCC_SH_REG_LR14		0x5E
-#define BGBCC_SH_REG_LR15		0x5F		//Invalid
+/* 80-9F: FPR DR0-DR15, 64 */
+#define BGBCC_SH_REG_DR0		0x80
+#define BGBCC_SH_REG_DR1		0x81
+#define BGBCC_SH_REG_DR2		0x82
+#define BGBCC_SH_REG_DR3		0x83
+#define BGBCC_SH_REG_DR4		0x84
+#define BGBCC_SH_REG_DR5		0x85
+#define BGBCC_SH_REG_DR6		0x86
+#define BGBCC_SH_REG_DR7		0x87
+#define BGBCC_SH_REG_DR8		0x88	
+#define BGBCC_SH_REG_DR9		0x89
+#define BGBCC_SH_REG_DR10		0x8A
+#define BGBCC_SH_REG_DR11		0x8B
+#define BGBCC_SH_REG_DR12		0x8C
+#define BGBCC_SH_REG_DR13		0x8D
+#define BGBCC_SH_REG_DR14		0x8E
+#define BGBCC_SH_REG_DR15		0x8F
+#define BGBCC_SH_REG_DR16		0x90
+#define BGBCC_SH_REG_DR17		0x91
+#define BGBCC_SH_REG_DR18		0x92
+#define BGBCC_SH_REG_DR19		0x93
+#define BGBCC_SH_REG_DR20		0x94
+#define BGBCC_SH_REG_DR21		0x95
+#define BGBCC_SH_REG_DR22		0x96
+#define BGBCC_SH_REG_DR23		0x97
+#define BGBCC_SH_REG_DR24		0x98	
+#define BGBCC_SH_REG_DR25		0x99
+#define BGBCC_SH_REG_DR26		0x9A
+#define BGBCC_SH_REG_DR27		0x9B
+#define BGBCC_SH_REG_DR28		0x9C
+#define BGBCC_SH_REG_DR29		0x9D
+#define BGBCC_SH_REG_DR30		0x9E
+#define BGBCC_SH_REG_DR31		0x9F
 
-#define BGBCC_SH_REG_RH0		0x60
-#define BGBCC_SH_REG_RH1		0x61
-#define BGBCC_SH_REG_RH2		0x62
-#define BGBCC_SH_REG_RH3		0x63
-#define BGBCC_SH_REG_RH4		0x64
-#define BGBCC_SH_REG_RH5		0x65
-#define BGBCC_SH_REG_RH6		0x66
-#define BGBCC_SH_REG_RH7		0x67
-#define BGBCC_SH_REG_RH8		0x68
-#define BGBCC_SH_REG_RH9		0x69
-#define BGBCC_SH_REG_RH10		0x6A
-#define BGBCC_SH_REG_RH11		0x6B
-#define BGBCC_SH_REG_RH12		0x6C
-#define BGBCC_SH_REG_RH13		0x6D
-#define BGBCC_SH_REG_RH14		0x6E
-#define BGBCC_SH_REG_RH15		0x6F
+/* A0-AF: FPR FR0-FR15, 32 */
+#define BGBCC_SH_REG_FR0		0xA0
+#define BGBCC_SH_REG_FR1		0xA1
+#define BGBCC_SH_REG_FR2		0xA2
+#define BGBCC_SH_REG_FR3		0xA3
+#define BGBCC_SH_REG_FR4		0xA4
+#define BGBCC_SH_REG_FR5		0xA5
+#define BGBCC_SH_REG_FR6		0xA6
+#define BGBCC_SH_REG_FR7		0xA7
+#define BGBCC_SH_REG_FR8		0xA8
+#define BGBCC_SH_REG_FR9		0xA9
+#define BGBCC_SH_REG_FR10		0xAA
+#define BGBCC_SH_REG_FR11		0xAB
+#define BGBCC_SH_REG_FR12		0xAC
+#define BGBCC_SH_REG_FR13		0xAD
+#define BGBCC_SH_REG_FR14		0xAE
+#define BGBCC_SH_REG_FR15		0xAF
 
-#define BGBCC_SH_REG_RQ0		0x70
-#define BGBCC_SH_REG_RQ1		0x71
-#define BGBCC_SH_REG_RQ2		0x72
-#define BGBCC_SH_REG_RQ3		0x73
-#define BGBCC_SH_REG_RQ4		0x74
-#define BGBCC_SH_REG_RQ5		0x75
-#define BGBCC_SH_REG_RQ6		0x76
-#define BGBCC_SH_REG_RQ7		0x77
-#define BGBCC_SH_REG_RQ8		0x78
-#define BGBCC_SH_REG_RQ9		0x79
-#define BGBCC_SH_REG_RQ10		0x7A
-#define BGBCC_SH_REG_RQ11		0x7B
-#define BGBCC_SH_REG_RQ12		0x7C
-#define BGBCC_SH_REG_RQ13		0x7D
-#define BGBCC_SH_REG_RQ14		0x7E
-#define BGBCC_SH_REG_RQ15		0x7F
+/* B0-BF: FPR XF0-XF15, 32 */
+#define BGBCC_SH_REG_XF0		0xB0
+#define BGBCC_SH_REG_XF1		0xB1
+#define BGBCC_SH_REG_XF2		0xB2
+#define BGBCC_SH_REG_XF3		0xB3
+#define BGBCC_SH_REG_XF4		0xB4
+#define BGBCC_SH_REG_XF12		0xBC
+#define BGBCC_SH_REG_XF13		0xBD
+#define BGBCC_SH_REG_XF14		0xBE
+#define BGBCC_SH_REG_XF15		0xBF
 
+/* C0-CF: FPR XF0-XF15, 32 */
+#define BGBCC_SH_REG_YF0		0xC0
+#define BGBCC_SH_REG_YF1		0xC1
+#define BGBCC_SH_REG_YF2		0xC2
+#define BGBCC_SH_REG_YF3		0xC3
+#define BGBCC_SH_REG_YF4		0xC4
+#define BGBCC_SH_REG_YF12		0xCC
+#define BGBCC_SH_REG_YF13		0xCD
+#define BGBCC_SH_REG_YF14		0xCE
+#define BGBCC_SH_REG_YF15		0xCF
 
-#define BGBCC_SH_REG_DR16		0x80
-#define BGBCC_SH_REG_DR17		0x81
-#define BGBCC_SH_REG_DR18		0x82
-#define BGBCC_SH_REG_DR19		0x83
-#define BGBCC_SH_REG_DR20		0x84
-#define BGBCC_SH_REG_DR21		0x85
-#define BGBCC_SH_REG_DR22		0x86
-#define BGBCC_SH_REG_DR23		0x87
-#define BGBCC_SH_REG_DR24		0x88	
-#define BGBCC_SH_REG_DR25		0x89
-#define BGBCC_SH_REG_DR26		0x8A
-#define BGBCC_SH_REG_DR27		0x8B
-#define BGBCC_SH_REG_DR28		0x8C
-#define BGBCC_SH_REG_DR29		0x8D
-#define BGBCC_SH_REG_DR30		0x8E
-#define BGBCC_SH_REG_DR31		0x8F
+/* D0-DF: FPR XF0-XF15, 32 */
+#define BGBCC_SH_REG_ZF0		0xD0
+#define BGBCC_SH_REG_ZF1		0xD1
+#define BGBCC_SH_REG_ZF2		0xD2
+#define BGBCC_SH_REG_ZF3		0xD3
+#define BGBCC_SH_REG_ZF4		0xD4
+#define BGBCC_SH_REG_ZF12		0xDC
+#define BGBCC_SH_REG_ZF13		0xDD
+#define BGBCC_SH_REG_ZF14		0xDE
+#define BGBCC_SH_REG_ZF15		0xDF
 
-#define BGBCC_SH_REG_XF0		0x90
-#define BGBCC_SH_REG_XF1		0x91
-#define BGBCC_SH_REG_XF2		0x92
-#define BGBCC_SH_REG_XF3		0x93
-#define BGBCC_SH_REG_XF4		0x94
-#define BGBCC_SH_REG_XF12		0x9C
-#define BGBCC_SH_REG_XF13		0x9D
-#define BGBCC_SH_REG_XF14		0x9E
-#define BGBCC_SH_REG_XF15		0x9F
+/* E0-EF: GPR R0-R15 High Bits, 32 */
+#define BGBCC_SH_REG_RH0		0xE0
+#define BGBCC_SH_REG_RH1		0xE1
+#define BGBCC_SH_REG_RH2		0xE2
+#define BGBCC_SH_REG_RH3		0xE3
+#define BGBCC_SH_REG_RH4		0xE4
+#define BGBCC_SH_REG_RH5		0xE5
+#define BGBCC_SH_REG_RH6		0xE6
+#define BGBCC_SH_REG_RH7		0xE7
+#define BGBCC_SH_REG_RH8		0xE8
+#define BGBCC_SH_REG_RH9		0xE9
+#define BGBCC_SH_REG_RH10		0xEA
+#define BGBCC_SH_REG_RH11		0xEB
+#define BGBCC_SH_REG_RH12		0xEC
+#define BGBCC_SH_REG_RH13		0xED
+#define BGBCC_SH_REG_RH14		0xEE
+#define BGBCC_SH_REG_RH15		0xEF
 
-#define BGBCC_SH_REG_YF0		0xA0
-#define BGBCC_SH_REG_YF1		0xA1
-#define BGBCC_SH_REG_YF2		0xA2
-#define BGBCC_SH_REG_YF3		0xA3
-#define BGBCC_SH_REG_YF4		0xA4
-#define BGBCC_SH_REG_YF12		0xAC
-#define BGBCC_SH_REG_YF13		0xAD
-#define BGBCC_SH_REG_YF14		0xAE
-#define BGBCC_SH_REG_YF15		0xAF
-
-#define BGBCC_SH_REG_ZF0		0xB0
-#define BGBCC_SH_REG_ZF1		0xB1
-#define BGBCC_SH_REG_ZF2		0xB2
-#define BGBCC_SH_REG_ZF3		0xB3
-#define BGBCC_SH_REG_ZF4		0xB4
-#define BGBCC_SH_REG_ZF12		0xBC
-#define BGBCC_SH_REG_ZF13		0xBD
-#define BGBCC_SH_REG_ZF14		0xBE
-#define BGBCC_SH_REG_ZF15		0xBF
+/* F0-FF: GPR R0-R15 Pair, 32+32 */
+#define BGBCC_SH_REG_LR0		0xF0
+#define BGBCC_SH_REG_LR1		0xF1
+#define BGBCC_SH_REG_LR2		0xF2
+#define BGBCC_SH_REG_LR3		0xF3
+#define BGBCC_SH_REG_LR4		0xF4
+#define BGBCC_SH_REG_LR5		0xF5
+#define BGBCC_SH_REG_LR6		0xF6
+#define BGBCC_SH_REG_LR7		0xF7
+#define BGBCC_SH_REG_LR8		0xF8
+#define BGBCC_SH_REG_LR9		0xF9
+#define BGBCC_SH_REG_LR10		0xFA
+#define BGBCC_SH_REG_LR11		0xFB
+#define BGBCC_SH_REG_LR12		0xFC
+#define BGBCC_SH_REG_LR13		0xFD
+#define BGBCC_SH_REG_LR14		0xFE
+#define BGBCC_SH_REG_LR15		0xFF		//Invalid
 
 #define BGBCC_SH_REG_RTMASK		0xF0
 #define BGBCC_SH_REG_RTMASK3	0xF8
+#define BGBCC_SH_REG_RTMASK5	0xE0
 
 #define BGBCC_SH_REG_ZZR		0xFF		//Null Register (Placeholder Reg)
 
@@ -275,7 +347,6 @@
 #define BGBCC_SH_NMID_MOVA			0x4D	//
 #define BGBCC_SH_NMID_TSTB			0x4E	//
 #define BGBCC_SH_NMID_DIV0U			0x4F	//
-
 #define BGBCC_SH_NMID_LDC			0x50	//
 #define BGBCC_SH_NMID_LDCL			0x51	//
 #define BGBCC_SH_NMID_LDS			0x52	//
@@ -322,6 +393,8 @@
 #define BGBCC_SH_NMID_LDIF16		0x7B	//
 #define BGBCC_SH_NMID_STHF16		0x7C	//
 
+#define BGBCC_SH_NMID_EXTUL			0x7E	//
+#define BGBCC_SH_NMID_EXTSL			0x7F	//
 #define BGBCC_SH_NMID_FABS			0x80	//
 #define BGBCC_SH_NMID_FADD			0x81	//
 #define BGBCC_SH_NMID_FCMPEQ		0x82	//
@@ -345,7 +418,6 @@
 #define BGBCC_SH_NMID_FSUB			0x94	//
 #define BGBCC_SH_NMID_FTRC			0x95	//
 #define BGBCC_SH_NMID_FSRRA			0x96	//
-
 #define BGBCC_SH_NMID_FIPR			0x97	//
 #define BGBCC_SH_NMID_FTRV			0x98	//
 #define BGBCC_SH_NMID_PSETMD4		0x99	//
@@ -363,8 +435,7 @@
 #define BGBCC_SH_NMID_OCBP			0xC4	//
 #define BGBCC_SH_NMID_OCBWB			0xC5	//
 #define BGBCC_SH_NMID_ICBI			0xC6	//
-
-#define BGBCC_SH_NMID_MOVQ			0xC7	//SUB
+#define BGBCC_SH_NMID_MOVQ			0xC7	//MOV.Q
 #define BGBCC_SH_NMID_ADDQ			0xC8	//ADD
 #define BGBCC_SH_NMID_SUBQ			0xC9	//SUB
 #define BGBCC_SH_NMID_MULQ			0xCA	//SUB
@@ -373,9 +444,12 @@
 #define BGBCC_SH_NMID_XORQ			0xCD	//SUB
 #define BGBCC_SH_NMID_SHLLQ			0xCE	//SUB
 #define BGBCC_SH_NMID_SHLRQ			0xCF	//SUB
-#define BGBCC_SH_NMID_SHARQ			0xD0	//SUB
-#define BGBCC_SH_NMID_LDSH16		0xD1	//SUB
-#define BGBCC_SH_NMID_TSTQ			0xD2	//SUB
+#define BGBCC_SH_NMID_SHALQ			0xD0	//SUB
+#define BGBCC_SH_NMID_SHARQ			0xD1	//SUB
+#define BGBCC_SH_NMID_LDSH16		0xD2	//SUB
+#define BGBCC_SH_NMID_TSTQ			0xD3	//SUB
+#define BGBCC_SH_NMID_SHADQ			0xD4	//
+#define BGBCC_SH_NMID_SHLDQ			0xD5	//
 
 #define BGBCC_SH_NMID_BREQ			0xD8	//
 #define BGBCC_SH_NMID_BRNE			0xD9	//
@@ -383,6 +457,8 @@
 #define BGBCC_SH_NMID_BRLE			0xDB	//
 #define BGBCC_SH_NMID_BRGE			0xDC	//
 #define BGBCC_SH_NMID_BRLT			0xDD	//
+#define BGBCC_SH_NMID_ICLRMD_DQ		0xDE	//
+#define BGBCC_SH_NMID_ISETMD_DQ		0xDF	//
 
 
 
@@ -401,8 +477,8 @@
 #define BGBCC_SH_FMID_REGLDDISP		0x0D	//@(Rm+Disp), Rn
 #define BGBCC_SH_FMID_ABS			0x0E	//@(Abs)
 #define BGBCC_SH_FMID_NONE			0x0F	//-
-#define BGBCC_SH_FMID_IMM			0x10	//Imm
 
+#define BGBCC_SH_FMID_IMM			0x10	//Imm
 #define BGBCC_SH_FMID_LDREG			0x11	//@Rm
 #define BGBCC_SH_FMID_STREG			0x12	//@Rn
 #define BGBCC_SH_FMID_IMMSTRMN		0x13	//Imm, @(Rm+Rn)
@@ -415,6 +491,40 @@
 #define BGBCC_SH_FMID_DREGRN		0x1A	//FRn
 #define BGBCC_SH_FMID_LABEL			0x1B	//<Lbl>
 #define BGBCC_SH_FMID_LBLREG		0x1C	//<Lbl>, Rn
+#define BGBCC_SH_FMID_REGREGREG		0x1D	//Rn, Rm, Ro
+#define BGBCC_SH_FMID_REGINCST		0x1E	//Rm, @+Rn
+#define BGBCC_SH_FMID_REGDECLD		0x1F	//@Rm-, Rn
+
+#define BGBCC_SH_FMID_REGSTRODISP	0x20	//Rm, @(Rn,Ro,Disp)
+#define BGBCC_SH_FMID_REGLDRODISP	0x21	//@(Rm,Ro,Disp), Rn
+#define BGBCC_SH_FMID_REGIMMREG		0x22	//Rm, Imm, Rn
+#define BGBCC_SH_FMID_FREGREGREG	0x23	//FRm, FRo, FRn
+#define BGBCC_SH_FMID_DREGREGREG	0x24	//DRm, DRo, DRn
+
+#define BGBCC_SH_FMID_FREGST		0x26	//FRm, @Rn
+#define BGBCC_SH_FMID_FREGLD		0x27	//@Rm, FRn
+#define BGBCC_SH_FMID_FREGDECST		0x28	//FRm, @-Rn
+#define BGBCC_SH_FMID_FREGINCLD		0x29	//@Rm+, FRn
+#define BGBCC_SH_FMID_FREGSTR0N		0x2A	//FRm, @(Ro+Rn)
+#define BGBCC_SH_FMID_FREGLDR0M		0x2B	//@(Ro+Rm), FRn
+#define BGBCC_SH_FMID_FREGSTDISP	0x2C	//FRm, @(Rn+Disp)
+#define BGBCC_SH_FMID_FREGLDDISP	0x2D	//@(Rm+Disp), FRn
+#define BGBCC_SH_FMID_FREGSTRODISP	0x2E	//FRm, @(Rn,Ro,Disp)
+#define BGBCC_SH_FMID_FREGLDRODISP	0x2F	//@(Rm,Ro,Disp), FRn
+
+#define BGBCC_SH_FMID_REG1ABS		0x30	//Rn, @(Abs)
+#define BGBCC_SH_FMID_REG2ABS		0x31	//Rm, Rn, @(Abs)
+
+#define BGBCC_SH_FMID_DREGST		0x36	//DRm, @Rn
+#define BGBCC_SH_FMID_DREGLD		0x37	//@Rm, DRn
+#define BGBCC_SH_FMID_DREGDECST		0x38	//DRm, @-Rn
+#define BGBCC_SH_FMID_DREGINCLD		0x39	//@Rm+, DRn
+#define BGBCC_SH_FMID_DREGSTR0N		0x3A	//DRm, @(Ro+Rn)
+#define BGBCC_SH_FMID_DREGLDR0M		0x3B	//@(Ro+Rm), DRn
+#define BGBCC_SH_FMID_DREGSTDISP	0x3C	//DRm, @(Rn+Disp)
+#define BGBCC_SH_FMID_DREGLDDISP	0x3D	//@(Rm+Disp), DRn
+#define BGBCC_SH_FMID_DREGSTRODISP	0x3E	//DRm, @(Rn,Ro,Disp)
+#define BGBCC_SH_FMID_DREGLDRODISP	0x3F	//@(Rm,Ro,Disp), DRn
 
 
 #define BGBCC_SH_OPVTY_NONE			0x00	//None
@@ -472,6 +582,9 @@
 #define BGBCC_SH_REGCLS_VO_GR	6	//value object pass in GPR
 #define BGBCC_SH_REGCLS_VO_GR2	7	//value object pass in GPR pair
 #define BGBCC_SH_REGCLS_AR_REF	8	//array object, pass by-ref
+#define BGBCC_SH_REGCLS_PTR		9	//Pointer
+#define BGBCC_SH_REGCLS_QGR		9	//Quad GPR
+#define BGBCC_SH_REGCLS_VO_QGR	10	//value object pass in Quad GPR
 
 
 #define BGBCC_SH_FPSCR_DN		0x00040000	//
@@ -479,6 +592,9 @@
 #define BGBCC_SH_FPSCR_SZ		0x00100000	//
 #define BGBCC_SH_FPSCR_FR		0x00200000	//
 #define BGBCC_SH_FPSCR_VE		0x01000000	//
+
+#define BGBCC_SH_SRFL_DQ		0x00001000	//64-bit mode (data)
+#define BGBCC_SH_SRFL_JQ		0x80000000	//64-bit mode (address)
 
 #define BGBCC_SH_MAX_CACHEVAR 5
 
@@ -620,10 +736,18 @@ int freg_vsave;
 int cnt_set_fp32;
 int cnt_set_fp64;
 
+int cnt_set_dq0;
+int cnt_set_dq1;
+
 int sim_voffs;		//est' offset between real PC and sim PC
 
 s32 dfl_fpscr;		//default FPSCR state
 s32 cur_fpscr;		//current FPSCR state
+
+s32 cur_srmode;		//current SR mode
+byte dfl_dq;
+
+s64 image_base;		//image base address
 
 int ofs_s16tab[256];
 int ofs_s32tab[256];

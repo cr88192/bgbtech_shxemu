@@ -131,7 +131,21 @@ ccxl_type BGBCC_CCXL_MakeTypeID(
 	
 	if(id<0)
 		{ BGBCC_DBGBREAK }
-	
+
+	switch(id)
+	{
+	case CCXL_TY_I128:
+	case CCXL_TY_UI128:
+		ctx->ccxl_tyc_seen|=BGBCC_TYCSEEN_INT128;
+		break;
+	case CCXL_TY_F128:
+		ctx->ccxl_tyc_seen|=BGBCC_TYCSEEN_FLOAT128;
+		break;
+	case CCXL_TY_VARIANT:
+		ctx->ccxl_tyc_seen|=BGBCC_TYCSEEN_VARIANT;
+		break;
+	}
+
 	if(id<4096)
 	{
 		tty.val=id;
@@ -423,6 +437,16 @@ bool BGBCC_CCXL_IsRegFloat16P(
 	ccxl_type tty;
 	tty=BGBCC_CCXL_GetRegType(ctx, reg);
 	if(BGBCC_CCXL_TypeFloat16P(ctx, tty))
+		return(true);
+	return(false);
+}
+
+bool BGBCC_CCXL_IsRegVariantP(
+	BGBCC_TransState *ctx, ccxl_register reg)
+{
+	ccxl_type tty;
+	tty=BGBCC_CCXL_GetRegType(ctx, reg);
+	if(BGBCC_CCXL_TypeVariantP(ctx, tty))
 		return(true);
 	return(false);
 }

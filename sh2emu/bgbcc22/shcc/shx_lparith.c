@@ -1,3 +1,7 @@
+/*
+ * Long Long Arithmetic
+ */
+
 int BGBCC_SHXC_EmitBinaryLong_ShlImm(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
@@ -37,15 +41,15 @@ int BGBCC_SHXC_EmitBinaryLong_ShlImm(
 			cdreg2+0, cdreg2+1);
 		switch(shl)
 		{
-		case 33: nm1=BGBCC_SH_NMID_SHLL; nm2=-1; break;
+		case 33: nm1=BGBCC_SH_NMID_SHLL1; nm2=-1; break;
 		case 34: nm1=BGBCC_SH_NMID_SHLL2; nm2=-1; break;
-		case 35: nm1=BGBCC_SH_NMID_SHLL2; nm2=BGBCC_SH_NMID_SHLL; break;
+		case 35: nm1=BGBCC_SH_NMID_SHLL2; nm2=BGBCC_SH_NMID_SHLL1; break;
 		case 36: nm1=BGBCC_SH_NMID_SHLL2; nm2=BGBCC_SH_NMID_SHLL2; break;
 		case 40: nm1=BGBCC_SH_NMID_SHLL8; nm2=-1; break;
-		case 41: nm1=BGBCC_SH_NMID_SHLL8; nm2=BGBCC_SH_NMID_SHLL; break;
+		case 41: nm1=BGBCC_SH_NMID_SHLL8; nm2=BGBCC_SH_NMID_SHLL1; break;
 		case 42: nm1=BGBCC_SH_NMID_SHLL8; nm2=BGBCC_SH_NMID_SHLL2; break;
 		case 48: nm1=BGBCC_SH_NMID_SHLL16; nm2=-1; break;
-		case 49: nm1=BGBCC_SH_NMID_SHLL16; nm2=BGBCC_SH_NMID_SHLL; break;
+		case 49: nm1=BGBCC_SH_NMID_SHLL16; nm2=BGBCC_SH_NMID_SHLL1; break;
 		case 50: nm1=BGBCC_SH_NMID_SHLL16; nm2=BGBCC_SH_NMID_SHLL2; break;
 		case 56: nm1=BGBCC_SH_NMID_SHLL16; nm2=BGBCC_SH_NMID_SHLL8; break;
 		}
@@ -148,6 +152,7 @@ int BGBCC_SHXC_EmitBinaryLong_ShrImm(
 		case 49: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR; break;
 		case 50: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR2; break;
 		case 56: nm1=BGBCC_SH_NMID_SHLR16; nm2=BGBCC_SH_NMID_SHLR8; break;
+		default: nm1=-1; nm2=-1; break;
 		}
 
 		if(nm1>=0)

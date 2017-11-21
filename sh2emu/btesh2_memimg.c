@@ -584,6 +584,9 @@ int BTESH2_MemoryDefineSpanRegs(BTESH2_MemoryImage *img,
 	sp->GetW=btesh2_spanreg_GetW;
 	sp->SetB=btesh2_spanreg_SetB;
 	sp->SetW=btesh2_spanreg_SetW;
+
+	sp->GetQ=btesh2_spandfl_GetQ;
+	sp->SetQ=btesh2_spandfl_SetQ;
 	
 	i=BTESH2_MemoryAddSpan(img, sp);
 	return(i);
@@ -1364,13 +1367,13 @@ int BTESH2_SetRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
 u64 BTESH2_GetFRegQWord(BTESH2_CpuState *cpu, int rm)
 {
 	u64 i, j, k;
-	i=cpu->fregs[rm+1]|((u64)cpu->regs[rm+0]<<32);
+	i=cpu->fregs[rm+1]|((u64)cpu->fregs[rm+0]<<32);
 	return(i);
 }
 
 int BTESH2_SetFRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
 {
-	cpu->regs[rn+1]=val;
-	cpu->regs[rn+0]=val>>32;
+	cpu->fregs[rn+1]=val;
+	cpu->fregs[rn+0]=val>>32;
 	return(0);
 }

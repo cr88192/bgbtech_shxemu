@@ -1099,8 +1099,8 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	byte uax_cachereg[6]={
 		UAX_REG_R12D, UAX_REG_R13D, UAX_REG_R14D,
 		UAX_REG_R15D,  UAX_REG_EBX,  UAX_REG_ESI};
-	byte regidx[64];
-	byte regcnt[64];
+	byte regidx[128];
+	byte regcnt[128];
 	UAX_Context *jctx;
 	BTESH2_Trace *trj;
 	byte nolink;
@@ -1117,6 +1117,11 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 
 	if(cpu->archfl&BTESH2_ARFL_NOJIT)
 		return(0);
+		
+	if(tr->csfl&BTESH2_CSFL_SRJQ)
+	{
+		return(0);
+	}
 
 #ifdef UAX_SYSVAMD64
 //	return(0);
@@ -1133,7 +1138,7 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 #endif
 
 #if 1
-	for(i=0; i<64; i++)
+	for(i=0; i<128; i++)
 	{
 		regcnt[i]=0;
 		regidx[i]=i;
@@ -1220,15 +1225,15 @@ int BTESH2_TryJitTrace(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	
 	regcnt[BTESH2_REG_ZZR]=0;
 
-	for(i=0; i<64; i++)
-		for(j=i+1; j<64; j++)
+	for(i=0; i<128; i++)
+		for(j=i+1; j<128; j++)
 	{
 		if(regcnt[j]>regcnt[i])
 		{	k=regcnt[i]; regcnt[i]=regcnt[j]; regcnt[j]=k;
 			k=regidx[i]; regidx[i]=regidx[j]; regidx[j]=k;	}
 	}
 
-	for(i=0; i<64; i++)
+	for(i=0; i<128; i++)
 	{
 		if(regcnt[i]<4)regcnt[i]=0;
 	}

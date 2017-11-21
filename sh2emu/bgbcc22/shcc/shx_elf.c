@@ -5,7 +5,7 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	FILE *mapfd;
 	char *s0;
 	byte *ct;
-	int en, ofs, ofs_sdat, ofs_iend, ofs_mend;
+	int en, ofs, ofs_sdat, ofs_iend, ofs_mend, img_base;
 	int of_phdr, ne_phdr;
 	int of_shdr, ne_shdr;
 	int lb_strt, va_strt;
@@ -40,6 +40,10 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 		}
 	}
 
+	img_base=0x0C000000;
+//	img_base_hi=0;
+	sctx->image_base=img_base;
+
 	en=(sctx->is_le==0);
 	ne_phdr=1;
 	ne_shdr=sctx->nsec+1;
@@ -59,7 +63,8 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 			continue;
 		j=sctx->sec_pos[i]-sctx->sec_buf[i];
 		sctx->sec_rva[i]=k;
-		sctx->sec_lva[i]=0x0C000000+k;
+//		sctx->sec_lva[i]=0x0C000000+k;
+		sctx->sec_lva[i]=img_base+k;
 		sctx->sec_lsz[i]=j;
 		memcpy(obuf+k, sctx->sec_buf[i], j);
 		k+=j;
@@ -76,7 +81,8 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	i=BGBCC_SH_CSEG_BSS;
 	j=sctx->sec_pos[i]-sctx->sec_buf[i];
 	sctx->sec_rva[i]=k;
-	sctx->sec_lva[i]=0x0C000000+k;
+//	sctx->sec_lva[i]=0x0C000000+k;
+	sctx->sec_lva[i]=img_base+k;
 	sctx->sec_lsz[i]=j;
 	k+=j;
 	k=(k+63)&(~63);
@@ -138,8 +144,10 @@ ccxl_status BGBCC_SHXC_FlattenImageELF(BGBCC_TransState *ctx,
 	ct=obuf+of_phdr;
 	bgbcc_setu32en(ct+ 0, en, 1);			//segment type
 	bgbcc_setu32en(ct+ 4, en, 0);			//segment image offset
-	bgbcc_setu32en(ct+ 8, en, 0x0C000000);	//segment load address
-	bgbcc_setu32en(ct+12, en, 0x0C000000);	//undefined (phys address)
+//	bgbcc_setu32en(ct+ 8, en, 0x0C000000);	//segment load address
+//	bgbcc_setu32en(ct+12, en, 0x0C000000);	//undefined (phys address)
+	bgbcc_setu32en(ct+ 8, en, img_base);	//segment load address
+	bgbcc_setu32en(ct+12, en, img_base);	//undefined (phys address)
 	bgbcc_setu32en(ct+16, en, ofs_iend);	//size of segment in file
 	bgbcc_setu32en(ct+20, en, ofs_mend);	//size of segment in memory
 	bgbcc_setu32en(ct+24, en, 7);			//access flags

@@ -14,6 +14,13 @@ int BGBCC_SHXC_EmitMovRegReg(
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg, dreg);
 		return(1);
 	}
+	
+	if(BGBCC_SHX_EmitCheckRegExtGPR(sctx, sreg) &&
+		BGBCC_SHX_EmitCheckRegExtGPR(sctx, dreg))
+	{
+		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg, dreg);
+		return(1);
+	}
 
 	if(BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, sreg) &&
 		BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg))
@@ -191,6 +198,7 @@ int BGBCC_SHXC_EmitMovVRegVReg(
 	ccxl_type type,
 	ccxl_register dreg, ccxl_register sreg)
 {
+	s64 li;
 	int cdreg, csreg;
 	int tr0, rcls;
 	int i, j, k;
@@ -216,6 +224,25 @@ int BGBCC_SHXC_EmitMovVRegVReg(
 	}
 #endif
 
+	if(sctx->is_addr64 &&
+		BGBCC_CCXL_TypePointerP(ctx, type))
+	{
+		if(BGBCC_CCXL_IsRegImmIntP(ctx, sreg))
+		{
+			li=BGBCC_CCXL_GetRegImmIntValue(ctx, sreg);
+			li=(u32)li;
+			BGBCC_SHXC_EmitMovVRegImm(ctx, sctx, type, dreg, li);
+			return(1);
+		}
+
+		if(BGBCC_CCXL_IsRegImmLongP(ctx, sreg))
+		{
+			li=BGBCC_CCXL_GetRegImmLongValue(ctx, sreg);
+			BGBCC_SHXC_EmitMovVRegImm(ctx, sctx, type, dreg, li);
+			return(1);
+		}
+	}
+
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, type) ||
 		BGBCC_CCXL_TypePointerP(ctx, type))
 //	if(0)
@@ -238,13 +265,24 @@ int BGBCC_SHXC_EmitMovVRegVReg(
 		
 		if((cdreg&0xF0) != (csreg&0xF0))
 		{
-			printf("BGBCC_SHXC_EmitMovVRegVReg: "
-				"Bad MOV Regs Rm=%02X(%016llX) Rn=%02X(%016llX)\n",
-				csreg, sreg.val, cdreg, dreg.val);
-			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
-			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
-			cdreg=BGBCC_SH_REG_ZZR;
-			csreg=BGBCC_SH_REG_ZZR;
+			if(((cdreg&0xF0)==BGBCC_SH_REG_RD0) &&
+				((csreg&0xF0)==BGBCC_SH_REG_RQ0))
+			{
+				csreg=BGBCC_SH_REG_RD0+(csreg&31);
+			}else if(((cdreg&0xF0)==BGBCC_SH_REG_RQ0) &&
+				((csreg&0xF0)==BGBCC_SH_REG_RD0))
+			{
+				csreg=BGBCC_SH_REG_RQ0+(csreg&31);
+			}else
+			{
+				printf("BGBCC_SHXC_EmitMovVRegVReg: "
+					"Bad MOV Regs Rm=%02X(%016llX) Rn=%02X(%016llX)\n",
+					csreg, sreg.val, cdreg, dreg.val);
+				BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+				BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+				cdreg=BGBCC_SH_REG_ZZR;
+				csreg=BGBCC_SH_REG_ZZR;
+			}
 		}
 	}else
 	{
@@ -289,7 +327,8 @@ int BGBCC_SHXC_EmitMovVRegVReg(
 		}
 
 //		if(BGBCC_CCXL_IsRegLongP(ctx, sreg))
-		if(BGBCC_CCXL_TypeSgLongP(ctx, type))
+		if(BGBCC_CCXL_TypeSgLongP(ctx, type) ||
+			BGBCC_CCXL_TypeVariantP(ctx, type))
 		{
 			tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_GR2);
 			BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, tr0);
@@ -366,16 +405,37 @@ int BGBCC_SHXC_EmitMovVRegImm(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
 	ccxl_type type,
-	ccxl_register dreg, s32 imm)
+	ccxl_register dreg, s64 imm)
 {
 	int cdreg, csreg;
+	int rcls;
 	
 	cdreg=BGBCC_SHXC_EmitTryGetRegisterWrite(ctx, sctx, dreg);
 
 	if((cdreg>=0) && (cdreg!=BGBCC_SH_REG_ZZR))
 	{
+		if((((s32)imm)!=imm) &&
+			BGBCC_SHX_EmitCheckRegQuad(sctx, cdreg))
+		{
+			BGBCC_SHX_EmitLoadRegImm64P(sctx, cdreg, imm);
+			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+			return(1);
+		}
+	
 		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV, cdreg, imm);
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+		return(1);
+	}
+
+	rcls=BGBCC_SHXC_TypeGetRegClassP(ctx, type);
+
+	if((rcls==BGBCC_SH_REGCLS_QGR) || (rcls==BGBCC_SH_REGCLS_VO_QGR))
+	{
+		csreg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_QGR);
+//		BGBCC_SHX_EmitLoadRegImm(sctx, BGBCC_SH_NMID_MOV, csreg, imm);
+		BGBCC_SHX_EmitLoadRegImm64P(sctx, csreg, imm);
+		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, csreg);
+		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, csreg);
 		return(1);
 	}
 
@@ -606,6 +666,14 @@ int BGBCC_SHXC_EmitJCmpVRegVReg(
 			type, sreg, treg, cmp, lbl));
 	}
 
+	if((BGBCC_CCXL_TypeSgLongP(ctx, type) ||
+		BGBCC_CCXL_TypeSgNLongP(ctx, type)) &&
+			sctx->is_addr64)
+	{
+		return(BGBCC_SHXC_EmitJCmpVRegVRegQLong(ctx, sctx,
+			type, sreg, treg, cmp, lbl));
+	}
+
 	if(BGBCC_CCXL_TypeSgLongP(ctx, type))
 	{
 		return(BGBCC_SHXC_EmitJCmpVRegVRegLong(ctx, sctx,
@@ -746,6 +814,14 @@ int BGBCC_SHXC_EmitJCmpVRegZero(
 #endif
 
 	if(BGBCC_CCXL_TypeSgLongP(ctx, type))
+	{
+		BGBCC_CCXL_GetRegForLongValue(ctx, &treg, 0);
+		return(BGBCC_SHXC_EmitJCmpVRegVReg(ctx, sctx,
+			type, sreg, treg, cmp, lbl));
+	}
+
+	if(BGBCC_CCXL_TypeSgNLongP(ctx, type) &&
+		sctx->is_addr64)
 	{
 		BGBCC_CCXL_GetRegForLongValue(ctx, &treg, 0);
 		return(BGBCC_SHXC_EmitJCmpVRegVReg(ctx, sctx,

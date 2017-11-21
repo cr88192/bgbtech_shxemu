@@ -357,7 +357,8 @@ int BGBCC_SHXC_CoffBuildImports(
 
 		BGBCC_SHX_EmitBAlign(sctx, 2);
 		BGBCC_SHX_EmitLabel(sctx, k);
-		BGBCC_SHX_EmitDWord(sctx, obj->fxmoffs);	//hint
+//		BGBCC_SHX_EmitDWord(sctx, obj->fxmoffs);	//hint
+		BGBCC_SHX_EmitWord(sctx, obj->fxmoffs);		//hint
 		BGBCC_SHX_EmitString(sctx, obj->name);		//name
 	}
 
@@ -373,8 +374,12 @@ int BGBCC_SHXC_CoffBuildImports(
 			obj=exptab[j];
 			BGBCC_SHX_EmitRelocTy(sctx, obj->fxnalgn, BGBCC_SH_RLC_RVA32);
 			BGBCC_SHX_EmitDWord(sctx, 0);	//name
+			if(sctx->is_addr64)
+				BGBCC_SHX_EmitDWord(sctx, 0);
 		}
 		BGBCC_SHX_EmitDWord(sctx, 0);
+		if(sctx->is_addr64)
+			BGBCC_SHX_EmitDWord(sctx, 0);
 	}
 
 	for(i=0; i<ndlls; i++)
@@ -389,8 +394,12 @@ int BGBCC_SHXC_CoffBuildImports(
 			BGBCC_SHX_EmitLabel(sctx, obj->fxnoffs);
 			BGBCC_SHX_EmitRelocTy(sctx, obj->fxnalgn, BGBCC_SH_RLC_RVA32);
 			BGBCC_SHX_EmitDWord(sctx, 0);	//name
+			if(sctx->is_addr64)
+				BGBCC_SHX_EmitDWord(sctx, 0);
 		}
 		BGBCC_SHX_EmitDWord(sctx, 0);
+		if(sctx->is_addr64)
+			BGBCC_SHX_EmitDWord(sctx, 0);
 	}
 	
 	return(0);
@@ -504,9 +513,9 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 	int of_phdr, ne_phdr;
 	int of_shdr, ne_shdr;
 	int lb_strt, va_strt;
-	int img_base;
+	int img_base, img_base_hi;
 	int nm, fl, lva, rva, lsz, sn_strs, imty;
-	int lpg, szrlc, ofsrlc, nrlce;
+	int lpg, szrlc, ofsrlc, nrlce, mach;
 	int ofsimp, szimp, ofsexp, szexp;
 	int i, j, k;
 
@@ -516,6 +525,9 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 	BGBCC_SHXC_CoffBuildImports(ctx, sctx);
 
 	img_base=0x0C000000;
+	img_base_hi=0;
+	sctx->image_base=img_base;
+	
 	k=0x400;
 	for(i=0; i<sctx->nsec; i++)
 	{
@@ -541,7 +553,13 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 		rva=sctx->sec_rva[j]+
 			sctx->rlc_ofs[i];
 
-		rlctab[nrlce++]=rva;
+		lva=rva&0x0FFFFFFF;
+		if(sctx->rlc_ty[i]==BGBCC_SH_RLC_ABS64)
+			lva|=0x10000000;
+		if(sctx->rlc_ty[i]==BGBCC_SH_RLC_ABS16)
+			lva|=0x20000000;
+
+		rlctab[nrlce++]=lva;
 
 		if((rva>>12)!=lpg)
 		{
@@ -615,6 +633,9 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 	of_shdr=0x0138;
 //	of_shdr=0x00E8;
 
+	if(sctx->is_addr64)
+		of_shdr=0x0148;
+
 	ofs_sdat=of_shdr+(ne_shdr*40);
 	ofs_sdat=(ofs_sdat+63)&(~63);
 
@@ -646,7 +667,8 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 	i=BGBCC_SH_CSEG_BSS;
 	j=sctx->sec_pos[i]-sctx->sec_buf[i];
 	sctx->sec_rva[i]=k;
-	sctx->sec_lva[i]=0x0C000000+k;
+//	sctx->sec_lva[i]=0x0C000000+k;
+	sctx->sec_lva[i]=img_base+k;
 	sctx->sec_lsz[i]=j;
 	k+=j;
 	k=(k+63)&(~63);
@@ -754,56 +776,114 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 	k=sctx->is_le?0x0080:0x8000;
 	k|=0x0302;
 
+	mach=0x1A6;
+	if(sctx->has_bjx1mov)
+		mach=0xB132;
+	if(sctx->is_addr64)
+		mach=0xB164;
+
 //	bgbcc_setu16en(ct+0x44, en, 0x14C);		//mMachine
-	bgbcc_setu16en(ct+0x44, en, 0x1A6);		//mMachine
+//	bgbcc_setu16en(ct+0x44, en, 0x1A6);		//mMachine
+	bgbcc_setu16en(ct+0x44, en, mach);		//mMachine
 	bgbcc_setu16en(ct+0x46, en, ne_shdr);	//mNumberOfSections
 	bgbcc_setu32en(ct+0x48, en, 0);			//mTimeDateStamp
 	bgbcc_setu32en(ct+0x4C, en, 0);			//mPointerToSymbolTable
 	bgbcc_setu32en(ct+0x50, en, 0);			//mNumberOfSymbols
-	bgbcc_setu16en(ct+0x54, en, 224);		//mSizeOfOptionalHeader
+//	bgbcc_setu16en(ct+0x54, en, 224);		//mSizeOfOptionalHeader
 //	bgbcc_setu16en(ct+0x54, en, 144);		//mSizeOfOptionalHeader
 	bgbcc_setu16en(ct+0x56, en, k);			//mCharacteristics
 
-	bgbcc_setu16en(ct+0x58, en, 0x010B);	//mMagic
-	bgbcc_setu16en(ct+0x5A, en, 0x0000);	//mLinkerVersion
+	if(!sctx->is_addr64)
+	{
+		bgbcc_setu16en(ct+0x54, en, 224);		//mSizeOfOptionalHeader
 
-	j=sctx->sec_lsz[BGBCC_SH_CSEG_TEXT];
-	bgbcc_setu32en(ct+0x5C, en, j);			//mSizeOfCode
-	j=sctx->sec_lsz[BGBCC_SH_CSEG_DATA];
-	bgbcc_setu32en(ct+0x60, en, j);			//mSizeOfInitializedData
-	j=sctx->sec_lsz[BGBCC_SH_CSEG_BSS];
-	bgbcc_setu32en(ct+0x64, en, j);			//mSizeOfUninitializedData
-	j=va_strt-img_base;
-	bgbcc_setu32en(ct+0x68, en, j);			//rvaAddressOfEntryPoint
-	j=sctx->sec_rva[BGBCC_SH_CSEG_TEXT];
-	bgbcc_setu32en(ct+0x6C, en, j);			//mBaseOfCode
-	j=sctx->sec_rva[BGBCC_SH_CSEG_DATA];
-	bgbcc_setu32en(ct+0x70, en, j);			//mBaseOfData
-	bgbcc_setu32en(ct+0x74, en, img_base);	//mImageBase
-	bgbcc_setu32en(ct+0x78, en, 64);		//mSectionAlignment
-	bgbcc_setu32en(ct+0x7C, en, 64);		//mFileAlignment
+		bgbcc_setu16en(ct+0x58, en, 0x010B);	//mMagic
+		bgbcc_setu16en(ct+0x5A, en, 0x0000);	//mLinkerVersion
+
+		j=sctx->sec_lsz[BGBCC_SH_CSEG_TEXT];
+		bgbcc_setu32en(ct+0x5C, en, j);			//mSizeOfCode
+		j=sctx->sec_lsz[BGBCC_SH_CSEG_DATA];
+		bgbcc_setu32en(ct+0x60, en, j);			//mSizeOfInitializedData
+		j=sctx->sec_lsz[BGBCC_SH_CSEG_BSS];
+		bgbcc_setu32en(ct+0x64, en, j);			//mSizeOfUninitializedData
+		j=va_strt-img_base;
+		bgbcc_setu32en(ct+0x68, en, j);			//rvaAddressOfEntryPoint
+		j=sctx->sec_rva[BGBCC_SH_CSEG_TEXT];
+		bgbcc_setu32en(ct+0x6C, en, j);			//mBaseOfCode
+		j=sctx->sec_rva[BGBCC_SH_CSEG_DATA];
+		bgbcc_setu32en(ct+0x70, en, j);			//mBaseOfData
+		bgbcc_setu32en(ct+0x74, en, img_base);	//mImageBase
+		bgbcc_setu32en(ct+0x78, en, 64);		//mSectionAlignment
+		bgbcc_setu32en(ct+0x7C, en, 64);		//mFileAlignment
 
 
-	bgbcc_setu32en(ct+0x90, en, ofs_mend);	//mSizeOfImage
-	bgbcc_setu32en(ct+0x94, en, ofs_sdat);	//mSizeOfHeaders
+		bgbcc_setu32en(ct+0x90, en, ofs_mend);	//mSizeOfImage
+		bgbcc_setu32en(ct+0x94, en, ofs_sdat);	//mSizeOfHeaders
 
-	bgbcc_setu16en(ct+0x9C, en, 1);			//mSubsystem
-	bgbcc_setu16en(ct+0x9E, en, 0x0140);	//mDllCharacteristics
+		bgbcc_setu16en(ct+0x9C, en, 1);			//mSubsystem
+		bgbcc_setu16en(ct+0x9E, en, 0x0140);	//mDllCharacteristics
 
-	bgbcc_setu32en(ct+0xA0, en, 0x100000);	//mSizeOfStackReserve
-	bgbcc_setu32en(ct+0xA4, en, 0x10000);	//mSizeOfStackCommit
-	bgbcc_setu32en(ct+0xA8, en, 0);			//mSizeOfHeapReserve
-	bgbcc_setu32en(ct+0xAC, en, 0);			//mSizeOfHeapCommit
-	bgbcc_setu32en(ct+0xB0, en, 0);			//mLoaderFlags
-	bgbcc_setu32en(ct+0xB4, en, 6);			//mNumberOfRvaAndSizes
+		bgbcc_setu32en(ct+0xA0, en, 0x100000);	//mSizeOfStackReserve
+		bgbcc_setu32en(ct+0xA4, en, 0x10000);	//mSizeOfStackCommit
+		bgbcc_setu32en(ct+0xA8, en, 0);			//mSizeOfHeapReserve
+		bgbcc_setu32en(ct+0xAC, en, 0);			//mSizeOfHeapCommit
+		bgbcc_setu32en(ct+0xB0, en, 0);			//mLoaderFlags
+		bgbcc_setu32en(ct+0xB4, en, 6);			//mNumberOfRvaAndSizes
 
-	bgbcc_setu32en(ct+0xB8, en, ofsexp);	//rvaExportTable
-	bgbcc_setu32en(ct+0xBC, en, szexp);		//szExportTable
-	bgbcc_setu32en(ct+0xC0, en, ofsimp);	//rvaImportTable
-	bgbcc_setu32en(ct+0xC4, en, szimp);		//szImportTable
+		bgbcc_setu32en(ct+0xB8, en, ofsexp);	//rvaExportTable
+		bgbcc_setu32en(ct+0xBC, en, szexp);		//szExportTable
+		bgbcc_setu32en(ct+0xC0, en, ofsimp);	//rvaImportTable
+		bgbcc_setu32en(ct+0xC4, en, szimp);		//szImportTable
 
-	bgbcc_setu32en(ct+0xE0, en, ofsrlc);	//rvaBaseRelocTable
-	bgbcc_setu32en(ct+0xE4, en, szrlc);		//szBaseRelocTable
+		bgbcc_setu32en(ct+0xE0, en, ofsrlc);	//rvaBaseRelocTable
+		bgbcc_setu32en(ct+0xE4, en, szrlc);		//szBaseRelocTable
+	}else
+	{
+		bgbcc_setu16en(ct+0x54, en, 240);		//mSizeOfOptionalHeader
+
+		bgbcc_setu16en(ct+0x58, en, 0x020B);	//mMagic
+		bgbcc_setu16en(ct+0x5A, en, 0x0000);	//mLinkerVersion
+
+		j=sctx->sec_lsz[BGBCC_SH_CSEG_TEXT];
+		bgbcc_setu32en(ct+0x5C, en, j);			//mSizeOfCode
+		j=sctx->sec_lsz[BGBCC_SH_CSEG_DATA];
+		bgbcc_setu32en(ct+0x60, en, j);			//mSizeOfInitializedData
+		j=sctx->sec_lsz[BGBCC_SH_CSEG_BSS];
+		bgbcc_setu32en(ct+0x64, en, j);			//mSizeOfUninitializedData
+		j=va_strt-img_base;
+		bgbcc_setu32en(ct+0x68, en, j);			//rvaAddressOfEntryPoint
+		j=sctx->sec_rva[BGBCC_SH_CSEG_TEXT];
+		bgbcc_setu32en(ct+0x6C, en, j);			//mBaseOfCode
+		j=sctx->sec_rva[BGBCC_SH_CSEG_DATA];
+//		bgbcc_setu32en(ct+0x70, en, j);			//mBaseOfData
+		bgbcc_setu32en(ct+0x70, en, img_base);		//mImageBase (low)
+		bgbcc_setu32en(ct+0x76, en, img_base_hi);	//mImageBase (high)
+		bgbcc_setu32en(ct+0x78, en, 64);		//mSectionAlignment
+		bgbcc_setu32en(ct+0x7C, en, 64);		//mFileAlignment
+
+
+		bgbcc_setu32en(ct+0x90, en, ofs_mend);	//mSizeOfImage
+		bgbcc_setu32en(ct+0x94, en, ofs_sdat);	//mSizeOfHeaders
+
+		bgbcc_setu16en(ct+0x9C, en, 1);			//mSubsystem
+		bgbcc_setu16en(ct+0x9E, en, 0x0140);	//mDllCharacteristics
+
+		bgbcc_setu64en(ct+0xA0, en, 0x100000);	//mSizeOfStackReserve
+		bgbcc_setu64en(ct+0xA8, en, 0x10000);	//mSizeOfStackCommit
+		bgbcc_setu64en(ct+0xB0, en, 0);			//mSizeOfHeapReserve
+		bgbcc_setu64en(ct+0xB8, en, 0);			//mSizeOfHeapCommit
+
+		bgbcc_setu32en(ct+0xC0, en, 0);			//mLoaderFlags
+		bgbcc_setu32en(ct+0xC4, en, 6);			//mNumberOfRvaAndSizes
+		
+		bgbcc_setu32en(ct+0xC8, en, ofsexp);	//rvaExportTable
+		bgbcc_setu32en(ct+0xCC, en, szexp);		//szExportTable
+		bgbcc_setu32en(ct+0xD0, en, ofsimp);	//rvaImportTable
+		bgbcc_setu32en(ct+0xD4, en, szimp);		//szImportTable
+
+		bgbcc_setu32en(ct+0xF0, en, ofsrlc);	//rvaBaseRelocTable
+		bgbcc_setu32en(ct+0xF4, en, szrlc);		//szBaseRelocTable
+	}
 
 
 	ct=obuf+of_shdr;

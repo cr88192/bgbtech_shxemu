@@ -9,6 +9,8 @@
 #define BTESH2_ARFL_NOLINK			0x01
 #define BTESH2_ARFL_NOJIT			0x02
 
+#if 0
+
 #define BTESH2_REG_R0		0
 
 #define BTESH2_REG_SP		15
@@ -33,7 +35,7 @@
 #define BTESH2_REG_TTB		30
 #define BTESH2_REG_TEA		31
 
-#define BTESH2_REG_RBANK	32
+#define BTESH2_REG_RBANK	32		//R0B..R7B
 
 #define BTESH2_REG_SSR		40
 #define BTESH2_REG_SPC		41
@@ -46,12 +48,86 @@
 
 #define BTESH2_REG_ZZR		47		//Null Register (Placeholder Reg)
 
+#define BTESH2_REG_RBANK2	48		//
+
 #define BTESH2_REG_RLO		0		//Register Low Halves
 #define BTESH2_REG_RHI		64		//Register High Halves
 
 #define BTESH2_REG_R0HI		64
 #define BTESH2_REG_R15HI	79
 #define BTESH2_REG_RBANK_HI	(BTESH2_REG_R0HI|BTESH2_REG_RBANK)
+
+#endif
+
+
+#if 1
+
+#define BTESH2_REG_R0		0
+#define BTESH2_REG_R1		1
+#define BTESH2_REG_R2		2
+#define BTESH2_REG_R3		3
+#define BTESH2_REG_R4		4
+#define BTESH2_REG_R5		5
+#define BTESH2_REG_R6		6
+#define BTESH2_REG_R7		7
+#define BTESH2_REG_R8		8
+#define BTESH2_REG_R9		9
+#define BTESH2_REG_R10		10
+#define BTESH2_REG_R11		11
+#define BTESH2_REG_R12		12
+#define BTESH2_REG_R13		13
+#define BTESH2_REG_R14		14
+#define BTESH2_REG_R15		15
+
+#define BTESH2_REG_SP		15
+
+#define BTESH2_REG_R16		16
+#define BTESH2_REG_R31		31
+
+#define BTESH2_REG_RBANK	32		//R0B..R7B
+#define BTESH2_REG_RBANK2	40		//R16B..R23B
+
+
+#define BTESH2_REG_MACH		48
+#define BTESH2_REG_MACL		49
+#define BTESH2_REG_PR		50
+#define BTESH2_REG_SGR		51
+#define BTESH2_REG_FLA		52		//FLA (internal)
+#define BTESH2_REG_FPUL		53
+#define BTESH2_REG_FPSCR	54
+#define BTESH2_REG_FLB		55		//FLB (internal)
+
+#define BTESH2_REG_DBR		63
+
+#define BTESH2_REG_SR		64
+#define BTESH2_REG_GBR		65
+#define BTESH2_REG_VBR		66
+#define BTESH2_REG_SSR		67
+#define BTESH2_REG_SPC		68
+
+#define BTESH2_REG_PC		71
+
+
+#define BTESH2_REG_MMUCR	72
+#define BTESH2_REG_PTEH		73
+#define BTESH2_REG_PTEL		74
+#define BTESH2_REG_TTB		75
+#define BTESH2_REG_TEA		76
+
+#define BTESH2_REG_TRAEVT	77		//Trap Event
+#define BTESH2_REG_EXPEVT	78		//Exception Event
+#define BTESH2_REG_INTEVT	79		//Interrupt Event
+#define BTESH2_REG_ZZR		127		//Null Register (Placeholder Reg)
+
+#define BTESH2_REG_RLO		0		//Register Low Halves
+#define BTESH2_REG_RHI		128		//Register High Halves
+
+#define BTESH2_REG_R0HI		128
+#define BTESH2_REG_R15HI	(128+15)
+#define BTESH2_REG_RBANK_HI	(BTESH2_REG_R0HI|BTESH2_REG_RBANK)
+
+#endif
+
 
 
 #define BTESH2_OPFL_CTRLF		1	//opcode effects control-flow
@@ -87,6 +163,7 @@
 #define BTESH2_EXC_TRAPSMC		0x1000		//Trapped Self-Modifying Code
 #define BTESH2_EXC_TRAPSLEEP	0x1001		//Sleep
 #define BTESH2_EXC_TLBMISS		0x1002		//TLB Miss
+#define BTESH2_EXC_BREAK		0x1003		//Breakpoint
 
 #define BTESH2_SRFL_T			0x00000001	//
 #define BTESH2_SRFL_S			0x00000002	//
@@ -265,6 +342,9 @@
 #define BTESH2_NMID_LDIF16		0x7B	//
 #define BTESH2_NMID_STHF16		0x7C	//
 
+#define BTESH2_NMID_EXTUL		0x7E	//
+#define BTESH2_NMID_EXTSL		0x7F	//
+
 #define BTESH2_NMID_FABS		0x80	//
 #define BTESH2_NMID_FADD		0x81	//
 #define BTESH2_NMID_FCMPEQ		0x82	//
@@ -314,10 +394,15 @@
 #define BTESH2_NMID_XORQ		0xCD	//SUB
 #define BTESH2_NMID_SHLLQ		0xCE	//SUB
 #define BTESH2_NMID_SHLRQ		0xCF	//SUB
-#define BTESH2_NMID_SHARQ		0xD0	//SUB
-#define BTESH2_NMID_LDSH16		0xD1	//SUB
-#define BTESH2_NMID_TSTQ		0xD2	//SUB
+#define BTESH2_NMID_SHALQ		0xD0	//SUB
+#define BTESH2_NMID_SHARQ		0xD1	//SUB
+#define BTESH2_NMID_LDSH16		0xD2	//SUB
+#define BTESH2_NMID_TSTQ		0xD3	//SUB
+#define BTESH2_NMID_SHADQ		0xD4	//
+#define BTESH2_NMID_SHLDQ		0xD5	//
 
+#define BTESH2_NMID_SHLL4		0xD6	//
+#define BTESH2_NMID_SHLR4		0xD7	//
 #define BTESH2_NMID_BREQ		0xD8	//
 #define BTESH2_NMID_BRNE		0xD9	//
 #define BTESH2_NMID_BRGT		0xDA	//
@@ -557,8 +642,8 @@ struct BTESH2_CpuState_s {
 // u32 regs[64];
 // u32 trapregs[64];	//trapped registers
 
-u32 regs[128];
-u32 trapregs[128];	//trapped registers
+u32 regs[256];
+u32 trapregs[256];	//trapped registers
 
 //u32 fregs[32];
 //u32 trapfregs[32];

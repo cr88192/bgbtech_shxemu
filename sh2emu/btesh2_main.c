@@ -1374,7 +1374,10 @@ int btesh2_main_startimage()
 		BTESH2_SetupUpdateFMMU(cpu);
 
 	//	cpu->regs[BTESH2_REG_VBR]=0xFAFAFAFAU;
-		cpu->regs[BTESH2_REG_SR]=0x000003F3U;
+//		cpu->regs[BTESH2_REG_SR]=0x000003F3U;
+
+		cpu->regs[BTESH2_REG_SR]&=0x800013F3U;
+		cpu->regs[BTESH2_REG_SR]|=0x000003F3U;
 
 		cpu->regs[BTESH2_REG_SP]=0x8C00FFFC;
 //		cpu->regs[BTESH2_REG_SP]=0x0000FFFC;
@@ -1402,7 +1405,9 @@ int btesh2_main_startimage()
 #endif
 
 	//	cpu->regs[BTESH2_REG_VBR]=0xFAFAFAFAU;
-		cpu->regs[BTESH2_REG_SR]=0x000003F3U;
+	//	cpu->regs[BTESH2_REG_SR]=0x000003F3U;
+		cpu->regs[BTESH2_REG_SR]&=0x800013F3U;
+		cpu->regs[BTESH2_REG_SR]|=0x000003F3U;
 
 		cpu->regs[BTESH2_REG_SP]=0x0000FFFC;
 	//	cpu->regs[BTESH2_REG_SP]=0x00003FFC;
@@ -1432,8 +1437,9 @@ int btesh2_main_startimage()
 			{ sp->base=0x0BCD0000;	sp->limit=0x0BCD3FFF; }
 		sp->data=tbuf;			sp->name="MMIO";
 		sp->GetB=btesh2_spanmmio_GetB;	sp->GetW=btesh2_spanmmio_GetW;
-		sp->GetD=btesh2_spanmmio_GetD;	sp->SetB=btesh2_spanmmio_SetB;
-		sp->SetW=btesh2_spanmmio_SetW;	sp->SetD=btesh2_spanmmio_SetD;
+		sp->GetD=btesh2_spanmmio_GetD;	sp->GetQ=btesh2_spandfl_GetQ;
+		sp->SetB=btesh2_spanmmio_SetB;	sp->SetW=btesh2_spanmmio_SetW;
+		sp->SetD=btesh2_spanmmio_SetD;	sp->SetQ=btesh2_spandfl_SetQ;
 		i=BTESH2_MemoryAddSpan(img, sp);
 	}
 
@@ -1450,8 +1456,9 @@ int btesh2_main_startimage()
 			{ sp->base=0x0BCE0000;	sp->limit=0x0BCE0FFF; }
 		sp->data=tbuf;			sp->name="EMAC";
 		sp->GetB=btesh2_spanemac_GetB;	sp->GetW=btesh2_spanemac_GetW;
-		sp->GetD=btesh2_spanemac_GetD;	sp->SetB=btesh2_spanemac_SetB;
-		sp->SetW=btesh2_spanemac_SetW;	sp->SetD=btesh2_spanemac_SetD;
+		sp->GetD=btesh2_spanemac_GetD;	sp->GetQ=btesh2_spandfl_GetQ;
+		sp->SetB=btesh2_spanemac_SetB;	sp->SetW=btesh2_spanemac_SetW;
+		sp->SetD=btesh2_spanemac_SetD;	sp->SetQ=btesh2_spandfl_SetQ;
 		i=BTESH2_MemoryAddSpan(img, sp);
 	}
 
@@ -1490,8 +1497,9 @@ int btesh2_main_startimage()
 		sp->range_n3=sp->limit-sp->base-3;
 		sp->data=tbuf;			sp->name="GFXCon";
 		sp->GetB=btesh2_gfxcon_GetB;	sp->GetW=btesh2_gfxcon_GetW;
-		sp->GetD=btesh2_gfxcon_GetD;	sp->SetB=btesh2_gfxcon_SetB;
-		sp->SetW=btesh2_gfxcon_SetW;	sp->SetD=btesh2_gfxcon_SetD;
+		sp->GetD=btesh2_gfxcon_GetD;	sp->GetQ=btesh2_spandfl_GetQ;
+		sp->SetB=btesh2_gfxcon_SetB;	sp->SetW=btesh2_gfxcon_SetW;
+		sp->SetD=btesh2_gfxcon_SetD;	sp->SetQ=btesh2_spandfl_SetQ;
 		i=BTESH2_MemoryAddSpan(img, sp);
 	}
 

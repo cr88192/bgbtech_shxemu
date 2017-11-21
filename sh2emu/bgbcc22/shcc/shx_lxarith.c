@@ -1,3 +1,7 @@
+/*
+ * Int128 Arithmetic
+ */
+
 int BGBCC_SHXC_IndexLitInt128(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
@@ -42,15 +46,15 @@ int BGBCC_SHXC_EmitBinaryVRegVRegInt128(
 	s0=NULL;
 	switch(opr)
 	{
-	case CCXL_BINOP_ADD:	s0="__addxli"; break;
-	case CCXL_BINOP_SUB:	s0="__subxli"; break;
-	case CCXL_BINOP_MUL:	s0="__smulxli"; break;
-	case CCXL_BINOP_DIV:	s0="__sdivxli"; break;
-	case CCXL_BINOP_AND:	s0="__andxli"; break;
-	case CCXL_BINOP_OR:		s0="__orxli"; break;
-	case CCXL_BINOP_XOR:	s0="__xorxli"; break;
-	case CCXL_BINOP_SHL:	s0="__shlxli"; break;
-	case CCXL_BINOP_SHR:	s0="__shrxli"; break;
+	case CCXL_BINOP_ADD:	s0="__xli_add"; break;
+	case CCXL_BINOP_SUB:	s0="__xli_sub"; break;
+	case CCXL_BINOP_MUL:	s0="__xli_smul"; break;
+	case CCXL_BINOP_DIV:	s0="__xli_sdiv"; break;
+	case CCXL_BINOP_AND:	s0="__xli_and"; break;
+	case CCXL_BINOP_OR:		s0="__xli_or"; break;
+	case CCXL_BINOP_XOR:	s0="__xli_xor"; break;
+	case CCXL_BINOP_SHL:	s0="__xli_shl"; break;
+	case CCXL_BINOP_SHR:	s0="__xli_shr"; break;
 	}
 
 	if(s0)
@@ -117,8 +121,8 @@ int BGBCC_SHXC_EmitUnaryVRegVRegInt128(
 	s0=NULL;
 	switch(opr)
 	{
-	case CCXL_UNOP_NEG:	s0="__negxli"; break;
-	case CCXL_UNOP_NOT:	s0="__notxli"; break;
+	case CCXL_UNOP_NEG:	s0="__xli_neg"; break;
+	case CCXL_UNOP_NOT:	s0="__xli_not"; break;
 	}
 
 	if(s0)

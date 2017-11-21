@@ -1,7 +1,7 @@
 int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 	BTESH2_Opcode *op, btesh2_vaddr pc)
 {
-	static const byte ldow2[16]={1,0,0,1, 0,0,1,0, 1,0,0,0, 0,0,1,1};
+	static const byte ldow2[16]={1,0,0,1, 0,0,1,0, 1,0,0,0, 1,0,1,1};
 	u16 opw, opw2;
 	int isds;
 	int i, j, k;
@@ -405,6 +405,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->fl=BTESH2_OPFL_CTRLF|BTESH2_OPFL_DLYSLOT|
 					BTESH2_OPFL_INVDLYSLOT;
 				break;
+			case 0x3: /* 0-3B */
+				op->fl=BTESH2_OPFL_CTRLF;
+				op->nmid=BTESH2_NMID_BRK;
+				op->fmid=BTESH2_FMID_NONE;
+				op->Run=BTSH_Op_TRAP_BRK;
+				break;
 
 			case 0x6: /* 0-6B */
 				op->Run=BTSH_Op_RTS_Z;
@@ -579,7 +585,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->nmid=BTESH2_NMID_AND;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_AND_RegReg;
-			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+//			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
 			{
 				op->nmid=BTESH2_NMID_ANDQ;
 				op->Run=BTSH_Op_ANDQ_RegReg;
@@ -591,7 +598,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->nmid=BTESH2_NMID_XOR;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_XOR_RegReg;
-			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+//			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
 			{
 				op->nmid=BTESH2_NMID_XORQ;
 				op->Run=BTSH_Op_XORQ_RegReg;
@@ -603,7 +611,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->nmid=BTESH2_NMID_OR;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_OR_RegReg;
-			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+//			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
 			{
 				op->nmid=BTESH2_NMID_ORQ;
 				op->Run=BTSH_Op_ORQ_RegReg;
@@ -703,7 +712,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->nmid=BTESH2_NMID_SUB;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_SUB_RegReg;
-			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+//			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
 			{
 				op->nmid=BTESH2_NMID_SUBQ;
 				op->Run=BTSH_Op_SUBQ_RegReg;
@@ -734,9 +744,10 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->nmid=BTESH2_NMID_ADD;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_ADD_RegReg;
-			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+//			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
 			{
-				op->nmid=BTESH2_NMID_ADDQ;
+//				op->nmid=BTESH2_NMID_ADDQ;
 				op->Run=BTSH_Op_ADDQ_RegReg;
 			}
 			break;
@@ -798,6 +809,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->Run=BTSH_Op_SHLR_Reg;
 				op->nmid=BTESH2_NMID_SHLR;
 				op->fmid=BTESH2_FMID_REGRN;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_Op_SHLR_RegQ;
 				break;
 			case 0x1: /* 4-11 */
 				op->rn=(opw>>8)&15;
@@ -977,6 +990,25 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_ROTCL_Reg;
 				break;
+
+			case 0x3: /* 4-34 */
+				op->rn=(opw>>8)&15;
+				op->nmid=BTESH2_NMID_SHLL4;
+				op->fmid=BTESH2_FMID_REGRN;
+				op->Run=BTSH_Op_SHLL4_RegQ;
+				break;
+			case 0x4: /* 4-44 */
+				op->rn=(opw>>8)&15;
+				op->nmid=BTESH2_NMID_EXTUL;
+				op->fmid=BTESH2_FMID_REGRN;
+				op->Run=BTSH_Op_EXTUL_Reg;
+				break;
+			case 0x5: /* 4-54 */
+				op->rn=(opw>>8)&15;
+				op->nmid=BTESH2_NMID_EXTSL;
+				op->fmid=BTESH2_FMID_REGRN;
+				op->Run=BTSH_Op_EXTSL_Reg;
+				break;
 			}
 			break;
 		case 0x5: /* 4--5 */
@@ -999,6 +1031,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->nmid=BTESH2_NMID_ROTCR;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_ROTCR_Reg;
+				break;
+			case 0x3: /* 4-35 */
+				op->rn=(opw>>8)&15;
+				op->nmid=BTESH2_NMID_SHLR4;
+				op->fmid=BTESH2_FMID_REGRN;
+				op->Run=BTSH_Op_SHLR4_RegQ;
 				break;
 
 			case 0xB: /* 4-B5 */
@@ -1204,18 +1242,24 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->nmid=BTESH2_NMID_SHLL2;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_SHLL2_Reg;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_Op_SHLL2_RegQ;
 				break;
 			case 0x1: /* 4-18 */
 				op->rn=(opw>>8)&15;
 				op->nmid=BTESH2_NMID_SHLL8;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_SHLL8_Reg;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_Op_SHLL8_RegQ;
 				break;
 			case 0x2: /* 4-28 */
 				op->rn=(opw>>8)&15;
 				op->nmid=BTESH2_NMID_SHLL16;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_SHLL16_Reg;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_Op_SHLL16_RegQ;
 				break;
 
 			case 0x4: /* 4-48 */
@@ -1236,6 +1280,25 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				if(cpu->csfl&BTESH2_CSFL_SRJQ)
 					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
 				break;
+
+			case 0x6: /* 4-68 */
+				op->rn=BTESH2_REG_SP;
+				op->rm=16+((opw>>8)&15);
+				op->nmid=BTESH2_NMID_PUSH;
+				op->fmid=BTESH2_FMID_REGRM;
+				op->Run=BTSH_Op_MOV_RegDecStD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegDecStQ;
+				break;
+			case 0x7: /* 4-78 */
+				op->rn=16+((opw>>8)&15);
+				op->rm=BTESH2_REG_SP;
+				op->nmid=BTESH2_NMID_POP;
+				op->fmid=BTESH2_FMID_REGRN;
+				op->Run=BTSH_Op_MOV_RegIncLdD;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegIncLdQ;
+				break;
 			}
 			break;
 		case 0x9: /* 4--9 */
@@ -1246,18 +1309,24 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->nmid=BTESH2_NMID_SHLR2;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_SHLR2_Reg;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_Op_SHLR2_RegQ;
 				break;
 			case 0x1: /* 4-19 */
 				op->rn=(opw>>8)&15;
 				op->nmid=BTESH2_NMID_SHLR8;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_SHLR8_Reg;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_Op_SHLR8_RegQ;
 				break;
 			case 0x2: /* 4-29 */
 				op->rn=(opw>>8)&15;
 				op->nmid=BTESH2_NMID_SHLR16;
 				op->fmid=BTESH2_FMID_REGRN;
 				op->Run=BTSH_Op_SHLR16_Reg;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_Op_SHLR16_RegQ;
 				break;
 			}
 			break;
@@ -1425,6 +1494,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->nmid=BTESH2_NMID_SHAD;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_SHAD_RegReg;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_Op_SHADL_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_SHADQ;
+					op->Run=BTSH_Op_SHADQ_RegReg;
+				}
+			}
 			break;
 		case 0xD: /* 4--D */
 			op->rn=(opw>>8)&15;
@@ -1432,6 +1510,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->nmid=BTESH2_NMID_SHLD;
 			op->fmid=BTESH2_FMID_REGREG;
 			op->Run=BTSH_Op_SHLD_RegReg;
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->Run=BTSH_Op_SHLDL_RegReg;
+				if(cpu->csfl&BTESH2_CSFL_SRDQ)
+				{
+					op->nmid=BTESH2_NMID_SHLDQ;
+					op->Run=BTSH_Op_SHLDQ_RegReg;
+				}
+			}
 			break;
 		case 0xE: /* 4--E */
 			switch((opw>>4)&15)
@@ -1564,7 +1651,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 
 			if(cpu->csfl&BTESH2_CSFL_SRDQ)
 			{
-				op->nmid=BTESH2_NMID_MOVQ;
+//				op->nmid=BTESH2_NMID_MOVQ;
+				op->Run=BTSH_OpJQ_MOV_RegRegQ;
+				break;
+			}else if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				op->nmid=BTESH2_NMID_MOV;
 				op->Run=BTSH_OpJQ_MOV_RegRegQ;
 				break;
 			}
@@ -1720,10 +1812,16 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 		break;
 	case 0x7: /* 7--- */
 		op->rn=(opw>>8)&15;
-		op->imm=(u32)((sbyte)opw);
+		op->imm=(u64)((sbyte)opw);
 		op->nmid=BTESH2_NMID_ADD;
 		op->fmid=BTESH2_FMID_REGIMM;
 		op->Run=BTSH_Op_ADD_RegImm;
+		if(cpu->csfl&BTESH2_CSFL_SRJQ)
+		{
+			op->Run=BTSH_Op_ADDQ_RegImm;
+			break;
+		}
+
 		BTSH_Fixup_ADD_RegImm(cpu, op);
 		break;
 	case 0x8: /* 8--- */
@@ -1836,22 +1934,46 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			}
 			break;
 		case 0x7: /* 87-- */
-			if(opw&0x0080)
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
 			{
-				op->rm=15;
-				op->rn=8|((opw>>4)&7);
-				op->imm=((opw&15)+16)*4;
-				op->nmid=BTESH2_NMID_FMOVS;
-				op->fmid=BTESH2_FMID_REGLDDISP;
-				op->Run=BTSH_Op_FMOV_RegLdDisp;
+				if(opw&0x0080)
+				{
+					op->rn=((opw>>4)&7)|8;
+					if(op->rn==15)op->rn=0;
+					op->rm=15;
+					op->imm=(opw&15)*8;
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->fmid=BTESH2_FMID_REGLDDISP;
+					op->Run=BTSH_OpJQ_MOV_RegLdDispQ;
+				}else
+				{
+					op->rm=((opw>>4)&7)|8;
+					if(op->rm==15)op->rm=0;
+					op->rn=15;
+					op->imm=(opw&15)*8;
+					op->nmid=BTESH2_NMID_MOVQ;
+					op->fmid=BTESH2_FMID_REGSTDISP;
+					op->Run=BTSH_OpJQ_MOV_RegStDispQ;
+				}
 			}else
 			{
-				op->rn=15;
-				op->rm=8|((opw>>4)&7);
-				op->imm=((opw&15)+16)*4;
-				op->nmid=BTESH2_NMID_FMOVS;
-				op->fmid=BTESH2_FMID_REGSTDISP;
-				op->Run=BTSH_Op_FMOV_RegStDisp;
+				if(opw&0x0080)
+				{
+					op->rm=15;
+					op->rn=8|((opw>>4)&7);
+					op->imm=((opw&15)+16)*4;
+					op->nmid=BTESH2_NMID_FMOVS;
+					op->fmid=BTESH2_FMID_REGLDDISP;
+					op->Run=BTSH_Op_FMOV_RegLdDisp;
+				}else
+				{
+					op->rn=15;
+					op->rm=8|((opw>>4)&7);
+					op->imm=((opw&15)+16)*4;
+					op->nmid=BTESH2_NMID_FMOVS;
+					op->fmid=BTESH2_FMID_REGSTDISP;
+					op->Run=BTSH_Op_FMOV_RegStDisp;
+				}
 			}
 			break;
 		case 0x8: /* 88-- */
@@ -1938,6 +2060,9 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->imm=((pc+4)&(~3))+(4*i);
 			op->nmid=BTESH2_NMID_MOVQ;
 			op->Run=BTSH_OpJQ_MOV_RegLdAbsQ;
+		}else if(cpu->csfl&BTESH2_CSFL_SRJQ)
+		{
+			op->Run=BTSH_OpJQ_MOV_RegLdAbsWQ;
 		}
 		break;
 	case 0xA: /* A---, BRA label */
@@ -2116,6 +2241,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			}
 			break;
 		case 0xC: /* CC-- */
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				BTESH2_DecodeOpcode_BJX1_CC(cpu, op, pc, opw, opw2);
+				break;
+			}
+
 			op->rn=0;
 			op->rm=BTESH2_REG_GBR;
 			op->imm=opw&255;
@@ -2124,6 +2255,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->Run=BTSH_Op_TSTB_MemImm;
 			break;
 		case 0xD: /* CD-- */
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				BTESH2_DecodeOpcode_BJX1_CD(cpu, op, pc, opw, opw2);
+				break;
+			}
+
 			op->rn=0;
 			op->rm=BTESH2_REG_GBR;
 			op->imm=opw&255;
@@ -2132,6 +2269,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->Run=BTSH_Op_ANDB_MemImm;
 			break;
 		case 0xE: /* CE-- */
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				BTESH2_DecodeOpcode_BJX1_CE(cpu, op, pc, opw, opw2);
+				break;
+			}
+
 			op->rn=0;
 			op->rm=BTESH2_REG_GBR;
 			op->imm=opw&255;
@@ -2140,6 +2283,12 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			op->Run=BTSH_Op_XORB_MemImm;
 			break;
 		case 0xF: /* CF-- */
+			if(cpu->csfl&BTESH2_CSFL_SRJQ)
+			{
+				BTESH2_DecodeOpcode_BJX1_CF(cpu, op, pc, opw, opw2);
+				break;
+			}
+
 			op->rn=0;
 			op->rm=BTESH2_REG_GBR;
 			op->imm=opw&255;
@@ -2164,7 +2313,8 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 		if(cpu->csfl&BTESH2_CSFL_SRJQ)
 		{
 			op->Run=BTSH_OpJQ_MOV_RegLdAbsD;
-			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+//			if(cpu->csfl&BTESH2_CSFL_SRDQ)
+			if(1)
 			{
 				op->nmid=BTESH2_NMID_MOVL;
 				op->Run=BTSH_OpJQ_MOV_RegLdAbsDQ;
@@ -2173,14 +2323,15 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 		break;
 	case 0xE: /* E--- */
 		op->rn=(opw>>8)&15;
-		op->imm=(u32)((sbyte)(opw));
+		op->imm=(u64)((sbyte)(opw));
 		op->nmid=BTESH2_NMID_MOV;
 		op->fmid=BTESH2_FMID_REGIMM;
 		op->Run=BTSH_Op_MOV_RegImm;
 
-		if(cpu->csfl&BTESH2_CSFL_SRDQ)
+//		if(cpu->csfl&BTESH2_CSFL_SRDQ)
+		if(cpu->csfl&BTESH2_CSFL_SRJQ)
 		{
-			op->nmid=BTESH2_NMID_MOVQ;
+//			op->nmid=BTESH2_NMID_MOVQ;
 			op->Run=BTSH_OpJQ_MOV_RegImmQ;
 			break;
 		}
@@ -2486,6 +2637,16 @@ int BTESH2_Trace_TraceUpdateJTrig(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	return(0);
 }
 
+
+void BTESH2_Trace_CheckSanity(BTESH2_CpuState *cpu)
+{
+	if(!(cpu->regs[BTESH2_REG_SR]&BTESH2_SRFL_JQ))
+		__debugbreak();
+}
+
+// #define BTESH2_TREX_SANITY		BTESH2_Trace_CheckSanity(cpu);
+#define BTESH2_TREX_SANITY
+
 BTESH2_Trace *BTESH2_Trace_Run1(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 {
 	BTESH2_Opcode **ops;
@@ -2497,7 +2658,9 @@ BTESH2_Trace *BTESH2_Trace_Run1(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2512,8 +2675,11 @@ BTESH2_Trace *BTESH2_Trace_Run2(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2528,9 +2694,13 @@ BTESH2_Trace *BTESH2_Trace_Run3(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2545,8 +2715,15 @@ BTESH2_Trace *BTESH2_Trace_Run4(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2561,9 +2738,17 @@ BTESH2_Trace *BTESH2_Trace_Run5(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2578,9 +2763,19 @@ BTESH2_Trace *BTESH2_Trace_Run6(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2595,9 +2790,19 @@ BTESH2_Trace *BTESH2_Trace_Run7(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2613,10 +2818,23 @@ BTESH2_Trace *BTESH2_Trace_Run8(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2631,11 +2849,26 @@ BTESH2_Trace *BTESH2_Trace_Run9(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2650,11 +2883,27 @@ BTESH2_Trace *BTESH2_Trace_Run10(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops);
+	BTESH2_TREX_SANITY
 	return(cpu->trnext);
 }
 
@@ -2669,11 +2918,26 @@ BTESH2_Trace *BTESH2_Trace_Run11(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2689,11 +2953,26 @@ BTESH2_Trace *BTESH2_Trace_Run12(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2709,12 +2988,30 @@ BTESH2_Trace *BTESH2_Trace_Run13(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2730,12 +3027,30 @@ BTESH2_Trace *BTESH2_Trace_Run14(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2748,12 +3063,30 @@ BTESH2_Trace *BTESH2_Trace_Run14B(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2765,12 +3098,30 @@ BTESH2_Trace *BTESH2_Trace_Run14C(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2782,12 +3133,30 @@ BTESH2_Trace *BTESH2_Trace_Run14D(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2804,13 +3173,34 @@ BTESH2_Trace *BTESH2_Trace_Run15(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2826,13 +3216,34 @@ BTESH2_Trace *BTESH2_Trace_Run16(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2848,14 +3259,38 @@ BTESH2_Trace *BTESH2_Trace_Run17(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2871,14 +3306,38 @@ BTESH2_Trace *BTESH2_Trace_Run18(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2894,15 +3353,42 @@ BTESH2_Trace *BTESH2_Trace_Run19(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2918,15 +3404,42 @@ BTESH2_Trace *BTESH2_Trace_Run20(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2942,16 +3455,46 @@ BTESH2_Trace *BTESH2_Trace_Run21(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2967,16 +3510,46 @@ BTESH2_Trace *BTESH2_Trace_Run22(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -2992,17 +3565,50 @@ BTESH2_Trace *BTESH2_Trace_Run23(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3018,17 +3624,50 @@ BTESH2_Trace *BTESH2_Trace_Run24(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3044,18 +3683,54 @@ BTESH2_Trace *BTESH2_Trace_Run25(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3071,18 +3746,54 @@ BTESH2_Trace *BTESH2_Trace_Run26(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3098,19 +3809,58 @@ BTESH2_Trace *BTESH2_Trace_Run27(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3126,19 +3876,58 @@ BTESH2_Trace *BTESH2_Trace_Run28(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3154,20 +3943,62 @@ BTESH2_Trace *BTESH2_Trace_Run29(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3183,20 +4014,62 @@ BTESH2_Trace *BTESH2_Trace_Run30(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3212,21 +4085,66 @@ BTESH2_Trace *BTESH2_Trace_Run31(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3242,21 +4160,66 @@ BTESH2_Trace *BTESH2_Trace_Run32(BTESH2_CpuState *cpu, BTESH2_Trace *tr)
 	cpu->regs[BTESH2_REG_PC]=tr->nxtpc;
 	cpu->trnext=tr->trnext;
 	cpu->trjmpnext=tr->trjmpnext;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
-	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops); ops++;
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
+	(*ops)->Run(cpu, *ops); ops++;
+	BTESH2_TREX_SANITY
 	(*ops)->Run(cpu, *ops); ops++;	(*ops)->Run(cpu, *ops);
 	return(cpu->trnext);
 }
@@ -3296,7 +4259,7 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu,
 		{
 			op->nmid=BTESH2_NMID_INVALID;
 			op->fmid=BTESH2_FMID_NONE;
-			op->fl=BTESH2_OPFL_CTRLF;
+			op->fl|=BTESH2_OPFL_CTRLF;
 			op->Run=BTSH_Op_TRAP_UD;
 		}
 
@@ -3320,15 +4283,18 @@ int BTESH2_DecodeTrace(BTESH2_CpuState *cpu,
 		if((((op->opw>>12)&15)==0x9) &&
 			(((pc-2)>>12)==((op->imm+1)>>12)))
 		{
-			BTESH2_MarkAddrTrapSmc(cpu, op->imm+1);
-			if((op->imm+2)>tr->maxpc)
-				tr->maxpc=op->imm+2;
-			
-			op->imm=(s16)BTESH2_GetAddrWord(cpu, op->imm);
-			op->fmid=BTESH2_FMID_REGVIMM;
-			op->Run=BTSH_Op_MOV_RegImm;
-			if(cpu->csfl&BTESH2_CSFL_SRJQ)
-				op->Run=BTSH_OpJQ_MOV_RegImmQ;
+			if(!(cpu->csfl&BTESH2_CSFL_SRDQ))
+			{
+				BTESH2_MarkAddrTrapSmc(cpu, op->imm+1);
+				if((op->imm+2)>tr->maxpc)
+					tr->maxpc=op->imm+2;
+				
+				op->imm=(s16)BTESH2_GetAddrWord(cpu, op->imm);
+				op->fmid=BTESH2_FMID_REGVIMM;
+				op->Run=BTSH_Op_MOV_RegImm;
+				if(cpu->csfl&BTESH2_CSFL_SRJQ)
+					op->Run=BTSH_OpJQ_MOV_RegImmQ;
+			}
 		}
 #endif
 		

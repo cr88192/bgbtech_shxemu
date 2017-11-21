@@ -55,8 +55,16 @@ void BTSH_Op_MOV_RegRegSr(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 
 void BTSH_Op_MOV_RegRegSrB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
-	cpu->regs[op->rn]=(cpu->regs[op->rm]&0x3F3)|
-		(cpu->regs[op->rn]&(~0x3F3));
+	u32 s;
+	
+	s=cpu->regs[BTESH2_REG_SR];
+	s=(cpu->regs[op->rm]&0x3F3)|(s&(~0x3F3));
+//	if(!(s&BTESH2_SRFL_JQ))
+//		__debugbreak();
+	cpu->regs[BTESH2_REG_SR]=s;
+	
+//	cpu->regs[op->rn]=(cpu->regs[op->rm]&0x3F3)|
+//		(cpu->regs[op->rn]&(~0x3F3));
 }
 
 void BTSH_Op_MOV_RegMemB(BTESH2_CpuState *cpu, BTESH2_Opcode *op)

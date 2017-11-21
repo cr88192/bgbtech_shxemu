@@ -197,22 +197,46 @@ int BGBCC_SHXA_GetRegId(char *str)
 		break;
 
 	case 'R':	case 'r':
-		t=BGBCC_SH_REG_R0;
-		if(str[1]=='0')
+		if((str[1]=='D') || (str[1]=='d') ||
+			(str[1]=='Q') || (str[1]=='q'))
 		{
-			if((str[2]>='0') && (str[2]<='9') && !str[3])
-				{ return(t+(str[2]-'0')); }
-			if(!str[2])
-				return(t);
+			t=BGBCC_SH_REG_R0;
+			if((str[1]=='D') || (str[1]=='d'))
+				t=BGBCC_SH_REG_RD0;
+			if((str[1]=='Q') || (str[1]=='q'))
+				t=BGBCC_SH_REG_RQ0;
+
+			if(!str[3])
+			{
+				if((str[2]>='0') && (str[2]<='9'))
+					{ return(t+(str[2]-'0')); }
+				break;
+			}
+
+			if(!str[4])
+			{
+				if((str[2]>='0') && (str[2]<='9') &&
+					(str[3]>='0') && (str[3]<='9'))
+						{ return(t+(str[2]-'0')*10+(str[3]-'0')); }
+			}
+			break;
 		}
-		if(str[1]=='1')
+
+		t=BGBCC_SH_REG_R0;
+
+		if(!str[2])
 		{
-			if((str[2]>='0') && (str[2]<='5') && !str[3])
-				{ return(t+10+(str[2]-'0')); }
-			if(!str[2])
-				{ return(t+1); }
-		}else if((str[1]>='0') && (str[1]<='9') && !str[2])
-			{ return(t+(str[1]-'0')); }
+			if((str[1]>='0') && (str[1]<='9'))
+				{ return(t+(str[1]-'0')); }
+			break;
+		}
+
+		if(!str[3])
+		{
+			if((str[1]>='0') && (str[1]<='9') &&
+				(str[2]>='0') && (str[2]<='9'))
+					{ return(t+(str[1]-'0')*10+(str[2]-'0')); }
+		}
 		break;
 
 	case 'M':	case 'm':
@@ -477,6 +501,7 @@ int nmid;
 {"mov.b",	BGBCC_SH_NMID_MOVB},
 {"mov.w",	BGBCC_SH_NMID_MOVW},
 {"mov.l",	BGBCC_SH_NMID_MOVL},
+{"mov.q",	BGBCC_SH_NMID_MOVQ},
 {"add",		BGBCC_SH_NMID_ADD},
 {"addc",	BGBCC_SH_NMID_ADDC},
 {"addv",	BGBCC_SH_NMID_ADDV},
@@ -547,8 +572,10 @@ int nmid;
 {"neg",		BGBCC_SH_NMID_NEG},
 {"extu.b",	BGBCC_SH_NMID_EXTUB},
 {"extu.w",	BGBCC_SH_NMID_EXTUW},
+{"extu.l",	BGBCC_SH_NMID_EXTUL},
 {"exts.b",	BGBCC_SH_NMID_EXTSB},
 {"exts.w",	BGBCC_SH_NMID_EXTSW},
+{"exts.l",	BGBCC_SH_NMID_EXTSL},
 {"trapa",	BGBCC_SH_NMID_TRAPA},
 {"mova",	BGBCC_SH_NMID_MOVA},
 {"tst.b",	BGBCC_SH_NMID_TSTB},
@@ -576,6 +603,13 @@ int nmid;
 {"brk",		BGBCC_SH_NMID_BRK},
 {"movrt",	BGBCC_SH_NMID_MOVRT},
 {"movca.l",	BGBCC_SH_NMID_MOVCAL},
+{"lea.b",	BGBCC_SH_NMID_LEAB},
+{"lea.w",	BGBCC_SH_NMID_LEAW},
+{"lea.l",	BGBCC_SH_NMID_LEAL},
+{"lea.q",	BGBCC_SH_NMID_LEAQ},
+
+{"push",	BGBCC_SH_NMID_PUSH},
+{"pop",		BGBCC_SH_NMID_POP},
 
 {"fabs",	BGBCC_SH_NMID_FABS},
 {"fadd",	BGBCC_SH_NMID_FADD},
@@ -605,6 +639,9 @@ int nmid;
 {"ocbp",	BGBCC_SH_NMID_OCBP},
 {"ocbwb",	BGBCC_SH_NMID_OCBWB},
 {"icbi",	BGBCC_SH_NMID_ICBI},
+
+{"iclrmd.dq",	BGBCC_SH_NMID_ICLRMD_DQ},
+{"isetmd.dq",	BGBCC_SH_NMID_ISETMD_DQ},
 
 {NULL, 0}
 };
@@ -766,7 +803,35 @@ int BGBCC_SHXA_LookupOpcodeFmid(
 		
 		return(fm);
 	}
-	
+
+	if(1)
+	{
+		fm=0;
+		switch(arg0->ty)
+		{
+		case BGBCC_SH_OPVTY_REG:
+			switch(arg1->ty)
+			{
+			case BGBCC_SH_OPVTY_REG:
+				switch(arg2->ty)
+				{
+				case BGBCC_SH_OPVTY_REG:
+					fm=BGBCC_SH_FMID_REGREGREG; break;
+				}
+				break;
+			case BGBCC_SH_OPVTY_IMM:
+				switch(arg2->ty)
+				{
+				case BGBCC_SH_OPVTY_REG:
+					fm=BGBCC_SH_FMID_REGIMMREG; break;
+				}
+				break;
+			default: fm=0; break;
+			}
+			break;
+		}
+	}
+
 	return(0);
 }
 
@@ -886,6 +951,7 @@ int BGBCC_SHXA_ParseOpcode(BGBCC_SHX_Context *ctx, char **rcs)
 		if(*cs1==':')
 		{
 			BGBCC_SHX_EmitNamedLabel(ctx, tk0+1);
+			BGBCC_SHXC_ResetModeDqUnknown(NULL, ctx);
 			*rcs=cs1+1;
 			return(1);
 		}

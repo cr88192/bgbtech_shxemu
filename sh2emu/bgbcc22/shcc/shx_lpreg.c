@@ -220,11 +220,15 @@ int BGBCC_SHXC_StompLpRegisterIndex(
 		return(1);
 	}
 
-	if(BGBCC_CCXL_IsRegSgLongP(ctx, reg))
+	if(!sctx->is_addr64)
 	{
-		sctx->regalc_map[i+0]=zreg;
-		sctx->regalc_map[i+1]=zreg;
-		return(1);
+		if(BGBCC_CCXL_IsRegSgLongP(ctx, reg) ||
+			BGBCC_CCXL_IsRegVariantP(ctx, reg))
+		{
+			sctx->regalc_map[i+0]=zreg;
+			sctx->regalc_map[i+1]=zreg;
+			return(1);
+		}
 	}
 
 	sctx->regalc_map[i]=zreg;

@@ -15,6 +15,7 @@ int BTESH2_BootLoadPeCoff(
 	u32 rva_reloc, rsz_reloc;
 	u32 rva_exptab, rsz_exptab;
 	u32 rva_imptab, rsz_imptab;
+	byte is64;
 	int ofs_pe;
 	int mach, nsec, szopt, mflag;
 	int imgbase, imgbase2, imgsize, rva_strt, entry;
@@ -50,19 +51,38 @@ int BTESH2_BootLoadPeCoff(
 	cs_sec=cs_opt+szopt;
 	cs_strs=cs_sec+(nsec*0x28);
 
-	imgbase=btsh2_ptrGetUD(cs_hdr+0x34, 1);
+	is64=0;
+	k=btsh2_ptrGetUD(cs_hdr+0x18, 1);
+	if(k==0x020B)is64=1;
+
+	if(is64)
+		{ imgbase=btsh2_ptrGetUD(cs_hdr+0x30, 1); }
+	else
+		{ imgbase=btsh2_ptrGetUD(cs_hdr+0x34, 1); }
 	rva_strt=btsh2_ptrGetUD(cs_hdr+0x28, 1);
 	entry=imgbase+rva_strt;
 	
 	imgsize=btsh2_ptrGetUD(cs_hdr+0x50, 1);
 
-	rva_exptab=btsh2_ptrGetUD(cs_hdr+0x78, 1);
-	rsz_exptab=btsh2_ptrGetUD(cs_hdr+0x7C, 1);
-	rva_imptab=btsh2_ptrGetUD(cs_hdr+0x80, 1);
-	rsz_imptab=btsh2_ptrGetUD(cs_hdr+0x84, 1);
+	if(is64)
+	{
+		rva_exptab=btsh2_ptrGetUD(cs_hdr+0x88, 1);
+		rsz_exptab=btsh2_ptrGetUD(cs_hdr+0x8C, 1);
+		rva_imptab=btsh2_ptrGetUD(cs_hdr+0x90, 1);
+		rsz_imptab=btsh2_ptrGetUD(cs_hdr+0x94, 1);
 
-	rva_reloc=btsh2_ptrGetUD(cs_hdr+0xA0, 1);
-	rsz_reloc=btsh2_ptrGetUD(cs_hdr+0xA4, 1);
+		rva_reloc=btsh2_ptrGetUD(cs_hdr+0xB0, 1);
+		rsz_reloc=btsh2_ptrGetUD(cs_hdr+0xB4, 1);
+	}else
+	{
+		rva_exptab=btsh2_ptrGetUD(cs_hdr+0x78, 1);
+		rsz_exptab=btsh2_ptrGetUD(cs_hdr+0x7C, 1);
+		rva_imptab=btsh2_ptrGetUD(cs_hdr+0x80, 1);
+		rsz_imptab=btsh2_ptrGetUD(cs_hdr+0x84, 1);
+
+		rva_reloc=btsh2_ptrGetUD(cs_hdr+0xA0, 1);
+		rsz_reloc=btsh2_ptrGetUD(cs_hdr+0xA4, 1);
+	}
 	
 	imgbase2=imgbase;
 	adj_rebase=0; cs_reloc=NULL;
@@ -176,6 +196,12 @@ int BTESH2_BootLoadPeCoff(
 	}
 
 	cpu->csfl|=1;
+	if(is64)
+	{
+		cpu->regs[BTESH2_REG_SR+BTESH2_REG_RLO]|=BTESH2_SRFL_JQ;
+		cpu->regs[BTESH2_REG_SR+BTESH2_REG_RHI]|=BTESH2_SRFL_JQ;
+		cpu->csfl|=BTESH2_CSFL_SRJQ;
+	}
 	cpu->regs[BTESH2_REG_PC]=entry;
 	return(0);
 }

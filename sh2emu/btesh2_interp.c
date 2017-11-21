@@ -180,6 +180,8 @@ char *btesh2_print_NameForNameID(int id)
 	case BTESH2_NMID_TRAPA:		s="TRAPA"; break;
 	case BTESH2_NMID_MOVA:		s="MOVA"; break;
 	case BTESH2_NMID_TSTB:		s="TST.B"; break;
+	case BTESH2_NMID_EXTUL:		s="EXTU.L"; break;
+	case BTESH2_NMID_EXTSL:		s="EXTS.L"; break;
 
 	case BTESH2_NMID_LDC:		s="LDC"; break;
 	case BTESH2_NMID_LDCL:		s="LDC.L"; break;
@@ -267,7 +269,11 @@ char *btesh2_print_NameForNameID(int id)
 	case BTESH2_NMID_XORQ:		s="XOR.Q"; break;
 	case BTESH2_NMID_SHLLQ:		s="SHLL.Q"; break;
 	case BTESH2_NMID_SHLRQ:		s="SHLR.Q"; break;
+	case BTESH2_NMID_SHALQ:		s="SHAL.Q"; break;
 	case BTESH2_NMID_SHARQ:		s="SHAR.Q"; break;
+	case BTESH2_NMID_TSTQ:		s="TST.Q"; break;
+	case BTESH2_NMID_SHADQ:		s="SHAD.Q"; break;
+	case BTESH2_NMID_SHLDQ:		s="SHLD.Q"; break;
 
 	case BTESH2_NMID_LDSH16:	s="LDSH16"; break;
 
@@ -375,6 +381,23 @@ char *btesh2_print_NameForRegID(int id)
 	case 13: s="R13"; break;
 	case 14: s="R14"; break;
 	case 15: s="SP"; break;
+
+	case 16: s="R16"; break;
+	case 17: s="R17"; break;
+	case 18: s="R18"; break;
+	case 19: s="R19"; break;
+	case 20: s="R20"; break;
+	case 21: s="R21"; break;
+	case 22: s="R22"; break;
+	case 23: s="R23"; break;
+	case 24: s="R24"; break;
+	case 25: s="R25"; break;
+	case 26: s="R26"; break;
+	case 27: s="R27"; break;
+	case 28: s="R28"; break;
+	case 29: s="R29"; break;
+	case 30: s="R30"; break;
+	case 31: s="R31"; break;
 	
 	case BTESH2_REG_SR: s="SR"; break;
 	case BTESH2_REG_GBR: s="GBR"; break;
@@ -1115,15 +1138,24 @@ int BTESH2_DumpTraces(BTESH2_CpuState *cpu)
 	{
 		j=(cpu->trpc_rov-64+i)&63;
 		pc=cpu->trpc[j];
+
+#if 0
 		if(!pc)
+		{
+			printf("@%08X NULL\n", pc&(~1));
 			continue;
+		}
+#endif
+
+#if 0
 		if(pc&1)
 		{
 			printf("@%08X ...\n", pc&(~1));
 			continue;
 		}
+#endif
 
-		tr=BTESH2_TraceForAddr(cpu, pc);
+		tr=BTESH2_TraceForAddr(cpu, pc&(~1));
 		BTESH2_PrintTrace(cpu, tr);
 	}
 	
@@ -1337,39 +1369,49 @@ int BTESH2_DumpRegs_Reg32(BTESH2_CpuState *cpu)
 {
 	printf("Current GPRs:\n");
 	printf("R0   =%08X | R1  =%08X | R2   =%08X | R3   =%08X\n",
-		cpu->regs[ 0], cpu->regs[ 1], cpu->regs[ 2], cpu->regs[ 3]);
+		cpu->regs[BTESH2_REG_R0], cpu->regs[BTESH2_REG_R1],
+		cpu->regs[BTESH2_REG_R2], cpu->regs[BTESH2_REG_R3]);
 	printf("R4   =%08X | R5  =%08X | R6   =%08X | R7   =%08X\n",
-		cpu->regs[ 4], cpu->regs[ 5], cpu->regs[ 6], cpu->regs[ 7]);
+		cpu->regs[BTESH2_REG_R4], cpu->regs[BTESH2_REG_R5],
+		cpu->regs[BTESH2_REG_R6], cpu->regs[BTESH2_REG_R7]);
 	printf("R8   =%08X | R9  =%08X | R10  =%08X | R11  =%08X\n",
-		cpu->regs[ 8], cpu->regs[ 9], cpu->regs[10], cpu->regs[11]);
+		cpu->regs[BTESH2_REG_R8], cpu->regs[BTESH2_REG_R9],
+		cpu->regs[BTESH2_REG_R10], cpu->regs[BTESH2_REG_R11]);
 	printf("R12  =%08X | R13 =%08X | R14  =%08X | R15  =%08X\n",
-		cpu->regs[12], cpu->regs[13], cpu->regs[14], cpu->regs[15]);
+		cpu->regs[BTESH2_REG_R12], cpu->regs[BTESH2_REG_R13],
+		cpu->regs[BTESH2_REG_R14], cpu->regs[BTESH2_REG_R15]);
 
 	if(cpu->arch==BTESH2_ARCH_SH4)
 	{
 		printf("Banked GPRs:\n");
 		printf("R0_B =%08X | R1_B=%08X | R2_B =%08X | R3_B =%08X\n",
-			cpu->regs[32], cpu->regs[33], cpu->regs[34], cpu->regs[35]);
+			cpu->regs[BTESH2_REG_RBANK+0], cpu->regs[BTESH2_REG_RBANK+1],
+			cpu->regs[BTESH2_REG_RBANK+2], cpu->regs[BTESH2_REG_RBANK+3]);
 		printf("R4_B =%08X | R5_B=%08X | R6_B =%08X | R7_B =%08X\n",
-			cpu->regs[36], cpu->regs[37], cpu->regs[38], cpu->regs[39]);
-
+			cpu->regs[BTESH2_REG_RBANK+4], cpu->regs[BTESH2_REG_RBANK+5],
+			cpu->regs[BTESH2_REG_RBANK+6], cpu->regs[BTESH2_REG_RBANK+7]);
 	}
 
 	printf("Control/Status:\n");
 	printf("SR   =%08X | GBR =%08X | VBR  =%08X | fla  =%08X\n",
-		cpu->regs[16], cpu->regs[17], cpu->regs[18], cpu->regs[19]);
+		cpu->regs[BTESH2_REG_SR], cpu->regs[BTESH2_REG_GBR],
+		cpu->regs[BTESH2_REG_VBR], cpu->regs[BTESH2_REG_FLA]);
 	printf("MACH =%08X | MACL=%08X | PR   =%08X | PC   =%08X\n",
-		cpu->regs[20], cpu->regs[21], cpu->regs[22], cpu->regs[23]);
+		cpu->regs[BTESH2_REG_MACH], cpu->regs[BTESH2_REG_MACL],
+		cpu->regs[BTESH2_REG_PR], cpu->regs[BTESH2_REG_PC]);
 
 	if(cpu->arch==BTESH2_ARCH_SH4)
 	{
 		printf("FPSCR=%08X | FPUL=%08X | flb  =%08X | MMUCR=%08X\n",
-			cpu->regs[24], cpu->regs[25], cpu->regs[26], cpu->regs[27]);
+			cpu->regs[BTESH2_REG_FPSCR], cpu->regs[BTESH2_REG_FPUL],
+			cpu->regs[BTESH2_REG_FLB], cpu->regs[BTESH2_REG_MMUCR]);
 		printf("PTEH =%08X | PTEL=%08X | TTB  =%08X | TEA  =%08X\n",
-			cpu->regs[28], cpu->regs[29], cpu->regs[30], cpu->regs[31]);
+			cpu->regs[BTESH2_REG_PTEH], cpu->regs[BTESH2_REG_PTEL],
+			cpu->regs[BTESH2_REG_TTB], cpu->regs[BTESH2_REG_TEA]);
 
 		printf("SSR  =%08X | SPC =%08X | SGR  =%08X | DBR  =%08X\n",
-			cpu->regs[40], cpu->regs[41], cpu->regs[42], cpu->regs[43]);
+			cpu->regs[BTESH2_REG_SSR], cpu->regs[BTESH2_REG_SPC],
+			cpu->regs[BTESH2_REG_SGR], cpu->regs[BTESH2_REG_DBR]);
 	}
 
 	return(0);
@@ -1381,9 +1423,22 @@ int BTESH2_DumpRegs_Reg64(BTESH2_CpuState *cpu)
 	int i, j;
 	
 	printf("Current GPRs:\n");
-	for(i=0; i<8; i++)
+//	for(i=0; i<8; i++)
+	for(i=0; i<16; i++)
 	{
 		j=i*2;
+		if((i*2)>=30)
+		{
+			c0='3'; c2='3';
+			c1='0'+(i*2)-30;
+			c3='1'+(i*2)-30;
+		}else
+		if((i*2)>=20)
+		{
+			c0='2'; c2='2';
+			c1='0'+(i*2)-20;
+			c3='1'+(i*2)-20;
+		}else
 		if((i*2)>=10)
 		{
 			c0='1'; c2='1';
@@ -1414,11 +1469,23 @@ int BTESH2_DumpRegs_Reg64(BTESH2_CpuState *cpu)
 		for(i=0; i<4; i++)
 		{
 			j=BTESH2_REG_RBANK+i*2;
-			printf("R%i_B =%08X_%08X | R%i_B =%08X_%08X\n",
+			printf("R%i_B  =%08X_%08X | R%i_B  =%08X_%08X\n",
 				i*2+0,
 				cpu->regs[BTESH2_REG_RHI+j+0],
 				cpu->regs[BTESH2_REG_RLO+j+0],
 				i*2+1,
+				cpu->regs[BTESH2_REG_RHI+j+1],
+				cpu->regs[BTESH2_REG_RLO+j+1]);
+		}
+
+		for(i=0; i<4; i++)
+		{
+			j=BTESH2_REG_RBANK2+i*2;
+			printf("R%i_B =%08X_%08X | R%i_B =%08X_%08X\n",
+				16+i*2+0,
+				cpu->regs[BTESH2_REG_RHI+j+0],
+				cpu->regs[BTESH2_REG_RLO+j+0],
+				16+i*2+1,
 				cpu->regs[BTESH2_REG_RHI+j+1],
 				cpu->regs[BTESH2_REG_RLO+j+1]);
 		}
@@ -1483,8 +1550,8 @@ int BTESH2_DumpRegs_Reg64(BTESH2_CpuState *cpu)
 	printf("INTEV=%08X_%08X | ZZR  =%08X_%08X\n",
 		cpu->regs[BTESH2_REG_RHI+BTESH2_REG_INTEVT],
 		cpu->regs[BTESH2_REG_RLO+BTESH2_REG_INTEVT],
-		cpu->regs[BTESH2_REG_RHI+47],
-		cpu->regs[BTESH2_REG_RLO+47]);
+		cpu->regs[BTESH2_REG_RHI+BTESH2_REG_ZZR],
+		cpu->regs[BTESH2_REG_RLO+BTESH2_REG_ZZR]);
 
 	return(0);
 }
@@ -1687,6 +1754,7 @@ int BTESH2_DumpRegs(BTESH2_CpuState *cpu)
 	
 	if((cpu->regs[BTESH2_REG_RHI+BTESH2_REG_SR]&BTESH2_SRFL_JQ) ||
 		(cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SR]&BTESH2_SRFL_JQ))
+//	if(1)
 	{
 		BTESH2_DumpRegs_Reg64(cpu);
 	}else

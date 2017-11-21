@@ -311,6 +311,9 @@ extern "C" {
 
 #endif
 
+#define BGBCC_TYCSEEN_VARIANT	1
+#define BGBCC_TYCSEEN_INT128	2
+#define BGBCC_TYCSEEN_FLOAT128	4
 
 
 #include <bgbcc_endian.h>
@@ -461,6 +464,8 @@ byte arch_align_objmin;	//minimum alignment for value-objects
 
 byte ril3_norec;
 byte cgif_no3ac;
+
+int ccxl_tyc_seen;
 
 int gs_seq;
 char *lfn;

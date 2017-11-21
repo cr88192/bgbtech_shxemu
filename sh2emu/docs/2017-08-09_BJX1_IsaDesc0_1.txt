@@ -1,0 +1,1918 @@
+Instructions By Name and Description
+
+== Integer Base ISA ==
+
+This section will cover basic integer instructions.
+
+
+Normal instructions will be 16 bit, and are expressed here as nibbles.
+* 0..9, A..F: Expresses a literal hex value.
+* m: Expresses a source register.
+* n: Expresses a destination register.
+* o: Expresses an index register.
+* M: Expresses a source register as 0-7 with high-bit set.
+* N: Expresses a destination register as 0-7 with high-bit set.
+* d: Expresses a displacement.
+* i: Expresses an immediate value (signed)
+* j: Expresses an immediate value (unsigned)
+
+Displacements:
+* Are normally scaled by the size of the data type.
+* disp4, disp8, and disp12 are zero extended.
+* disp8s is sign-extended.
+* disp12s is sign-extended.
+
+Labels
+* Labels are relative to the PC following the Delay Slot.
+* label8s is sign-extended.
+* label12s is sign-extended.
+* label16s is sign-extended.
+
+Immediates
+* imm8, 8-bit immediate is zero-extended.
+* imm8s, 8-bit immediate is sign-extended.
+
+
+Memory Addressing Modes
+* @Rm
+** Access memory via address in Rm
+* @Rm+
+** Load from address in Rm, incrementing the address
+* @-Rn
+** Store to address given in Rn, first decrementing the address
+* @(R0, Rm)
+** Load or store to address given by R0+Rm
+* @(PC, Rm)
+** Load or store to address given by PC+Rm
+** PC is typically the start address of the instruction +4.
+** For 32-bit instructions, it is +6.
+* @(GBR, disp)
+** Memory access is GBR + a scaled displacement.
+* @(Rm, disp)
+** Address is Rm with a displacement scaled by the value size.
+* @(Rm, Ro, disp)
+** Address is given by Rm+(Ro+Disp)*Scale
+** If Ro is R0, then Scale is 1 (Byte).
+** If Ro is R15, then Ro is treated as if it held 0.
+** Giving R0 for the Ro in a LEA is Undefined if not Byte.
+** Giving R15 for the Ro in a LEA is Undefined.
+
+
+CC3e forms:
+* e=QNST
+* Q selects between 32-bit and 64-bit forms.
+** 0: 32-bit int or float.
+** 1: 64-bit long or double.
+* NST, encode an additional bit for each register.
+** For integer operations, only valid when Q=0.
+*** Selects the high part of R0..R15.
+** May be used for alternate forms when Q=1.
+
+Operation width for non-specialized forms:
+* Some operations will have an operation width which depends on SR.DQ.
+* Some operations will always operate on 64-bits when JQ is set.
+** MOV, ADD, SUB, AND, OR, XOR, NEG, ... will operate on 64-bits.
+** TST, CMP/*, ... will depend on DQ.
+
+=== ADD ===
+
+All
+* 3nmC  ADD Rm, Rn
+* 7nii  ADD #imm8s, Rn
+
+BJX1
+* 8Eii-7nii  ADD #imm16s, Rn
+
+Add Rm or Imm8 to the value in Rn.
+
+
+=== ADD (3R) ===
+
+BJX1
+* 8Ejj-3nmC  ADD Rm, #imm8, Rn
+* 8Est-4n03  ADD Rs, Rt, Rn
+
+BJX1 (JQ=1)
+* CC3e-0nst  ADD Rs, Rt, Rn
+
+Add Imm8 or Rt to Rm or Rs and store the value in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== ADDC ===
+
+* 3nmE  ADDC Rm, Rn
+
+Add Rm to the value in Rn with Carry.
+SR.T is Carry-in, and SR.T is updated to reflect new Carry-out value.
+
+DQ:
+* DQ=0: Carry out of bit 31, result bits 63..32 are undefined.
+* DQ=1: Carry out of bit 63.
+
+
+=== ADDV ===
+
+* 3nmF  ADDV Rm, Rn
+
+Add Rm to the value in Rn with Overflow.
+
+SR.T is cleared if the value falls within the range of signed values, and is set if the value falls outside this range.
+
+DQ:
+* DQ=0: Overflow out of bit 31, result bits 63..32 are undefined.
+* DQ=1: Overflow out of bit 63.
+
+
+=== AND ===
+
+All
+* 2nm9  AND Rm, Rn
+* C9jj  AND #imm8, Rn
+
+BJX1
+* 8Eii-C9ni  AND #imm12s, Rn
+
+And Rm or Immediate with the value in Rn, storing result into Rn.
+Operation is equivalent independent of DQ.
+
+
+=== AND (3R) ===
+
+BJX1
+* 8Ejj-2nm9  AND Rm, #imm8, Rn
+* 8Ejj-3nm9  AND Rm, #-imm8, Rn
+* 8Est-4n33  AND Rs, Rt, Rn
+
+BJX1 (JQ=1)
+* CC3e-3nst  AND Rs, Rt, Rn
+
+And Rt or Immediate with the value in Rs or Rm, storing result into Rn.
+Operation is equivalent independent of DQ.
+
+The 2xx9 form is zero-extended, whereas the 3xx9 form is extended with ones (negative).
+
+
+=== AND.B ===
+
+All, BJX1 (JQ=0)
+* CDjj  AND #imm8, @(R0, GBR)		//32-bit only
+
+And Imm8 with the byte found at this address.
+
+This instruction form is invalid in BJX1-64.
+
+
+=== BF ===
+
+All
+* 8Bdd       BF label8s
+
+BJX1
+* 8Edd-8Bdd  BF label16s
+
+Branch if False.
+Branches to the relative displacement if SR.T is Zero.
+
+
+=== BF/S ===
+
+All
+* 8Fdd       BF/S label8s
+
+BJX1
+* 8Edd-8Fdd  BF/S label16s
+
+Branch if False with Delay Slot.
+Branches to the relative displacement if SR.T is Zero.
+
+
+=== BRA ===
+
+All
+* Addd       BRA label12s
+
+BJX1
+* 8Edd-Addd  BRA label20s
+
+Unconditional branch with Delay Slot.
+
+
+=== BRAF ===
+
+* 0n23  BRAF Rn
+
+Relative computed branch with Delay Slot.
+
+
+=== BRA/N ===
+
+BJX1
+* 8Edd-82dd  BRA/N label16s
+
+Unconditional branch with No Delay Slot.
+
+=== BRcc (BJX1) ===
+
+BJX1
+*		8Edd-4mb5 ? BRxx Rm, disp8
+*		8Edd-4ST6 ? BRxx Rs, Rt, disp8
+*		8Edd-4ST7 ? BRxx Rs, Rt, disp8
+
+4xx6 / 4xx7
+* 0100-bsss-bttt-011b
+* Rs/Rt=R8..R14
+
+Condition Code
+* b=0, BREQ	(Rm==0 || Rs==Rt)
+* b=1, BRNE	(Rm!=0 || Rs!=Rt)
+* b=2: BRGT	(Rm> 0 || Rs> Rt)
+* b=3: BRLE	(Rm<=0 || Rs<=Rt)
+* b=4: BRGE	(Rm>=0 || Rs>=Rt)
+* b=5: BRLT	(Rm< 0 || Rs< Rt)
+* b=6: BRHI	(Rs> Rt, Unsigned)
+* b=7: BRBE	(Rs<=Rt, Unsigned)
+
+These are an experimental feature.
+These combine a compare and branch in a single operation.
+* These branches do not use a delay slot.
+* The state of SR.T is undefined following the branch.
+* HI and BE are N/A for comparison against 0.
+
+
+=== BRK ===
+
+* 003B  BRK
+
+Breakpoint.
+
+
+=== BSR ===
+
+All
+* Bddd       BSR label12s
+
+BJX1
+* 8Edd-Bddd  BSR label20s
+
+Branch to Subroutine with Delay Slot.
+This copies the return PC address into the PR register, and branches to relative address given by the displacement.
+
+
+=== BSRF ===
+
+* 0n03  BSRF Rn
+
+Relative computed branch to subroutine with Delay Slot.
+This copies the return PC address into the PR register, and branches to relative address given by PC+4+Rn.
+
+
+=== BSR/N ===
+
+BJX1
+* 8Edd-83dd  BSR/N label16s
+
+Branch to Subroutine with No Delay Slot.
+This copies the return PC address into the PR register, and branches to relative address given by the displacement.
+
+
+=== BT ===
+
+All
+* 89dd       BT label8s
+
+BJX1
+* 8Edd-89dd  BT label16s
+
+Branch if True.
+Branches to the relative displacement if SR.T is Non-Zero.
+
+
+=== BT/S ===
+
+All
+* 8Ddd       BT/S label8s
+
+BJX1
+* 8Edd-8Ddd  BT/S label16s
+
+Branch if True with Delay Slot.
+Branches to the relative displacement if SR.T is Non-Zero.
+
+
+=== CAS.L ===
+
+* 2nm3  CAS.L Rm, Rn, @R0
+
+Compare and Swap.
+
+
+=== CLRMAC ===
+
+* 0028  CLRMAC
+
+Clear MACL and MACH to Zero.
+Operation is equivalent independent of DQ.
+
+
+=== CLRS ===
+
+* 0048  CLRS
+
+Clear SR.S to Zero.
+
+
+=== CLRT ===
+
+* 0008  CLRT
+
+Clear SR.T to Zero.
+
+
+=== CMP/EQ ===
+
+All
+* 3nm0       CMP/EQ Rm, Rn
+* 88ii       CMP/EQ #imm8s, R0
+
+BJX1
+* 8Eii-3ni0  CMPEQ #imm12s, Rn
+* 8Eii-88ii  CMPEQ #imm16s, R0
+
+Compare if Rm and Rn are Equal, setting SR.T if they are equal, and clearing SR.T otherwise.
+
+
+=== CMP/GE ===
+
+All
+* 3nm3       CMP/GE Rm, Rn
+
+BJX1
+* 8Eii-3ni3  CMP/GE #imm12s, Rn
+
+Compare if Rn is greater than or equal to Rm, setting SR.T if true, and clearing SR.T otherwise.
+
+
+=== CMP/GT ===
+
+All
+* 3nm7       CMP/GT Rm, Rn
+
+BJX1
+* 8Eii-3ni7  CMP/GT #imm12s, Rn
+
+Compare if Rn is greater than Rm, setting SR.T if true, and clearing SR.T otherwise.
+
+
+=== CMP/HI ===
+
+All
+* 3nm6       CMP/HI Rm, Rn
+
+BJX1
+* 8Eii-3ni6  CMP/HI #imm12s, Rn
+
+Compare if Rn is greater than Rm, setting SR.T if true, and clearing SR.T otherwise. The comparison is done as unsigned.
+
+
+=== CMP/HS ===
+
+All
+* 3nm2       CMP/HS Rm, Rn
+
+BJX1
+* 8Eii-3ni2  CMP/HS #imm12s, Rn
+
+Compare if Rn is greater than or equal to Rm, setting SR.T if true, and clearing SR.T otherwise. The comparison is done as unsigned.
+
+
+=== CMP/PL ===
+
+* 4n15  CMP/PL Rn
+
+Compare Rn with Zero, setting SR.T if Rn is greater than Zero.
+
+
+=== CMP/PZ ===
+
+* 4n11  CMP/PZ Rn
+
+Compare Rn with Zero, setting SR.T if Rn is greater than or equal to Zero.
+
+
+=== CMP/STR ===
+
+All, BJX1 (JQ=0)
+* 2nmC  CMP/STR Rm, Rn
+
+Set SR.T if any byte in Rm equals the corresponding byte in Rn.
+This operation is invalid in BJX1-64.
+
+
+=== DIV0S ===
+
+* 2nm7  DIV0S Rm, Rn
+
+Initializes state for signed division.
+
+ q = SR.DQ ? DataRn[63] : DataRn[31];
+ m = SR.DQ ? DataRm[63] : DataRm[31];
+ SR.Q <= q;
+ SR.M <= m;
+ SR.T <= q xor m;
+
+
+=== DIV0U ===
+
+* 0019  DIV0U
+
+Initializes state for unsigned division.
+
+ SR.Q <= 0
+ SR.M <= 0
+ SR.T <= 0
+
+
+=== DIV1 ===
+
+* 3nm4  DIV1 Rm, Rn
+
+Perform a division step, with SR.Q, SR.M, and SR.T holding internal state.
+
+ q0 = SR.Q;
+ m0 = SR.M;
+ t0 = SR.T;
+ q1 = SR.DQ ? DataRn[63] : DataRn[31];
+ dn1 = (DataRn < < 1) | t0;
+ if (q0 == m0)
+   dn2 = dn1 - DataRm;
+ else
+   dn2 = dn1 + DataRm;
+ c0 = SR.DQ ? dn2[64] : dn2[32];
+ q2 = (q1 ^ m0) ^ c0;
+ t2 = ! (q2 ^ m0);
+ DataRn = dn2;
+ SR.Q = q2;
+ SR.T = t2;
+ 
+
+=== DMULS.L ===
+
+All
+* 3nmD  DMULS.L Rm, Rn
+
+Perform a signed multiply of Rn and Rm, storing the result in MACH:MACL.
+
+
+=== DMULU.L ===
+
+All
+* 3nm5  DMULU.L Rm, Rn
+
+Perform an unsigned multiply of Rn and Rm, storing the result in MACH:MACL.
+
+
+=== DT ===
+
+All
+* 4n10  DT Rn
+
+Decrements Rn, setting SR.T if the result is Zero, clearing SR.T otherwise.
+
+
+=== EXTS.B ===
+
+All
+* 6nmE  EXTS.B Rm, Rn
+
+Sign extend the Byte value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== EXTS.L ===
+
+All
+* 4n54  EXTS.L Rn
+
+Sign extend the Byte value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== EXTS.W ===
+
+All
+* 6nmF  EXTS.W Rm, Rn
+
+Sign extend the Word value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== EXTU.B ===
+
+All
+* 6nmC  EXTU.B Rm, Rn
+
+Zero extend the Byte value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== EXTU.L ===
+
+All
+* 4n44  EXTU.L Rn
+
+Zero extend the Byte value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== EXTU.W ===
+
+All
+* 6nmD  EXTU.W Rm, Rn
+
+Zero extend the Word value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== JMP ===
+
+All
+* 4n2B  JMP Rn
+
+Jump to the location given by the address in Rn.
+
+
+=== JSR ===
+
+All
+* 4n0B  JSR Rn
+
+Jump to the subroutine given by the address in Rn.
+
+
+=== LDC ===
+
+Varies
+* 4m0E  LDC Rm, SR
+* 4m1E  LDC Rm, GBR
+* 4m2E  LDC Rm, VBR
+* 4m3E  LDC Rm, SSR
+* 4m4E  LDC Rm, SPC
+* 4mNE  LDC Rm, RnB
+* 4mFA  LDC Rm, DBR
+
+Load Rm into the given Control Register.
+
+SR is special in that it will mask off most of the bits.
+
+
+=== LDC.L ===
+
+Varies
+* 4m07  LDC.L @Rm+, SR
+* 4m17  LDC.L @Rm+, GBR
+* 4m27  LDC.L @Rm+, VBR
+* 4m37  LDC.L @Rm+, SSR
+* 4m47  LDC.L @Rm+, SPC
+* 4mN7  LDC.L @Rm+, RnB
+* 4mF6  LDC.L @Rm+, DBR
+
+Load Control register from Memory.
+
+
+=== LDS ===
+
+Varies
+* 4m0A  LDS Rm, MACH
+* 4m1A  LDS Rm, MACL
+* 4m2A  LDS Rm, PR
+* 4m5A  LDS Rm, FPUL
+* 4m6A  LDS Rm, FPSCR
+
+Load System register from GPR.
+
+
+=== LDS.L ===
+
+Varies
+* 4m06  LDS.L @Rm+, MACH
+* 4m16  LDS.L @Rm+, MACL
+* 4m26  LDS.L @Rm+, PR
+* 4m56  LDS.L @Rm+, FPUL
+* 4m66  LDS.L @Rm+, FPSCR
+
+Load System Register from Memory.
+
+
+=== LDTLB ===
+
+SH4, BJX1
+* 0038  LDTLB
+
+Load a TLB Entry into the TLB.
+Specifics depend on the MMU in use.
+
+
+=== LEA.B ===
+
+BJX1
+* 4nF5       LEA.B @(PC, R0), Rn
+* 8Eod-6nm4  LEA.B @(Rm, Ro, disp4), Rn
+* 8Edd-6nm8  LEA.B @(Rm, disp8s), Rn
+
+Calculate the effective-address of a Byte operation and store the result in Rn.
+If Ro is R0 or R15, the results are undefined.
+
+The PC relative form calculates the address similar to in BRAF or BSRF, with R0 as an unscaled displacement.
+
+
+=== LEA.W ===
+
+BJX1
+* 8Eod-6nm5  LEA.W @(Rm, Ro, disp4), Rn
+* 8Edd-6nm9  LEA.W @(Rm, disp8s), Rn
+
+Calculate the effective-address of a Word operation and store the result in Rn.
+If Ro is R0 or R15, the results are undefined.
+
+
+=== LEA.L ===
+
+BJX1
+* 8Eod-6nm6  LEA.L @(Rm, Ro, disp4), Rn
+* 8Edd-6nmA  LEA.L @(Rm, disp8s), Rn
+
+Calculate the effective-address of a DWord operation and store the result in Rn.
+If Ro is R0 or R15, the results are undefined.
+
+
+=== LEA.Q ===
+
+BJX1
+* 8Eod-6nm7  LEA.Q @(Rm, Ro, disp4), Rn
+* 8Edd-6nmB  LEA.Q @(Rm, disp8s), Rn
+
+Calculate the effective-address of a QWord operation and store the result in Rn.
+If Ro is R0 or R15, the results are undefined.
+
+
+=== LDSH16 ===
+
+BJX1
+* 8Eii-9nii  LDSH16 #imm16s, Rn
+
+Does the equivalent of Rn=(Rn<<16)+Imm16.
+Operation is equivalent independent of DQ.
+
+
+
+=== MAC.L ===
+
+* 0nmF  MAC.L @Rm+, @Rn+
+
+Multiply DWord values from Rm and Rn, accumulating the result into MACH:MACL.
+
+(BJX1-32 Deprecated; BJX1-64 Invalid)
+
+
+=== MAC.W ===
+
+All, BJX1 (DQ=0)
+* 4nmF  MAC.W @Rm+, @Rn+
+
+Multiply Word values from Rm and Rn, accumulating the result into MACH:MACL.
+
+(BJX1-32 Deprecated; BJX1-64 Invalid)
+
+
+=== MOV ===
+
+All
+* 6nm3       MOV Rm, Rn
+* Enii       MOV #imm8s, Rn
+
+BJX1
+* 8Eii-Enii  MOV #imm16s, Rn
+
+BJX1 (JQ=1)
+* CC0e-Enii  MOV #imm8s, Rn
+
+Move value between registers or load immediate.
+Operation is equivalent independent of DQ.
+
+
+=== MOV.B ===
+
+All
+* 0nm4  MOV.B Rm, @(R0, Rn)
+* 2nm0  MOV.B Rm, @Rn
+* 2nm4  MOV.B Rm, @-Rn
+* 80ni  MOV.B R0, @(Rn, disp4)
+* 0nmC  MOV.B @(R0, Rm), Rn
+* 6nm0  MOV.B @Rm, Rn
+* 6nm4  MOV.B @Rm+, Rn
+* 84mi  MOV.B @(Rm, disp8), R0
+
+BJX1 (JQ=0)
+* C0ii  MOV.B R0, @(GBR, disp8)
+* C4ii  MOV.B @(GBR, disp8), R0
+
+SH2A
+* 4m8B       MOV.B Rm, @Rm+
+* 4mCB       MOV.B @-Rm, R0
+* 3nm1-0ddd  MOV.B Rm, @(Rn, disp12)
+* 3nm1-4ddd  MOV.B @(Rm, disp12), Rn
+
+BJX1
+* 4mC1       MOV.B Rm, @(PC, R0)
+* 4nC5       MOV.B @(PC, R0), Rn
+* 8Eod-0nm4  MOV.B Rm, @(Rn, Ro, disp4)
+* 8Edd-2nm0  MOV.B Rm, @(Rn, disp8s)
+* 8Eod-0nmC  MOV.B @(Rm, Ro, disp4), Rn
+* 8Edd-6nm0  MOV.B @(Rm, disp8s), Rn
+* 8Emo-4n40  MOV.B Rm, @(Rn, Ro)
+* 8Emo-4nC0  MOV.B @(Rm, Ro), Rn
+
+
+Load or store a Byte.
+Operation is equivalent independent of DQ.
+
+
+=== MOV.L ===
+
+All
+* 0nm6  MOV.L Rm, @(R0, Rn)
+* 1nmi  MOV.L Rm, @(Rn, disp4)
+* 2nm2  MOV.L Rm, @Rn
+* 2nm6  MOV.L Rm, @-Rn
+* 0nmE  MOV.L @(R0, Rm), Rn
+* 5nmi  MOV.L @(Rm, disp4), Rn
+* 6nm2  MOV.L @Rm, Rn
+* 6nm6  MOV.L @Rm+, Rn
+* Dndd  MOV.L @(PC, disp8), Rn
+
+BJX1 (JQ=0)
+* C2ii  MOV.L R0, @(GBR, disp8)
+* C6ii  MOV.L @(GBR, disp8), R0
+
+SH2A
+* 4mAB       MOV.L R0, @Rn+
+* 4mEB       MOV.L @-Rm, R0
+* 3nm1-2ddd  MOV.L Rm, @(Rn, disp12)
+* 3nm1-6ddd  MOV.L @(Rm, disp12), Rn
+
+BJX1
+* 4mE1       MOV.L Rm, @(PC, R0)
+* 4nE5       MOV.L @(PC, R0), Rn
+* 8Eod-0nm6  MOV.L Rm, @(Rn, Ro, disp4)
+* 8Edd-1nmo  MOV.L Rm, @(Rn, Ro, disp8s)
+* 8Edd-2nm2  MOV.L Rm, @(Rn, disp8s)
+* 8Eod-0nmE  MOV.L @(Rm, Ro, disp4), Rn
+* 8Edd-5nmo  MOV.L @(Rm, Ro, disp8s), Rn
+* 8Edd-6nm2  MOV.L @(Rm, disp8s), Rn
+* 8Emo-4n60  MOV.L Rm, @(Rn, Ro)
+* 8Emo-4nE0  MOV.L @(Rm, Ro), Rn
+
+BJX1 (Special Case, DQ=0)
+* 83md     ? MOV.L Rm, @(SP, disp4)
+* 83Nd     ? MOV.L @(SP, disp4), Rn
+** Rm/Rn is 3 bit and can only do R8..R14, 7/15 encodes R0
+** Disp4 starts at 16, thus encoded disp is 16..31
+** This operation is considered experimental and may change later.
+
+Load or Store a DWord.
+
+
+=== MOV.Q ===
+
+BJX1 (DQ=1)
+* 0nm5  MOV.Q Rm, @(R0, Rn)
+* 0nmD  MOV.Q @(R0, Rm), Rn
+* 2nm1  MOV.Q Rm, @Rn
+* 2nm5  MOV.Q Rm, @-Rn
+* 4m9B  MOV.Q R0, @Rn+
+* 4mDB  MOV.Q @-Rm, R0
+* 6nm1  MOV.Q @Rm, Rn
+* 6nm5  MOV.Q @Rm+, Rn
+* 81nd  MOV.Q R0, @(Rn, disp4)
+* 85md  MOV.Q @(Rm, disp4), R0
+* 9ndd  MOV.Q @(PC, disp8), Rn
+
+BJX1 (DQ=0)
+* 4n64  MOV.Q @R0, Rn
+* 4m74  MOV.Q Rm, @R0
+
+BJX1 (DQ=1)
+* 4mD1  MOV.Q Rm, @(PC, R0)
+* 4nD5  MOV.Q @(PC, R0), Rn
+
+BJX1
+* 8Eod-0nm7  MOV.Q Rm, @(Rn, Ro, disp4)
+* 8Eod-0nmF  MOV.Q @(Rm, Ro, disp4), Rn
+* 8Edd-2nm3  MOV.Q Rm, @(Rn, disp8s)
+* 8Edd-6nm3  MOV.Q @(Rm, disp8s), Rn
+* 8Emo-4n70  MOV.Q Rm, @(Rn, Ro)
+* 8Emo-4nF0  MOV.Q @(Rm, Ro), Rn
+
+Load or store a WORD.
+
+
+=== MOV.W ===
+
+All, BJX1 (DQ=0)
+* 0nm5  MOV.W Rm, @(R0, Rn)
+* 2nm1  MOV.W Rm, @Rn
+* 2nm5  MOV.W Rm, @-Rn
+* 81nd  MOV.W R0, @(Rn, disp4)
+* 0nmD  MOV.W @(R0, Rm), Rn
+* 6nm1  MOV.W @Rm, Rn
+* 6nm5  MOV.W @Rm+, Rn
+* 85md  MOV.W @(Rm, disp4), R0
+* 9ndd  MOV.W @(PC, disp8), Rn
+
+BJX1 (JQ=0)
+* C1dd  MOV.W R0, @(GBR, disp8)
+* C5ii  MOV.W @(GBR, disp8), R0
+
+SH2A
+* 4m9B       MOV.W R0, @Rn+
+* 4mDB       MOV.W @-Rm, R0
+* 3nm1-1ddd  MOV.W Rm, @(Rn, disp12)
+* 3nm1-5ddd  MOV.W @(Rm, disp12), Rn
+
+BJX1 (DQ=0)
+* 4mD1  MOV.W Rm, @(PC, R0)
+* 4nD5  MOV.W @(PC, R0), Rn
+
+BJX1 (DQ=1)
+* 4n64  MOV.W @R0, Rn
+* 4m74  MOV.W Rm, @R0
+
+BJX1
+* 8Eod-0nm5  MOV.W Rm, @(Rn, Ro, disp4)
+* 8Edd-2nm1  MOV.W Rm, @(Rn, disp8s)
+* 8Eod-0nmD  MOV.W @(Rm, Ro, disp4), Rn
+* 8Edd-6nm1  MOV.W @(Rm, disp8s), Rn
+* 8Emo-4n50  MOV.B Rm, @(Rn, Ro)
+* 8Emo-4nD0  MOV.B @(Rm, Ro), Rn
+
+Load or store a WORD.
+
+
+=== MOVA ===
+
+All
+* C7dd  MOVA @(PC, disp8), R0
+
+Load PC-Relative Address.
+Address is calculated as ((PC+4)^(~3)).
+
+
+=== MOVCA.L ===
+
+* 0nC3  MOVCA.L R0, @Rn
+
+Store value to memory without reading memory into cache.
+
+
+=== MOVT ===
+
+* 0n29  MOVT Rn
+
+Copy SR.T to Rn.
+
+
+=== MOVU.B ===
+
+* 3nm1-8ddd  MOVU.B @(Rm, disp12), Rn
+* 8Edd-6nmC  MOVU.B @(Rm, disp8s), Rn
+
+Load Unsigned Byte.
+
+=== MOVU.W ===
+
+SH2A
+* 3nm1-9ddd  MOVU.W @(Rm, disp12), Rn
+
+BJX1
+* 8Edd-6nmD  MOVU.W @(Rm, disp8s), Rn
+* 8E2d-9ndd  MOVU.W @(PC, disp13), Rn
+* 8E6d-9ndd  MOVU.W @(PC, disp13), RHn
+* 8EAd-9ndd  MOVU.W @(PC, disp13), RQn
+
+Load Unsigned Word.
+
+
+=== MOVU.L ===
+
+BJX1
+* 8Edd-6nmE  MOVU.L @(Rm, disp8s), Rn
+
+Load Unsigned DWord.
+
+
+=== MOVUA.L ===
+
+* 0mA9  MOVUA.L R0, @Rm
+* 0mE9  MOVUA.L R0, @-Rm
+* 4mA9  MOVUA.L @Rm, R0
+* 4mE9  MOVUA.L @Rm+, R0
+
+Load/Store Unaligned DWord.
+
+
+=== MUL (3R) ===
+
+BJX1
+* 8Ejj-2nmE  MUL Rm, #imm8, Rn
+* 8Ejj-2nmF  MUL Rm, #-imm8, Rn
+* 8Est-4n23  MUL Rs, Rt, Rn
+
+BJX1 (JQ=1)
+* CC3e-2nst  MUL Rs, Rt, Rn
+
+Multiply values, storing result in Rn.
+In the 2xxE form, the immediate is extended with zeroes (positive).
+In the 2xxF form, the immediate is extended with ones (negative).
+
+
+=== MUL.L ===
+
+* 0nm7       MUL.L Rm, Rn
+
+Multiply Rm and Rn, storing low bits of result in MACL.
+
+
+=== MULS.Q ===
+
+All, BJX1 (DQ=1)
+* 2nmF  MULS.Q Rm, Rn
+
+Signed multiply of the QWord values in Rm and Rn, storing the 128-bit result into XMACH:MACH:XMACL:MACL.
+
+
+=== MULU.Q ===
+
+All, BJX1 (DQ=1)
+* 2nmE  MULU.Q Rm, Rn
+
+Unsigned multiply of the QWord values in Rm and Rn, storing the result into XMACH:MACH:XMACL:MACL.
+
+
+=== MULS.W ===
+
+All, BJX1 (DQ=0)
+* 2nmF  MULS.W Rm, Rn
+
+Signed multiply of the Word values in Rm and Rn, storing the result into MACL.
+
+
+=== MULU.W ===
+
+All, BJX1 (DQ=0)
+* 2nmE  MULU.W Rm, Rn
+
+Unsigned multiply of the Word values in Rm and Rn, storing the result into MACL.
+
+
+=== NEG ===
+
+All
+* 6nmB  NEG Rm, Rn
+
+Negate value in Rm and store in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== NEGC ===
+
+All
+* 6nmA  NEGC Rm, Rn
+
+Negate with carry value from Rm, storing result in Rn.
+
+
+=== NOP ===
+
+All
+* 0009  NOP
+* 0i09  NOP #imm
+
+Does nothing.
+
+A 4 bit immediate may be supplied to a NOP (with a value between 1 and 14), but it will be ignored. This value is mostly intended for debugging purposes.
+
+
+=== NOT ===
+
+All
+* 6nm7  NOT Rm, Rn
+
+Invert bits in Rm and store result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== OR ===
+
+All
+* 2nmB       OR Rm, Rn
+* CBjj       OR #imm8, R0
+
+BJX1
+* 8Eii-CBni  OR #imm12s, Rn
+
+Bitwise Or Rm with Rn.
+Operation is equivalent independent of DQ.
+
+
+=== OR (3R) ===
+
+BJX1
+* 8Ejj-2nmB  OR Rm, #imm8, Rn
+* 8Est-4n23  OR Rs, Rt, Rn
+
+BJX1 (JQ=1)
+* CC3e-4nst  OR Rs, Rt, Rn
+
+Or Imm or Rt with Rs Rm or Rs, storing result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== OR.B ===
+
+All, BJX1 (JQ=0)
+* CFii       OR.B #imm8, @(GBR, R0)
+
+Or immediate against a byte in memory.
+
+This instruction form is invalid in BJX1-64.
+
+=== POP (BJX1-64) ===
+
+* 4n58  POP.L/Q Rn		//R0 ..R15
+* 4n78  POP.L/Q Rn		//R16..R31
+
+Pop a value from the stack into a register.
+This instruction form is specific to BJX1-64.
+This instruction form is optional on 32-bit cores.
+
+When JQ is set, this will pop a 64-bit value. This operation ignores DQ.
+
+
+=== PREF ===
+
+* 0n83  PREF @Rn
+
+Prefetch address.
+This may fault if the address is not valid.
+
+
+=== PUSH (BJX1-64) ===
+
+* 4m48  PUSH.L/Q Rm		//R0 ..R15
+* 4m68  PUSH.L/Q Rm		//R16..R31
+
+Push a register on the stack.
+This instruction form is specific to BJX1-64.
+This instruction form is optional on 32-bit cores.
+
+When JQ is set, this will push a 64-bit value. This operation ignores DQ.
+
+
+=== ROT32 ===
+
+BJX1 (JQ=1)
+* 4n14  ROT32 Rn
+
+Rotate a QWord value by 32 bits.
+
+
+=== ROTCL ===
+
+All
+* 4n24  ROTCL Rn
+
+Rotate a value 1 bit left, with the incomming bit comming from SR.T, and SR.T being updated according to the shifted-out bit.
+
+
+=== ROTCR ===
+
+All
+* 4n25  ROTCR Rn
+
+Rotate a value 1 bit right, with the incomming bit comming from SR.T, and SR.T being updated according to the shifted-out bit.
+
+
+=== ROTL ===
+
+All
+* 4n04  ROTL Rn
+
+Rotate value left by 1 bit, updating SR.T according to the shifted bit.
+
+
+=== ROTR ===
+
+* 4n05  ROTR Rn
+
+Rotate value right by 1 bit, updating SR.T according to the shifted bit.
+
+
+=== RTE ===
+
+* 002B  RTE
+
+Return From Exception.
+Has a Delay Slot.
+Copies SPC to PC, SGR to R15, and SSR to SR.
+
+
+=== RTS ===
+
+* 000B  RTS
+
+Return From Subroutine.
+Has a Delay Slot.
+Copies PR to PC.
+
+
+=== SETS ===
+
+* 0058  SETS
+
+Set SR.S to One.
+
+
+=== SETT ===
+
+* 0018  SETT
+
+Set SR.T to One.
+
+
+=== SHAD ===
+
+SH3+
+* 4nmC       SHAD Rm, Rn
+
+
+Arithmetic Barrel Shift.
+
+SHAD Rm, Rn
+* Shifts Rn by the amount given in Rm and stores the result in Rn.
+
+
+Shift:
+* if(shift>=0) out = in << (shift mod width);
+* if((shift<0) && (shift mod width)) out = in >> (width-(shift mod width));
+* else out = (in>=0)?0:(-1);
+
+If JQ is 1:
+* DQ=0: Value is sign extended from 32 to 64 bits and shifted.
+* DQ=1: A 64-bit value is shifted.
+
+
+=== SHAD / SHAL (3R) ===
+
+BJX1
+* 8Eii-4nmC  SHAD Rm, #imm, Rn
+* 8Est-4n83  SHAD Rs, Rt, Rn
+* 8Est-4n83  SHAL Rs, Rt, Rn	//Alias for SHAD (3R)
+
+Arithmetic Barrel Shift.
+
+SHAD Rm, imm, Rn
+* Shifts Rm by the amount given in #imm and stores the result in Rn.
+
+SHAD Rs, Rt, Rn
+* Shifts Rs by Rt, storing result in Rn.
+
+
+=== SHAL ===
+
+All
+* 4n20  SHAL Rn
+
+Arithmetic Shift Left.
+Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+
+
+=== SHAR ===
+
+All
+* 4n21  SHAR Rn
+
+Arithmetic Shift Right.
+Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+
+
+=== SHAR (3R) ===
+
+BJX1
+* 8Est-4n93  SHAR Rs, Rt, Rn
+
+BJX1 (JQ=1)
+* CC3e-9nst  SHAR Rs, Rt, Rn		// (Q=0|e=8) Rn=Rs>>Rt (Signed)
+* CC3e-9nsi  SHAR.L Rs, imm5, Rn	// (Q=1&S=1) Rn=Rs>>imm5 (Signed)
+* CC3e-9nsi  SHAR.Q Rs, imm6, Rn	// (Q=1&N=1) Rn=Rs>>imm6 (Signed)
+
+Arithmetic Shift Right.
+* Behaves like SHAD with a negated argument.
+
+
+=== SHLD ===
+
+SH3+
+* 4nmD       SHLD Rm, Rn
+
+Logical Barrel Shift.
+
+SHLD Rm, Rn
+* Shifts Rn by the amount given in Rm and stores the result in Rn.
+
+Shift:
+* if(shift>=0) out = in << (shift mod width);
+* if((shift<0) && (shift mod width)) out = in >> (width-(shift mod width));
+* else out = 0;
+
+If JQ is 1:
+* DQ=0: Value is zero extended from 32 to 64 bits and shifted.
+* DQ=1: A 64-bit value is shifted.
+
+
+=== SHLD / SHLL (3R) ===
+
+BJX1
+* 8Eii-4nmD  SHLD Rm, #imm, Rn
+* 8Est-4n63  SHLD Rs, Rt, Rn
+* 8Est-4n63  SHLL Rs, Rt, Rn		(Alias for SHLD 3R)
+
+BJX1 (JQ=1)
+* CC3e-6nst  SHLL Rs, Rt, Rn
+* CC3e-6nsi  SHLL.L Rs, imm5, Rn	// (Q=1&S=1) Rn=Rs SHL imm5
+* CC3e-6nsi  SHLL.Q Rs, imm6, Rn	// (Q=1&N=1) Rn=Rs SHL imm6
+
+Logical Barrel Shift.
+
+SHLD Rm, imm, Rn
+* Shifts Rm by the amount given in #imm and stores the result in Rn.
+
+SHLD Rs, Rt, Rn
+* Shifts Rs by Rt, storing result in Rn.
+
+
+=== SHLL ===
+
+All
+* 4n00  SHLL Rn
+
+Logical Shift Left.
+Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+
+
+=== SHLL1 (Pseudo) ===
+
+* 3nnC  SHLL1 Rn	(ADD Rn, Rn)
+
+Shift value left by 1 bit.
+This form is a pseudo-operation implemented by adding a value to itself.
+It is defined mostly as a special case which does not effect SR.T.
+
+Operation is equivalent independent of DQ.
+
+
+=== SHLL2 ===
+
+* 4n08  SHLL2 Rn
+
+Shift value left by 2 bits.
+Operation is equivalent independent of DQ.
+
+
+=== SHLL4 ===
+
+BJX1
+* 4n34  SHLL4 Rn
+
+Shift value left by 4 bits.
+Operation is equivalent independent of DQ.
+
+
+=== SHLL8 ===
+
+* 4n18  SHLL8 Rn
+
+Shift value left by 8 bits.
+Operation is equivalent independent of DQ.
+
+
+=== SHLL16 ===
+
+* 4n28  SHLL16 Rn
+
+Shift value left by 16 bits.
+Operation is equivalent independent of DQ.
+
+
+=== SHLR ===
+
+All
+* 4n01  SHLR Rn
+
+Logical Shift Right.
+Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+Operation is equivalent independent of DQ.
+
+
+=== SHLR (3R) ===
+
+BJX1
+* 8Est-4n73  SHLR Rs, Rt, Rn
+
+BJX1 (JQ=1)
+* CC3e-7nst  SHLR Rs, Rt, Rn
+* CC3e-7nsi  SHLR.L Rs, imm5, Rn	// (Q=1&S=1) Rn=Rs>>imm5 (Unsigned)
+* CC3e-7nsi  SHLR.Q Rs, imm6, Rn	// (Q=1&N=1) Rn=Rs>>imm6 (Unsigned)
+
+Logical Shift Right.
+* Behaves like SHLD with a negated argument.
+
+
+=== SHLR2 ===
+
+All
+* 4n09  SHLR2 Rn
+
+Shift value right by 2 bits.
+Operation is equivalent independent of DQ.
+
+
+=== SHLR4 ===
+
+BJX1
+* 4n35  SHLR4 Rn
+
+Shift value right by 4 bits.
+Operation is equivalent independent of DQ.
+
+
+=== SHLR8 ===
+
+All
+* 4n19  SHLR8 Rn
+
+Shift value right by 8 bits.
+Operation is equivalent independent of DQ.
+
+
+=== SHLR16 ===
+
+All
+* 4n29  SHLR16 Rn
+
+Shift value right by 16 bits.
+Operation is equivalent independent of DQ.
+
+
+=== SLEEP ===
+
+* 001B  SLEEP
+
+
+=== STC ===
+
+* 0n0E  STC SR, Rn
+* 0n1E  STC GBR, Rn
+* 0n2E  STC VBR, Rn
+* 0n3E  STC SSR, Rn
+* 0n4E  STC SPC, Rn
+* 0nFA  STC DBR, Rn
+
+* 0nME  STC RmB, Rn
+
+Copy Control Register to GPR.
+SR is special in that only certain bits are copied.
+
+
+=== STC.L ===
+
+* 0n07  STC.L SR, @-Rn
+* 0n17  STC.L GBR, @-Rn
+* 0n27  STC.L VBR, @-Rn
+* 0n37  STC.L SSR, @-Rn
+* 0n47  STC.L SPC, @-Rn
+* 0nF6  STC.L DBR, @-Rn
+
+* 0nM7  STC.L RmB, @-Rn
+
+Store Control Register to Memory.
+
+
+=== STS ===
+
+* 0m0A  STS MACH, Rn
+* 0m1A  STS MACL, Rn
+* 0m2A  STS PR, Rn
+* 0m5A  STS FPUL, Rn
+* 0m6A  STS FPSCR, Rn
+
+Copy system register to GPR.
+
+
+=== STS.L ===
+
+* 0m06  STS.L MACH, @-Rn
+* 0m16  STS.L MACL, @-Rn
+* 0m26  STS.L PR, @-Rn
+* 0m56  STS.L FPUL, @-Rn
+* 0m66  STS.L FPSCR, @-Rn
+
+Store System Register to Memory.
+
+
+=== SUB ===
+
+All
+* 3nm8       SUB Rm, Rn
+
+Subtract Rm from Rn.
+Operation is equivalent independent of DQ.
+
+
+=== SUB (3R) ===
+
+BJX1
+* 8Ejj-3nm8  SUB Rm, #imm8, Rn
+* 8Est-4n13  SUB Rs, Rt, Rn
+
+BJX1 (JQ=1)
+* CC3e-1nst  SUB Rs, Rt, Rn
+
+Subtract Imm or Rt from Rm or Rs, storing the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== SUBC ===
+
+* 3nmA  SUBC Rm, Rn
+
+Subtract with Carry.
+
+
+=== SUBV ===
+
+* 3nmB  SUBV Rm, Rn
+
+Subtract with Overflow.
+
+
+=== SWAP.B ===
+
+* 6nm8  SWAP.B Rm, Rn
+
+Swap Bytes within value.
+Operation is equivalent independent of DQ.
+
+
+=== SWAP.W ===
+
+* 6nm9  SWAP.W Rm, Rn
+
+Swap Words within value.
+Operation is equivalent independent of DQ.
+
+
+=== TAS.B ===
+
+All, BJX1 (JQ=0)
+* 4n1B  TAS.B @Rn
+
+Test and Set Byte.
+
+
+=== TRAPA ===
+
+* C3ii  TRAPA #imm8
+
+Generate an interrupt.
+
+
+=== TST ===
+
+All
+* 2nm8       TST Rm, Rn
+* C8ii       TST #imm8, R0
+
+BJX1
+* 8Ejj-C8nj  TST #imm12, Rn
+
+
+=== TST.B ===
+
+All, BJX1 (JQ=0)
+* CCii  TST.B #imm8, @(GBR, R0)
+
+This instruction form is invalid in BJX1-64.
+
+
+=== XOR ===
+
+All
+* 2nmA       XOR Rm, Rn
+* CAii       XOR #imm8, R0
+
+BJX1
+* 8Ejj-CAnj  XOR #imm12, Rn
+
+Xor Rm or Imm with Rn or R0.
+Operation is equivalent independent of DQ.
+
+
+=== XOR (3R) ===
+
+BJX1
+* 8Eii-2nmA  XOR Rm, #imm8, Rn
+* 8Est-4n53  XOR Rs, Rt, Rn
+
+BJX1 (JQ=1)
+* CC3e-5nst  XOR Rs, Rt, Rn
+
+Subtract Imm or Rt from Rm or Rs, storing the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== XOR.B ===
+
+All, BJX1 (JQ=0)
+* CEii  XOR.B #imm8, @(GBR, R0)
+
+This instruction form is invalid in BJX1-64.
+
+
+=== XTRCT ===
+
+All
+* 2nmD  XTRCT Rm, Rn
+
+I am honestly not sure what this instruction is used for.
+
+
+ OutRn[31:16]=DataRm[15: 0]
+ OutRn[15: 0]=DataRn[31:16]
+
+
+== FPU ISA ==
+
+FPU will be divided into several profiles:
+* None
+** Lacks FPU Support (Trap Only)
+* Basic
+** Has FRn and DRn registers.
+** Has Single and Double operations.
+* Normal
+** Has XFn and XDn registers.
+* NVSIMD (BJX1 Only)
+** Has YFn and ZFn registers.
+** Adds SIMD capabilities.
+
+This section will be limited to the Basic and Normal profiles.
+
+Register Numbering:
+* (Arith Ops, PR=0)
+** FR0 .. FR15
+* (Arith Ops, PR=1)
+** DR0, XD0, DR2, XD2, .., DR14, XD14
+** Ability to access XDn in arith ops is a BJX1 extension.
+* (MOV Ops, SZ=0)
+** FR0 .. FR15
+* (MOV Ops, SZ=1)
+** DR0, XD0, DR2, XD2, .., DR14, XD14
+
+
+=== FABS ===
+
+All
+* Fn5D  FABS FRn            (PR=0, VE=0)
+* Fn5D  FABS DRn            (PR=1, VE=0)
+
+Absolute of Float/Double
+
+
+=== FADD ===
+
+All
+* Fnm0  FADD FRm, FRn       (PR=0, VE=0)
+* Fnm0  FADD DRm, DRn       (PR=1, VE=0)
+
+Add FRm to FRn.
+
+
+=== FCMPEQ ===
+
+All
+* Fnm4  FCMPEQ FRm, FRn     (PR=0, VE=0)
+* Fnm4  FCMPEQ DRm, DRn     (PR=1, VE=0)
+
+Compare FRm and FRn for equality.
+
+
+=== FCMPGT ===
+
+All
+* Fnm5  FCMPGT FRm, FRn     (PR=0, VE=0)
+* Fnm5  FCMPGT DRm, DRn     (PR=1, VE=0)
+
+Compare FRm and FRn.
+Sets SR.T if FRn is greater than FRm.
+
+
+=== FCNVDS ===
+
+All
+* FmBD FCNVDS DRm, FPUL     (PR=1, VE=0)
+
+Convert Double to Float.
+
+
+=== FCNVSD ===
+
+All
+* FnAD FCNVSD FPUL, DRn     (PR=1, VE=0)
+
+Convert Float to Double.
+
+
+=== FDIV ===
+
+All
+* Fnm3  FDIV FRm, FRn       (PR=0, VE=0)
+* Fnm3  FDIV DRm, DRn       (PR=1, VE=0)
+
+
+=== FIPR ===
+
+All
+* FnED FIPR FVm, FVn        (PR=0, VE=0)
+
+Dot Product.
+Deprecated in BJX1.
+
+
+=== FLDI0 ===
+
+All
+* Fn8D FLDI0 FRn            (PR=0, VE=0)
+
+BJX1
+* Fn8D FLDI0 DRn            (PR=1, VE=0)
+
+Load 0.0 into FRn.
+
+
+=== FLDI1 ===
+
+All
+* Fn8D FLDI1 FRn            (PR=0, VE=0)
+
+BJX1
+* Fn8D FLDI1 DRn            (PR=1, VE=0)
+
+Load 1.0 into FRn.
+
+
+=== FLDS ===
+
+All
+* Fm1D FLDS FRm, FPUL
+
+Move FRm to FPUL.
+
+
+=== FLOAT ===
+
+All
+* Fn2D FLOAT FPUL, FRn      (PR=0, VE=0)
+* Fn2D FLOAT FPUL, DRn      (PR=1, VE=0)
+
+Int to Float
+
+
+=== FMAC ===
+
+All (PR=0, VE=0)
+* FnmE  FMAC FRm, FRn
+
+
+=== FMOV ===
+
+All
+* FnmC  FMOV FRm, FRn       (SZ=0)
+* FnmC  FMOV DRm, DRn       (SZ=1)
+
+
+=== FMOV.S ===
+
+All (SZ=0)
+* Fnm6       FMOV.S @(R0,Rm), FRn
+* Fnm7       FMOV.S FRm, @(R0,Rn)
+* Fnm8       FMOV.S @Rm, FRn
+* Fnm9       FMOV.S @Rm+, FRn
+* FnmA       FMOV.S FRm, @Rn
+* FnmB       FMOV.S FRm, @-Rn
+
+SH2A, BJX1 (SZ=0)
+* 3nm1-3ddd  FMOV.S FRm, @(Rn, disp)
+
+Special BJX1 (DQ=0, SZ=0)
+* 86md    !? FMOV.S FRm, @(SP,disp4)	//FR8..R15; Disp=0..15
+* 86Nd    !? FMOV.S @(SP,disp4), FRn	//FR8..R15; Disp=0..15
+* 87md    !? FMOV.S FRm, @(SP,disp4)	//FR8..R15; Disp=16..31
+* 87Nd    !? FMOV.S @(SP,disp4), FRn	//FR8..R15; Disp=16..31
+** These forms are experimental and may be changed/removed.
+** These overlap with SH2A BST/BCLR ops.
+
+
+=== FMOV / FMOV.D ===
+
+All (SZ=1)
+* Fnm6       FMOV @(R0,Rm), DRn
+* Fnm7       FMOV DRm, @(R0,Rn)
+* Fnm8       FMOV @Rm, DRn
+* Fnm9       FMOV @Rm+, DRn
+* FnmA       FMOV DRm, @Rn
+* FnmB       FMOV DRm, @-Rn
+
+SH2A, BJX1 (SZ=1)
+* 3nm1-3ddd  FMOV DRm, @(Rn, disp)
+
+
+If PR=0, the words are loaded in Hi,Lo (reversed) order for double.
+If PR=1, the words are loaded in the correct order.
+
+
+=== MOV/FMOV (BJX1) ===
+
+BJX1 (Excludes Basic)
+* 8Evv-FnmC  FMOV FRm, FRn
+* 8Evo-Fnm6  FMOV.S @(Rm,Ro), FRn
+* 8Evo-Fnm7  FMOV.S FRm, @(Rn,Ro)
+* 8Evd-Fnm8  FMOV.S @(Rm,disp4), FRn
+* 8Ev0-Fnm9  FMOV.S @Rm+, FRn
+* 8Evd-FnmA  FMOV.S FRm, @(Rn,disp4)
+* 8Ev0-FnmB  FMOV.S FRm, @-Rn
+
+BJX1, Derived Cases
+* 8Evv-FnmC  MOV Rm, Rn     (JQ=1)
+* 8Evv-FnmC  MOV Rm, FRn
+* 8Evv-FnmC  MOV Rm, DRn    (JQ=1)
+* 8Evv-FnmC  MOV FRm, Rn
+* 8Evv-FnmC  MOV DRm, Rn    (JQ=1)
+* 8Evv-FnmC  FMOV FRm, FRn
+* 8Evv-FnmC  FMOV DRm, DRn
+
+
+VV (FMOV):
+* wwww-xxyy
+* wwww:
+** 0000: FRm, FRn	//Copy FRn
+** 0001:
+** 0010:
+** 0011:  Rm, FRn	//Copy GPR to FRn (FMOV.IS)
+** 0100:
+** 0101: DRm, DRn	//Copy DRn
+** 0110:
+** 0111: Rm, DRn	//Copy GPR to DRn (JQ=1)
+** 1000: Rm, Rn		//Copy GPR (MOV.L) (JQ=1)
+** 1001:
+** 1010: Rm, Rn		//Copy GPR (MOV.Q) (JQ=1)
+** 1011:
+** 1100: FRm,  Rn	//Copy FRm to GPR (FMOV.SI)
+** 1101: DRm,  Rn	//Copy DRm to GPR (Rn, RHn) (JQ=1)
+** 1110:
+** 1111: XRm, XRn	//Copy XRn (NVSIMD)
+* xx: Bit4/5 of Rn
+* yy: Bit4/5 of Rm
+
+V (FMOV.S):
+* wwxy
+* ww=00: FRn
+* ww=01: DRn
+** Loads (FRn+0,FRn+1)
+* ww=10: DRn
+** Load value in correct order for Double.
+* ww=11: XRn
+** Order depends on SW0 and SW1
+* x: Bit4 of Rn (FRn) / Bit5 of DRn
+* y: Bit4 of Rm (FRn) / Bit5 of DRm
+
+
+=== FMUL ===
+
+All
+* Fnm2  FMUL FRm, FRn       (PR=0, VE=0)
+* Fnm2  FMUL DRm, DRn       (PR=1, VE=0)
+
+
+=== FNEG ===
+
+All
+* Fn4D  FNEG FRn            (PR=0, VE=0)
+* Fn4D  FNEG DRn            (PR=1, VE=0)
+
+Negate Float/Double.
+
+
+=== FSQRT ===
+
+All
+* Fn6D FSQRT FRn            (PR=0, VE=0)
+* Fn6D FSQRT DRn            (PR=1, VE=0)
+
+Square Root.
+
+
+=== FSUB ===
+
+All
+* Fnm1  FSUB FRm, FRn       (PR=0, VE=0)
+* Fnm1  FSUB DRm, DRn       (PR=1, VE=0)
+
+
+=== PSETMD4 ===
+
+BJX1
+* FiDD  PSETMD4 #imm4
+
+Update the bits in FPSCR.
+
+Imm4
+* imm4=zpmm / zprf
+** z: FPSCR.SZ
+** p: FPSCR.PR
+** r: Reset Mode
+** f: FPSCR.FR (If VE=0)
+** mm: Rounding Mode (If VE=1)
+* If VE=0
+** SZ, PR, and FR are set as given.
+** If R=0, All other bits for FPSCR are left as-is.
+** If R=1, All other bits are cleared.
+* If VE=1
+** Other bits for FPSCR are left as-is.
+
+
+=== FTRC ===
+
+All
+* Fm3D FTRC FRm, FPUL       (PR=0, VE=0)
+* Fm3D FTRC DRm, FPUL       (PR=1, VE=0)
+
+Float to Int.
+
+
+=== LDHF16 ===
+
+BJX1
+* 4m71     ? LDHF16 Rm, FPUL
+* 8Eii-8Aii  LDHF16 #imm16, FPUL
+
+Load Half-Precision GPR or Imm16 into FPUL Float.
+The Half-Float is repacked on load into a single precision float.
+
+The register form will repack the register into a Float with the following rules:
+* NaN and Inf will be transformed into their equivalents.
+* Positive and Negative Zero will be translated to their equivalents.
+* All other values will be mapped as per the immediate case.
+
+This immediate form does not support Inf, NaN, or Denormals.
+* These cases will be formally undefined.
+
+ tmp[12:0]=0
+ tmp[22:13]=imm[9:0]
+ tmp[30:23]=imm[14:10]+112
+ tmp[31]=imm[15]
+ FPUL<=tmp
+
+
+=== LDIF16 ===
+
+* 8Eii-8Cii  LDIF16 #imm16, FPUL
+
+Load Imm16 into high bits of FPUL, filling the low bits with zeroes.
+
+ tmp[15: 0]=0
+ tmp[31:16]=imm[15:0]
+ FPUL<=tmp
+
+
+=== STHF16 ===
+
+BJX1
+* 4n61     ? STHF16 FPUL, Rn
+
+Convert a Single in FPUL to a Half-Float in Rn.
+This instruction is experimental.
+
+Behavior:
+* Fractional part will be rounded to 10 bits.
+* If the exponent is too large, the result will be +/- Inf.
+* If the exponent is too small, the result will be 0.0.

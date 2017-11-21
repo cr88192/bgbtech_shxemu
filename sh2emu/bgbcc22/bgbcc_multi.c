@@ -112,6 +112,8 @@
 #include "shcc/shx_ldix.c"
 #include "shcc/shx_lparith.c"
 #include "shcc/shx_lpreg.c"
+#include "shcc/shx_lqarith.c"
+#include "shcc/shx_lvarith.c"
 #include "shcc/shx_lxarith.c"
 #include "shcc/shx_pecoff.c"
 #include "shcc/shx_register.c"

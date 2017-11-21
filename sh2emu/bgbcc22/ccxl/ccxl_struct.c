@@ -693,6 +693,9 @@ ccxl_status BGBCC_CCXL_GetSigMinMaxSize(
 		break;
 	}
 	
+//	if(sza[0]!=sza[1])
+//		{ BGBCC_DBGBREAK }
+	
 	rsz[0]=sza[0];
 	rsz[1]=sza[1];
 	ral[0]=ala[0];

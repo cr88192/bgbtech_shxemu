@@ -16,6 +16,7 @@ randbits.txt
 *.opendb
 *.sln
 *logpc.txt
+*out.txt
 *.vhd
 *.hd
 
