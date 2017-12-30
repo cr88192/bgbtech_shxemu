@@ -276,6 +276,123 @@ s64 __sdivlli(s64 a, s64 b)
 }
 #endif
 
+#if 1
+u64 __udivsq(u64 a, u64 b)
+{
+	u64_obj_t c, d, e;
+	u64 v, t;
+
+#if 1
+	if((((u32)a)==a) && (((u32)b)==b))
+	{
+		return(((u32)a)/((u32)b));
+	}
+#endif
+
+	if((b&(b-1))==0)
+	{
+		v=a;	t=b;
+		while(t>1)
+			{ v=v>>1; t=t>>1; }
+		return(v);
+	}
+	
+	*(u64 *)(&c)=a;
+	*(u64 *)(&d)=b;
+	e=__udivlli(c, d);
+//	*(u64_obj_t *)(&v)=__udivlli(c, d);
+	v=*(u64 *)(&e);
+	return(v);
+}
+
+s64 __sdivsq(s64 a, s64 b)
+{
+#if 1
+	if((((s32)a)==a) && (((s32)b)==b))
+	{
+		return(((s32)a)/((s32)b));
+	}
+#endif
+	
+	return(__sdivlli(a, b));
+}
+
+u64 __umodsq(u64 a, u64 b)
+{
+	u64 c, d;
+
+#if 1
+	if((((u32)a)==a) && (((u32)b)==b))
+	{
+		if(((u32)(b&(b-1)))==0)
+			return(((u32)a)&((u32)(b-1)));
+	
+		return(((u32)a)%((u32)b));
+	}
+#endif
+
+	if((b&(b-1))==0)
+	{
+//		__debugbreak();
+		return(a&((u32)(b-1)));
+	}
+
+	c=a/b;
+	d=a-(c*b);
+
+	if(((s64)d)<0)
+		d+=b;
+
+	if(d>=b)
+	{
+		d-=b;
+		if(d>=b)
+		{
+			tk_printf("a/b = %X_%X / %X_%X\n",
+				(u32)(a>>32), (u32)a, (u32)(b>>32), (u32)b);
+			tk_printf("c,d = %X_%X , %X_%X\n",
+				(u32)(c>>32), (u32)c, (u32)(d>>32), (u32)d);
+		
+			__debugbreak();
+			return(0);
+		}
+//		while(d>=b)
+//			d-=b;
+	}
+	return(d);
+}
+#endif
+
+#if 1
+float __ldhf16(unsigned short iv)
+{
+	u32 v;
+	if(!(iv&0x7FFF))
+		return(0.0);
+	v=((iv&0x7FFF)<<13)+(112<<23)+((iv&0x8000)<<16);
+	return(*(float *)(&v));
+}
+
+int __sthf16(float ivf)
+{
+	u32 v0, v1;
+	u16 v2;
+	
+	v0=*(u32 *)(&ivf);
+	v1=(((v0+4095)&0x7FFFFFFF)>>13)-(112<<10);
+//	if(v1>>15)
+	if((v1>>10)>30)
+	{
+		if(v1>>24)
+			return(0x0000);
+		v1=0x7C00;
+	}
+	v2=v1|((v0>>16)&0x8000);
+	return(v2);
+}
+#endif
+
+
 int __read(int handle, void *buf, size_t len, int *errind)
 {
 	int i;
@@ -336,11 +453,11 @@ int __open(const char *a, int b, int c)
 	fd=tk_fopen(s, "rb");
 	if(!fd)
 	{
-		*(int *)c=-1;
+		*(int *)((u32)c)=-1;
 		return(-1);
 	}
 
-	*(int *)c=0;
+	*(int *)((u32)c)=0;
 	
 	for(i=3; i<btshx_tk_nhandles; i++)
 	{
@@ -353,7 +470,7 @@ int __open(const char *a, int b, int c)
 	
 	if(btshx_tk_nhandles>=256)
 	{
-		*(int *)c=-1;
+		*(int *)((u32)c)=-1;
 		return(-1);
 	}
 	
@@ -541,7 +658,7 @@ int tk_print_hex_genw(u32 v)
 void tk_print_decimal(int val)
 {
 	char tb[256];
-	char *t;
+	char *t, *te;
 	int i, k, s;
 	
 	if(val==0)
@@ -561,9 +678,9 @@ void tk_print_decimal(int val)
 	if(k<0)
 		{ k=-k; s=1; }
 	
-	t=tb;
+	t=tb; te=tb+18;
 	if(!k)*t++='0';	
-	while(k>0)
+	while((k>0) && (t<te))
 	{
 		i=k%10;
 		*t++='0'+i;

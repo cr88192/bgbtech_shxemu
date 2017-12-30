@@ -27,11 +27,24 @@ Standalone File Header:
 	DWORD dsize;	//decompressed size
  */
 
+#ifdef __GUNC
+#define HAS_STDINT
+#define IS_GCC		//GCC (or GCC-like compiler)
+#endif
+
+#if _MSC_VER>=1600
+#define HAS_STDINT
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <time.h>
+
+#ifdef HAS_STDINT
+#include <stdint.h>
+#endif
 
 #ifdef __linux
 #include <unistd.h>
@@ -104,6 +117,18 @@ Standalone File Header:
 #define default_inline
 #endif
 
+#ifdef HAS_STDINT
+
+typedef uint8_t   byte;
+typedef  int8_t  sbyte;
+typedef uint16_t u16;
+typedef  int16_t s16;
+typedef uint32_t u32;
+typedef  int32_t s32;
+typedef uint64_t u64;
+typedef  int64_t s64;
+
+#else
 
 typedef unsigned char byte;
 typedef signed char sbyte;
@@ -117,6 +142,8 @@ typedef signed long s64;
 #else
 typedef unsigned long long u64;
 typedef signed long long s64;
+#endif
+
 #endif
 
 typedef struct BGBDT_FeLzContext_s BGBDT_FeLzContext;
@@ -136,6 +163,39 @@ byte lzhrov[4096];
 
 #if defined(X86) || defined(X86_64)
 
+#if defined(IS_GCC) && defined(X86_64)
+default_inline u32 bgbdt_felz_getu32(byte *ptr)
+{
+	u32 t;
+	memcpy(&t, ptr, 4);
+	return(t);
+}
+
+default_inline u64 bgbdt_felz_getu64(byte *ptr)
+{
+	u64 t;
+	memcpy(&t, ptr, 8);
+	return(t);
+}
+
+default_inline void bgbdt_felz_setu32(byte *ptr, u32 val)
+	{ memcpy(ptr, &val, 4); }
+default_inline void bgbdt_felz_setu64(byte *ptr, u64 val)
+	{ memcpy(ptr, &val, 8); }
+
+#define felz_getu32(ptr)			(bgbdt_felz_getu32(ptr))
+#define felz_getu32le(ptr)			(bgbdt_felz_getu32(ptr))
+#define felz_setu32le(ptr, val)		(bgbdt_felz_setu32(ptr, val))
+
+#define felz_getu32lea(ptr)			(*(u32 *)(ptr))
+#define felz_setu32lea(ptr, val)	(*(u32 *)(ptr)=(val))
+
+#define felz_getu64(ptr)			(bgbdt_felz_getu64(ptr))
+#define felz_getu64le(ptr)			(bgbdt_felz_getu64(ptr))
+#define felz_setu64le(ptr, val)		(bgbdt_felz_setu64(ptr, val))
+
+#else
+
 #define felz_getu32(ptr)			(*(u32 *)(ptr))
 #define felz_getu32le(ptr)			(*(u32 *)(ptr))
 #define felz_setu32le(ptr, val)		(*(u32 *)(ptr)=(val))
@@ -143,11 +203,20 @@ byte lzhrov[4096];
 #define felz_getu32lea(ptr)			(*(u32 *)(ptr))
 #define felz_setu32lea(ptr, val)	(*(u32 *)(ptr)=(val))
 
+#define felz_getu64(ptr)			(*(u64 *)(ptr))
+#define felz_getu64le(ptr)			(*(u64 *)(ptr))
+#define felz_setu64le(ptr, val)		(*(u64 *)(ptr)=(val))
+
+#endif
+
 #else
 
-u32 bgbdt_felz_getu32(byte *ptr)
+default_inline u32 bgbdt_felz_getu32(byte *ptr)
 {
 	u32 v;
+#ifdef IS_GCC
+	memcpy(&v, ptr, 4);
+#else
 #if defined(BIGENDIAN)
 	v=ptr[3]|(ptr[2]<<8)|(ptr[1]<<16)|(ptr[0]<<24);
 #elif defined(LTLENDIAN)
@@ -159,19 +228,30 @@ u32 bgbdt_felz_getu32(byte *ptr)
 	else
 		{ v=ptr[3]|(ptr[2]<<8)|(ptr[1]<<16)|(ptr[0]<<24); }
 #endif
+#endif
 	return(v);
 }
 
 default_inline u32 bgbdt_felz_getu32le(byte *ptr)
 {
 	u32 v;
+#if defined(IS_GCC) && defined(LTLENDIAN)
+	memcpy(&v, ptr, 4);
+#else
 	v=ptr[0]|(ptr[1]<<8)|(ptr[2]<<16)|(ptr[3]<<24);
+#endif
 	return(v);
 }
 
 default_inline void bgbdt_felz_setu32le(byte *ptr, u32 val)
-{	ptr[0]=val;		ptr[1]=val>>8;
-	ptr[2]=val>>16;	ptr[3]=val>>24;		}
+{
+#if defined(IS_GCC) && defined(LTLENDIAN)
+	memcpy(ptr, &val, 4);
+#else
+	ptr[0]=val;		ptr[1]=val>>8;
+	ptr[2]=val>>16;	ptr[3]=val>>24;
+#endif
+}
 
 #define felz_getu32(ptr)			bgbdt_felz_getu32((byte *)(ptr))
 #define felz_getu32le(ptr)			bgbdt_felz_getu32le((byte *)(ptr))

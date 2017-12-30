@@ -69,6 +69,11 @@ void SV_SetIdealPitch (void)
 	sinval = sin(angleval);
 	cosval = cos(angleval);
 
+	if(sinval<-1.0)		__debugbreak();
+	if(sinval>1.0)		__debugbreak();
+	if(cosval<-1.0)		__debugbreak();
+	if(cosval>1.0)		__debugbreak();
+
 	for (i=0 ; i<MAX_FORWARD ; i++)
 	{
 		top[0] = sv_player->v.origin[0] + cosval*(i+3)*12;
@@ -83,31 +88,43 @@ void SV_SetIdealPitch (void)
 		if (tr.allsolid)
 			return;	// looking at a wall, leave ideal the way is was
 
-		if (tr.fraction == 1)
+//		if (tr.fraction == 1)
+		if (tr.fraction >= 0.975)
 			return;	// near a dropoff
 		
 		f=bottom[2]-top[2];
 		z[i] = top[2] + tr.fraction*f;
-//		tk_printf("%f = %f+%f*%f\n", z[i], top[2], tr.fraction, f);
+
+//		if(z[i]!=0)
+//		{
+//			tk_printf("%f = %f + %f * %f\n", z[i], top[2], tr.fraction, f);
+//		}
 
 //		z[i] = top[2] + tr.fraction*(bottom[2]-top[2]);
 	}
 	
 	dir = 0;
 	steps = 0;
-	for (j=1 ; j<i ; j++)
+//	for (j=1 ; j<i ; j++)
+	for (j=1 ; j<MAX_FORWARD ; j++)
 	{
 		step = z[j] - z[j-1];
 		
 //		tk_printf("%f\n", step);
+//		if(step!=0)
+//			tk_printf("%d %f %f\n", step, z[j], z[j-1]);
 		
 //		if (step > -ON_EPSILON && step < ON_EPSILON)
 		if ((step > -ON_EPSILON) && (step < ON_EPSILON))
 			continue;
 
 //		if (dir && ( step-dir > ON_EPSILON || step-dir < -ON_EPSILON ) )
-		if (dir && ( ((step-dir) > ON_EPSILON) || ((step-dir) < -ON_EPSILON) ) )
+//		if (dir && ( ((step-dir) > ON_EPSILON) || ((step-dir) < -ON_EPSILON) ) )
+		if(dir && ((step-dir)!=0))
 			return;		// mixed changes
+
+//		if(step)
+//			tk_printf("%d\n", step);
 
 		steps++;	
 		dir = step;

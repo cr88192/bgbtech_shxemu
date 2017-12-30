@@ -162,12 +162,25 @@ void *TKMM_Malloc(int sz)
 	}
 	ptr=TKMM_PageToPointer(pg);
 	
+//	__debugbreak();
+	
+	if(!ptr)
+	{
+		printf("TKMM_Malloc: failed C %d\n", sz);
+		return(NULL);
+	}
+	
 //	ptr=TKMM_PageAlloc(sz+sizeof(TKMM_MemLnkObj));
 	obj=ptr;
 	obj->cnext=NULL;
 	obj->cprev=NULL;
 	obj->ix=np;
 	obj->fl=5;
+
+//	__debugbreak();
+
+	printf("TKMM_Malloc: pass D %X %X %d\n",
+		obj, obj->data, sz);
 
 	return((byte *)obj->data);
 }

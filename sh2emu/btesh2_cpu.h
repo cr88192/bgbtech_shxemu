@@ -202,6 +202,8 @@
 #define BTESH2_FPSCR_SZ			0x00100000	//
 #define BTESH2_FPSCR_FR			0x00200000	//
 
+#define BTESH2_FPSCR_VE			0x01000000	//
+
 #define BTESH2_MMUCR_AT			0x00000001	//
 #define BTESH2_MMUCR_TI			0x00000004	//
 #define BTESH2_MMUCR_SV			0x00000100	//
@@ -344,7 +346,6 @@
 
 #define BTESH2_NMID_EXTUL		0x7E	//
 #define BTESH2_NMID_EXTSL		0x7F	//
-
 #define BTESH2_NMID_FABS		0x80	//
 #define BTESH2_NMID_FADD		0x81	//
 #define BTESH2_NMID_FCMPEQ		0x82	//
@@ -409,6 +410,15 @@
 #define BTESH2_NMID_BRLE		0xDB	//
 #define BTESH2_NMID_BRGE		0xDC	//
 #define BTESH2_NMID_BRLT		0xDD	//
+#define BTESH2_NMID_ICLRMD_DQ	0xDE	//?
+#define BTESH2_NMID_ISETMD_DQ	0xDF	//?
+#define BTESH2_NMID_CMPQHS		0xE0	//CMPQ/HS
+#define BTESH2_NMID_CMPQHI		0xE1	//CMPQ/HI
+#define BTESH2_NMID_CMPQEQ		0xE2	//CMPQ/EQ
+#define BTESH2_NMID_CMPQGE		0xE3	//CMPQ/GE
+#define BTESH2_NMID_CMPQGT		0xE4	//CMPQ/GT
+#define BTESH2_NMID_CMPQPZ		0xE5	//CMPQ/PZ
+#define BTESH2_NMID_CMPQPL		0xE6	//CMPQ/PL
 
 
 #define BTESH2_FMID_REGREG		0x01	//Rm, Rn
@@ -655,7 +665,11 @@ BTESH2_Trace *icache[BTESH2_TR_HASHSZ*BTESH2_TR_HASHLVL];
 #ifdef BTESH2_TR_JHASHSZ
 BTESH2_Trace *jcache[BTESH2_TR_JHASHSZ*BTESH2_TR_JHASHLVL];
 #endif
+
 u32 trpc[64];
+u32 trpc_hi[64];
+byte trpc_csfl[64];
+
 int status;
 byte trpc_rov;
 int tr_dtot;
@@ -667,7 +681,7 @@ byte csfl;		//control state flags
 byte arch;		//arch ID
 byte ctfl;		//control temp flags (don't effect control flow)
 byte archfl;	//arch modifier flags
-u32 ptcpc;
+btesh2_vaddr ptcpc;		//trap PC
 
 BTESH2_Trace *cur_trace;
 u32 *smcdbm[128];		//SMC detection bitmap

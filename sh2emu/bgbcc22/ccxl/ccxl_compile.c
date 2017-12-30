@@ -401,6 +401,83 @@ int BGBCC_CCXL_CompileSwitch(BGBCC_TransState *ctx, BCCX_Node *l)
 	return(0);
 }
 
+int BGBCC_CCXL_CompileInitArrayMultiR(BGBCC_TransState *ctx,
+	char *name, ccxl_type ty, BCCX_Node *l,
+	int *cidx, int nidx)
+{
+	BCCX_Node *cur;
+	ccxl_type bty;
+	char *s1;
+	int i, idx;
+
+	BGBCC_CCXL_TypeDerefType(ctx, ty, &bty);
+	
+	s1=NULL;
+	if(!BGBCC_CCXL_TypeArrayP(ctx, bty))
+		s1=BGBCC_CCXL_TypeGetSig(ctx, bty);
+
+	cur=BCCX_Child(l); idx=0;
+	while(cur)
+	{
+		if(BGBCC_CCXL_TypeArrayP(ctx, bty))
+		{
+			cidx[nidx]=idx;
+			BGBCC_CCXL_CompileInitArrayMultiR(ctx,
+				name, bty, cur, cidx, nidx+1);
+		}else
+		{
+			BGBCC_CCXL_CompileExpr(ctx, cur);
+			BGBCC_CCXL_StackCastSig(ctx, s1);
+
+			BGBCC_CCXL_PushLoad(ctx, name);
+			for(i=0; i<nidx; i++)
+				BGBCC_CCXL_StackLoadIndexConst(ctx, cidx[i]);
+			BGBCC_CCXL_StackStoreIndexConst(ctx, idx);
+		}
+
+		idx++;
+		cur=BCCX_Next(cur);
+	}
+
+	return(0);
+}
+
+int BGBCC_CCXL_CompileInitArrayMulti(BGBCC_TransState *ctx,
+	char *name, char *sig, BCCX_Node *l)
+{
+	int cidx[16];
+	BCCX_Node *cur;
+	ccxl_type ty, bty;
+	char *s1;
+	int idx;
+
+	BGBCC_CCXL_TypeFromSig(ctx, &ty, sig);
+
+	BGBCC_CCXL_CompileInitArrayMultiR(ctx, name, ty, l, cidx, 0);
+	return(0);
+
+#if 0
+	BGBCC_CCXL_TypeDerefType(ctx, ty, &bty);
+
+	s1=BGBCC_CCXL_TypeGetSig(ctx, bty);
+	
+	cur=BCCX_Child(l); idx=0;
+	while(cur)
+	{
+		BGBCC_CCXL_CompileExpr(ctx, cur);
+		BGBCC_CCXL_StackCastSig(ctx, s1);
+
+		BGBCC_CCXL_PushLoad(ctx, name);
+		BGBCC_CCXL_StackStoreIndexConst(ctx, idx);
+		idx++;
+
+		cur=BCCX_Next(cur);
+	}
+#endif
+
+	return(0);
+}
+
 int BGBCC_CCXL_CompileInitArray(BGBCC_TransState *ctx,
 	char *name, char *sig, BCCX_Node *l)
 {
@@ -411,6 +488,12 @@ int BGBCC_CCXL_CompileInitArray(BGBCC_TransState *ctx,
 
 	BGBCC_CCXL_TypeFromSig(ctx, &ty, sig);
 	BGBCC_CCXL_TypeDerefType(ctx, ty, &bty);
+
+	if(BGBCC_CCXL_TypeArrayP(ctx, bty))
+	{
+		BGBCC_CCXL_CompileInitArrayMulti(ctx, name, sig, l);
+		return(false);
+	}
 
 	s1=BGBCC_CCXL_TypeGetSig(ctx, bty);
 	
@@ -435,6 +518,12 @@ void BGBCC_CCXL_CompileInitVar(BGBCC_TransState *ctx,
 {
 	char *s0;
 	BCCX_Node *t;
+	s64 li;
+	int i, j, k;
+
+	li=BCCX_GetIntCst(type, &bgbcc_rcst_flags, "flags");
+	if(li&BGBCC_TYFL_STATIC)
+		return;
 
 	if(value)
 	{

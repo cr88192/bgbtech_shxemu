@@ -229,20 +229,24 @@ ccxl_status BGBCC_CCXL_GlobalMarkReachable(BGBCC_TransState *ctx,
 	if(obj->regtype==CCXL_LITID_FUNCTION)
 	{
 		BGBCC_CCXL_GlobalMarkReachable_Func(ctx, obj);
+//		obj->regflags&=~BGBCC_REGFL_RECTRACE;
 		return(1);
 	}
 
 	if(obj->regtype==CCXL_LITID_GLOBALVAR)
 	{
 		BGBCC_CCXL_GlobalMarkReachable_VReg(ctx, obj->value);
+//		obj->regflags&=~BGBCC_REGFL_RECTRACE;
 		return(1);
 	}
 
 	if(obj->regtype==CCXL_LITID_STATICVAR)
 	{
 		BGBCC_CCXL_GlobalMarkReachable_VReg(ctx, obj->value);
+//		obj->regflags&=~BGBCC_REGFL_RECTRACE;
 		return(1);
 	}
 	
+//	obj->regflags&=~BGBCC_REGFL_RECTRACE;
 	return(0);
 }

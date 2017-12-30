@@ -851,6 +851,18 @@ int BGBCC_SHXA_TryAssembleOpcode(
 	if(nmid<=0)
 		return(0);
 
+	if(nmid==BGBCC_SH_NMID_ISETMD_DQ)
+	{
+		BGBCC_SHXC_SetModeDqSet(NULL, ctx);
+		return(1);
+	}
+
+	if(nmid==BGBCC_SH_NMID_ICLRMD_DQ)
+	{
+		BGBCC_SHXC_SetModeDqClear(NULL, ctx);
+		return(1);
+	}
+
 	fmid=BGBCC_SHXA_LookupOpcodeFmid(arg0, arg1, arg2);
 	if(fmid<=0)
 		return(0);
@@ -858,69 +870,69 @@ int BGBCC_SHXA_TryAssembleOpcode(
 	switch(fmid)
 	{
 	case BGBCC_SH_FMID_REGREG:
-		rt=BGBCC_SHX_EmitOpRegReg(ctx,
+		rt=BGBCC_SHX_TryEmitOpRegReg(ctx,
 			nmid, arg0->breg, arg1->breg);
 		break;
 	case BGBCC_SH_FMID_REGIMM:
-		rt=BGBCC_SHX_EmitOpRegImm(ctx,
+		rt=BGBCC_SHX_TryEmitOpRegImm(ctx,
 			nmid, arg1->breg, arg0->disp);
 		break;
 	case BGBCC_SH_FMID_REGST:
-		rt=BGBCC_SHX_EmitOpRegStReg(ctx,
+		rt=BGBCC_SHX_TryEmitOpRegStReg(ctx,
 			nmid, arg0->breg, arg1->breg);
 		break;
 	case BGBCC_SH_FMID_REGLD:
-		rt=BGBCC_SHX_EmitOpLdRegReg(ctx,
+		rt=BGBCC_SHX_TryEmitOpLdRegReg(ctx,
 			nmid, arg0->breg, arg1->breg);
 		break;
 	case BGBCC_SH_FMID_REGDECST:
-		rt=BGBCC_SHX_EmitOpRegStDecReg(ctx,
+		rt=BGBCC_SHX_TryEmitOpRegStDecReg(ctx,
 			nmid, arg0->breg, arg1->breg);
 		break;
 	case BGBCC_SH_FMID_REGINCLD:
-		rt=BGBCC_SHX_EmitOpLdIncRegReg(ctx,
+		rt=BGBCC_SHX_TryEmitOpLdIncRegReg(ctx,
 			nmid, arg0->breg, arg1->breg);
 		break;
 	case BGBCC_SH_FMID_REGSTR0N:
-		rt=BGBCC_SHX_EmitOpRegStReg2(ctx,
+		rt=BGBCC_SHX_TryEmitOpRegStReg2(ctx,
 			nmid, arg0->breg, arg1->ireg, arg1->breg);
 		break;
 	case BGBCC_SH_FMID_REGLDR0M:
-		rt=BGBCC_SHX_EmitOpLdReg2Reg(ctx,
+		rt=BGBCC_SHX_TryEmitOpLdReg2Reg(ctx,
 			nmid, arg0->breg, arg0->ireg, arg1->breg);
 		break;
 	case BGBCC_SH_FMID_REGSTDISP:
-		rt=BGBCC_SHX_EmitOpRegStRegDisp(ctx,
+		rt=BGBCC_SHX_TryEmitOpRegStRegDisp(ctx,
 			nmid, arg0->breg, arg1->breg, arg1->disp);
 		break;
 	case BGBCC_SH_FMID_REGLDDISP:
-		rt=BGBCC_SHX_EmitOpLdRegDispReg(ctx,
+		rt=BGBCC_SHX_TryEmitOpLdRegDispReg(ctx,
 			nmid, arg0->breg, arg0->disp, arg1->breg);
 		break;
 	
 	case BGBCC_SH_FMID_NONE:
-		rt=BGBCC_SHX_EmitOpNone(ctx, nmid);
+		rt=BGBCC_SHX_TryEmitOpNone(ctx, nmid);
 		break;
 	
 	case BGBCC_SH_FMID_REGRM:
 	case BGBCC_SH_FMID_REGRN:
-		rt=BGBCC_SHX_EmitOpReg(ctx, nmid, arg0->breg);
+		rt=BGBCC_SHX_TryEmitOpReg(ctx, nmid, arg0->breg);
 		break;
 	case BGBCC_SH_FMID_IMM:
-		rt=BGBCC_SHX_EmitOpImm(ctx, nmid, arg0->disp);
+		rt=BGBCC_SHX_TryEmitOpImm(ctx, nmid, arg0->disp);
 		break;
 	case BGBCC_SH_FMID_LDREG:
 	case BGBCC_SH_FMID_STREG:
-		rt=BGBCC_SHX_EmitOpMReg(ctx, nmid, arg0->breg);
+		rt=BGBCC_SHX_TryEmitOpMReg(ctx, nmid, arg0->breg);
 		break;
 
 	case BGBCC_SH_FMID_LABEL:
 		lbl=BGBCC_SHX_GetNamedLabel(ctx, arg0->name);
-		rt=BGBCC_SHX_EmitOpLabel(ctx, nmid, lbl);
+		rt=BGBCC_SHX_TryEmitOpLabel(ctx, nmid, lbl);
 		break;
 	case BGBCC_SH_FMID_LBLREG:
 		lbl=BGBCC_SHX_GetNamedLabel(ctx, arg0->name);
-		rt=BGBCC_SHX_EmitOpLblReg(ctx, nmid, lbl, arg1->breg);
+		rt=BGBCC_SHX_TryEmitOpLblReg(ctx, nmid, lbl, arg1->breg);
 		break;
 
 	default:

@@ -10,6 +10,7 @@ void *TKMM_MMList_AllocBrk(int sz)
 
 	if(sz>=65536)
 	{
+		tk_puts("TKMM_MMList_AllocBrk A\n");
 		ptr=TKMM_PageAlloc(sz);
 		return(ptr);
 	}
@@ -17,14 +18,20 @@ void *TKMM_MMList_AllocBrk(int sz)
 	sz=(sz+15)&(~15);
 	
 	if(tkmm_mmlist_brkbuf && ((tkmm_mmlist_brkpos+sz)>tkmm_mmlist_brkend))
+	{
+		tk_puts("TKMM_MMList_AllocBrk B\n");
 		tkmm_mmlist_brkbuf=NULL;
+	}
 	
 	if(!tkmm_mmlist_brkbuf)
 	{
+		tk_puts("TKMM_MMList_AllocBrk C\n");
 		tkmm_mmlist_brkbuf=TKMM_PageAlloc(1<<20);
 		tkmm_mmlist_brkend=tkmm_mmlist_brkbuf+(1<<20);
 		tkmm_mmlist_brkpos=tkmm_mmlist_brkbuf;
 	}
+
+	tk_puts("TKMM_MMList_AllocBrk D\n");
 	
 	ptr=tkmm_mmlist_brkpos;
 	tkmm_mmlist_brkpos=ptr+sz;
@@ -106,6 +113,13 @@ void *TKMM_MMList_Malloc(int sz)
 #if 1
 	sz1=TKMM_FxiToSize(ix);
 	p1=TKMM_MMList_AllocBrk(sz1);
+
+	if(!p1)
+	{
+		tk_printf("TKMM_MMList_Malloc: BRK Failed %d\n", sz1);
+		__debugbreak();
+		return(NULL);
+	}
 
 	p2=p1+sz1;
 	obj=(TKMM_MemLnkObj *)p1;

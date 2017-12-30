@@ -431,12 +431,25 @@ int main (int c, char **v)
 }
 
 
+void tk_printf(char *str, ...)
+{
+}
+
+void tk_puts(char *str, ...)
+{
+}
+
+void __debugbreak()
+{
+}
+
 /*
 ================
 Sys_MakeCodeWriteable
 ================
 */
-void Sys_MakeCodeWriteable (unsigned long startaddr, unsigned long length)
+// void Sys_MakeCodeWriteable (unsigned long startaddr, unsigned long length)
+void Sys_MakeCodeWriteable (nlint startaddr, nlint length)
 {
 
 	int r;

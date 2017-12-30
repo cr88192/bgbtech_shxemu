@@ -1,0 +1,2549 @@
+BJX1-32, Freeze Candidate 0
+* Draft spec for a frozen BJX1-32 ISA.
+* Instructions specified here are not currently expected to change.
+** This will not necessarily cover the complete ISA.
+
+
+== Overview ==
+
+=== Registers ===
+
+Registers:
+*	Registers will be 32.
+*	R0..R15: General-Purpose Registers
+**		R15/SP: Stack Pointer
+*	SR: Status Register
+*	GBR: Global Base Register
+*	VBR: Vector Base Register
+*	SSR: Saved Status Register
+*	SPC: Saved PC
+*	SGR: Saved R15/SP
+*	DBR: Debug Base Register	
+*	MACH: Multiply-Accumulate High
+*	MACL: Multiply-Accumulate Low
+*	PR: Procedure Register (Call/Return)
+*	FPSCR: FPU Control Register
+*	FPUL: FPU Load Register
+
+*	PC: Program Counter
+
+*	FR0..FR15: FPU Registers (Bank A)
+*	XF0..XF15: FPU Registers (Bank B)
+
+*	R0_A..R7_A: R0..R7 (Bank A, User)
+*	R0_B..R7_B: R0..R7 (Bank B, Super)
+		Transistions between user and supervisor mode Flip Banks A and B.
+		User or Supervisor mode determines which bank R0..R7 map to.
+
+SR Bits:
+*	0000_0001: T		//True/False Bit
+*	0000_0002: S		//Specifies MAC Saturation
+*	0000_00F0: IM		//Interrupt Level Mask
+*	0000_0100: Q		//Q Bit (Divide)
+*	0000_0200: M		//M Bit (Divide)
+*	0000_0400: -
+*	0000_0800: -
+*	0000_1000: ! DQ		//Must Be Zero
+*	0000_2000: -
+*	0000_4000: -
+*	0000_8000: FD		//FPU Disable
+*	0FFF_0000: -
+*	1000_0000: BL		//Block Interrupts
+*	2000_0000: RB		//Register Bank Select
+*	4000_0000: MD		//User/Supervisor
+*	8000_0000: ! JQ		//Must Be Zero
+
+FPSCR bits:
+*	0000_0003: RM	//Rounding Mode
+*	0004_0000: DN	//Denormalization Mode
+*	0008_0000: PR	//Precision
+*	0010_0000: SZ	//Load/Store Size
+*	0020_0000: FR	//Float Register Bank (Swap FRn/XFn)
+
+
+=== Operating Modes ===
+
+
+BJX1-32:
+* Operation is mostly equivalent to SH4.
+* Will support both 29 and 32-bit addressing.
+** By default, the initial addressing mode will be 29 bit.
+* Limited to the same register space as SH.
+* Setting SR.JQ and DQ will be invalid on BJX1-32 cores.
+
+BJX1-64:
+* Not covered by this spec.
+
+
+=== Addressing and MMU ===
+
+Address Space (BJX1-32):
+* Unsigned 29 or 32 bit virtual address space.
+**	AT=0, addresses map directly to the 29 bit physical space.
+**	AT=1, addresses are translated via an MMU.
+* Uses a 29-bit physical address space
+**	High 3 bits of address indicate access mode.
+**	0/1/2/3: User-Mode, Cache+MMU
+**	4: Cache, No MMU
+**	5: Non-Cache, No MMU
+**	6: Cache, MMU
+**	7: Non-Cache, Special
+* A larger (32 bit) physical space may be supported, but only via the MMU.
+**	The low 29 bit range maps as before.
+**	Bits above the 29 bit mark may be mapped using pages.
+* A basic physical memory MAP
+**	0000_0000..001F_FFFF, Firmware
+**	0020_0000..0BFF_FFFF, MMIO / Hardware
+**  0C00_0000..0FFF_FFFF, Low RAM (64MB)
+**  1000_0000..17FF_FFFF, Mid RAM (128MB)
+**  1800_0000..1DFF_FFFF, High RAM (64-96MB)
+**  1E00_0000..1EFF_FFFF, Chipset
+**  1F00_0000..1FFF_FFFF, Memory Mapped Registers
+**  2000_0000..9FFF_FFFF, More RAM
+**  A000_0000..EFFF_FFFF, More MMIO / Hardware
+**  FE00_0000..FEFF_FFFF, Chipset
+**  FF00_0000..FFFF_FFFF, Memory Mapped Registers
+
+
+MMU: An MMU may be used. It will be logically based on page-tables.
+
+A 32-bit page table will be two level, with each page consisting of 1024 entries (1024*1024*4096=4GB).
+
+The core may require system code to implement its own page-walking to TLB conversion, however:
+* Only 4kB pages are allowed
+* TLB state will be off-limits to user code.
+* The system will be assumed to implement a page-table as above.
+* Doing otherwise is undefined.
+
+
+Memory Mapped MMU Registers:
+* Located at a physical base address of 1F00_0000 or FF00_0000.
+* FF00_0000: PTEH (Page Table Entry High)
+* FF00_0004: PTEL (Page Table Entry Low)
+* FF00_0008: TTB (Translation Table Base)
+** Used as the address of the active page table.
+* FF00_000C: TEA (Translation Table Address)
+** Used on page faults, holds virtual address of faulted access.
+** Some other faults, holds the address which triggered the fault.
+* FF00_0010: MMUCR (MMU Control Register)
+** MMU Control Bits
+
+MMUCR:
+* Bit 0: AT (Address Translation Enabled)
+** Turns on address translation via a page table.
+* Bit 2: TLB Invalidate
+** Setting this bit will trigger the TLB to be flushed.
+* Bit 8: SV (Single Virtual Address Mode)
+** Serves mostly as a TLB policy hint in FMMU.
+* All other bits reserved/undefined in FMMU.
+
+TTB (2-level):
+* Bits 0..11: Reserved (Zeroed)
+* Bits 12..31: Physical Page Address (of Page Table Directory)
+
+Page Table (32-bit PTE):
+* The Page Table Directory will consist of 1024 32-bit Page Directory Entries (PDE's).
+** Each PDE will hold the physical address of a Page Table page, and will follow the same basic format as a PTE.
+* Each Page Table will consist of 1024 32-bit Page Table Entries (PTE's).
+** Each PTE will give the physical address of a data page.
+** Not all entries need to be valid.
+
+PDE/PTE (32 bit):
+* Bit 0: WT (Write Through)
+** 0=Copy Back
+** 1=Write Through
+* Bit 1: SH (Share Status)
+** Indicates if a page is shared between multiple processes.
+** 0=Local to a given process.
+** 1=Shared between processes.
+* Bit 2: D (Dirty)
+** May be set if a page's contents have been modified.
+* Bit 3: C (Cacheable)
+** 0=Non-Cacheable
+** 1=Cacheable
+* Bit 4: SZ0 (Size Bit 0)
+** Possible: PR.X (Execute Enable)
+* Bit 5: PR.W (Write Enable)
+** Page may be written to.
+* Bit 6: PR.U (User Accessible)
+** 0=Page only accessible in supervisor mode.
+** 1=Page can be accessed in user mode.
+* Bit 7: SZ1 (Size Bit 1)
+* Bit 8: V (Present/Valid)
+** Indicates an entry actually pointing at a page.
+** 0=Entry is not present or not valid.
+*** If 0, then attempts to access this page should fault.
+*** All other bits are undefined, and may be used by the OS.
+** 1=Entry is present and (should be) valid.
+* Bit 9: User Bit 1 (For use by OS)
+* Bit 10: User Bit 2 (For use by OS)
+* Bit 11: User Bit 3 (For use by OS)
+* Bit 12..31: PPN (Physical Page Number)
+
+
+SZ0/SZ1:
+* In PTEs, these may only be set as (SZ0=1,SZ1=0), Indicating 4kB pages.
+* Low order bits of the page number are reserved and are to be set to 0.
+* All other combinations are reserved.
+
+Virtual Address Ranges (with MMU enabled):
+* 0000_0000 .. 7FFF_FFFF: Translated via page tables (2GB).
+* 8000_0000 .. 9FFF_FFFF: Retains physical addressing.
+* A000_0000 .. BFFF_FFFF: Retains physical addressing.
+* C000_0000 .. DFFF_FFFF: Translated via the MMU (512MB).
+* E000_0000 .. FFFF_FFFF: Reserved for processor/chipset.
+
+TLB ISR:
+* When a TLB miss happens, a ISR may be invoked.
+* The ISR will load data from the page table into PTEL and PTEH.
+* It will then use a LDTLB instruction, and return from the ISR.
+
+
+=== Exceptions ===
+
+Memory Mapped MMU Registers:
+* FF00_0020: TRAEVT ( Trap Event )
+** Bits 9:2 hold immediate from TRAPA instruction.
+* FF00_0024: EXPEVT ( Exception Event )
+** Low 12 bits hold hardware exception code.
+* FF00_0028: INTEVT ( Interrupt Event )
+** Low 12 bits hold hardware exception code.
+
+Exceptions will dispatch to an address computed relative to VBR.
+* VBR+0x100: General Exception (Uses EXPEVT)
+* VBR+0x400: TLB Exception (Uses EXPEVT)
+* VBR+0x600: Hardware Interrupt (Uses INTEVT)
+
+Exception Codes (EXPEVT):
+* 0x000: POWERON
+* 0x020: MANRESET
+* 0x040: RTLBMISS ( Read TLB Miss )
+* 0x060: WTLBMISS ( Write TLB Miss )
+* 0x080: FIRSTWRITE ( Writing to page with dirty bit clear )
+* 0x0A0: READPROT ( Read Protection Error )
+* 0x0C0: WRITEPROT ( Write Protection Error )
+* 0x0E0: RADDERR ( Read Address Error )
+* 0x100: WADDERR ( Write Address Error )
+* 0x120: FPUEXC ( Floating Point Exception )
+* 0x140: TLBMULTIHIT
+* 0x160: TRAP ( Trap Instruction Used )
+* 0x180: RESINST ( Reserved Instruction )
+* 0x1A0: ILLSLOT (Invalid in Delay Slot )
+* 0x1C0: NMI
+* 0x1E0: UBRK ( User Breakpoint )
+* 0x800: FPUDIS ( FPU Disabled )
+* 0x820: SLOTFPUDIS ( FPU Disabled in Delay Slot )
+
+Interrupt:
+*	Saves PC in SPC
+*	Saves SR in SSR
+*	Saves SP in SGR
+*	Sets supervisor mode.
+**		Sets SR.MD and SR.BL to indicate supervisor mode.
+**		This swaps the register banks (Setting SR.RB).
+*	Loads an address as an offset relative to VBR into PC.
+
+Return from ISR:
+*	Return from ISR restores SR and PC.
+**		This also returns to the prior register bank.
+
+
+
+=== Delay Slot ===
+
+Delay Slot:
+For branches, the instruction immediately following the branch is located in a "delay slot". This instruction will execute prior to the jump landing at the target. Branches and PC relative operations are not allowed in this space. However, BT and BF will not execute the delay-slot instruction.
+
+For PC relative instructions, the calculation will be performed relative to 4 bytes after the PC of the current instruction.
+* Both Long and Quad operations will use a 32-bit alignment.
+* For 32-bit instruction forms, this offset will be 6 bytes.
+
+The endianess of instructions and PC-relative loads will always match the machine endianess.
+Loads performed relative to registers will use the local endianess.
+
+Note that 32-bit instruction forms will not be allowed in the delay slot.
+
+
+=== Instruction Notation ===
+
+Opcode Size Suffixes:
+* .B, Byte (8-bit)
+* .W, Word (16-bit)
+* .L, DWord (32-bit)
+
+QWORD Loads/Stores may not be used in 32-bit mode.
+* Registers will only preserve 32 bits.
+
+Normal instructions will be 16 bit, and are expressed here as nibbles.
+* 0..9, A..F: Expresses a literal hex value.
+* m: Expresses a source register.
+* n: Expresses a destination register.
+* M: Expresses a source register as 0-7 with high-bit set.
+* N: Expresses a destination register as 0-7 with high-bit set.
+* d: Expresses a displacement.
+* i: Expresses an immediate value (signed).
+* j: Expresses an immediate value (unsigned).
+* s: Source (Left) register.
+* t: Source (Right) register.
+* o: Offset or Index register.
+
+Displacements:
+* Are normally scaled by the size of the data type.
+* disp4, disp8, and disp12 are zero extended.
+* disp8s is sign-extended.
+
+
+Memory Addressing Modes
+* @Rm
+** Access memory via address in Rm
+* @Rm+
+** Load from address in Rm, incrementing the address
+* @-Rn
+** Store to address given in Rn, first decrementing the address
+* @(R0, Rm)
+** Load or store to address given by R0+Rm
+* @(PC, Rm)
+** Load or store to address given by PC+Rm
+** PC is typically the start address of the instruction +4.
+** For 32-bit instructions, it is +6.
+* @(GBR, disp)
+** Memory access is GBR + a scaled displacement.
+* @(Rm, disp)
+** Address is Rm with a displacement scaled by the value size.
+* @(Rm, Ro)
+** Address is given by Rm+Ro*Scale
+** If Ro is R0, then Scale is 1 (Byte).
+** An Ro set to R15 is Reserved.
+* @(Rm, Ro, disp)
+** Address is given by Rm+(Ro+Disp)*Scale
+** If Ro is R0, then Scale is 1 (Byte).
+** An Ro set to R15 is Reserved.
+
+
+== Base ISA ==
+
+If an instruction is preceded with a '/', it is not implemented, but more just to declare that a space is reserved for this instruction.
+
+Instructions precded with '!' are extensions specific to this VM or ISA.
+* '!?', possible, but debatable.
+* '!!', very uncertain.
+* '?', To Be Decided
+* '_', Supported, but may have other limitations.
+
+The '!' character with no instruction following means this space is in-use, but the instruction is outside of the scope of BJX1-32.
+
+
+SHAD/SHLD Shift
+* 000n-nnnn		//Shift Left N bits
+* 111n-nnnn		//Shift Right (32-N) bits
+* 1110-0000		//All bits are bit 31
+* Other cases will depend on sign and are mod32.
+
+SHLL with variable shift
+* Behaves like SHLD with a positive shift
+
+SHLR with variable shift
+* Behaves like SHLD with a negated shift.
+
+SHAR with variable shift
+* Behaves like SHAD with a negated shift.
+
+
+=== Wide I-Form Ranges ===
+
+The 32-bit I-Forms will be organized into block-ranges.
+* 0xx0, ! ( MOVI20, Unsupported)
+* 0xx1, ! ( MOVI20S, Unsupported)
+* 3xx1, ! ( Extended MOV.x, Unsupported)
+* 3xx9, !
+* 82xx, !
+* 8Axx, MOVI24
+* 8Cxx, XPFX2
+* 8Exx, XPFX0
+* FxxF, !
+
+
+=== Base 16-bit I-Forms ===
+
+Basic I-Forms (16-bit)
+* 0---
+**	0--0 RES (32-bit ops)
+**	0--1 RES (32-bit ops)
+**	0--2
+***		0n02 STC SR, Rn		//Copy SR to Rn
+***		0n12 STC GBR, Rn		//Copy GBR to Rn
+***		0n22 STC VBR, Rn		//Copy VBR to Rn
+***		0n32 STC SSR, Rn		//Copy SSR to Rn
+***		0n42 STC SPC, Rn		//Copy SPC to Rn
+***		0n52 -
+***		0n62 -
+***		0n72 !
+***		0nM2 STC Rm_B, Rn	//Copy Rm_B to Rn (Other Bank)
+**	0--3
+***		0m03 BSRF Rm			//Branch to Subroutine (PC+Rm+4)
+***		0-13 -
+***		0m23 BRAF Rm			//Branch to Label (PC+Rn+4)
+***		0n33 -
+***		0n43 -
+***		0n53 -
+***		0n63 -
+***		0n73 -
+***		0n83 PREF @Rn			//Prefetch memory for address
+***		0n93 -
+***		0nA3 -
+***		0nB3 -
+***		0nC3 MOVCA.L R0, Rn
+***		0nE3 ICBI @Rn			//Invalidates I-Cache at Address
+***		0nF3 -
+**	0nm4 MOV.B Rm, @(R0, Rn)		//Move Byte Rm to R0+Rn
+**	0nm5 MOV.W Rm, @(R0, Rn)	//Move Word Rm to R0+Rn
+**	0nm6 MOV.L Rm, @(R0, Rn)		//Move DWord Rm to R0+Rn
+**	0nm7 MUL.L Rm, Rn			//Multiply Rm and Rn and store MACL
+**	0--8						//Operations without arguments
+***		0008 CLRT				//Clear SR.T
+***		0018 SETT				//Set SR.T
+***		0028 CLRMAC				//Clear MACH and MACL
+***		0038 LDTLB				//LDTLB
+***		0048 CLRS				//Clear SR.S
+***		0058 SETS				//Set SR.S
+***		0068 NOTT
+***		0x78 -
+***		0x88 -
+***		0x98 -
+***		0xA8 -
+***		0xB8 -
+***		0xC8 -
+***		0xD8 -
+***		0xE8 -
+***		0xF8 -
+**	0--9
+***		0i09 NOP				//NOP
+***		0019 DIV0U				//Unsigned Divide
+***		0n29 MOVT Rn			//Copy T bit to Rn
+***		0n39 MOVRT Rn
+***		0x49 -
+***		0x59 -
+***		0x69 -
+***		0x79 -
+***		0x89 -
+***		0x99 -
+***		0mA9 !
+***		0mE9 !
+***		0xF9 -
+**	0--A
+***		0n0A STS MACH, Rn		//Copy MACH to Rn
+***		0n1A STS MACL, Rn		//Copy MACL to Rn
+***		0n2A STS PR, Rn			//Copy PR to Rn
+***		0n3A STC SGR, Rn
+***		0n4A -
+***		0n5A STS FPUL, Rn		//Copy FPUL to Rn
+***		0n6A STS FPSCR, Rn		//Copy FPSCR to Rn
+***		0n7A -
+***		0n8A -
+***		0n9A -
+***		0nAA -
+***		0nBA -
+***		0nCA -
+***		0nDA -
+***		0nEA -
+***		0nFA STC DBR, Rn		//Copy DBR to Rn
+**	0--B
+***		000B RTS				//Return from Function
+***		001B SLEEP				//Sleep until interrupt
+***		002B RTE				//Return From Exception
+***		003B BRK				//Breakpoint Exception
+***		004B -
+***		005B !
+***		006B RTS/N
+***		0m7B !
+***		0x8B -
+***		0x9B -
+***		00AB !
+***		0xBB -
+***		0xCB -
+***		0xDB -
+***		0xEB -
+***		0xFB -
+**	0nmC MOV.B @(R0, Rm), Rn		//Load Byte From R0+Rm into Rn
+**	0nmD MOV.W @(R0, Rm), Rn	//Load Word/Quad From R0+Rm into Rn
+**	0nmE MOV.L @(R0, Rm), Rn		//Load DWord From R0+Rm into Rn
+**	0nmF !
+* 1nmd MOV.L Rm, @(Rn, disp)		//Store DWord Rm to Rn+4*Disp
+* 2---
+**	2nm0 MOV.B Rm, @Rn			//Store Byte Rm to @Rn
+**	2nm1 MOV.W Rm, @Rn		//Store Word/Quad Rm to @Rn
+**	2nm2 MOV.L Rm, @Rn			//Store Rm to @Rn
+**	2nm3 CAS.L Rm, Rn, @R0		//Compare and Exchange
+**	2nm4 MOV.B Rm, @-Rn			//Store Rm to Byte @Rn then Rn=Rn-1
+**	2nm5 MOV.W Rm, @-Rn		//Store Rm to Word/Quad @Rn then Rn=Rn-2|8
+**	2nm6 MOV.L Rm, @-Rn			//Store Rm to DWord @Rn then Rn=Rn-4
+**	2nm7 DIV0S Rm, Rn			//Setup for signed division
+**	2nm8 TST Rm, Rn			//Test Rm&Rn, updating SR.T
+**	2nm9 AND Rm, Rn			//And Rm and Rn, Storing result in Rn
+**	2nmA XOR Rm, Rn			//Xor Rm and Rn, Storing result in Rn
+**	2nmB OR Rm, Rn			//Or Rm and Rn, Storing result in Rn
+**	2nmC CMPSTR Rm, Rn		//Compare Rm and Rn for matching bytes
+**	2nmD XTRCT Rm, Rn		//Low bits from Rm and High bits from Rn
+**	2nmE MULU.W Rm, Rn		//Multiply Unsigned Word/DWord, Dst=MACL
+**	2nmF MULS.W Rm, Rn		//Multiply Signed Word/DWord, Dst=MACL
+* 3---
+**	3nm0 CMPEQ Rm, Rn		//Compare for Equality
+**	3xx1-xxxx !
+**	3nm2 CMPHS Rm, Rn		//Compare for unsigned Greater/Equal
+**	3nm3 CMPGE Rm, Rn		//Compare for signed Greater/Equal
+**	3nm4 DIV1 Rm, Rn		//Inner part of divide
+**	3nm5 DMULU.L Rm, Rn		//Unsigned Multiply, result in MACH:MACL
+**	3nm6 CMPHI Rm, Rn		//Compare for unsigned Greater
+**	3nm7 CMPGT Rm, Rn		//Compare for signed Greater
+**	3nm8 SUB Rm, Rn			//Subtract
+**	3xx9-xxxx !
+**	3nmA SUBC Rm, Rn			//Subtract, Carry -> T
+**	3nmB SUBV Rm, Rn			//Subtract, Overflow -> T
+**	3nmC ADD Rm, Rn			//Add
+**	3nmD DMULS.L Rm, Rn			//Signed Multiply, result in MACH:MACL
+**	3nmE ADDC Rm, Rn			//Add with Carry, Carry -> T
+**	3nmF ADDV Rm, Rn			//Add, Overflow -> T
+* 4---
+**	4--0
+***		4n00 SHLL Rn
+***		4n10 DT Rn
+***		4n20 SHAL Rn
+***		4n80 -
+***		4mF0 -
+**	4--1
+***		4n01 SHLR Rn
+***		4n11 CMPPZ Rn
+***		4n21 SHAR Rn
+***             ..		
+***		4n61 SHTF16 FPUL, Rn
+***		4m71 LDHF16 Rm, FPUL
+***		4n81 -
+***		4n91 -
+***		4nA1 -
+***		4nB1 FMOV.S FRm, @(PC, R0)
+***		4mC1 MOV.B Rm, @(PC, R0)
+***		4mD1 MOV.W Rm, @(PC, R0)
+***		4mE1 MOV.L Rm, @(PC, R0)
+***		4mF1 -
+**	4--2
+***		4n02 STS.L MACH, @-Rn
+***		4n12 STS.L MACL, @-Rn
+***		4n22 STS.L PR, @-Rn
+***		4n32 STC.L SGR, @-Rn
+***		4n42 -
+***		4n52 STS.L FPUL, @-Rn
+***		4n62 STS.L FPSCR, @-Rn
+***		4-72 -
+***		..
+***		4nF2 STS.L DBR, @-Rn
+**	4--3
+***		4n03 STC.L SR, @-Rn
+***		4n13 STC.L GBR, @-Rn
+***		4n23 STC.L VBR, @-Rn
+***		4n33 STC.L SSR, @-Rn
+***		4n43 STC.L SPC, @-Rn
+***		4n53 -
+***		4n63 -
+***		4n73 !
+***		4nM3 STC.L Rm_B, @-Rn
+**	4--4
+***		4n04 ROTL Rn
+***		4n14 !
+***		4n24 ROTCL Rn
+***		4n34 SHLL4 Rn
+***		4n44 !
+***		4n54 !
+***		4n64 !
+***		4m74 !
+***		4n84 !
+***		4n94 !
+***		..
+***		4nF4 -
+**	4--5
+***		4n05 ROTR Rn				//Rotate Right
+***		4n15 CMPPL Rn			//Compare Rn>0
+***		4n25 ROTCR Rn
+***		4n35 SHLR4 Rn
+***		4n45 !
+***		4m55 !
+***		4n65 -
+***		4n75 -
+***		4n85 -
+***		4n95 -
+***		4nA5 -
+***		4nB5 FMOV.S @(PC, R0), FRn
+***		4nC5 MOV.B @(PC, R0), Rn
+***		4nD5 MOV.W @(PC, R0), Rn
+***		4nE5 MOV.L @(PC, R0), Rn
+***		4nF5 LEA.B @(PC, R0), Rn
+**	4--6
+***		4m06 LDS.L @Rm+, MACH
+***		4m16 LDS.L @Rm+, MACL
+***		4m26 LDS.L @Rm+, PR
+***		4m36 LDC.L @Rm+, SGR
+***		4m46 -
+***		4m56 LDS.L @Rm+, FPUL
+***		4m66 LDS.L @Rm+, FPSCR
+***		4-76 -
+***		..
+***		4-F6 LDC.L @Rm+, DBR
+**	4--7
+***		4m07 LDC.L @Rm+, SR
+***		4m17 LDC.L @Rm+, GBR
+***		4m27 LDC.L @Rm+, VBR
+***		4m37 LDC.L @Rm+, SSR
+***		4m47 LDC.L @Rm+, SPC
+***		4m57 -
+***		4-67 -
+***		4m77 !
+***		4mN7 LDC.L @Rm+, Rm_B
+**	4--8
+***		4n08 SHLL2 Rn
+***		4n18 SHLL8 Rn
+***		4n28 SHLL16 Rn
+***		4n38 !
+***		4m48 !
+***		4n58 !
+***		4m68 !
+***		4n78 !
+***		4-88 -
+***		...
+***		4-F8 -
+**	4--9
+***		4n09 SHLR2 Rn
+***		4n19 SHLR8 Rn
+***		4n29 SHLR16 Rn
+***		4n39 !
+
+***		4mA9 !
+***		4mE9 !
+**	4--A
+***		4m0A LDS Rm, MACH
+***		4m1A LDS Rm, MACL
+***		4m2A LDS Rm, PR
+***		4m3A LDC Rm, SGR
+***		4m4A -
+***		4m5A LDS Rm, FPUL
+***		4m6A LDS Rm, FPSCR
+***		4-7A -
+***		..
+***		4-EA -
+***		4mFA LDS Rm, DBR
+**	4--B
+***		4m0B JSR Rm
+***		4m1B !
+***		4m2B JMP Rm
+***             ..
+***		4m4B JSR/N Rm
+***             ..
+***		4m8B MOV.B R0, @Rn+
+***		4m9B MOV.W R0, @Rn+
+***		4mAB MOV.L R0, @Rn+
+***		4xBB -
+***		4mCB MOV.B @-Rm, R0
+***		4mDB MOV.W @-Rm, R0
+***		4mEB MOV.L @-Rm, R0
+***		4xFB -		
+**	4nmC SHAD Rm, Rn
+**	4nmD SHLD Rm, Rn
+**	4--E
+***		4m0E LDC Rm, SR
+***		4m1E LDC Rm, GBR
+***		4m2E LDC Rm, VBR
+***		4m3E LDC Rm, SSR
+***		4m4E LDC Rm, SPC
+***		4m5E -
+***		4m6E -
+***		4m7E !
+***		4mNE LDC Rm, Rm_B
+**	4nmF !
+* 5nmd MOV.L @(Rm, disp), Rn
+* 6---
+**	6nm0 MOV.B @Rm, Rn		//Load Byte
+**	6nm1 MOV.W @Rm, Rn		//Load Word or Quad
+**	6nm2 MOV.L @Rm, Rn		//Load DWord
+**	6nm3 MOV Rm, Rn			//MOV Registers
+**	6nm4 MOV.B @Rm+, Rn		//Load Byte with post-increment
+**	6nm5 MOV.W @Rm+, Rn		//Load Word or Quad with post-increment
+**	6nm6 MOV.L @Rm+, Rn		//Loag DWord with post increment
+**	6nm7 NOT Rm, Rn			//Bitwise Not
+**	6nm8 SWAP.B Rm, Rn		//Swap Low/High bits per Byte
+**	6nm9 SWAP.W Rm, Rn		//Swap Low/High bits per Word
+**	6nmA NEGC Rm, Rn		//Negate with carry
+**	6nmB NEG Rm, Rn			//Negate
+**	6nmC EXTU.B Rm, Rn		//Zero Extend Byte
+**	6nmD EXTU.W Rm, Rn		//Zero Extend Word
+**	6nmE EXTS.B Rm, Rn		//Sign Extend Byte
+**	6nmF EXTS.W Rm, Rn		//Sign Extend Word
+* 7nii ADD #imm, Rn			//Add immediate to register
+* 8---
+**	80nd MOV.B R0, @(Rn, disp)	//Store Byte
+**	81nd MOV.W R0, @(Rn, disp)	//Store Word or Quad
+**	82xx !
+**	83dd !
+**	84md MOV.B @(Rm, disp), R0
+**	85md MOV.W @(Rm, disp), R0
+**	86xx !
+**	87xx !
+**	88ii CMPEQ #imm, R0
+**	89dd BT label
+**	8Aii-iiii MOVI24 #imm24, R0			//32-bit op, loads 24-bit immediate.
+**	8Bdd BF label
+**  8Cxx-xxxx ( XPFX2 )
+**	8Ddd BTS label
+**	8Exx-xxxx ( XPFX0 )
+**	8Fdd BFS label
+* 9ndd MOV.W @(PC, disp), Rn
+* Addd BRA label
+* Bddd BSR label
+* C---
+**	C0dd MOV.B R0, @(GBR, disp)
+**	C1dd MOV.W R0, @(GBR, disp)
+**	C2dd MOV.L R0, @(GBR, disp)
+**	C3jj TRAPA #imm
+**	C4dd MOV.B @(GBR, disp), R0
+**	C5dd MOV.W @(GBR, disp), R0
+**	C6dd MOV.L @(GBR, disp), R0
+**	C7dd MOVA @(PC, disp), R0
+**	C8jj TST #imm, R0
+**	C9jj AND #imm, R0
+**	CAjj XOR #imm, R0
+**	CBjj OR #imm, R0
+**	CCjj !
+**	CDjj !
+**	CEjj !
+**	CFjj !
+* Dndd MOV.L @(PC, disp), Rn			//Load DWord, DWord aligned.
+* Enii MOV #imm, Rn					//Load immediate into register.
+* Fxxx: ( FPU/SIMD Block )
+
+
+=== Basic FPU ===
+
+For full FPU, see NVSIMD Spec.
+* A core may opt to instead provide a more basic FPU.
+** Basic FPU will only provide for scalar operation.
+* Or, none at all.
+* ! will denote patterns that are in-use but unavailable in Basic FPU.
+
+FPU
+*	FPU Registers are 32-bit and hold single or split-double values
+*	The FPUSCR.SZ bit controls whether to copy a single or register pair.
+*	The FPUSCR.PR bit selects between Single and Split-Double calculations.
+
+FPU Ops
+* F---
+**	Fnm0 FADD FRm, FRn
+**	Fnm1 FSUB FRm, FRn
+**	Fnm2 FMUL FRm, FRn
+**	Fnm3 FDIV FRm, FRn
+**	Fnm4 FCMPEQ FRm, FRn
+**	Fnm5 FCMPGT FRm, FRn
+**	Fnm6 FMOV.S @(R0, Rm), FRn
+**	Fnm7 FMOV.S FRm, @(R0, Rn)
+**	Fnm8 FMOV.S @Rm, FRn
+**	Fnm9 FMOV.S @Rm+, FRn
+**	FnmA FMOV.S FRm, @Rn
+**	FnmB FMOV.S FRm, @-Rn
+**	FnmC FMOV FRm, FRn
+**	F--D
+***		Fn0D FSTS FRn
+***		Fm1D FLDS FRm
+***		Fn2D FLOAT FRn
+***		Fm3D FTRC FRm
+***		Fn4D FNEG FRn
+***		Fn5D FABS FRn
+***		Fn6D FSQRT FRn
+***		Fx7D !
+***		Fn8D FLDI0 FRn		//Load 0.0
+***		Fn9D FLDI1 FRn		//Load 1.0
+***		FnAD FCNVSD FRn
+***		FnBD FCNVDS FRm
+***		FxCD !
+***		FiDD PSETMD #imm4
+***		FxED !
+***		FxFD
+****			F0FD !
+****			F1FD !
+****			F2FD !
+****			F3FD FSCHG			//Flips FPSCR.SZ
+****			F4FD !
+****			F5FD !
+****			F6FD !
+****			F7FD FPCHG			//Flips FPSCR.PR
+****			F8FD !
+****			F9FD !
+****			FAFD !
+****			FBFD FRCHG			//Flips FPSCR.FR
+****			FCFD !
+****			FDFD !
+****			FEFD !
+**	FnmE FMAC FRm, FRn
+**	F--F ! (BT Reserved-32)
+
+The behavior of FPU operations will depend on FPSCR.PR and FPSCR.SZ:
+* (PR=0, SZ=0): Arithmetic operators operate on Float, FMOV.S is also Float.
+* (PR=1, SZ=0): Arithmetic operators operate on Double, FMOV.S is still Float.
+* (PR=0, SZ=1): Arithmetic operators will operate on Float, FMOV.S is Pair.
+** Copies a pair of floats, which are reversed on Little-Endian targets.
+* (PR=1, SZ=1): BJX1, both arithmetic and FMOV.S will operate on Double.
+** In BJX1, this will put the two halves in the correct order.
+
+Likewise, there will be FPSCR.FR:
+* When 0, Banks A and B will be in their normal order.
+* When 1, Banks A and B will be swapped.
+** This swaps FRn and XFn for Float operations.
+** This swaps Even/Odd doubles for Double operation.
+
+
+PSETMD 4-bit
+* imm4=zprf
+** z: FPSCR.SZ
+** p: FPSCR.PR
+** r: Reset Mode
+** f: FPSCR.FR (If VE=0)
+* If VE=0
+** SZ, PR, and FR are set as given.
+** If R=0, All other bits for FPSCR are left as-is.
+** If R=1, All other bits are cleared.
+
+Behahior:
+* Float operations will operate of FR0..FR15.
+** FPSCR.FR will allow alternating between FR0..FR15 and XF0..XF15.
+* Double operations will operate on Pairs.
+** Even=(FR1, FR0), (FR3, FR2), ...
+** Odd=(XF1, XF0), (XF3, XF2), ...
+** In BJX1, there will be 16 logical double registers.
+** In legacy operation, only the 8 even doubles are accessible.
+
+
+=== XPFX0: General 32-bit I-Forms ===
+
+For XPFX0 I-Forms
+* The prefix will give the high bits of multi-part immediates for 32-bit I-Forms.
+* 8E12 EC34: MOV 0x1234, R12
+* The endianess of each instruction WORD will depend on the target.
+
+
+XPFX0/Escape32 I-Forms
+*	0---
+**      8Eoo-0oo0 ! ( Reserved )
+**      8Eoo-0oo1 ! ( Reserved )
+**      8Eoo-0oo2 ! ( Reserved )
+**      8Eoo-0oo3 ! ( Reserved )
+**		8Eod-0nm4 MOV.B Rm, @(Rn, Ro, disp4)	//Move Byte Rm to Rn+(Ro+disp)
+**		8Eod-0nm5 MOV.W Rm, @(Rn, Ro, disp4)	//Move Word Rm to Rn+(Ro+disp)*2
+**		8Eod-0nm6 MOV.L Rm, @(Rn, Ro, disp4)	//Rn+(Ro+disp)*4
+**		8Eod-0nm7 ! ( N/A )
+**      8Eoo-0oo8 ! ( Reserved Ext No-Arg Ops )
+**      8Eno-0oo9 ! ( Reserved Ext Unary Ops )
+**      8Enm-0ooA ! ( Reserved )
+**      8Enm-0ooB ! ( Reserved Ext Binary Ops )
+**		8Eod-0nmC MOV.B @(Rm, Ro, disp4), Rn
+**		8Eod-0nmD MOV.W @(Rm, Ro, disp4), Rn
+**		8Eod-0nmE MOV.L @(Rm, Ro, disp4), Rn
+**		8Eod-0nmF ! ( N/A )
+* 	8Edd-1nmo MOV.L Rm, @(Rn, Ro, disp8s)
+*	2---
+**		8Edd-2nm0 MOV.B Rm, @(Rn, disp8s)
+**		8Edd-2nm1 MOV.W Rm, @(Rn, disp8s)
+**		8Edd-2nm2 MOV.L Rm, @(Rn, disp8s)
+**		8Edd-2nm3 ! ( N/A )
+**		8Edd-2nm4 FMOV.S FRm, @(Rn, disp8s)
+**		8Edd-2nm5 -
+**		8Edd-2nm6 FMOV.S @(Rm, disp8s), FRn
+**		8Edd-2nm7 -
+**		8Edd-2nm8 -
+**		8Ejj-2nm9 AND Rm, #imm8, Rn
+**		8Ejj-2nmA XOR Rm, #imm8, Rn
+**		8Ejj-2nmB OR Rm, #imm8, Rn
+**		8Eeo-2nmC -
+**		8Eeo-2nmD -
+**		8Ejj-2nmE MUL Rm, #imm8, Rn
+**		8Ejj-2nmF MUL Rm, #-imm8, Rn
+*	3---
+**		8Eii-3ni0 CMPEQ #imm12, Rn
+**		8Eii-3ni1 -
+**		8Eii-3ni2 CMPHS #imm12, Rn
+**		8Eii-3ni3 CMPGE #imm12, Rn
+**		8Edd-3nm4 -
+**		8Edd-3nm5 -
+**		8Eii-3ni6 CMPHI #imm12, Rn
+**		8Eii-3ni7 CMPGT #imm12, Rn
+**		8Ejj-3nm8 SUB Rm, #imm8, Rn
+**		8Ejj-3nm9 AND Rm, #-imm8, Rn
+**		8Edd-3nmA -
+**		8Edd-3nmB -
+**		8Ejj-3nmC ADD Rm, #imm8, Rn
+**		8Edd-3nmD -
+**		8Edd-3nmE -
+**		8Edd-3nmF -
+*	4---
+**		8Exx-4xx0 -
+**		8Exx-4xx1 -
+**		8Exx-4xx2 -
+**		8Est-4nb3
+***			8Est-4n03 ADD Rs, Rt, Rn
+***			8Est-4n13 SUB Rs, Rt, Rn
+***			8Est-4n23 MUL Rs, Rt, Rn
+***			8Est-4n33 AND Rs, Rt, Rn
+***			8Est-4n43 OR  Rs, Rt, Rn
+***			8Est-4n53 XOR Rs, Rt, Rn
+***			8Est-4n63 SHLD Rs, Rt, Rn
+***			8Est-4n73 SHLR Rs, Rt, Rn
+***			8Est-4n83 SHAD Rs, Rt, Rn
+***			8Est-4n93 SHAR Rs, Rt, Rn
+***			8Est-4nA3 -
+***			8Est-4nB3 -
+***			8Est-4nC3 FADD FRs, FRt, FRn
+***			8Est-4nD3 FSUB FRs, FRt, FRn
+***			8Est-4nE3 FMUL FRs, FRt, FRn
+***			8Est-4nF3 FDIV FRs, FRt, FRn
+**		8Exx-4xx4 ! (Reserved)
+**		8Exx-4xx5 ! (Reserved)
+**		8Exx-4xx6 ! (Reserved)
+**		8Exx-4xx7 ! (Reserved)
+**		8Exx-4xx8 -
+**		8Exx-4xx9 -
+**		8Exx-4xxA -
+**		8Exx-4xxB -
+**		8Eii-4nmC SHAD Rm, #imm, Rn
+**		8Eii-4nmD SHLD Rm, #imm, Rn
+**		8Exx-4xxE -
+***			8Emo-4n0E MOVU.B @(Rm, Ro), Rn
+***			8Emo-4n1E MOVU.W @(Rm, Ro), Rn
+***			8Emo-4n2E FMOV.S @(Rm, Ro), FRn
+***			8Emo-4n3E FMOV.S FRm, @(Rn, Ro)
+***			8Emo-4n4E MOV.B Rm, @(Rn, Ro)
+***			8Emo-4n5E MOV.W Rm, @(Rn, Ro)
+***			8Emo-4n6E MOV.L Rm, @(Rn, Ro)
+***			8Emo-4n7E ! ( N/A )
+***			8Emo-4n8E LEA.B @(Rm, Ro), Rn
+***			8Emo-4n9E LEA.W @(Rm, Ro), Rn
+***			8Emo-4nAE LEA.L @(Rm, Ro), Rn
+***			8Emo-4nBE LEA.Q @(Rm, Ro), Rn
+***			8Emo-4nCE MOV.B @(Rm, Ro), Rn
+***			8Emo-4nDE MOV.W @(Rm, Ro), Rn
+***			8Emo-4nEE MOV.L @(Rm, Ro), Rn
+***			8Emo-4nFE ! ( N/A )
+**		8Exx-4xxF -
+*	8Edd-5nmo MOV.L @(Rm, Ro, disp), Rn
+*	6---
+**		8Edd-6nm0 MOV.B @(Rm, disp8s), Rn
+**		8Edd-6nm1 MOV.W @(Rm, disp8s), Rn
+**		8Edd-6nm2 MOV.L @(Rm, disp8s), Rn
+**		8Edd-6nm3 ! ( N/A )
+**		8Eod-6nm4 LEA.B @(Rm, Ro, disp4), Rn
+**		8Eod-6nm5 LEA.W @(Rm, Ro, disp4), Rn
+**		8Eod-6nm6 LEA.L @(Rm, Ro, disp4), Rn
+**		8Eod-6nm7 LEA.Q @(Rm, Ro, disp4), Rn
+**		8Edd-6nm8 LEA.B @(Rm, disp8s), Rn
+**		8Edd-6nm9 LEA.W @(Rm, disp8s), Rn
+**		8Edd-6nmA LEA.L @(Rm, disp8s), Rn
+**		8Edd-6nmB LEA.Q @(Rm, disp8s), Rn
+**		8Edd-6nmC MOVU.B @(Rm, disp8s), Rn
+**		8Edd-6nmD MOVU.W @(Rm, disp8s), Rn
+**		8Edd-6nmE ! ( N/A )
+**		8Edd-6nmF -
+*	8Eii-7nii ADD #imm16, Rn
+* 	8---
+**		8Edd-80mo -
+**		8Edd-81mo -
+**		8Edd-82dd BRA/N disp16				//BRA, No Delay Slot
+**		8Edd-83dd BSR/N disp16				//BSR, No Delay Slot
+**		8Edd-84mo -
+**		8Edd-85mo -
+**		8Edd-86mo -
+**		8Edd-87mo -
+**		8Eii-88ii CMPEQ #imm16, R0
+**		8Edd-89dd BT disp16
+**		8Eii-8Aii LDHF16 #imm, FPUL			//Load Half Imm16 into FPUL Float
+**		8Edd-8Bdd BF disp16
+**		8Eii-8Cii LDIF16 #imm, FPUL			//Load (Imm16<<16) into FPUL
+**		8Edd-8Ddd BTS disp16
+**		8Exx-8Exx -
+**		8Edd-8Fdd BFS disp16
+*	8Eii-9nii LDSH16 #imm16, Rn		//Rn=(Rn<<16)+Imm16
+*	8Edd-Addd (Reserved)
+*	8Edd-Bddd (Reserved)
+*	C---
+**		8Edd-C0md MOV.B Rm, @(GBR, disp12)
+**		8Edd-C1md MOV.W Rm, @(GBR, disp12)
+**		8Edd-C2md MOV.L Rm, @(GBR, disp12)
+**		8Exx-C3xx -
+**		8Edd-C4nd MOV.B @(GBR, disp12), Rn
+**		8Edd-C5nd MOV.W @(GBR, disp12), Rn
+**		8Edd-C6nd MOV.L @(GBR, disp12), Rn
+**		8Exx-C7xx -
+**		8Eii-C8nj TST #imm12, Rn
+**		8Eii-C9nj AND #imm12, Rn
+**		8Ejj-CAnj XOR #imm12, Rn
+**		8Ejj-CBnj OR #imm12, Rn
+**		8Exx-CCxx -
+**		8Exx-CDxx -
+**		8Exx-CExx -
+**		8Exx-CFxx -
+*	8Eed-Dndd (Reserved)
+*	8Eii-Enii MOV #imm16, Rn
+*	8Exx-Fxxx (Reserved)
+
+
+
+== Instructions By Name and Description ==
+
+This section will cover basic integer instructions.
+
+
+Normal instructions will be 16 bit, and are expressed here as nibbles.
+* 0..9, A..F: Expresses a literal hex value.
+* m: Expresses a source register.
+* n: Expresses a destination register.
+* o: Expresses an index register.
+* M: Expresses a source register as 0-7 with high-bit set.
+* N: Expresses a destination register as 0-7 with high-bit set.
+* d: Expresses a displacement.
+* i: Expresses an immediate value (signed)
+* j: Expresses an immediate value (unsigned)
+* s: Source (Left) register.
+* t: Source (Right) register.
+* o: Offset or Index register.
+
+Displacements:
+* Are normally scaled by the size of the data type.
+* disp4, disp8, and disp12 are zero extended.
+* disp8s is sign-extended.
+* disp12s is sign-extended.
+
+Labels
+* Labels are relative to the PC following the Delay Slot.
+* label8s is sign-extended.
+* label12s is sign-extended.
+* label16s is sign-extended.
+
+Immediates
+* imm8, 8-bit immediate is zero-extended.
+* imm8s, 8-bit immediate is sign-extended.
+
+
+Memory Addressing Modes
+* @Rm
+** Access memory via address in Rm
+* @Rm+
+** Load from address in Rm, incrementing the address
+* @-Rn
+** Store to address given in Rn, first decrementing the address
+* @(R0, Rm)
+** Load or store to address given by R0+Rm
+* @(PC, Rm)
+** Load or store to address given by PC+Rm
+** PC is typically the start address of the instruction +4.
+** For 32-bit instructions, it is +6.
+* @(GBR, disp)
+** Memory access is GBR + a scaled displacement.
+* @(Rm, disp)
+** Address is Rm with a displacement scaled by the value size.
+* @(Rm, Ro, disp)
+** Address is given by Rm+(Ro+Disp)*Scale
+** If Ro is R0, then Scale is 1 (Byte).
+** If Ro is R15, then Ro is treated as if it held 0, or Undefined.
+** Giving R0 for the Ro in a LEA is Undefined if not Byte.
+** Giving R15 for the Ro in a LEA is Undefined.
+
+
+=== ADD ===
+
+All
+* 3nmC       ADD Rm, Rn
+* 7nii       ADD #imm8s, Rn
+
+BJX1
+* 8Eii-7nii  ADD #imm16s, Rn
+
+Add Rm or Imm8 to the value in Rn.
+
+
+=== ADD (3R) ===
+
+BJX1
+* 8Ejj-3nmC  ADD Rm, #imm8, Rn
+* 8Est-4n03  ADD Rs, Rt, Rn
+
+Add Imm8 or Rt to Rm or Rs and store the value in Rn.
+
+
+=== ADDC ===
+
+* 3nmE       ADDC Rm, Rn
+
+Add Rm to the value in Rn with Carry.
+SR.T is Carry-in, and SR.T is updated to reflect new Carry-out value.
+
+
+=== ADDV ===
+
+* 3nmF       ADDV Rm, Rn
+
+Add Rm to the value in Rn with Overflow.
+
+SR.T is cleared if the value falls within the range of signed values, and is set if the value falls outside this range.
+
+
+=== AND ===
+
+All
+* 2nm9       AND Rm, Rn
+* C9jj       AND #imm8, Rn
+
+BJX1
+* 8Eii-C9ni  AND #imm12s, Rn
+
+And Rm or Immediate with the value in Rn, storing result into Rn.
+
+
+=== AND (3R) ===
+
+BJX1
+* 8Ejj-2nm9  AND Rm, #imm8, Rn
+* 8Ejj-3nm9  AND Rm, #-imm8, Rn
+* 8Est-4n33  AND Rs, Rt, Rn
+
+And Rt or Immediate with the value in Rs or Rm, storing result into Rn.
+
+The 2xx9 form is zero-extended, whereas the 3xx9 form is extended with ones (negative).
+
+
+=== BF ===
+
+All
+* 8Bdd       BF label8s
+
+BJX1
+* 8Edd-8Bdd  BF label16s
+
+Branch if False.
+Branches to the relative displacement if SR.T is Zero.
+
+
+=== BF/S ===
+
+All
+* 8Fdd       BF/S label8s
+
+BJX1
+* 8Edd-8Fdd  BF/S label16s
+
+Branch if False with Delay Slot.
+Branches to the relative displacement if SR.T is Zero.
+
+
+=== BRA ===
+
+All
+* Addd       BRA label12s
+
+Unconditional branch with Delay Slot.
+
+
+=== BRAF ===
+
+* 0n23       BRAF Rn
+
+Relative computed branch with Delay Slot.
+
+
+=== BRA/N ===
+
+BJX1
+* 8Edd-82dd  BRA/N label16s
+
+Unconditional branch with No Delay Slot.
+
+
+=== BRK ===
+
+* 003B       BRK
+
+Breakpoint.
+
+
+=== BSR ===
+
+All
+* Bddd       BSR label12s
+
+Branch to Subroutine with Delay Slot.
+This copies the return PC address into the PR register, and branches to relative address given by the displacement.
+
+
+=== BSRF ===
+
+* 0n03       BSRF Rn
+
+Relative computed branch to subroutine with Delay Slot.
+This copies the return PC address into the PR register, and branches to relative address given by PC+4+Rn.
+
+
+=== BSR/N ===
+
+BJX1
+* 8Edd-83dd  BSR/N label16s
+
+Branch to Subroutine with No Delay Slot.
+This copies the return PC address into the PR register, and branches to relative address given by the displacement.
+
+
+=== BT ===
+
+All
+* 89dd       BT label8s
+
+BJX1
+* 8Edd-89dd  BT label16s
+
+Branch if True.
+Branches to the relative displacement if SR.T is Non-Zero.
+
+
+=== BT/S ===
+
+All
+* 8Ddd       BT/S label8s
+
+BJX1
+* 8Edd-8Ddd  BT/S label16s
+
+Branch if True with Delay Slot.
+Branches to the relative displacement if SR.T is Non-Zero.
+
+
+=== CAS.L ===
+
+* 2nm3       CAS.L Rm, Rn, @R0
+
+Compare and Swap.
+
+
+=== CLRMAC ===
+
+* 0028       CLRMAC
+
+Clear MACL and MACH to Zero.
+
+
+=== CLRS ===
+
+* 0048       CLRS
+
+Clear SR.S to Zero.
+
+
+=== CLRT ===
+
+* 0008       CLRT
+
+Clear SR.T to Zero.
+
+
+=== CMP/EQ ===
+
+All
+* 3nm0       CMP/EQ Rm, Rn
+* 88ii       CMP/EQ #imm8s, R0
+
+BJX1
+* 8Eii-3ni0  CMPEQ #imm12s, Rn
+* 8Eii-88ii  CMPEQ #imm16s, R0
+
+Compare if Rm and Rn are Equal, setting SR.T if they are equal, and clearing SR.T otherwise.
+
+
+=== CMP/GE ===
+
+All
+* 3nm3       CMP/GE Rm, Rn
+
+BJX1
+* 8Eii-3ni3  CMP/GE #imm12s, Rn
+
+Compare if Rn is greater than or equal to Rm, setting SR.T if true, and clearing SR.T otherwise.
+
+
+=== CMP/GT ===
+
+All
+* 3nm7       CMP/GT Rm, Rn
+
+BJX1
+* 8Eii-3ni7  CMP/GT #imm12s, Rn
+
+Compare if Rn is greater than Rm, setting SR.T if true, and clearing SR.T otherwise.
+
+
+=== CMP/HI ===
+
+All
+* 3nm6       CMP/HI Rm, Rn
+
+BJX1
+* 8Eii-3ni6  CMP/HI #imm12s, Rn
+
+Compare if Rn is greater than Rm, setting SR.T if true, and clearing SR.T otherwise. The comparison is done as unsigned.
+
+
+=== CMP/HS ===
+
+All
+* 3nm2       CMP/HS Rm, Rn
+
+BJX1
+* 8Eii-3ni2  CMP/HS #imm12s, Rn
+
+Compare if Rn is greater than or equal to Rm, setting SR.T if true, and clearing SR.T otherwise. The comparison is done as unsigned.
+
+
+=== CMP/PL ===
+
+* 4n15       CMP/PL Rn
+
+Compare Rn with Zero, setting SR.T if Rn is greater than Zero.
+
+
+=== CMP/PZ ===
+
+* 4n11       CMP/PZ Rn
+
+Compare Rn with Zero, setting SR.T if Rn is greater than or equal to Zero.
+
+
+=== CMP/STR ===
+
+All, BJX1
+* 2nmC       CMP/STR Rm, Rn
+
+Set SR.T if any byte in Rm equals the corresponding byte in Rn.
+
+
+=== DIV0S ===
+
+* 2nm7       DIV0S Rm, Rn
+
+Initializes state for signed division.
+
+ q = SR.DQ ? DataRn[63] : DataRn[31];
+ m = SR.DQ ? DataRm[63] : DataRm[31];
+ SR.Q <= q;
+ SR.M <= m;
+ SR.T <= q xor m;
+
+
+=== DIV0U ===
+
+* 0019       DIV0U
+
+Initializes state for unsigned division.
+
+ SR.Q <= 0
+ SR.M <= 0
+ SR.T <= 0
+
+
+=== DIV1 ===
+
+* 3nm4       DIV1 Rm, Rn
+
+Perform a division step, with SR.Q, SR.M, and SR.T holding internal state.
+
+ q0 = SR.Q;
+ m0 = SR.M;
+ t0 = SR.T;
+ q1 = SR.DQ ? DataRn[63] : DataRn[31];
+ dn1 = (DataRn < < 1) | t0;
+ if (q0 == m0)
+   dn2 = dn1 - DataRm;
+ else
+   dn2 = dn1 + DataRm;
+ c0 = SR.DQ ? dn2[64] : dn2[32];
+ q2 = (q1 ^ m0) ^ c0;
+ t2 = ! (q2 ^ m0);
+ DataRn = dn2;
+ SR.Q = q2;
+ SR.T = t2;
+ 
+
+=== DMULS.L ===
+
+All
+* 3nmD       DMULS.L Rm, Rn
+
+Perform a signed multiply of Rn and Rm, storing the result in MACH:MACL.
+
+
+=== DMULU.L ===
+
+All
+* 3nm5       DMULU.L Rm, Rn
+
+Perform an unsigned multiply of Rn and Rm, storing the result in MACH:MACL.
+
+
+=== DT ===
+
+All
+* 4n10       DT Rn
+
+Decrements Rn, setting SR.T if the result is Zero, clearing SR.T otherwise.
+
+
+=== EXTS.B ===
+
+All
+* 6nmE       EXTS.B Rm, Rn
+
+Sign extend the Byte value in Rm and store the result in Rn.
+
+
+=== EXTS.W ===
+
+All
+* 6nmF       EXTS.W Rm, Rn
+
+Sign extend the Word value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== EXTU.B ===
+
+All
+* 6nmC       EXTU.B Rm, Rn
+
+Zero extend the Byte value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== EXTU.W ===
+
+All
+* 6nmD       EXTU.W Rm, Rn
+
+Zero extend the Word value in Rm and store the result in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== JMP ===
+
+All
+* 4n2B       JMP Rn
+
+Jump to the location given by the address in Rn.
+
+
+=== JSR ===
+
+All
+* 4n0B       JSR Rn
+
+Jump to the subroutine given by the address in Rn.
+Has a delay slot.
+
+
+=== JSR/N ===
+
+All
+* 4n4B       JSR/N Rn
+
+Jump to the subroutine given by the address in Rn.
+Does not have a delay slot.
+
+
+=== LDC ===
+
+Varies
+* 4m0E       LDC Rm, SR
+* 4m1E       LDC Rm, GBR
+* 4m2E       LDC Rm, VBR
+* 4m3E       LDC Rm, SSR
+* 4m4E       LDC Rm, SPC
+* 4mNE       LDC Rm, RnB
+* 4mFA       LDC Rm, DBR
+
+Load Rm into the given Control Register.
+
+SR is special in that it will mask off most of the bits.
+
+
+=== LDC.L ===
+
+Varies
+* 4m07       LDC.L @Rm+, SR
+* 4m17       LDC.L @Rm+, GBR
+* 4m27       LDC.L @Rm+, VBR
+* 4m37       LDC.L @Rm+, SSR
+* 4m47       LDC.L @Rm+, SPC
+* 4mN7       LDC.L @Rm+, RnB
+* 4mF6       LDC.L @Rm+, DBR
+
+Load Control register from Memory.
+
+
+=== LDS ===
+
+Varies
+* 4m0A       LDS Rm, MACH
+* 4m1A       LDS Rm, MACL
+* 4m2A       LDS Rm, PR
+* 4m5A       LDS Rm, FPUL
+* 4m6A       LDS Rm, FPSCR
+
+Load System register from GPR.
+
+
+=== LDS.L ===
+
+Varies
+* 4m06       LDS.L @Rm+, MACH
+* 4m16       LDS.L @Rm+, MACL
+* 4m26       LDS.L @Rm+, PR
+* 4m56       LDS.L @Rm+, FPUL
+* 4m66       LDS.L @Rm+, FPSCR
+
+Load System Register from Memory.
+
+
+=== LDTLB ===
+
+SH4, BJX1
+* 0038       LDTLB
+
+Load a TLB Entry into the TLB.
+Specifics depend on the MMU in use.
+
+Generally involves copying the contents from PTEH and PTEL into the appropriate place in the TLB.
+
+
+=== LEA.B ===
+
+BJX1
+* 4nF5       LEA.B @(PC, R0), Rn
+* 8Eod-6nm4  LEA.B @(Rm, Ro, disp4), Rn
+* 8Edd-6nm8  LEA.B @(Rm, disp8s), Rn
+
+Calculate the effective-address of a Byte operation and store the result in Rn.
+If Ro is R0 or R15, the results are undefined.
+
+The PC relative form calculates the address similar to in BRAF or BSRF, with R0 as an unscaled displacement.
+
+
+=== LEA.W ===
+
+BJX1
+* 8Eod-6nm5  LEA.W @(Rm, Ro, disp4), Rn
+* 8Edd-6nm9  LEA.W @(Rm, disp8s), Rn
+
+Calculate the effective-address of a Word operation and store the result in Rn.
+If Ro is R0 or R15, the results are undefined.
+
+
+=== LEA.L ===
+
+BJX1
+* 8Eod-6nm6  LEA.L @(Rm, Ro, disp4), Rn
+* 8Edd-6nmA  LEA.L @(Rm, disp8s), Rn
+
+Calculate the effective-address of a DWord operation and store the result in Rn.
+If Ro is R0 or R15, the results are undefined.
+
+
+=== LEA.Q ===
+
+BJX1
+* 8Eod-6nm7  LEA.Q @(Rm, Ro, disp4), Rn
+* 8Edd-6nmB  LEA.Q @(Rm, disp8s), Rn
+
+Calculate the effective-address of a QWord operation and store the result in Rn.
+If Ro is R0 or R15, the results are undefined.
+
+
+=== LDSH16 ===
+
+BJX1
+* 8Eii-9nii  LDSH16 #imm16s, Rn
+
+Does the equivalent of Rn=(Rn<<16)+Imm16.
+Operation is equivalent independent of DQ.
+
+
+=== MOV ===
+
+All
+* 6nm3       MOV Rm, Rn
+* Enii       MOV #imm8s, Rn
+
+BJX1
+* 8Eii-Enii  MOV #imm16s, Rn
+
+Move value between registers or load immediate.
+
+
+=== MOV.B ===
+
+All
+* 0nm4       MOV.B Rm, @(R0, Rn)
+* 2nm0       MOV.B Rm, @Rn
+* 2nm4       MOV.B Rm, @-Rn
+* 80ni       MOV.B R0, @(Rn, disp4)
+* 0nmC       MOV.B @(R0, Rm), Rn
+* 6nm0       MOV.B @Rm, Rn
+* 6nm4       MOV.B @Rm+, Rn
+* 84mi       MOV.B @(Rm, disp8), R0
+* C0ii       MOV.B R0, @(GBR, disp8)
+* C4ii       MOV.B @(GBR, disp8), R0
+
+SH2A
+* 4m8B       MOV.B Rm, @Rm+
+* 4mCB       MOV.B @-Rm, R0
+
+BJX1
+* 4mC1       MOV.B Rm, @(PC, R0)
+* 4nC5       MOV.B @(PC, R0), Rn
+* 8Eod-0nm4  MOV.B Rm, @(Rn, Ro, disp4)
+* 8Edd-2nm0  MOV.B Rm, @(Rn, disp8s)
+* 8Eod-0nmC  MOV.B @(Rm, Ro, disp4), Rn
+* 8Edd-6nm0  MOV.B @(Rm, disp8s), Rn
+* 8Emo-4n40  MOV.B Rm, @(Rn, Ro)
+* 8Emo-4nC0  MOV.B @(Rm, Ro), Rn
+
+
+Load or store a Byte.
+Operation is equivalent independent of DQ.
+
+
+=== MOV.L ===
+
+All
+* 0nm6       MOV.L Rm, @(R0, Rn)
+* 1nmi       MOV.L Rm, @(Rn, disp4)
+* 2nm2       MOV.L Rm, @Rn
+* 2nm6       MOV.L Rm, @-Rn
+* 0nmE       MOV.L @(R0, Rm), Rn
+* 5nmi       MOV.L @(Rm, disp4), Rn
+* 6nm2       MOV.L @Rm, Rn
+* 6nm6       MOV.L @Rm+, Rn
+* Dndd       MOV.L @(PC, disp8), Rn
+* C2ii       MOV.L R0, @(GBR, disp8)
+* C6ii       MOV.L @(GBR, disp8), R0
+
+SH2A
+* 4mAB       MOV.L R0, @Rn+
+* 4mEB       MOV.L @-Rm, R0
+
+BJX1
+* 4mE1       MOV.L Rm, @(PC, R0)
+* 4nE5       MOV.L @(PC, R0), Rn
+* 8Eod-0nm6  MOV.L Rm, @(Rn, Ro, disp4)
+* 8Edd-1nmo  MOV.L Rm, @(Rn, Ro, disp8s)
+* 8Edd-2nm2  MOV.L Rm, @(Rn, disp8s)
+* 8Eod-0nmE  MOV.L @(Rm, Ro, disp4), Rn
+* 8Edd-5nmo  MOV.L @(Rm, Ro, disp8s), Rn
+* 8Edd-6nm2  MOV.L @(Rm, disp8s), Rn
+* 8Emo-4n60  MOV.L Rm, @(Rn, Ro)
+* 8Emo-4nE0  MOV.L @(Rm, Ro), Rn
+
+Load or Store a DWord.
+
+
+=== MOV.W ===
+
+All
+* 0nm5       MOV.W Rm, @(R0, Rn)
+* 2nm1       MOV.W Rm, @Rn
+* 2nm5       MOV.W Rm, @-Rn
+* 81nd       MOV.W R0, @(Rn, disp4)
+* 0nmD       MOV.W @(R0, Rm), Rn
+* 6nm1       MOV.W @Rm, Rn
+* 6nm5       MOV.W @Rm+, Rn
+* 85md       MOV.W @(Rm, disp4), R0
+* 9ndd       MOV.W @(PC, disp8), Rn
+* C1dd       MOV.W R0, @(GBR, disp8)
+* C5ii       MOV.W @(GBR, disp8), R0
+
+SH2A
+* 4m9B       MOV.W R0, @Rn+
+* 4mDB       MOV.W @-Rm, R0
+
+BJX1
+* 4mD1       MOV.W Rm, @(PC, R0)
+* 4nD5       MOV.W @(PC, R0), Rn
+
+BJX1
+* 8Eod-0nm5  MOV.W Rm, @(Rn, Ro, disp4)
+* 8Edd-2nm1  MOV.W Rm, @(Rn, disp8s)
+* 8Eod-0nmD  MOV.W @(Rm, Ro, disp4), Rn
+* 8Edd-6nm1  MOV.W @(Rm, disp8s), Rn
+* 8Emo-4n50  MOV.B Rm, @(Rn, Ro)
+* 8Emo-4nD0  MOV.B @(Rm, Ro), Rn
+
+Load or store a WORD.
+
+
+=== MOVA ===
+
+All
+* C7dd       MOVA @(PC, disp8), R0
+
+Load PC-Relative Address.
+Address is calculated as ((PC+4)&(~3))+(disp8*4).
+
+
+=== MOVCA.L ===
+
+All
+* 0nC3       MOVCA.L R0, @Rn
+
+Store value to memory without reading memory into cache.
+
+
+=== MOVT ===
+
+All
+* 0n29       MOVT Rn
+
+Copy SR.T to Rn.
+
+
+=== MOVU.B ===
+
+BJX1
+* 8Edd-6nmC  MOVU.B @(Rm, disp8s), Rn
+
+Load Unsigned Byte.
+
+
+=== MOVU.W ===
+
+BJX1
+* 8Edd-6nmD  MOVU.W @(Rm, disp8s), Rn
+* 8E2d-9ndd  MOVU.W @(PC, disp13), Rn
+* 8E6d-9ndd  MOVU.W @(PC, disp13), RHn
+* 8EAd-9ndd  MOVU.W @(PC, disp13), RQn
+
+Load Unsigned Word.
+
+
+=== MUL (3R) ===
+
+BJX1
+* 8Ejj-2nmE  MUL Rm, #imm8, Rn
+* 8Ejj-2nmF  MUL Rm, #-imm8, Rn
+* 8Est-4n23  MUL Rs, Rt, Rn
+
+Multiply values, storing result in Rn.
+In the 2xxE form, the immediate is extended with zeroes (positive).
+In the 2xxF form, the immediate is extended with ones (negative).
+
+
+=== MUL.L ===
+
+* 0nm7       MUL.L Rm, Rn
+
+Multiply Rm and Rn, storing low bits of result in MACL.
+
+
+=== MULS.W ===
+
+All
+* 2nmF       MULS.W Rm, Rn
+
+Signed multiply of the Word values in Rm and Rn, storing the result into MACL.
+
+
+=== MULU.W ===
+
+All
+* 2nmE       MULU.W Rm, Rn
+
+Unsigned multiply of the Word values in Rm and Rn, storing the result into MACL.
+
+
+=== NEG ===
+
+All
+* 6nmB       NEG Rm, Rn
+
+Negate value in Rm and store in Rn.
+Operation is equivalent independent of DQ.
+
+
+=== NEGC ===
+
+All
+* 6nmA       NEGC Rm, Rn
+
+Negate with carry value from Rm, storing result in Rn.
+
+
+=== NOP ===
+
+All
+* 0009       NOP
+* 0i09       NOP #imm
+
+Does nothing.
+
+A 4 bit immediate may be supplied to a NOP (with a value between 1 and 14), but it will be ignored. This value is mostly intended for debugging purposes.
+
+
+=== NOT ===
+
+All
+* 6nm7       NOT Rm, Rn
+
+Invert bits in Rm and store result in Rn.
+
+
+=== OR ===
+
+All
+* 2nmB       OR Rm, Rn
+* CBjj       OR #imm8, R0
+
+BJX1
+* 8Eii-CBni  OR #imm12s, Rn
+
+Bitwise Or Rm with Rn.
+
+
+=== OR (3R) ===
+
+BJX1
+* 8Ejj-2nmB  OR Rm, #imm8, Rn
+* 8Est-4n23  OR Rs, Rt, Rn
+
+Or Imm or Rt with Rs Rm or Rs, storing result in Rn.
+
+
+=== PREF ===
+
+* 0n83       PREF @Rn
+
+Prefetch address.
+This may fault if the address is not valid.
+
+
+=== ROTCL ===
+
+All
+* 4n24       ROTCL Rn
+
+Rotate a value 1 bit left, with the incomming bit comming from SR.T, and SR.T being updated according to the shifted-out bit.
+
+
+=== ROTCR ===
+
+All
+* 4n25       ROTCR Rn
+
+Rotate a value 1 bit right, with the incomming bit comming from SR.T, and SR.T being updated according to the shifted-out bit.
+
+
+=== ROTL ===
+
+All
+* 4n04       ROTL Rn
+
+Rotate value left by 1 bit, updating SR.T according to the shifted bit.
+
+
+=== ROTR ===
+
+* 4n05       ROTR Rn
+
+Rotate value right by 1 bit, updating SR.T according to the shifted bit.
+
+
+=== RTE ===
+
+* 002B       RTE
+
+Return From Exception.
+Has a Delay Slot.
+Copies SPC to PC, SGR to R15, and SSR to SR.
+
+
+=== RTS ===
+
+* 000B       RTS
+
+Return From Subroutine.
+Has a Delay Slot.
+Copies PR to PC.
+
+
+=== RTS/N ===
+
+* 006B       RTS
+
+Return From Subroutine.
+No Delay Slot.
+Copies PR to PC.
+
+
+=== SETS ===
+
+* 0058       SETS
+
+Set SR.S to One.
+
+
+=== SETT ===
+
+* 0018       SETT
+
+Set SR.T to One.
+
+
+=== SHAD ===
+
+SH3+
+* 4nmC       SHAD Rm, Rn
+
+
+Arithmetic Barrel Shift.
+
+SHAD Rm, Rn
+* Shifts Rn by the amount given in Rm and stores the result in Rn.
+
+
+Shift:
+* if(shift>=0) out = in << (shift mod width);
+* if((shift<0) && (shift mod width)) out = in >> (width-(shift mod width));
+* else out = (in>=0)?0:(-1);
+
+
+=== SHAD (3R) ===
+
+BJX1
+* 8Eii-4nmC  SHAD Rm, #imm, Rn
+* 8Est-4n83  SHAD Rs, Rt, Rn
+
+Arithmetic Barrel Shift.
+
+SHAD Rm, imm, Rn
+* Shifts Rm by the amount given in #imm and stores the result in Rn.
+
+SHAD Rs, Rt, Rn
+* Shifts Rs by Rt, storing result in Rn.
+
+
+=== SHAL ===
+
+All
+* 4n20       SHAL Rn
+
+Arithmetic Shift Left.
+Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+
+
+=== SHAR ===
+
+All
+* 4n21       SHAR Rn
+
+Arithmetic Shift Right.
+Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+
+
+=== SHAR (3R) ===
+
+BJX1
+* 8Est-4n93  SHAR Rs, Rt, Rn
+
+Arithmetic Shift Right.
+* Behaves like SHAD with a negated argument.
+
+
+=== SHLD ===
+
+SH3+
+* 4nmD       SHLD Rm, Rn
+
+Logical Barrel Shift.
+
+SHLD Rm, Rn
+* Shifts Rn by the amount given in Rm and stores the result in Rn.
+
+Shift:
+* if(shift>=0) out = in << (shift mod width);
+* if((shift<0) && (shift mod width)) out = in >> (width-(shift mod width));
+* else out = 0;
+
+
+=== SHLD (3R) ===
+
+BJX1
+* 8Eii-4nmD  SHLD Rm, #imm, Rn
+* 8Est-4n63  SHLD Rs, Rt, Rn
+
+Logical Barrel Shift.
+
+SHLD Rm, imm, Rn
+* Shifts Rm by the amount given in #imm and stores the result in Rn.
+
+SHLD Rs, Rt, Rn
+* Shifts Rs by Rt, storing result in Rn.
+
+
+=== SHLL ===
+
+All
+* 4n00       SHLL Rn
+
+Logical Shift Left.
+Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+
+
+=== SHLL1 (Pseudo) ===
+
+* 3nnC       SHLL1 Rn	(ADD Rn, Rn)
+
+Shift value left by 1 bit.
+This form is a pseudo-operation implemented by adding a value to itself.
+It is defined mostly as a special case which does not effect SR.T.
+
+
+=== SHLL2 ===
+
+* 4n08       SHLL2 Rn
+
+Shift value left by 2 bits.
+
+
+=== SHLL4 ===
+
+BJX1
+* 4n34       SHLL4 Rn
+
+Shift value left by 4 bits.
+
+
+=== SHLL8 ===
+
+* 4n18       SHLL8 Rn
+
+Shift value left by 8 bits.
+
+
+=== SHLL16 ===
+
+* 4n28       SHLL16 Rn
+
+Shift value left by 16 bits.
+
+
+=== SHLR ===
+
+All
+* 4n01       SHLR Rn
+
+Logical Shift Right.
+Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+Operation is equivalent independent of DQ.
+
+
+=== SHLR (3R) ===
+
+BJX1
+* 8Est-4n73  SHLR Rs, Rt, Rn
+
+Logical Shift Right.
+* Behaves like SHLD with a negated argument.
+
+
+=== SHLR2 ===
+
+All
+* 4n09       SHLR2 Rn
+
+Shift value right by 2 bits.
+
+
+=== SHLR4 ===
+
+BJX1
+* 4n35       SHLR4 Rn
+
+Shift value right by 4 bits.
+
+
+=== SHLR8 ===
+
+All
+* 4n19       SHLR8 Rn
+
+Shift value right by 8 bits.
+
+
+=== SHLR16 ===
+
+All
+* 4n29       SHLR16 Rn
+
+Shift value right by 16 bits.
+
+
+=== SLEEP ===
+
+* 001B       SLEEP
+
+
+=== STC ===
+
+* 0n0E       STC SR, Rn
+* 0n1E       STC GBR, Rn
+* 0n2E       STC VBR, Rn
+* 0n3E       STC SSR, Rn
+* 0n4E       STC SPC, Rn
+* 0nFA       STC DBR, Rn
+
+* 0nME       STC RmB, Rn
+
+Copy Control Register to GPR.
+SR is special in that only certain bits are copied.
+
+
+=== STC.L ===
+
+* 0n07       STC.L SR, @-Rn
+* 0n17       STC.L GBR, @-Rn
+* 0n27       STC.L VBR, @-Rn
+* 0n37       STC.L SSR, @-Rn
+* 0n47       STC.L SPC, @-Rn
+* 0nF6       STC.L DBR, @-Rn
+
+* 0nM7       STC.L RmB, @-Rn
+
+Store Control Register to Memory.
+
+
+=== STS ===
+
+* 0m0A       STS MACH, Rn
+* 0m1A       STS MACL, Rn
+* 0m2A       STS PR, Rn
+* 0m5A       STS FPUL, Rn
+* 0m6A       STS FPSCR, Rn
+
+Copy system register to GPR.
+
+
+=== STS.L ===
+
+* 0m06       STS.L MACH, @-Rn
+* 0m16       STS.L MACL, @-Rn
+* 0m26       STS.L PR, @-Rn
+* 0m56       STS.L FPUL, @-Rn
+* 0m66       STS.L FPSCR, @-Rn
+
+Store System Register to Memory.
+
+
+=== SUB ===
+
+All
+* 3nm8       SUB Rm, Rn
+
+Subtract Rm from Rn.
+Operation is equivalent independent of DQ.
+
+
+=== SUB (3R) ===
+
+BJX1
+* 8Ejj-3nm8  SUB Rm, #imm8, Rn
+* 8Est-4n13  SUB Rs, Rt, Rn
+
+Subtract Imm or Rt from Rm or Rs, storing the result in Rn.
+
+
+=== SUBC ===
+
+* 3nmA       SUBC Rm, Rn
+
+Subtract with Carry.
+
+
+=== SUBV ===
+
+* 3nmB       SUBV Rm, Rn
+
+Subtract with Overflow.
+
+
+=== SWAP.B ===
+
+* 6nm8       SWAP.B Rm, Rn
+
+Swap Bytes within value.
+Operation is equivalent independent of DQ.
+
+
+=== SWAP.W ===
+
+* 6nm9       SWAP.W Rm, Rn
+
+Swap Words within value.
+Operation is equivalent independent of DQ.
+
+
+=== TRAPA ===
+
+* C3ii       TRAPA #imm8
+
+Generate an interrupt.
+
+
+=== TST ===
+
+All
+* 2nm8       TST Rm, Rn
+* C8ii       TST #imm8, R0
+
+BJX1
+* 8Ejj-C8nj  TST #imm12, Rn
+
+
+=== XOR ===
+
+All
+* 2nmA       XOR Rm, Rn
+* CAii       XOR #imm8, R0
+
+BJX1
+* 8Ejj-CAnj  XOR #imm12, Rn
+
+Xor Rm or Imm with Rn or R0.
+
+
+=== XOR (3R) ===
+
+BJX1
+* 8Eii-2nmA  XOR Rm, #imm8, Rn
+* 8Est-4n53  XOR Rs, Rt, Rn
+
+Subtract Imm or Rt from Rm or Rs, storing the result in Rn.
+
+
+=== XTRCT ===
+
+All
+* 2nmD       XTRCT Rm, Rn
+
+I am honestly not sure what this instruction is used for.
+
+
+ OutRn[31:16]=DataRm[15: 0]
+ OutRn[15: 0]=DataRn[31:16]
+
+
+=== FPU ISA ===
+
+FPU will be divided into several profiles:
+* None
+** Lacks FPU Support (Trap Only)
+* Basic
+** Has FRn and DRn registers.
+** Has Single and Double operations.
+* Normal
+** Has XFn and XDn registers.
+* NVSIMD (BJX1 Only)
+** Has YFn and ZFn registers.
+** Adds SIMD capabilities.
+
+This section will be limited to the Basic and Normal profiles.
+
+Register Numbering:
+* (Arith Ops, PR=0)
+** FR0 .. FR15
+* (Arith Ops, PR=1)
+** DR0, XD0, DR2, XD2, .., DR14, XD14
+** Ability to access XDn in arith ops is a BJX1 extension.
+* (MOV Ops, SZ=0)
+** FR0 .. FR15
+* (MOV Ops, SZ=1)
+** DR0, XD0, DR2, XD2, .., DR14, XD14
+
+
+==== FABS ====
+
+All
+* Fn5D       FABS FRn            (PR=0, VE=0)
+* Fn5D       FABS DRn            (PR=1, VE=0)
+
+Absolute of Float/Double
+
+
+==== FADD ====
+
+All
+* Fnm0       FADD FRm, FRn       (PR=0, VE=0)
+* Fnm0       FADD DRm, DRn       (PR=1, VE=0)
+
+BJX1
+* 8Est-4nC3  FADD FRs, FRt, FRn
+
+Add FRm to FRn.
+
+
+==== FCMPEQ ====
+
+All
+* Fnm4       FCMPEQ FRm, FRn     (PR=0, VE=0)
+* Fnm4       FCMPEQ DRm, DRn     (PR=1, VE=0)
+
+Compare FRm and FRn for equality.
+
+
+==== FCMPGT ====
+
+All
+* Fnm5       FCMPGT FRm, FRn     (PR=0, VE=0)
+* Fnm5       FCMPGT DRm, DRn     (PR=1, VE=0)
+
+Compare FRm and FRn.
+Sets SR.T if FRn is greater than FRm.
+
+
+==== FCNVDS ====
+
+All
+* FmBD       FCNVDS DRm, FPUL    (PR=1, VE=0)
+
+Convert Double to Float.
+
+
+==== FCNVSD ====
+
+All
+* FnAD       FCNVSD FPUL, DRn    (PR=1, VE=0)
+
+Convert Float to Double.
+
+
+==== FDIV ====
+
+All
+* Fnm3       FDIV FRm, FRn       (PR=0, VE=0)
+* Fnm3       FDIV DRm, DRn       (PR=1, VE=0)
+
+BJX1
+* 8Est-4nF3  FDIV FRs, FRt, FRn
+
+
+==== FLDI0 ====
+
+All
+* Fn8D       FLDI0 FRn           (PR=0, VE=0)
+
+BJX1
+* Fn8D       FLDI0 DRn           (PR=1, VE=0)
+
+Load 0.0 into FRn.
+
+
+==== FLDI1 ====
+
+All
+* Fn8D       FLDI1 FRn           (PR=0, VE=0)
+
+BJX1
+* Fn8D       FLDI1 DRn           (PR=1, VE=0)
+
+Load 1.0 into FRn.
+
+
+==== FLDS ====
+
+All
+* Fm1D       FLDS FRm, FPUL
+
+Move FRm to FPUL.
+
+
+==== FLOAT ====
+
+All
+* Fn2D       FLOAT FPUL, FRn     (PR=0, VE=0)
+* Fn2D       FLOAT FPUL, DRn     (PR=1, VE=0)
+
+Int to Float
+
+
+==== FMAC ====
+
+All (PR=0, VE=0)
+* FnmE       FMAC FRm, FRn
+
+
+==== FMOV ====
+
+All
+* FnmC       FMOV FRm, FRn       (SZ=0)
+* FnmC       FMOV DRm, DRn       (SZ=1)
+
+
+==== FMOV.S ====
+
+All (SZ=0)
+* Fnm6       FMOV.S @(R0, Rm), FRn
+* Fnm7       FMOV.S FRm, @(R0, Rn)
+* Fnm8       FMOV.S @Rm, FRn
+* Fnm9       FMOV.S @Rm+, FRn
+* FnmA       FMOV.S FRm, @Rn
+* FnmB       FMOV.S FRm, @-Rn
+
+BJX1 (SZ=0)
+*            4nB1 FMOV.S FRm, @(PC, R0)
+*            4nB5 FMOV.S @(PC, R0), FRn
+* 8Edd-2nm4  FMOV.S FRm, @(Rn, disp8s)
+* 8Edd-2nm6  FMOV.S @(Rm, disp8s), FRn
+* 8Emo-4n2E  FMOV.S @(Rm, Ro), FRn
+* 8Emo-4n3E  FMOV.S FRm, @(Rn, Ro)
+
+
+==== FMOV / FMOV.D ====
+
+All (SZ=1)
+* Fnm6       FMOV @(R0, Rm), DRn
+* Fnm7       FMOV DRm, @(R0, Rn)
+* Fnm8       FMOV @Rm, DRn
+* Fnm9       FMOV @Rm+, DRn
+* FnmA       FMOV DRm, @Rn
+* FnmB       FMOV DRm, @-Rn
+
+BJX1 (SZ=0)
+* 4nB1       FMOV DRm, @(PC, R0)
+* 4nB5       FMOV @(PC, R0), DRn
+* 8Edd-2nm4  FMOV DRm, @(Rn, disp8s)
+* 8Edd-2nm6  FMOV @(Rm, disp8s), DRn
+* 8Emo-4n2E  FMOV @(Rm, Ro), DRn
+* 8Emo-4n3E  FMOV DRm, @(Rn, Ro)
+
+If PR=0, the words are loaded in Hi,Lo (reversed) order for double.
+If PR=1, the words are loaded in the correct order.
+
+
+==== FMUL ====
+
+All
+* Fnm2       FMUL FRm, FRn       (PR=0, VE=0)
+* Fnm2       FMUL DRm, DRn       (PR=1, VE=0)
+
+BJX1
+* 8Est-4nE3  FMUL FRs, FRt, FRn
+
+
+==== FNEG ====
+
+All
+* Fn4D       FNEG FRn            (PR=0, VE=0)
+* Fn4D       FNEG DRn            (PR=1, VE=0)
+
+Negate Float/Double.
+
+
+==== FSQRT ====
+
+All
+* Fn6D       FSQRT FRn           (PR=0, VE=0)
+* Fn6D       FSQRT DRn           (PR=1, VE=0)
+
+Square Root.
+
+
+==== FSUB ====
+
+All
+* Fnm1       FSUB FRm, FRn       (PR=0, VE=0)
+* Fnm1       FSUB DRm, DRn       (PR=1, VE=0)
+
+BJX1
+* 8Est-4nD3  FSUB FRs, FRt, FRn
+
+
+==== PSETMD4 ====
+
+BJX1
+* FiDD       PSETMD4 #imm4
+
+Update the bits in FPSCR.
+
+Imm4
+* imm4=zpmm / zprf
+** z: FPSCR.SZ
+** p: FPSCR.PR
+** r: Reset Mode
+** f: FPSCR.FR (If VE=0)
+** mm: Rounding Mode (If VE=1)
+* If VE=0
+** SZ, PR, and FR are set as given.
+** If R=0, All other bits for FPSCR are left as-is.
+** If R=1, All other bits are cleared.
+* If VE=1
+** Other bits for FPSCR are left as-is.
+
+
+==== FTRC ====
+
+All
+* Fm3D       FTRC FRm, FPUL      (PR=0, VE=0)
+* Fm3D       FTRC DRm, FPUL      (PR=1, VE=0)
+
+Float to Int.
+
+
+==== LDHF16 ====
+
+BJX1
+* 4m71       LDHF16 Rm, FPUL
+* 8Eii-8Aii  LDHF16 #imm16, FPUL
+
+Load Half-Precision GPR or Imm16 into FPUL Float.
+The Half-Float is repacked on load into a single precision float.
+
+The register form will repack the register into a Float with the following rules:
+* NaN and Inf will be transformed into their equivalents.
+* Positive and Negative Zero will be translated to their equivalents.
+* All other values will be mapped as per the immediate case.
+
+This immediate form does not support Inf, NaN, or Denormals.
+* These cases will be formally undefined.
+
+ tmp[12:0]=0
+ tmp[22:13]=imm[9:0]
+ tmp[30:23]=imm[14:10]+112
+ tmp[31]=imm[15]
+ FPUL<=tmp
+
+
+==== LDIF16 ====
+
+* 8Eii-8Cii  LDIF16 #imm16, FPUL
+
+Load Imm16 into high bits of FPUL, filling the low bits with zeroes.
+
+ tmp[15: 0]=0
+ tmp[31:16]=imm[15:0]
+ FPUL<=tmp
+
+
+==== STHF16 ====
+
+BJX1
+* 4n61     STHF16 FPUL, Rn
+
+Convert a Single in FPUL to a Half-Float in Rn.
+This instruction is experimental.
+
+Behavior:
+* Fractional part will be rounded to 10 bits.
+* If the exponent is too large, the result will be +/- Inf.
+* If the exponent is too small, the result will be 0.0.

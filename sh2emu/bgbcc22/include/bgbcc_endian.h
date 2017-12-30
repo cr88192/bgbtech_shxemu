@@ -17,7 +17,7 @@
 #endif
 
 //#ifdef __linux
-#ifndef __MSC_VER
+#ifndef _MSC_VER
 #define __debugbreak()	(*((int *)-1)=-1)
 #endif
 

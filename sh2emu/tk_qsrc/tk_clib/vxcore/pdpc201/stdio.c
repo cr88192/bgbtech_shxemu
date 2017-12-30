@@ -75,6 +75,7 @@ void __remove(const char *filename);
 void __rename(const char *old, const char *new);
 long __tell(int handle);
 
+// static FILE permFiles[3];
 static FILE permFiles[3];
 
 #define unused(x) ((void)(x))
@@ -1322,6 +1323,7 @@ static int examine(const char **formt, FILE *fq, char *s, va_list *arg,
 	int neg;
 	int length;
 	size_t slen;
+	int n;
 
 	unused(chcount);
 	format = *formt;
@@ -1489,7 +1491,9 @@ static int examine(const char **formt, FILE *fq, char *s, va_list *arg,
 #endif
 		}
 		x = 0;
-		while (ulvalue > 0)
+		n = 64;
+//		while (ulvalue > 0)
+		while ((ulvalue > 0) && ((n--)>0))
 		{
 			rem = (int)(ulvalue % base);
 			if (rem < 10)

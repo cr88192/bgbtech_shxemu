@@ -256,6 +256,15 @@ void Sys_mkdir (char *path)
 }
 
 
+void tk_printf(char *str, ...)
+{
+}
+
+void tk_puts(char *str)
+{
+}
+
+
 /*
 ===============================================================================
 

@@ -1463,7 +1463,7 @@ ccxl_status BGBCC_CCXL_TypeAutoPromoteType(
 	ccxl_type tty;
 
 	if(BGBCC_CCXL_TypeSmallIntP(ctx, sty) &&
-		!BGBCC_CCXL_TypeIntP(ctx, sty))
+		!BGBCC_CCXL_TypeSgIntP(ctx, sty))
 	{
 		tty=BGBCC_CCXL_TypeWrapBasicType(CCXL_TY_I);
 		if(rdty)*rdty=tty;
@@ -2192,7 +2192,11 @@ int BGBCC_CCXL_TypeCompatibleFlP(
 				}
 				break;
 			case CCXL_TY_I:		case CCXL_TY_UI:
+				rt=1; break;
+
 			case CCXL_TY_NL:	case CCXL_TY_UNL:
+				if(ctx->arch_sizeof_long!=4)
+					{ rt=0; break; }
 				rt=1; break;
 			default: rt=0; break;
 			}
@@ -2263,6 +2267,29 @@ int BGBCC_CCXL_TypeCompatibleFlP(
 			}
 		}
 #endif
+	}
+
+	if((fl&2) && (ctx->arch_sizeof_ptr==8))
+	{
+		if(BGBCC_CCXL_TypePointerP(ctx, dty))
+		{
+			if(BGBCC_CCXL_TypePointerP(ctx, sty) ||
+				BGBCC_CCXL_TypeArrayP(ctx, sty) ||
+				BGBCC_CCXL_TypeSgLongP(ctx, sty) ||
+				BGBCC_CCXL_TypeSgNLongP(ctx, sty))
+			{
+				return(1);
+			}
+		}
+
+		if(BGBCC_CCXL_TypeSgLongP(ctx, dty) ||
+			BGBCC_CCXL_TypeSgNLongP(ctx, dty))
+		{
+			if(BGBCC_CCXL_TypePointerP(ctx, sty))
+			{
+				return(1);
+			}
+		}
 	}
 
 	return(0);

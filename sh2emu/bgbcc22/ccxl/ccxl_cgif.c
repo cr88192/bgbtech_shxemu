@@ -185,9 +185,18 @@ ccxl_status BGBCC_CCXL_EmitMov(BGBCC_TransState *ctx,
 	ccxl_type type, ccxl_register dreg, ccxl_register sreg)
 {
 	BGBCC_CCXL_VirtOp *op;
+	ccxl_type sty, dty;
 
 	if(ctx->cgif_no3ac)
 		return(0);
+
+	sty=BGBCC_CCXL_GetRegType(ctx, sreg);
+	dty=BGBCC_CCXL_GetRegType(ctx, dreg);
+	
+	if(!BGBCC_CCXL_TypeCompatibleArchP(ctx, dty, sty) &&
+		!(BGBCC_CCXL_TypePointerP(ctx, dty) &&
+			BGBCC_CCXL_TypeValueObjectP(ctx, sty)))
+		__debugbreak();
 
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_MOV;

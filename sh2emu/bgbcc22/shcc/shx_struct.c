@@ -153,10 +153,10 @@ int BGBCC_SHXC_EmitLoadSlotVRegVRegImm(
 			cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
 		}
 	
-		if(((csreg&15)==15) && ((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
-			{ BGBCC_DBGBREAK }
-		if(((cdreg&15)==15) && ((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
-			{ BGBCC_DBGBREAK }
+//		if(((csreg&15)==15) && ((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
+//			{ BGBCC_DBGBREAK }
+//		if(((cdreg&15)==15) && ((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
+//			{ BGBCC_DBGBREAK }
 
 		ctreg=cdreg;
 
@@ -279,10 +279,10 @@ int BGBCC_SHXC_EmitStoreSlotVRegVRegImm(
 
 		ctreg=csreg;
 
-		if(((csreg&15)==15) && ((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
-			{ BGBCC_DBGBREAK }
-		if(((cdreg&15)==15) && ((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
-			{ BGBCC_DBGBREAK }
+//		if(((csreg&15)==15) && ((csreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
+//			{ BGBCC_DBGBREAK }
+//		if(((cdreg&15)==15) && ((cdreg&BGBCC_SH_REG_RTMASK)!=BGBCC_SH_REG_FR0))
+//			{ BGBCC_DBGBREAK }
 
 		if(BGBCC_CCXL_TypeDoubleP(ctx, type))
 		{

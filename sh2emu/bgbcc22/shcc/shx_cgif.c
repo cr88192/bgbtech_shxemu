@@ -60,6 +60,7 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	shctx->tctx=ctx;
 	shctx->is_le=0;
 	shctx->is_addr64=0;
+	shctx->has_bjx1egpr=0;
 
 	switch(ctx->sub_arch)
 	{
@@ -70,6 +71,18 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 		ctx->arch_sizeof_ptr=8;
 		ctx->arch_sizeof_valist=128;
 		shctx->is_addr64=1;
+		shctx->has_bjx1egpr=1;
+		break;
+
+	case BGBCC_ARCH_SH_BX6U:
+	case BGBCC_ARCH_SH_BX6V:
+	case BGBCC_ARCH_SH_BX6M:
+		ctx->arch_align_max=8;
+		ctx->arch_sizeof_long=8;
+		ctx->arch_sizeof_ptr=8;
+		ctx->arch_sizeof_valist=128;
+		shctx->is_addr64=1;
+//		shctx->has_bjx1egpr=0;
 		break;
 	default:
 		break;
@@ -82,6 +95,7 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	case BGBCC_ARCH_SH_SH4B:
 	case BGBCC_ARCH_SH_BX1B:
 	case BGBCC_ARCH_SH_BX6B:
+	case BGBCC_ARCH_SH_BX6V:
 		shctx->is_le=0;
 		break;
 	case BGBCC_ARCH_SH_SH4:
@@ -89,6 +103,8 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	case BGBCC_ARCH_SH_SH4L:
 	case BGBCC_ARCH_SH_BX1L:
 	case BGBCC_ARCH_SH_BX6L:
+	case BGBCC_ARCH_SH_BX6U:
+	case BGBCC_ARCH_SH_BX6M:
 		shctx->is_le=1;
 		break;
 	default:
@@ -116,10 +132,17 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 		shctx->has_shad=1;
 		break;
 
+	case BGBCC_ARCH_SH_BX6U:
+	case BGBCC_ARCH_SH_BX6V:
+		shctx->has_shad=1;
+		shctx->has_misalgn=1;
+		break;
+
 	case BGBCC_ARCH_SH_BX1L:
 	case BGBCC_ARCH_SH_BX1B:
 	case BGBCC_ARCH_SH_BX6L:
 	case BGBCC_ARCH_SH_BX6B:
+	case BGBCC_ARCH_SH_BX6M:
 		shctx->has_shad=1;
 //		shctx->has_movi20=0;
 //		shctx->has_bjx1jmp=0;
@@ -128,11 +151,12 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 		shctx->has_bjx1mov=1;
 		shctx->has_bjx1jmp=1;
 		shctx->has_bjx1ari=1;
-		shctx->has_bjx1breq=1;
+//		shctx->has_bjx1breq=1;
 
 //		shctx->use_onlyimm=1;
 //		shctx->use_onlyimm=3;
 		break;
+
 
 	default:
 		break;
@@ -147,6 +171,9 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	if(ctx->arch_sizeof_ptr==8)
 	{
 		BGBPP_AddStaticDefine(NULL, "__BJX1_64__", "");
+
+		if(shctx->has_bjx1egpr)
+			{ BGBPP_AddStaticDefine(NULL, "__BJX1_64E__", ""); }
 	}
 
 	return(0);
@@ -492,7 +519,10 @@ ccxl_status BGBCC_SHXC_PrintVirtOp(BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
 	BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtOp *op)
 {
+	ccxl_register *ca;
 	char *s0;
+	int na;
+	int i, j, k;
 
 #if 1
 	if(sctx->cgen_log)
@@ -631,6 +661,18 @@ ccxl_status BGBCC_SHXC_PrintVirtOp(BGBCC_TransState *ctx,
 
 		fprintf(sctx->cgen_log, "\n");
 		fflush(sctx->cgen_log);
+		
+		if(op->opn==CCXL_VOP_CALL)
+		{
+			na=op->imm.call.na;
+			ca=op->imm.call.args;
+			for(i=0; i<na; i++)
+			{
+				fprintf(sctx->cgen_log, "\t\tA%d=%s\n",  i,
+					BGBCC_SHXC_DebugRegToStr(ctx, sctx, op->type, ca[i]));
+			}
+			fflush(sctx->cgen_log);
+		}
 	}
 #endif
 
@@ -1023,7 +1065,13 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 	sctx=ctx->uctx;
 
 	if(obj->regflags&BGBCC_REGFL_CULL)
+	{
+		fprintf(sctx->cgen_log, "BGBCC_SHXC_BuildFunction: Culled %s\n",
+			obj->name);
+		fflush(sctx->cgen_log);
+
 		return(0);
+	}
 
 	if((obj->flagsint&BGBCC_TYFL_DLLIMPORT) && (obj->n_vtr<=0))
 	{
@@ -1108,6 +1156,10 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 	sctx->need_n12jmp=1;
 	sctx->is_leaf=2;
 
+//	sctx->dfl_dq=2;
+//	sctx->dfl_dq=3;
+	sctx->dfl_dq=4;
+
 	for(np=0; np<6; np++)
 	{
 		sctx->lbltrov=otrov;
@@ -1146,11 +1198,20 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 
 		BGBCC_SHX_SetEndSimPass(sctx);
 
-		sctx->dfl_dq=0;
-		if(sctx->cnt_set_dq0>sctx->cnt_set_dq1)
-			sctx->dfl_dq=2;
-		if(sctx->cnt_set_dq1>sctx->cnt_set_dq0)
-			sctx->dfl_dq=3;
+//		sctx->dfl_dq=2;
+
+#if 1
+		if(!(sctx->dfl_dq&4))
+		{
+//			sctx->dfl_dq=0;
+//			if(sctx->cnt_set_dq0>sctx->cnt_set_dq1)
+			if(sctx->cnt_set_dq0>(sctx->cnt_set_dq1+10))
+				sctx->dfl_dq=2;
+//			if(sctx->cnt_set_dq1>sctx->cnt_set_dq0)
+			if(sctx->cnt_set_dq1>(sctx->cnt_set_dq0+10))
+				sctx->dfl_dq=3;
+		}
+#endif
 
 //		co=BGBCC_SHX_EmitGetOffs(sctx);
 		sz=co-bo;
@@ -1192,6 +1253,17 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 			sctx->need_f16jmp=1;
 		if(sctx->simfnnsz>30720)
 			sctx->need_farjmp=1;
+	}
+	
+	if(sctx->dfl_dq)
+	{
+		if(sctx->dfl_dq&1)
+			sctx->stat_tot_dq1++;
+		else
+			sctx->stat_tot_dq0++;
+	}else
+	{
+		sctx->stat_tot_dqi++;
 	}
 	
 	sctx->is_stable=issta;
@@ -2210,6 +2282,10 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 	int i, j, k;
 
 	sctx=ctx->uctx;
+	
+	sctx->stat_tot_dq0=0;
+	sctx->stat_tot_dq1=0;
+	sctx->stat_tot_dqi=0;
 
 	if(!sctx->cgen_log)
 		sctx->cgen_log=fopen("bgbcc_shxlog.txt", "wt");
@@ -2263,6 +2339,14 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 		{
 			BGBCC_CCXL_GlobalMarkReachable(ctx, obj);
 			continue;
+		}
+
+//		if(obj->regtype==CCXL_LITID_FUNCTION)
+		if(1)
+		{
+			if(obj->regflags&BGBCC_REGFL_ACCESSED)
+				BGBCC_CCXL_GlobalMarkReachable(ctx, obj);
+//			continue;
 		}
 
 		if(obj->name)
@@ -2356,6 +2440,28 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 			BGBCC_SHXC_BuildAsmBlob(ctx, obj);
 			continue;
 		}
+	}
+
+	k=sctx->stat_tot_dq0+sctx->stat_tot_dq1+sctx->stat_tot_dqi;
+	if(k>0)
+	{
+		printf("DQ0/DQ1/DQi=%d/%d/%d %.2f%% %.2f%% %.2f%%\n",
+			sctx->stat_tot_dq0,
+			sctx->stat_tot_dq1,
+			sctx->stat_tot_dqi,
+			(100.0*sctx->stat_tot_dq0)/k,
+			(100.0*sctx->stat_tot_dq1)/k,
+			(100.0*sctx->stat_tot_dqi)/k
+			);
+	}
+
+	if(sctx->stat_tot_imm>0)
+	{
+		printf("tot imm %d\n", sctx->stat_tot_imm);
+		printf("tot imm8 %d\n", sctx->stat_tot_imm8);
+		printf("tot imm16 %d\n", sctx->stat_tot_imm16);
+		printf("tot imm8r %d\n", sctx->stat_tot_imm8r);
+		printf("tot imm32 %d\n", sctx->stat_tot_imm32);
 	}
 
 	if(sctx->lvt16_n_idx>0)

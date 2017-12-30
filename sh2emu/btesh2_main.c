@@ -622,7 +622,7 @@ u32 btesh2_peridbg_GetD(BTESH2_PhysSpan *sp,
 			sp->name, (int)reladdr);
 
 		cpu->regs[BTESH2_REG_FLA]=sp->base+reladdr;
-//		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
+		BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR);
 
 		v=0; break;
 	}

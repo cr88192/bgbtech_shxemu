@@ -28,14 +28,18 @@ TK_CFL=-DARCH_SH4 -DARCH_SH4LE -D__32BIT__
 TK_LDFL= $(TK_CFL)
 
 # BASE_CFLAGS=-Dstricmp=strcasecmp
-BASE_CFLAGS=-Itk_clib/include -Ltk_clib -mBJX1L
+BASE_CFLAGS=-Itk_clib/include -Ltk_clib
 
-CFLAGS=$(TK_CFL) $(BASE_CFLAGS)
+CFLAGS=$(TK_CFL) $(BASE_CFLAGS) -mBJX1L
 LDFLAGS=$(TK_LDFL) -lvxcore
+
+CFLAGS64=$(TK_CFL) $(BASE_CFLAGS) -mBJX1L_64
+LDFLAGS64=$(TK_LDFL) -lvxcore64
 
 all: targets
 
-targets: quake_sh4b.elf quake_cgfx_sh4b.elf primecnt_sh4b.elf
+targets: quake_sh4b.elf quake_cgfx_sh4b.elf primecnt_sh4b.elf \
+	quake_b64b.exe primecnt_b64b.exe
 
 SQUAKE_SRCS = \
 	q1base/cl_demo.c \
@@ -153,6 +157,19 @@ quake_cgfx_sh4b.elf: $(SQUAKE_SRCS)
 primecnt_sh4b.elf: primecnt.c
 	$(CC) $(CFLAGS) -o $@ primecnt.c $(LDFLAGS)
 #	$(OBJDUMP) -t primecnt_sh4b.elf > primecnt_sh4b.map
+
+
+quake_b64b.exe: $(SQUAKE_SRCS)
+	$(CC) $(CFLAGS64) -o $@ $(SQUAKE_SRCS) $(LDFLAGS64)
+
+primecnt_b64b.exe: primecnt.c
+	$(CC) $(CFLAGS64) -o $@ primecnt.c $(LDFLAGS64)
+
+btic1h2_b32.exe: tst_btic1h2/bt1h_vfwdrv.c
+	$(CC) $(CFLAGS) -o $@ tst_btic1h2/bt1h_vfwdrv.c $(LDFLAGS)
+
+btic1h2_b64.exe: tst_btic1h2/bt1h_vfwdrv.c
+	$(CC) $(CFLAGS64) -o $@ tst_btic1h2/bt1h_vfwdrv.c $(LDFLAGS64)
 
 ####
 

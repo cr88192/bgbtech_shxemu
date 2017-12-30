@@ -470,6 +470,8 @@ void R_AliasTransformAndProjectFinalVerts (finalvert_t *fv, stvert_t *pstverts)
 		zi = 1.0 / (DotProduct(pverts->v, aliastransform[2]) +
 				aliastransform[2][3]);
 
+//		if(zi<0.0)zi=0.0; //BGB Debug
+
 	// x, y, and z are scaled down by 1/2**31 in the transform, so 1/z is
 	// scaled up by 1/2**31, and the scaling cancels out for x and y in the
 	// projection
@@ -517,6 +519,8 @@ void R_AliasProjectFinalVert (finalvert_t *fv, auxvert_t *av)
 
 // project points
 	zi = 1.0 / av->fv[2];
+
+//	if(zi<0.0)zi=0.0; //BGB Debug
 
 	fv->v[5] = zi * ziscale;
 
@@ -729,8 +733,8 @@ void R_AliasDrawModel (alight_t *plighting)
 	r_affinetridesc.drawtype = (currententity->trivial_accept == 3) &&
 			r_recursiveaffinetriangles;
 
-	if (r_affinetridesc.drawtype)
-//	if(1)	//BGB Debug
+//	if (r_affinetridesc.drawtype)
+	if(1)	//BGB Debug
 	{
 		D_PolysetUpdateTables ();		// FIXME: precalc...
 	}

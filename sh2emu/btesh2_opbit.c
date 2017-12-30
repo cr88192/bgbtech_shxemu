@@ -428,7 +428,6 @@ void BTSH_Op_SHLR_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[BTESH2_REG_SR]=s;
 }
 
-
 void BTSH_Op_SHLL2_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i;
@@ -633,16 +632,25 @@ void BTSH_Op_SHLD_RegImmP(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 #if 1
 void BTSH_Op_SHADL_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
-	u32 i, j, k;
+//	u32 i, j, k;
+	s64 i, j, k;
 	int sh;
-	i=cpu->regs[op->rn];
+	i=(s32)(cpu->regs[op->rn]);
 //	i=BTESH2_GetRegQWord(cpu, op->rm);
 	j=cpu->regs[op->rm];
-	sh=(s32)j;
-	k=(sh>=0)?(i<<(sh&31)):
-		(sh&31)?(((s32)i)>>(32-(sh&31))):(((s32)i)>>31);
+//	sh=(s32)j;
+	sh=(sbyte)j;
+//	k=(sh>=0)?(i<<(sh&31)):
+//		(sh&31)?(((s32)i)>>(32-(sh&31))):(((s32)i)>>31);
+
+//	k=(sh>=0)?(((s64)((s32)i))<<(sh&63)):
+//		(sh&63)?(((s64)((s32)i))>>(64-(sh&63))):(((s64)((s32)i))>>63);
+	k=(sh>=0)?(i<<(sh&63)):
+		(sh&63)?(i>>(64-(sh&63))):(i>>63);
+
 //	cpu->regs[op->rn]=k;
-	BTESH2_SetRegQWord(cpu, op->rn, (s32)k);
+//	BTESH2_SetRegQWord(cpu, op->rn, (s32)k);
+	BTESH2_SetRegQWord(cpu, op->rn, k);
 }
 
 void BTSH_Op_SHLDL_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -663,7 +671,7 @@ void BTSH_Op_SHADQ_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	u64 i, j, k;
 	int sh;
 //	i=cpu->regs[op->rn];
-	i=BTESH2_GetRegQWord(cpu, op->rm);
+	i=BTESH2_GetRegQWord(cpu, op->rn);
 	j=cpu->regs[op->rm];
 	sh=(s32)j;
 	k=(sh>=0)?(i<<(sh&63)):
@@ -677,7 +685,7 @@ void BTSH_Op_SHLDQ_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	u64 i, j, k;
 	int sh;
 //	i=cpu->regs[op->rn];
-	i=BTESH2_GetRegQWord(cpu, op->rm);
+	i=BTESH2_GetRegQWord(cpu, op->rn);
 	j=cpu->regs[op->rm];
 	sh=(s32)j;
 	k=(sh>=0)?(i<<(sh&63)):(sh&63)?(i>>(64-(sh&63))):0;
@@ -709,6 +717,32 @@ void BTSH_Op_SHLD_RegImmReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[op->rn]=k;
 }
 
+#if 1
+void BTSH_Op_SHADL_RegImmReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k;
+	int sh;
+	i=(s32)(cpu->regs[op->rm]);
+	j=op->imm;
+	sh=(s32)j;
+	k=(sh>=0)?(i<<(sh&63)):
+		(sh&63)?(((s64)i)>>(64-(sh&63))):(((s64)i)>>63);
+	cpu->regs[op->rn+BTESH2_REG_RLO]=k;
+	cpu->regs[op->rn+BTESH2_REG_RHI]=k>>32;
+}
+
+void BTSH_Op_SHLDL_RegImmReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k;
+	int sh;
+	i=(u32)(cpu->regs[op->rm]);
+	j=op->imm;
+	sh=(s32)j;
+	k=(sh>=0)?(i<<(sh&63)):(sh&63)?(i>>(64-(sh&63))):0;
+	cpu->regs[op->rn+BTESH2_REG_RLO]=k;
+	cpu->regs[op->rn+BTESH2_REG_RHI]=k>>32;
+}
+#endif
 
 void BTSH_Op_SHLL_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
@@ -717,7 +751,8 @@ void BTSH_Op_SHLL_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	i=cpu->regs[op->rn];
 	j=cpu->regs[op->rm];
 //	k=i<<j;
-	k=(j>=0)?(((u32)i)<<j):(((u32)i)>>(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((u32)i)<<sh):(((u32)i)>>(-sh));
 	cpu->regs[op->ro]=k;
 }
 
@@ -728,7 +763,8 @@ void BTSH_Op_SHLR_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	i=cpu->regs[op->rn];
 	j=cpu->regs[op->rm];
 //	k=i>>j;
-	k=(j>=0)?(((u32)i)>>j):(((u32)i)<<(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((u32)i)>>sh):(((u32)i)<<(-sh));
 	cpu->regs[op->ro]=k;
 }
 
@@ -738,7 +774,8 @@ void BTSH_Op_SHAL_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	int sh;
 	i=cpu->regs[op->rn];
 	j=cpu->regs[op->rm];
-	k=(j>=0)?(((s32)i)<<j):(((s32)i)>>(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((s32)i)<<sh):(((s32)i)>>(-sh));
 	cpu->regs[op->ro]=k;
 }
 
@@ -749,7 +786,8 @@ void BTSH_Op_SHAR_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	i=cpu->regs[op->rn];
 	j=cpu->regs[op->rm];
 //	k=((s32)i)>>j;
-	k=(j>=0)?(((s32)i)>>j):(((s32)i)<<(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((s32)i)>>sh):(((s32)i)<<(-sh));
 	cpu->regs[op->ro]=k;
 }
 
@@ -761,9 +799,10 @@ void BTSH_Op_SHLLQ_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		((u64)cpu->regs[op->rn+BTESH2_REG_RHI]<<32);
 	j=cpu->regs[op->rm+BTESH2_REG_RLO]|
 		((u64)cpu->regs[op->rm+BTESH2_REG_RHI]<<32);
-	sh=j;
+//	sh=j;
 //	k=i<<sh;
-	k=(j>=0)?(((u64)i)<<j):(((u64)i)>>(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((u64)i)<<sh):(((u64)i)>>(-sh));
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
 }
@@ -776,9 +815,10 @@ void BTSH_Op_SHLRQ_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		((u64)cpu->regs[op->rn+BTESH2_REG_RHI]<<32);
 	j=cpu->regs[op->rm+BTESH2_REG_RLO]|
 		((u64)cpu->regs[op->rm+BTESH2_REG_RHI]<<32);
-	sh=j;
+//	sh=j;
 //	k=i>>sh;
-	k=(j>=0)?(((u64)i)>>j):(((u64)i)<<(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((u64)i)>>sh):(((u64)i)<<(-sh));
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
 }
@@ -791,9 +831,10 @@ void BTSH_Op_SHALQ_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		((u64)cpu->regs[op->rn+BTESH2_REG_RHI]<<32);
 	j=cpu->regs[op->rm+BTESH2_REG_RLO]|
 		((u64)cpu->regs[op->rm+BTESH2_REG_RHI]<<32);
-	sh=j;
+//	sh=j;
 //	k=i<<sh;
-	k=(j>=0)?(((s64)i)<<j):(((s64)i)>>(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((s64)i)<<sh):(((s64)i)>>(-sh));
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
 }
@@ -806,9 +847,10 @@ void BTSH_Op_SHARQ_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 		((u64)cpu->regs[op->rn+BTESH2_REG_RHI]<<32);
 	j=cpu->regs[op->rm+BTESH2_REG_RLO]|
 		((u64)cpu->regs[op->rm+BTESH2_REG_RHI]<<32);
-	sh=j;
+//	sh=j;
 //	k=((s64)i)>>sh;
-	k=(j>=0)?(((s64)i)>>j):(((s64)i)<<(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((s64)i)>>sh):(((s64)i)<<(-sh));
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
 }
@@ -821,7 +863,10 @@ void BTSH_Op_SHLLL_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	i=cpu->regs[op->rn];
 	j=cpu->regs[op->rm];
 //	k=i<<j;
-	k=(j>=0)?(((u32)i)<<j):(((u32)i)>>(-j));
+	sh=(sbyte)j;
+//	k=(sh>=0)?(((u32)i)<<sh):(((u32)i)>>(-sh));
+	k=(sh>=0)?(i<<(sh&63)):
+		(sh&63)?(((u64)i)>>(64-(sh&63))):(((u64)i)>>63);
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
 }
@@ -833,7 +878,8 @@ void BTSH_Op_SHLRL_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	i=cpu->regs[op->rn];
 	j=cpu->regs[op->rm];
 //	k=i>>j;
-	k=(j>=0)?(((u32)i)>>j):(((u32)i)<<(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((u32)i)>>sh):(((u32)i)<<(-sh));
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
 }
@@ -844,7 +890,10 @@ void BTSH_Op_SHALL_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	int sh;
 	i=(s32)(cpu->regs[op->rn]);
 	j=cpu->regs[op->rm];
-	k=(j>=0)?(((s32)i)<<j):(((s32)i)>>(-j));
+	sh=(sbyte)j;
+//	k=(sh>=0)?(((s64)i)<<sh):(((s64)i)>>(-sh));
+	k=(sh>=0)?(i<<(sh&63)):
+		(sh&63)?(((s64)i)>>(64-(sh&63))):(((s64)i)>>63);
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
 }
@@ -856,7 +905,8 @@ void BTSH_Op_SHARL_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	i=(s32)(cpu->regs[op->rn]);
 	j=cpu->regs[op->rm];
 //	k=((s32)i)>>j;
-	k=(j>=0)?(((s32)i)>>j):(((s32)i)<<(-j));
+	sh=(sbyte)j;
+	k=(sh>=0)?(((s32)i)>>sh):(((s32)i)<<(-sh));
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
 }

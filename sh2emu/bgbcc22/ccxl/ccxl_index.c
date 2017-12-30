@@ -279,6 +279,9 @@ void BGBCC_CCXL_CompileJmpCond(BGBCC_TransState *ctx,
 	if(!strcmp(op, "<="))	{ opr=CCXL_CMP_LE; }
 	if(!strcmp(op, ">="))	{ opr=CCXL_CMP_GE; }
 
+	if(!strcmp(op, "&"))	{ opr=CCXL_CMP_TST; }
+	if(!strcmp(op, "!&"))	{ opr=CCXL_CMP_NTST; }
+
 	BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_JCMP);
 	BGBCC_CCXLR3_EmitArgInt(ctx, opr);
 	BGBCC_CCXLR3_EmitArgLabel(ctx, lbl);
@@ -384,6 +387,8 @@ void BGBCC_CCXL_CompileJCT(BGBCC_TransState *ctx,
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, "<="))op="<=";
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, ">="))op=">=";
 
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "&"))op="&";
+
 	if(!op)
 	{
 		BGBCC_CCXL_CompileExpr(ctx, l);
@@ -435,6 +440,8 @@ void BGBCC_CCXL_CompileJCF(BGBCC_TransState *ctx, BCCX_Node *l, ccxl_label lbl)
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, ">"))op="<=";
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, "<="))op=">";
 	if(BGBCC_CCXL_IsBinaryP(ctx, l, ">="))op="<";
+
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "&"))op="!&";
 
 	if(!op)
 	{

@@ -158,7 +158,8 @@ void Q_memcpy (void *dest, void *src, int count)
 	if (( ( ((nlint)dest) | ((nlint)src) | count) & 3) == 0 )
 //	if(0)
 	{
-#ifdef __BGBCC
+// #ifdef __BGBCC
+#if 0
 		memcpy((int *)dest, (int *)src, count);
 		return;
 #endif

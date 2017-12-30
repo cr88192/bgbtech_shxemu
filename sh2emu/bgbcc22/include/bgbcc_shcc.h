@@ -203,7 +203,7 @@
 #define BGBCC_SH_REG_XF14		0xBE
 #define BGBCC_SH_REG_XF15		0xBF
 
-/* C0-CF: FPR XF0-XF15, 32 */
+/* C0-CF: FPR YF0-YF15, 32 */
 #define BGBCC_SH_REG_YF0		0xC0
 #define BGBCC_SH_REG_YF1		0xC1
 #define BGBCC_SH_REG_YF2		0xC2
@@ -214,7 +214,7 @@
 #define BGBCC_SH_REG_YF14		0xCE
 #define BGBCC_SH_REG_YF15		0xCF
 
-/* D0-DF: FPR XF0-XF15, 32 */
+/* D0-DF: FPR ZF0-ZF15, 32 */
 #define BGBCC_SH_REG_ZF0		0xD0
 #define BGBCC_SH_REG_ZF1		0xD1
 #define BGBCC_SH_REG_ZF2		0xD2
@@ -450,7 +450,8 @@
 #define BGBCC_SH_NMID_TSTQ			0xD3	//SUB
 #define BGBCC_SH_NMID_SHADQ			0xD4	//
 #define BGBCC_SH_NMID_SHLDQ			0xD5	//
-
+#define BGBCC_SH_NMID_SHLL4			0xD6	//
+#define BGBCC_SH_NMID_SHLR4			0xD7	//
 #define BGBCC_SH_NMID_BREQ			0xD8	//
 #define BGBCC_SH_NMID_BRNE			0xD9	//
 #define BGBCC_SH_NMID_BRGT			0xDA	//
@@ -459,6 +460,13 @@
 #define BGBCC_SH_NMID_BRLT			0xDD	//
 #define BGBCC_SH_NMID_ICLRMD_DQ		0xDE	//
 #define BGBCC_SH_NMID_ISETMD_DQ		0xDF	//
+#define BGBCC_SH_NMID_CMPQHS		0xE0	//CMPQ/HS
+#define BGBCC_SH_NMID_CMPQHI		0xE1	//CMPQ/HI
+#define BGBCC_SH_NMID_CMPQEQ		0xE2	//CMPQ/EQ
+#define BGBCC_SH_NMID_CMPQGE		0xE3	//CMPQ/GE
+#define BGBCC_SH_NMID_CMPQGT		0xE4	//CMPQ/GT
+#define BGBCC_SH_NMID_CMPQPZ		0xE5	//CMPQ/PZ
+#define BGBCC_SH_NMID_CMPQPL		0xE6	//CMPQ/PL
 
 
 
@@ -684,6 +692,10 @@ byte has_bjx1jmp;	//has BJX1 Branch I-forms
 byte has_bjx1ari;	//has BJX1 Arithmetic I-forms
 byte has_bjx1breq;	//has BJX1 BREQ/BRNE/... I-forms
 byte use_onlyimm;	//use only inline immediates
+byte has_bjx1egpr;	//has BJX1-64 extended GPR ops
+
+byte use_egpr;		//enable use of extended GPRs
+byte maxreg_gpr;	//current number of GPR register-slots
 
 int simfnsz;		//simulation's function size
 int simfnmsz;		//simulation's min function size
@@ -727,17 +739,27 @@ int nlblstr, mlblstr;
 // byte reg_reg[BGBCC_SH_MAX_CACHEVAR];
 // int reg_live;
 // int reg_resv;
-int reg_save;
+u32 reg_save;
 // int reg_dirty;
-int freg_save;
-int reg_vsave;
-int freg_vsave;
+u32 freg_save;
+u32 reg_vsave;
+u32 freg_vsave;
 
 int cnt_set_fp32;
 int cnt_set_fp64;
 
 int cnt_set_dq0;
 int cnt_set_dq1;
+
+int stat_tot_dq0;
+int stat_tot_dq1;
+int stat_tot_dqi;
+
+int stat_tot_imm;
+int stat_tot_imm8;
+int stat_tot_imm16;
+int stat_tot_imm8r;
+int stat_tot_imm32;
 
 int sim_voffs;		//est' offset between real PC and sim PC
 

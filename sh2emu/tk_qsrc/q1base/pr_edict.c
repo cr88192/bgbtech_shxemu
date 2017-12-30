@@ -732,6 +732,23 @@ char *ED_NewString (char *string)
 	return new;
 }
 
+string_t ED_StringToStringT (char *str)
+{
+	char	*v, *w;
+	string_t d;
+	
+	v = str;
+	d = v - pr_strings;
+	w = pr_strings + d;
+
+	if(v!=w)
+	{
+		d=(((int)str)&0x1FFFFFFF)-(((int)pr_strings)&0x1FFFFFFF);
+		return(d);
+	}
+
+	return(d);
+}
 
 /*
 =============
@@ -755,7 +772,14 @@ qboolean	ED_ParseEpair (void *base, ddef_t *key, char *s)
 	switch (key->type & ~DEF_SAVEGLOBAL)
 	{
 	case ev_string:
-		*(string_t *)d = ED_NewString (s) - pr_strings;
+		v = ED_NewString (s);
+//		*(string_t *)d = v - pr_strings;
+//		w = pr_strings + (*(string_t *)d);
+//		if(v!=w)
+//			__debugbreak();
+		*(string_t *)d = ED_StringToStringT(v);
+
+//		*(string_t *)d = ED_NewString (s) - pr_strings;
 		break;
 		
 	case ev_float:

@@ -115,6 +115,17 @@ u32 btesh2_spandfl_GetD_LE(BTESH2_PhysSpan *sp,
 	return(i);
 }
 
+u64 btesh2_spandfl_GetQ_LE(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
+{
+	byte *ptr;
+	u64 i;
+	
+	ptr=sp->data+reladdr;
+	i=btesh2_getu64le(ptr);
+	return(i);
+}
+
 int btesh2_spandfl_SetB(BTESH2_PhysSpan *sp,
 	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u32 val)
 {
@@ -169,6 +180,28 @@ int btesh2_spandfl_SetD_LE(BTESH2_PhysSpan *sp,
 #if defined(X86) || defined(X86_64)
 	*(u32 *)ptr=val;
 #else
+	ptr[3]=val>>24;
+	ptr[2]=val>>16;
+	ptr[1]=val>> 8;
+	ptr[0]=val;
+#endif
+
+	return(0);
+}
+
+int btesh2_spandfl_SetQ_LE(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u64 val)
+{
+	byte *ptr;
+	ptr=sp->data+reladdr;
+
+#if defined(X86) || defined(X86_64)
+	*(u64 *)ptr=val;
+#else
+	ptr[7]=val>>56;
+	ptr[6]=val>>48;
+	ptr[5]=val>>40;
+	ptr[4]=val>>32;
 	ptr[3]=val>>24;
 	ptr[2]=val>>16;
 	ptr[1]=val>> 8;
@@ -278,11 +311,12 @@ u64 btesh2_spandfl_GetQ(BTESH2_PhysSpan *sp,
 {
 	if(cpu->csfl&BTESH2_CSFL_LE)
 	{
-//		sp->GetD=btesh2_spandfl_GetD_LE;
+		sp->GetQ=btesh2_spandfl_GetQ_LE;
 		if(!sp->dmdflag)
 			sp->flags|=BTESH2_SPFL_SIMPLEMEM_LE;
-		return(sp->GetD(sp, cpu, reladdr+0)+
-			(((u64)sp->GetD(sp, cpu, reladdr+4))<<32));
+		return(sp->GetQ(sp, cpu, reladdr));
+//		return(sp->GetD(sp, cpu, reladdr+0)+
+//			(((u64)sp->GetD(sp, cpu, reladdr+4))<<32));
 	}else
 	{
 //		sp->GetD=btesh2_spandfl_GetD_BE;
@@ -559,6 +593,37 @@ int btesh2_spanreg_SetW(BTESH2_PhysSpan *sp,
 	return(i);
 }
 
+u64 btesh2_spanreg_GetQ(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr)
+{
+	if(cpu->csfl&BTESH2_CSFL_LE)
+	{
+		return(sp->GetD(sp, cpu, reladdr+0)+
+			(((u64)sp->GetD(sp, cpu, reladdr+4))<<32));
+	}else
+	{
+		return(sp->GetD(sp, cpu, reladdr+4)+
+			(((u64)sp->GetD(sp, cpu, reladdr+0))<<32));
+	}
+}
+
+int btesh2_spanreg_SetQ(BTESH2_PhysSpan *sp,
+	BTESH2_CpuState *cpu, btesh2_paddr reladdr, u64 val)
+{
+	if(cpu->csfl&BTESH2_CSFL_LE)
+	{
+		sp->SetD(sp, cpu, reladdr+0, val);
+		sp->SetD(sp, cpu, reladdr+4, val>>32);
+		return(0);
+	}else
+	{
+		sp->SetD(sp, cpu, reladdr+4, val);
+		sp->SetD(sp, cpu, reladdr+0, val>>32);
+		return(0);
+	}
+}
+
+
 int BTESH2_MemoryDefineSpanRegs(BTESH2_MemoryImage *img,
 	btesh2_paddr base, btesh2_paddr limit, char *name,
 	u32 (*GetD)(BTESH2_PhysSpan *sp, BTESH2_CpuState *cpu,
@@ -585,8 +650,8 @@ int BTESH2_MemoryDefineSpanRegs(BTESH2_MemoryImage *img,
 	sp->SetB=btesh2_spanreg_SetB;
 	sp->SetW=btesh2_spanreg_SetW;
 
-	sp->GetQ=btesh2_spandfl_GetQ;
-	sp->SetQ=btesh2_spandfl_SetQ;
+	sp->GetQ=btesh2_spanreg_GetQ;
+	sp->SetQ=btesh2_spanreg_SetQ;
 	
 	i=BTESH2_MemoryAddSpan(img, sp);
 	return(i);
@@ -731,16 +796,23 @@ int BTESH2_ThrowTrap(BTESH2_CpuState *cpu, int status)
 
 	printf("<!>\n");
 
-	cpu->regs[BTESH2_REG_PC]=cpu->ptcpc+2;
+//	cpu->regs[BTESH2_REG_PC]=cpu->ptcpc+2;
+	cpu->regs[BTESH2_REG_RLO+BTESH2_REG_PC]=(cpu->ptcpc+2);
+	cpu->regs[BTESH2_REG_RHI+BTESH2_REG_PC]=(cpu->ptcpc+2)>>32;
 
 	cpu->status=status;
 	cpu->trnext=NULL;
 	cpu->trjmpnext=NULL;
 
-	for(i=0; i<64; i++)
+//	for(i=0; i<64; i++)
+	for(i=0; i<256; i++)
 		cpu->trapregs[i]=cpu->regs[i];
-	for(i=0; i<16; i++)
+//	for(i=0; i<16; i++)
+	for(i=0; i<64; i++)
 		cpu->trapfregs[i]=cpu->fregs[i];
+
+	cpu->trapregs[BTESH2_REG_RLO+BTESH2_REG_PC]=(cpu->ptcpc+2);
+	cpu->trapregs[BTESH2_REG_RHI+BTESH2_REG_PC]=(cpu->ptcpc+2)>>32;
 	return(0);
 }
 
@@ -748,9 +820,11 @@ int BTESH2_RestoreTrap(BTESH2_CpuState *cpu)
 {
 	int i;
 
-	for(i=0; i<64; i++)
+//	for(i=0; i<64; i++)
+	for(i=0; i<256; i++)
 		cpu->regs[i]=cpu->trapregs[i];
-	for(i=0; i<16; i++)
+//	for(i=0; i<16; i++)
+	for(i=0; i<64; i++)
 		cpu->fregs[i]=cpu->trapfregs[i];
 	return(0);
 }
@@ -1348,7 +1422,7 @@ int BTESH2_SetAddrQWord(BTESH2_CpuState *cpu, btesh2_paddr addr, u64 val)
 int BTESH2_CheckCpuFmmuP(BTESH2_CpuState *cpu)
 	{ return(cpu->GetAddrDWord==BTESH2_GetAddrDWordFMMU); }
 
-u64 BTESH2_GetRegQWord(BTESH2_CpuState *cpu, int rm)
+force_inline u64 BTESH2_GetRegQWord(BTESH2_CpuState *cpu, int rm)
 {
 	u64 i, j, k;
 	i=cpu->regs[rm+BTESH2_REG_RLO]|
@@ -1356,7 +1430,7 @@ u64 BTESH2_GetRegQWord(BTESH2_CpuState *cpu, int rm)
 	return(i);
 }
 
-int BTESH2_SetRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
+force_inline int BTESH2_SetRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
 {
 	cpu->regs[rn+BTESH2_REG_RLO]=val;
 	cpu->regs[rn+BTESH2_REG_RHI]=val>>32;
@@ -1364,14 +1438,14 @@ int BTESH2_SetRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
 }
 
 
-u64 BTESH2_GetFRegQWord(BTESH2_CpuState *cpu, int rm)
+force_inline u64 BTESH2_GetFRegQWord(BTESH2_CpuState *cpu, int rm)
 {
 	u64 i, j, k;
 	i=cpu->fregs[rm+1]|((u64)cpu->fregs[rm+0]<<32);
 	return(i);
 }
 
-int BTESH2_SetFRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
+force_inline int BTESH2_SetFRegQWord(BTESH2_CpuState *cpu, int rn, u64 val)
 {
 	cpu->fregs[rn+1]=val;
 	cpu->fregs[rn+0]=val>>32;

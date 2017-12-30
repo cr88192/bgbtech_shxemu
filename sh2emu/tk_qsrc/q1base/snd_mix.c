@@ -67,7 +67,8 @@ void S_TransferStereo16 (int endtime)
 	int		lpos;
 	int		lpaintedtime;
 	DWORD	*pbuf;
-#ifdef _WIN32
+// #ifdef _WIN32
+#if 0
 	int		reps;
 	DWORD	dwSize,dwSize2;
 	DWORD	*pbuf2;
@@ -79,7 +80,8 @@ void S_TransferStereo16 (int endtime)
 	snd_p = (int *) paintbuffer;
 	lpaintedtime = paintedtime;
 
-#ifdef _WIN32
+// #ifdef _WIN32
+#if 0
 	if (pDSBuf)
 	{
 		reps = 0;
@@ -130,7 +132,8 @@ void S_TransferStereo16 (int endtime)
 		lpaintedtime += (snd_linear_count>>1);
 	}
 
-#ifdef _WIN32
+// #ifdef _WIN32
+#if 0
 	if (pDSBuf)
 		pDSBuf->lpVtbl->Unlock(pDSBuf, pbuf, dwSize, NULL, 0);
 #endif
@@ -168,7 +171,8 @@ void S_TransferPaintBuffer(int endtime)
 	step = 3 - shm->channels;
 	snd_vol = volume.value*256;
 
-#ifdef _WIN32
+// #ifdef _WIN32
+#if 0
 	if (pDSBuf)
 	{
 		reps = 0;
@@ -230,7 +234,8 @@ void S_TransferPaintBuffer(int endtime)
 		}
 	}
 
-#ifdef _WIN32
+// #ifdef _WIN32
+#if 0
 	if (pDSBuf) {
 		DWORD dwNewpos, dwWrite;
 		int il = paintedtime;
@@ -381,6 +386,11 @@ void SND_PaintChannelFrom16 (channel_t *ch, sfxcache_t *sc, int count)
 	int leftvol, rightvol;
 	signed short *sfx;
 	int	i;
+
+	if (ch->leftvol > 255)
+		ch->leftvol = 255;
+	if (ch->rightvol > 255)
+		ch->rightvol = 255;
 
 	leftvol = ch->leftvol;
 	rightvol = ch->rightvol;

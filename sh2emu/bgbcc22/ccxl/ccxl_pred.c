@@ -1410,6 +1410,9 @@ ccxl_status BGBCC_CCXL_GetRegForStringValue(
 	int i;
 	
 	i=BGBCC_CCXL_IndexString(ctx, str);
+	if(i<0)
+		{ BGBCC_DBGBREAK }
+	
 	treg.val=(i&CCXL_REGINT_MASK)|CCXL_REGTY_IMM_STRING;
 	*rreg=treg;
 	return(CCXL_STATUS_YES);

@@ -115,6 +115,8 @@
 #define CCXL_REGID_REG_Z		0x0000000000FFFFFFULL	//placeholder void reg
 #define CCXL_REGID_REG_DZ		0x0000000002FFFFFFULL	//multi-part regs
 
+#define CCXL_REGID_REG_TYZ		0x0000000000FF0FFFULL	//type-only placeholder
+
 #define CCXL_REGLONG2_MASK		0x1FFFFFFFFFFFFFFFULL	//long2/double2
 
 #define CCXL_LITID_STRUCT		1
@@ -188,6 +190,7 @@
 #define CCXL_TERR_FORMAT_SANITY			0xA003
 
 #define CCXL_TERR_CONV_PTRRANGELOSS		0xA004
+#define CCXL_TERR_CONV_PTRSIZEDIFF		0xA005
 
 #define CCXL_TERR_STATUS(st)			(0xA800+(st))
 
@@ -221,6 +224,8 @@
 #define CCXL_CMP_GE				0x05
 #define CCXL_CMP_AL				0x06
 #define CCXL_CMP_NV				0x07
+#define CCXL_CMP_TST			0x08		//if(x&y)
+#define CCXL_CMP_NTST			0x09		//if(!(x&y))
 
 #define CCXL_VOP_NONE				0x00
 #define CCXL_VOP_DBGFN				0x01

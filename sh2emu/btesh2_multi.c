@@ -23,6 +23,7 @@
 #include "btesh2_opmov.c"
 #include "btesh2_opmov2.c"
 #include "btesh2_opmov_jq.c"
+#include "btesh2_opmov2_jq.c"
 
 #include "btesh2_opfpari.c"
 
@@ -34,6 +35,8 @@
 #include "bteuax64/uax_multi.c"
 #include "btesh2_jit_opmov.c"
 #include "btesh2_jit_opbra.c"
+#include "btesh2_jitjq_mov.c"
+#include "btesh2_jitjq_bra.c"
 #include "btesh2_jit.c"
 #else
 #include "btesh2_nojit.c"
@@ -42,6 +45,9 @@
 #include "btesh2_decode.c"
 #include "btesh2_decode_2a.c"
 #include "btesh2_decode_b1.c"
+#include "btesh2_dec_b1cc0.c"
+#include "btesh2_dec_b1cd.c"
+#include "btesh2_dec_trace.c"
 #include "btesh2_interp.c"
 #include "btesh2_ldelf.c"
 #include "btesh2_ldpecoff.c"

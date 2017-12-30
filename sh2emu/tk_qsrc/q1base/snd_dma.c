@@ -386,7 +386,10 @@ channel_t *SND_PickChannel(int entnum, int entchannel)
    }
 
 	if (first_to_die == -1)
+	{
+		tk_printf("SND_PickChannel: Fail\n");	//BGB
 		return NULL;
+	}
 
 	if (channels[first_to_die].sfx)
 		channels[first_to_die].sfx = NULL;
@@ -402,7 +405,7 @@ SND_Spatialize
 void SND_Spatialize(channel_t *ch)
 {
     vec_t dot;
-    vec_t ldist, rdist, dist;
+    vec_t ldist, rdist, dist, dist0;
     vec_t lscale, rscale, scale;
     vec3_t source_vec;
 	sfx_t *snd;
@@ -412,6 +415,9 @@ void SND_Spatialize(channel_t *ch)
 	{
 		ch->leftvol = ch->master_vol;
 		ch->rightvol = ch->master_vol;
+
+		if((ch->leftvol>255) || (ch->rightvol>255))
+			{ tk_printf("SND_Spatialize B\n"); }
 		return;
 	}
 
@@ -419,8 +425,20 @@ void SND_Spatialize(channel_t *ch)
 
 	snd = ch->sfx;
 	VectorSubtract(ch->origin, listener_origin, source_vec);
+
+//	tk_printf("SND_Spatialize: ( %f %f %f ) ( %f %f %f ) ( %f %f %f )\n",
+//		ch->origin[0], ch->origin[1], ch->origin[2],
+//		listener_origin[0], listener_origin[1], listener_origin[2],
+//		source_vec[0], source_vec[1], source_vec[2]);
 	
-	dist = VectorNormalize(source_vec) * ch->dist_mult;
+	dist0 = VectorNormalize(source_vec);
+	dist = dist0 * ch->dist_mult;
+	
+//	if(dist<0.0)
+//		{ dist=0.0; }
+
+//	tk_printf("SND_Spatialize: dist=%f, dist0=%f, mul=%f\n",
+//		dist, dist0, ch->dist_mult);
 	
 	dot = DotProduct(listener_right, source_vec);
 
@@ -445,6 +463,16 @@ void SND_Spatialize(channel_t *ch)
 	ch->leftvol = (int) (ch->master_vol * scale);
 	if (ch->leftvol < 0)
 		ch->leftvol = 0;
+	
+
+	//BGB Debug
+	if(ch->leftvol > ch->master_vol)
+		ch->leftvol = ch->master_vol;
+	if(ch->rightvol > ch->master_vol)
+		ch->rightvol = ch->master_vol;
+
+	if((ch->leftvol>255) || (ch->rightvol>255))
+		{ tk_printf("SND_Spatialize A\n"); }
 }           
 
 
@@ -470,6 +498,11 @@ void S_StartSound(int entnum, int entchannel, sfx_t *sfx, vec3_t origin, float f
 		return;
 
 	vol = fvol*255;
+	
+	if(vol>255)
+	{
+		tk_printf("S_StartSound: %f -> %d\n", fvol, vol);
+	}
 
 // pick a channel to play on
 	target_chan = SND_PickChannel(entnum, entchannel);
@@ -534,6 +567,8 @@ void S_StopSound(int entnum, int entchannel)
 			return;
 		}
 	}
+
+	tk_printf("S_StopSound: No Found %d %d\n", entnum, entchannel); //BGB
 }
 
 void S_StopAllSounds(qboolean clear)
@@ -564,7 +599,8 @@ void S_ClearBuffer (void)
 {
 	int		clear;
 		
-#ifdef _WIN32
+//#ifdef _WIN32
+#if 0
 	if (!sound_started || !shm || (!shm->buffer && !pDSBuf))
 #else
 	if (!sound_started || !shm || !shm->buffer)
@@ -576,7 +612,8 @@ void S_ClearBuffer (void)
 	else
 		clear = 0;
 
-#ifdef _WIN32
+// #ifdef _WIN32
+#if 0
 	if (pDSBuf)
 	{
 		DWORD	dwSize;
@@ -671,6 +708,7 @@ void S_UpdateAmbientSounds (void)
 	float		vol;
 	int			ambient_channel;
 	channel_t	*chan;
+	int v;
 
 	if (!snd_ambient)
 		return;
@@ -710,7 +748,14 @@ void S_UpdateAmbientSounds (void)
 				chan->master_vol = vol;
 		}
 		
-		chan->leftvol = chan->rightvol = chan->master_vol;
+//		chan->leftvol = chan->rightvol = chan->master_vol;
+
+		v = chan->master_vol;
+		chan->leftvol = v;
+		chan->rightvol = v;
+		
+		if((chan->leftvol>255) || (chan->rightvol>255))
+			{ tk_printf("S_UpdateAmbientSounds A\n"); }
 	}
 }
 
@@ -763,6 +808,10 @@ void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 				combine->leftvol += ch->leftvol;
 				combine->rightvol += ch->rightvol;
 				ch->leftvol = ch->rightvol = 0;
+
+				if((combine->leftvol>255) || (combine->rightvol>255))
+					{ tk_printf("S_Update A %p %p\n", combine, ch); }
+
 				continue;
 			}
 		// search for one
@@ -782,6 +831,9 @@ void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 					combine->leftvol += ch->leftvol;
 					combine->rightvol += ch->rightvol;
 					ch->leftvol = ch->rightvol = 0;
+
+					if((combine->leftvol>255) || (combine->rightvol>255))
+						{ tk_printf("S_Update B, %p %p\n", combine, ch); }
 				}
 				continue;
 			}
@@ -800,7 +852,11 @@ void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 		for (i=0 ; i<total_channels; i++, ch++)
 			if (ch->sfx && (ch->leftvol || ch->rightvol) )
 			{
-				//Con_Printf ("%3i %3i %s\n", ch->leftvol, ch->rightvol, ch->sfx->name);
+//				Con_Printf ("%3i %3i %s\n",
+//					ch->leftvol, ch->rightvol, ch->sfx->name);
+
+				Con_Printf ("%3i %3i %3i %s\n",
+					ch->leftvol, ch->rightvol, ch->master_vol, ch->sfx->name);
 				total++;
 			}
 		
@@ -881,7 +937,8 @@ void S_Update_(void)
 	if (endtime - soundtime > samps)
 		endtime = soundtime + samps;
 
-#ifdef _WIN32
+// #ifdef _WIN32
+#if 0
 // if the buffer was lost or stopped, restore it and/or restart it
 	{
 		DWORD	dwStatus;

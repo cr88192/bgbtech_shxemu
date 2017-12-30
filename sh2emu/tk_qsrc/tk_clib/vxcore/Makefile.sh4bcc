@@ -11,6 +11,7 @@ AR=$(TOOLPATH)bgbcc
 AS=$(TOOLPATH)bgbcc
 
 COPTS= -g -c -O2 -Iinclude -I. -Itk_core $(TK_CFL)
+COPTS64= -g -c -O2 -Iinclude -I. -Itk_core $(TK_CFL) -DARCH_BJX1_64 -mBJX1L_64
 
 SRCS_CLIB = \
 	pdpc201/stdio.c \
@@ -27,6 +28,9 @@ SRCS_CLIB = \
 	pdpc201/math.c \
 	pdpc201/__memmgr.c \
 	pdpc201/btshx_supa.c \
+	pdpc201/btshx_lva.c \
+	pdpc201/btshx_xli.c \
+	pdpc201/btshx_xlf.c \
 	\
 	tk_core/tk_clib.c \
 	tk_core/tk_fat.c \
@@ -54,7 +58,7 @@ libs2: FORCE
 #	cp pdpc201/*.ril		$(BUILD)
 #	cp pdpc201/crt0.o	$(BUILD)
 
-libs: libs2 libvxcore.ril
+libs: libs2 libvxcore.ril libvxcore64.ril
 
 apps: FORCE
 #	make -C pdpc201 -f Makefile.vx86 apps
@@ -62,6 +66,9 @@ apps: FORCE
 
 libvxcore.ril: $(SRCS_CLIB) e_testkern.S
 	$(CC) -o libvxcore.ril vxcore_multi.c e_testkern.S $(COPTS)
+
+libvxcore64.ril: $(SRCS_CLIB) e_testkern.S
+	$(CC) -o libvxcore64.ril vxcore_multi.c e_testkern.S $(COPTS64)
 
 FORCE:
 

@@ -634,6 +634,7 @@ void BTSH_Op_FTRC_FR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 //	*(float *)(&j)=(s32)i;
 	k=*(float *)(&i);
 	cpu->regs[BTESH2_REG_FPUL]=k;
+	cpu->regs[BTESH2_REG_RHI+BTESH2_REG_FPUL]=k>>31;
 }
 
 void BTSH_Op_FTRC_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -645,6 +646,7 @@ void BTSH_Op_FTRC_DR(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 //	*(float *)(&j)=(s32)i;
 	k=*(double *)(&i);
 	cpu->regs[BTESH2_REG_FPUL]=k;
+	cpu->regs[BTESH2_REG_RHI+BTESH2_REG_FPUL]=k>>31;
 }
 
 void BTSH_Op_FTRC_R(BTESH2_CpuState *cpu, BTESH2_Opcode *op)

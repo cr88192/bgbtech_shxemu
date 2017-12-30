@@ -589,8 +589,8 @@ qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec
 	int			side;
 	float		midf;
 
-	if(!hull || !trace || !p1 || !p2)
-		return(true);
+//	if(!hull || !trace || !p1 || !p2)
+//		return(true);
 
 //	tk_puts("SV_RecursiveHullCheck: A\n");
 
@@ -661,16 +661,22 @@ qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec
 		frac = (t1 + DIST_EPSILON)/(t1-t2);
 	else
 		frac = (t1 - DIST_EPSILON)/(t1-t2);
-	if (frac < 0)
-		frac = 0;
-	if (frac > 1)
-		frac = 1;
+//	if (frac < 0)
+//		frac = 0;
+//	if (frac > 1)
+//		frac = 1;
+
+	if (frac < 0.0)
+		frac = 0.0;
+	if (frac > 1.0)
+		frac = 1.0;
 		
 	midf = p1f + (p2f - p1f)*frac;
 	for (i=0 ; i<3 ; i++)
 		mid[i] = p1[i] + frac*(p2[i] - p1[i]);
 
-	side = (t1 < 0);
+//	side = (t1 < 0);
+	side = (t1 < 0.0);
 
 // move up to the node
 	if (!SV_RecursiveHullCheck (hull, node->children[side], p1f, midf, p1, mid, trace) )
@@ -678,11 +684,13 @@ qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec
 
 //	tk_puts("SV_RecursiveHullCheck: E\n");
 
-// #ifdef PARANOID
-#if 0
-	if (sv_hullmodel &&
+#ifdef PARANOID
+// #if 0
+//	sv_hullmodel
+//	if (sv_hullmodel &&
+	if (hull &&
 		SV_HullPointContents (
-			sv_hullmodel, mid, node->children[side]) == CONTENTS_SOLID)
+			hull, mid, node->children[side]) == CONTENTS_SOLID)
 	{
 		Con_Printf ("mid PointInHullSolid\n");
 		return false;

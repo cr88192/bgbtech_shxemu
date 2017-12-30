@@ -111,6 +111,14 @@ char *btesh2_print_NameForNameID(int id)
 	case BTESH2_NMID_CMPGE: s="CMP/GE"; break;
 	case BTESH2_NMID_CMPGT: s="CMP/GT"; break;
 
+	case BTESH2_NMID_CMPQHS:	s="CMPQ/HS"; break;
+	case BTESH2_NMID_CMPQHI:	s="CMPQ/HI"; break;
+	case BTESH2_NMID_CMPQEQ:	s="CMPQ/EQ"; break;
+	case BTESH2_NMID_CMPQGE:	s="CMPQ/GE"; break;
+	case BTESH2_NMID_CMPQGT:	s="CMPQ/GT"; break;
+	case BTESH2_NMID_CMPQPZ:	s="CMPQ/PZ"; break;
+	case BTESH2_NMID_CMPQPL:	s="CMPQ/PL"; break;
+
 	case BTESH2_NMID_JMP: s="JMP"; break;
 	case BTESH2_NMID_JSR: s="JSR"; break;
 	case BTESH2_NMID_BRA: s="BRA"; break;
@@ -173,15 +181,17 @@ char *btesh2_print_NameForNameID(int id)
 	case BTESH2_NMID_SWAPW:		s="SWAP.W"; break;
 	case BTESH2_NMID_NEGC:		s="NEGC"; break;
 	case BTESH2_NMID_NEG:		s="NEG"; break;
+
 	case BTESH2_NMID_EXTUB:		s="EXTU.B"; break;
 	case BTESH2_NMID_EXTUW:		s="EXTU.W"; break;
 	case BTESH2_NMID_EXTSB:		s="EXTS.B"; break;
 	case BTESH2_NMID_EXTSW:		s="EXTS.W"; break;
+	case BTESH2_NMID_EXTUL:		s="EXTU.L"; break;
+	case BTESH2_NMID_EXTSL:		s="EXTS.L"; break;
+
 	case BTESH2_NMID_TRAPA:		s="TRAPA"; break;
 	case BTESH2_NMID_MOVA:		s="MOVA"; break;
 	case BTESH2_NMID_TSTB:		s="TST.B"; break;
-	case BTESH2_NMID_EXTUL:		s="EXTU.L"; break;
-	case BTESH2_NMID_EXTSL:		s="EXTS.L"; break;
 
 	case BTESH2_NMID_LDC:		s="LDC"; break;
 	case BTESH2_NMID_LDCL:		s="LDC.L"; break;
@@ -253,6 +263,9 @@ char *btesh2_print_NameForNameID(int id)
 
 	case BTESH2_NMID_MOVI:		s="MOV.I"; break;
 	case BTESH2_NMID_MOVIV:		s="MOV.IV"; break;
+
+	case BTESH2_NMID_ISETMD:	s="ISETMD"; break;
+	case BTESH2_NMID_ICLRMD:	s="ICLRMD"; break;
 
 	case BTESH2_NMID_PREF:		s="PREF"; break;
 	case BTESH2_NMID_OCBI:		s="OCBI"; break;
@@ -1056,6 +1069,9 @@ int BTESH2_RunCpu(BTESH2_CpuState *cpu, int lim)
 				}
 
 				cpu->trpc[cpu->trpc_rov]=pc;
+				cpu->trpc_hi[cpu->trpc_rov]=
+					cpu->regs[BTESH2_REG_RHI+BTESH2_REG_PC];
+				cpu->trpc_csfl[cpu->trpc_rov]=cpu->csfl;
 				cpu->trpc_rov=(cpu->trpc_rov+1)&63;
 				lpc=pc; ld=0;
 			}else
@@ -1131,15 +1147,16 @@ int BTESH2_DumpTraces(BTESH2_CpuState *cpu)
 	BTESH2_Trace *tr;
 	char *snm;
 	u32 pc, baddr, sp;
-	int si;
+	int si, csfl;
 	int i, j, k;
 
 	for(i=0; i<64; i++)
 	{
 		j=(cpu->trpc_rov-64+i)&63;
 		pc=cpu->trpc[j];
+		csfl=cpu->trpc_csfl[j];
 
-#if 0
+#if 1
 		if(!pc)
 		{
 			printf("@%08X NULL\n", pc&(~1));
@@ -1147,7 +1164,7 @@ int BTESH2_DumpTraces(BTESH2_CpuState *cpu)
 		}
 #endif
 
-#if 0
+#if 1
 		if(pc&1)
 		{
 			printf("@%08X ...\n", pc&(~1));
@@ -1155,6 +1172,7 @@ int BTESH2_DumpTraces(BTESH2_CpuState *cpu)
 		}
 #endif
 
+		cpu->csfl=csfl;
 		tr=BTESH2_TraceForAddr(cpu, pc&(~1));
 		BTESH2_PrintTrace(cpu, tr);
 	}

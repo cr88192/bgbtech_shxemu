@@ -359,6 +359,13 @@ fourcc BGBCP_ArchForName(char *name)
 	if(!bgbcp_strcmp(name, "BJX1B_32"))		i=BGBCC_ARCH_SH;
 	if(!bgbcp_strcmp(name, "BJX1B_64"))		i=BGBCC_ARCH_SH;
 
+	if(!bgbcp_strcmp(name, "BJX1_64u"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1L_64u"))	i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1B_64u"))	i=BGBCC_ARCH_SH;
+
+	if(!bgbcp_strcmp(name, "BJX1_64B"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1L_64B"))	i=BGBCC_ARCH_SH;
+
 	return(i);
 }
 
@@ -384,6 +391,13 @@ fourcc BGBCP_SubArchForName(int arch, char *name)
 	if(!bgbcp_strcmp(name, "BJX1B"))		i=BGBCC_ARCH_SH_BX1B;
 	if(!bgbcp_strcmp(name, "BJX1B_32"))		i=BGBCC_ARCH_SH_BX1B;
 	if(!bgbcp_strcmp(name, "BJX1B_64"))		i=BGBCC_ARCH_SH_BX6B;
+
+	if(!bgbcp_strcmp(name, "BJX1_64B"))		i=BGBCC_ARCH_SH_BX6M;
+	if(!bgbcp_strcmp(name, "BJX1L_64B"))	i=BGBCC_ARCH_SH_BX6M;
+	
+	if(!bgbcp_strcmp(name, "BJX1_64u"))		i=BGBCC_ARCH_SH_BX6U;
+	if(!bgbcp_strcmp(name, "BJX1L_64u"))	i=BGBCC_ARCH_SH_BX6U;
+	if(!bgbcp_strcmp(name, "BJX1B_64u"))	i=BGBCC_ARCH_SH_BX6V;
 
 	return(i);
 }
@@ -436,6 +450,14 @@ char *BGBCP_NameForSubArch(fourcc arch, fourcc subarch)
 		s="BJX1L_64"; break;
 	case BGBCC_ARCH_SH_BX6B:
 		s="BJX1B_64"; break;
+
+	case BGBCC_ARCH_SH_BX6U:
+		s="BJX1L_64u"; break;
+	case BGBCC_ARCH_SH_BX6V:
+		s="BJX1B_64u"; break;
+
+	case BGBCC_ARCH_SH_BX6M:
+		s="BJX1L_64B"; break;
 
 	default:
 		s=NULL; break;

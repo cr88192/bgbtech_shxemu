@@ -16,6 +16,9 @@ int BGBCC_SHX_TryEmitOpLblReg(BGBCC_SHX_Context *ctx,
 //	if(ctx->use_onlyimm)
 //		{ BGBCC_DBGBREAK }
 
+	if(!BGBCC_SHX_EmitCheckRegBaseGPR(ctx, reg))
+		{ BGBCC_DBGBREAK }
+
 	BGBCC_SHX_EmitCheckRegSafe(ctx, nmid, reg);
 
 	opw=-1; opw2=-1; rlty=-1;
@@ -65,6 +68,12 @@ int BGBCC_SHX_TryEmitOpLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 	case BGBCC_SH_NMID_BSR:
 		rlty=BGBCC_SH_RLC_RELW12;
 		opw=0xB000; break;
+
+	case BGBCC_SH_NMID_BRAN:
+		rlty=BGBCC_SH_RLC_RELW12;
+		opw=0xA000;
+		opw2=0x0009;
+		break;
 
 	case BGBCC_SH_NMID_BT:
 		rlty=BGBCC_SH_RLC_RELW8;
@@ -251,6 +260,13 @@ int BGBCC_SHX_TryEmitOpFarLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 		opw3=0x0009;
 		break;
 
+	case BGBCC_SH_NMID_BRAN:
+//	case BGBCC_SH_NMID_BRAF:
+		opw=0x0023;
+//		opw2=0xA002;
+		opw3=0x0009;
+		break;
+
 	case BGBCC_SH_NMID_BTS:
 		opw=0x0023;
 		opw2=0x8B01;
@@ -353,6 +369,12 @@ int BGBCC_SHX_TryEmitOpFar16Label(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 	case BGBCC_SH_NMID_BSR:
 	case BGBCC_SH_NMID_BSRF:
 		opw=0x0003;
+		break;
+
+	case BGBCC_SH_NMID_BRAN:
+		opw=0x0023;
+//		opw2=0xA002;
+		opw3=0x0009;
 		break;
 
 	case BGBCC_SH_NMID_BT:
@@ -587,6 +609,9 @@ int BGBCC_SHX_TryEmitOpCmpRegLabel(BGBCC_SHX_Context *ctx,
 	int opw1, opw2;
 	int nm1, nm2, rlty;
 
+	if(!BGBCC_SHX_EmitCheckRegBaseGPR(ctx, reg))
+		{ BGBCC_DBGBREAK }
+
 #if 1
 	if(ctx->has_bjx1breq && ((reg&0xF0)==0) &&
 		BGBCC_SHX_EmitCheckAutoLabelNear8(ctx, lbl)>0)
@@ -667,6 +692,11 @@ int BGBCC_SHX_TryEmitOpCmpRegRegLabel(BGBCC_SHX_Context *ctx,
 {
 	int opw1, opw2, rlty;
 	int nm1, nm2;
+
+	if(!BGBCC_SHX_EmitCheckRegBaseGPR(ctx, rm))
+		{ BGBCC_DBGBREAK }
+	if(!BGBCC_SHX_EmitCheckRegBaseGPR(ctx, rn))
+		{ BGBCC_DBGBREAK }
 
 #if 1
 	if(ctx->has_bjx1breq &&

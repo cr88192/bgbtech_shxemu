@@ -1986,6 +1986,7 @@ int VID_ColorMap16(int pix, int light)
 {
 	int d, sc, scuv;
 	int y1, u1, v1;
+	int m, m1;
 
 #if 0
 //	d = ((l+(l>>2)) & 0xFC00);
@@ -1996,7 +1997,7 @@ int VID_ColorMap16(int pix, int light)
 	if(pix>0xFFFF)pix=0xFDEF;
 #endif
 
-#if 1
+#if 0
 //	sc=(256+64)-((light>>8)&255)*4;
 //	sc=(256+128)-((light>>8)&255)*8;
 //	sc=(256+256)-((light>>8)&255)*8;
@@ -2027,6 +2028,33 @@ int VID_ColorMap16(int pix, int light)
 	pix=(y1&0xFC00)|(u1&0x001F)|(v1&0x03E0);
 #endif
 
+#if 1
+	sc=(512+128)-((light>>8)&255)*10;
+	scuv=sc;
+
+	if(sc<0)sc=0;
+	y1=(pix&0xFC00);
+	u1=(pix&0x001F);
+	v1=(pix&0x03E0);
+	y1=(y1*sc+0x01FFFF)>>8;
+//	u1=(((u1-0x0010)*scuv+0x00007F)>>8)+0x0010;
+//	v1=(((v1-0x0200)*scuv+0x000FFF)>>8)+0x0200;
+	u1=(((u1-0x0010)*scuv)>>8)+0x0010;
+	v1=(((v1-0x0200)*scuv)>>8)+0x0200;
+
+	if((y1>>16) | (v1>>10) | (u1>>5))
+	{
+		m=~(y1>>31);		m1=~((y1<<15)>>31);
+		y1=(y1&m1)|(m&(~m1));
+		m=~(u1>>31);		m1=~((u1<<26)>>31);
+		u1=(u1&m1)|(m&(~m1));
+		m=~(v1>>31);		m1=~((v1<<21)>>31);
+		v1=(v1&m1)|(m&(~m1));
+	}
+	
+	pix=(y1&0xFC00)|(u1&0x001F)|(v1&0x03E0);
+#endif
+
 	return(pix);
 }
 
@@ -2050,15 +2078,24 @@ void	VID_SetPalette (unsigned char *palette)
 //		cg=cg*1.5;
 //		cb=cb*1.5;
 		
-		cy=(2*cg+cr+cb)/4;
-		cu=((cb-cg)/2)+128;
-		cv=((cr-cg)/2)+128;
+//		cy=(2*cg+cr+cb)/4;
+//		cu=((cb-cg)/2)+128;
+//		cv=((cr-cg)/2)+128;
+
+		cy=((  77*cr +150*cg + 29*cb + 127)>>8);
+		cu=((- 43*cr - 85*cg +128*cb + 127)>>8)+128;
+		cv=(( 128*cr -107*cg - 21*cb + 127)>>8)+128;
 
 //		cy+=16;
 		
-		cy=vid_clamp255(cy+1)>>2;
-		cu=vid_clamp255(cu+3)>>3;
-		cv=vid_clamp255(cv+3)>>3;
+//		cy=vid_clamp255(cy+1)>>2;
+//		cu=vid_clamp255(cu+3)>>3;
+//		cv=vid_clamp255(cv+3)>>3;
+
+		cy=vid_clamp255(cy+2)>>2;
+		cu=vid_clamp255(cu+4)>>3;
+		cv=vid_clamp255(cv+4)>>3;
+
 		d_8to16table[i]=(cy<<10)|(cv<<5)|cu;
 
 //		d_8to16table[i]=((cy>>2)<<10)|((cv>>3)<<5)|(cu>>3);
@@ -2164,9 +2201,13 @@ void	VID_ShiftPaletteVec (int dr, int dg, int db, int dpcnt)
 {
 	int cy, cu, cv;
 	
-	cy=(dr+2*dg+db)/4;
-	cu=(db-dg)/2+128;
-	cv=(dr-dg)/2+128;
+//	cy=(dr+2*dg+db)/4;
+//	cu=(db-dg)/2+128;
+//	cv=(dr-dg)/2+128;
+
+	cy=((  77*dr +150*dg + 29*db + 127)>>8);
+	cu=((- 43*dr - 85*dg +128*db + 127)>>8)+128;
+	cv=(( 128*dr -107*dg - 21*db + 127)>>8)+128;
 	
 	cy=vid_clamp255(cy);
 	cu=vid_clamp255(cu);
@@ -2575,6 +2616,7 @@ void	VID_Shutdown (void)
 }
 
 
+#if 0
 u32 vid_tpix16_yuv655le(u16 pxa)
 {
 	int cy, cu, cv, cu1, cv1;
@@ -2606,6 +2648,169 @@ u32 vid_tpix16_yuv655le(u16 pxa)
 	pxc=0xFF000000|(cr<<16)|(cg<<8)|cb;
 	return(pxc);
 }
+#endif
+
+#if 1
+static u32 *yuv655_ttab=NULL;
+static u32 *yuv744_ttab=NULL;
+
+void btesh2_dcgfx_init_yuv655le()
+{
+	int cy, cu, cv, cy1, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+
+//	yuv655_ttab=malloc(32768*4);
+	yuv655_ttab=malloc(65536*4);
+	
+//	for(i=0; i<32768; i++)
+	for(i=0; i<65536; i++)
+	{
+//		pxa=(i<<1)|(i&1);
+		pxa=i;
+	
+		cy=(pxa>>8)&0xFC;
+		cv=(pxa>>2)&0xF8;
+		cu=(pxa<<3)&0xF8;
+		cy=cy|(cy>>6);
+//		cu=cu|(cu>>5);
+//		cv=cv|(cv>>5);
+
+		if(cu<128)cu=cu|(cu>>5);
+		if(cv<128)cv=cv|(cv>>5);
+
+#if 0
+		cu1=(cu-128)<<1; cv1=(cv-128)<<1;
+	//	cg=2*cy-cu1-cv1;
+	//	cg=(4*cy-cu1-cv1)>>1;
+		cg=cy-((cu1+cv1)>>2);
+		cb=cg+cu1;
+		cr=cg+cv1;
+#endif
+
+		cy1=cy; cu1=cu-128; cv1=cv-128;
+		cr=(256*cy1        +359*cv1+128)>>8;
+		cg=(256*cy1- 88*cu1-183*cv1+128)>>8;
+		cb=(256*cy1+454*cu1        +128)>>8;
+
+		if((cr|cg|cb)>>8)
+		{
+			cr=vid_clamp255(cr);
+			cg=vid_clamp255(cg);
+			cb=vid_clamp255(cb);
+		}
+		
+//		pxc=0xFF000000|(cb<<16)|(cg<<8)|cr;
+		pxc=0xFF000000|(cr<<16)|(cg<<8)|cb;
+		
+		yuv655_ttab[i]=pxc;
+	}
+}
+
+void btesh2_dcgfx_init_yuv744le()
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+
+	yuv744_ttab=malloc(65536*4);
+	
+	for(i=0; i<65536; i++)
+	{
+		pxa=i;
+	
+		cy=(pxa>>7)&0xFE;
+		cv=(pxa   )&0xF0;
+		cu=(pxa<<4)&0xF0;
+		cy=cy|(cy>>7);
+//		cu=cu|(cu>>5);
+//		cv=cv|(cv>>5);
+
+		cu1=(cu-128)<<1; cv1=(cv-128)<<1;
+	//	cg=2*cy-cu1-cv1;
+	//	cg=(4*cy-cu1-cv1)>>1;
+		cg=cy-((cu1+cv1)>>2);
+		cb=cg+cu1;
+		cr=cg+cv1;
+		
+		if((cr|cg|cb)>>8)
+		{
+			cr=vid_clamp255(cr);
+			cg=vid_clamp255(cg);
+			cb=vid_clamp255(cb);
+		}
+		
+//		pxc=0xFF000000|(cb<<16)|(cg<<8)|cr;
+		pxc=0xFF000000|(cr<<16)|(cg<<8)|cb;
+		
+		yuv744_ttab[i]=pxc;
+	}
+}
+
+u32 btesh2_dcgfx_redraw_tpix16_yuv655le(byte *px)
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+	
+	if(!yuv655_ttab)
+	{
+		btesh2_dcgfx_init_yuv655le();
+	}
+
+	pxa=*(u16 *)px;
+	pxc=yuv655_ttab[pxa];
+	
+//	pxa=px[0]|(px[1]<<8);
+//	pxc=ttab[pxa>>1];
+
+	return(pxc);
+}
+
+u32 btesh2_dcgfx_redraw_tpix16_yuv744le(byte *px)
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+	
+	if(!yuv744_ttab)
+	{
+		btesh2_dcgfx_init_yuv744le();
+	}
+
+	pxa=*(u16 *)px;
+	pxc=yuv744_ttab[pxa];
+	return(pxc);
+}
+
+u32 vid_tpix16_yuv655le(u16 px)
+{
+	int cy, cu, cv, cu1, cv1;
+	int cr, cg, cb;
+	int i, j, k;
+	u16 pxa;
+	u32 pxc;
+	
+	if(!yuv655_ttab)
+	{
+		btesh2_dcgfx_init_yuv655le();
+	}
+
+	pxa=px;
+	pxc=yuv655_ttab[pxa];
+
+	return(pxc);
+}
+#endif
+
 
 /*
 ================

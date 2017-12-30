@@ -693,6 +693,7 @@ int reg_resv;
 int reg_save;
 
 int jitfl;
+byte isjq;
 
 UAX_Context *next;
 };

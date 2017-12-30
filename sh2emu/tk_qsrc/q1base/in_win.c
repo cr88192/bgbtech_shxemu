@@ -892,6 +892,7 @@ PDWORD RawValuePointer (int axis)
 	case JOY_AXIS_V:
 		return &ji.dwVpos;
 	}
+	return(NULL);
 }
 
 

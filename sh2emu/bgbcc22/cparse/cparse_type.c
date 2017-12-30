@@ -982,6 +982,10 @@ BCCX_Node *BGBCP_DefTypeC(BGBCP_ParseState *ctx, char **str)
 		break;
 	}
 
+//	if(ty!=BTK_NAME)
+	if((ty==BTK_STRING) || (ty==BTK_CHARSTRING))
+		return(NULL);
+
 	if(!bgbcp_strcmp(b, "struct") || !bgbcp_strcmp(b, "union") ||
 		!bgbcp_strcmp4(b, "enum") || !bgbcp_strcmp(b, "__class") ||
 		!bgbcp_strcmp(b, "__interface") ||

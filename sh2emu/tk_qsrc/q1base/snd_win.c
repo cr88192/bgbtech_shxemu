@@ -20,9 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "winquake.h"
 
-#define iDirectSoundCreate(a,b,c)	pDirectSoundCreate(a,b,c)
+// #define iDirectSoundCreate(a,b,c)	pDirectSoundCreate(a,b,c)
 
-HRESULT (WINAPI *pDirectSoundCreate)(GUID FAR *lpGUID, LPDIRECTSOUND FAR *lplpDS, IUnknown FAR *pUnkOuter);
+// HRESULT (WINAPI *pDirectSoundCreate)(GUID FAR *lpGUID, LPDIRECTSOUND FAR *lplpDS, IUnknown FAR *pUnkOuter);
 
 // 64K is > 1 second at 16-bit, 22050 Hz
 #define	WAV_BUFFERS				64
@@ -61,8 +61,8 @@ DWORD	gSndBufSize;
 
 MMTIME		mmstarttime;
 
-LPDIRECTSOUND pDS;
-LPDIRECTSOUNDBUFFER pDSBuf, pDSPBuf;
+// LPDIRECTSOUND pDS;
+// LPDIRECTSOUNDBUFFER pDSBuf, pDSPBuf;
 
 HINSTANCE hInstDS;
 
@@ -116,6 +116,7 @@ void FreeSound (void)
 {
 	int		i;
 
+#if 0
 	if (pDSBuf)
 	{
 		pDSBuf->lpVtbl->Stop(pDSBuf);
@@ -133,6 +134,7 @@ void FreeSound (void)
 		pDS->lpVtbl->SetCooperativeLevel (pDS, mainwindow, DSSCL_NORMAL);
 		pDS->lpVtbl->Release(pDS);
 	}
+#endif
 
 	if (hWaveOut)
 	{
@@ -160,9 +162,9 @@ void FreeSound (void)
 
 	}
 
-	pDS = NULL;
-	pDSBuf = NULL;
-	pDSPBuf = NULL;
+//	pDS = NULL;
+//	pDSBuf = NULL;
+//	pDSPBuf = NULL;
 	hWaveOut = 0;
 	hData = 0;
 	hWaveHdr = 0;
@@ -182,14 +184,17 @@ Direct-Sound support
 */
 sndinitstat SNDDMA_InitDirect (void)
 {
-	DSBUFFERDESC	dsbuf;
-	DSBCAPS			dsbcaps;
+//	DSBUFFERDESC	dsbuf;
+//	DSBCAPS			dsbcaps;
 	DWORD			dwSize, dwWrite;
-	DSCAPS			dscaps;
+//	DSCAPS			dscaps;
 	WAVEFORMATEX	format, pformat; 
 	HRESULT			hresult;
 	int				reps;
 
+	return SIS_FAILURE;
+
+#if 0
 	memset ((void *)&sn, 0, sizeof (sn));
 
 	shm = &sn;
@@ -409,6 +414,7 @@ sndinitstat SNDDMA_InitDirect (void)
 	dsound_init = true;
 
 	return SIS_SUCCESS;
+#endif
 }
 
 
@@ -638,13 +644,16 @@ int SNDDMA_GetDMAPos(void)
 	int		s;
 	DWORD	dwWrite;
 
+#if 0
 	if (dsound_init) 
 	{
 		mmtime.wType = TIME_SAMPLES;
 		pDSBuf->lpVtbl->GetCurrentPosition(pDSBuf, &mmtime.u.sample, &dwWrite);
 		s = mmtime.u.sample - mmstarttime.u.sample;
 	}
-	else if (wav_init)
+	else
+#endif
+	if (wav_init)
 	{
 		s = snd_sent * WAV_BUFFER_SIZE;
 	}

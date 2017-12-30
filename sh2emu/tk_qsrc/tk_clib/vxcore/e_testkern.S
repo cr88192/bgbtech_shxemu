@@ -26,9 +26,15 @@ _start:
 	nop
 	mov.l start_leds, r0
 	mov.l pio_addr, r1
+#ifdef __BJX1_64__
+	extu.l r1
+#endif
 	mov.l r0, @r1
 
 	mov.l stack_base, sp
+#ifdef __BJX1_64__
+	extu.l sp
+#endif
 
 	bsr zero_bss
 	nop
@@ -50,6 +56,10 @@ _start:
 zero_bss:
 	mov.l bss_strt, r2
 	mov.l bss_end, r3
+#ifdef __BJX1_64__
+	extu.l r2
+	extu.l r3
+#endif
 	mov #0, r4
 .L0:
 	mov.l r4, @-r3
@@ -123,6 +133,7 @@ _gdb_trapa34_isr:
 	rte
 	nop
 
+#ifndef __BJX1_64__
 _gdb_pit_isr:
 	mov.l r0, @-sp
 	mov.l r1, @-sp
@@ -134,6 +145,21 @@ _gdb_pit_isr:
 	mov.l @sp+, r0
 	rte
 	nop
+#endif
+
+#ifdef __BJX1_64__
+_gdb_pit_isr:
+	push r0
+	push r1
+	mov.l ticks, r0
+	mov.l @r0, r1
+	add #1, r1
+	mov.l r1, @r0
+	pop r1
+	pop r0
+	rte
+	nop
+#endif
 
 .align 4
 ticks: .long X(timer_ticks)
@@ -300,11 +326,22 @@ X(__sqrt_d):
 	rts
 	nop
 
+#ifdef __BJX1_64__
+.align 2
+__sqrt_d_C0:
+	.long 0x00100000
+	.long 0
+	.long 0x00080000
+	.long 0
+	.long 0x00000000
+	.long 0
+#else
 .align 2
 __sqrt_d_C0:
 	.long 0x00100000
 	.long 0x00080000
 	.long 0x00000000
+#endif
 #else
 
 .global	X(__sqrt_d)
@@ -376,6 +413,7 @@ X(__movmemSI12_i4):
 	mov.l	r2,@(8,r4)
 #endif
 
+#ifndef __BJX1_64__
 .global X(__longj)
 X(__longj):
 	mov r4, r1
@@ -436,6 +474,108 @@ X(__setj):
 	mov #0, r0
 	rts
 	nop
+#endif
+
+
+#ifdef __BJX1_64__
+.global X(__longj)
+X(__longj):
+	mov r4, r1
+	mov r5, r2
+
+	isetmd.dq
+
+	mov.q  @(16,r4), r0
+	lds r0, pr
+
+	mov.q  @(  0,r4), r0
+	mov.q  @(  8,r4), r1
+//	
+	mov.q  @( 24,r4), r3
+//	
+	mov.q  @( 40,r4), r5
+	mov.q  @( 48,r4), r6
+	mov.q  @( 56,r4), r7
+	mov.q  @( 64,r4), r8
+	mov.q  @( 72,r4), r9
+	mov.q  @( 80,r4), r10
+	mov.q  @( 88,r4), r11
+	mov.q  @( 96,r4), r12
+	mov.q  @(104,r4), r13
+	mov.q  @(112,r4), r14
+	mov.q  @(120,r4), r15
+
+#ifdef __BJX1_64E__
+	mov.q  @(128,r4), r16
+	mov.q  @(136,r4), r17
+	mov.q  @(144,r4), r18
+	mov.q  @(152,r4), r19
+	mov.q  @(160,r4), r20
+	mov.q  @(168,r4), r21
+	mov.q  @(176,r4), r22
+	mov.q  @(184,r4), r23
+	mov.q  @(192,r4), r24
+	mov.q  @(200,r4), r25
+	mov.q  @(208,r4), r26
+	mov.q  @(216,r4), r27
+	mov.q  @(224,r4), r28
+	mov.q  @(232,r4), r29
+	mov.q  @(240,r4), r30
+	mov.q  @(248,r4), r31
+#endif
+
+	mov r2, r0
+	rts
+	nop
+
+.global X(__setj)
+X(__setj):
+	isetmd.dq
+
+	mov.q  r0,@(  0,r4)
+	mov.q  r1,@(  8,r4)
+	mov.q  r2,@( 16,r4)
+	mov.q  r3,@( 24,r4)
+	mov.q  r4,@( 32,r4)
+	mov.q  r5,@( 40,r4)
+	mov.q  r6,@( 48,r4)
+	mov.q  r7,@( 56,r4)
+	mov.q  r8,@( 64,r4)
+	mov.q  r9,@( 72,r4)
+	mov.q r10,@( 80,r4)
+	mov.q r11,@( 88,r4)
+	mov.q r12,@( 96,r4)
+	mov.q r13,@(104,r4)
+	mov.q r14,@(112,r4)
+	mov.q r15,@(120,r4)
+
+#ifdef __BJX1_64E__
+	mov.q r16,@(128,r4)
+	mov.q r17,@(136,r4)
+	mov.q r18,@(144,r4)
+	mov.q r19,@(152,r4)
+	mov.q r20,@(160,r4)
+	mov.q r21,@(168,r4)
+	mov.q r22,@(176,r4)
+	mov.q r23,@(184,r4)
+	mov.q r24,@(192,r4)
+	mov.q r25,@(200,r4)
+	mov.q r26,@(208,r4)
+	mov.q r27,@(216,r4)
+	mov.q r28,@(224,r4)
+	mov.q r29,@(232,r4)
+	mov.q r30,@(240,r4)
+	mov.q r31,@(248,r4)
+#endif
+	
+	sts pr,r0
+	mov.q  r0,@(16,r4)
+	
+	mov #0, r0
+	rts
+	nop
+#endif
+
 
 #ifdef ARCH_SH2
 
@@ -678,6 +818,8 @@ X(__ashiftrt_r4_0):		rts
 #if 1
 .global X(__ashrdi3)
 X(__ashrdi3):
+	iclrmd.dq
+
 	tst r6, r6
 	bt __ashrdi3_L0
 
@@ -1180,7 +1322,7 @@ X(__memcpy8_32):
 
 #endif
 
-#ifdef _BGBCC
+#if defined(_BGBCC) && !defined(__BJX1_64__)
 .global X(__va_arg_i)
 X(__va_arg_i):
 	mov.l @(r4, 48), r0
@@ -1275,10 +1417,160 @@ __va_arg_d.L0:
 	nop
 #endif
 
+
+#if defined(_BGBCC) && defined(__BJX1_64__)
+.global X(__va64_arg_i)
+X(__va64_arg_i):
+	isetmd.dq
+	mov.l @(r4, 96), r0
+#ifdef __BJX1_64E__
+	mov #64, r1
+#else
+	mov #32, r1
+#endif
+	cmp/ge r1, r0
+	bt __va64_arg_i.L0
+	
+//	add r4, r0
+//	mov.q @r0, r6
+	
+	mov.q @(r4, r0), r6
+	add #8, r0
+	mov.l  r0, @(r4, 96)
+//	brk
+
+	mov r6, r0
+	rts
+	nop
+__va64_arg_i.L0:
+	isetmd.dq
+	mov.q @(r4, 112), r0
+	mov.l @r0+, r6
+	mov.q  r0, @(r4, 112)
+	mov r6, r0
+	rts
+	nop
+
+.global X(__va64_arg_l)
+X(__va64_arg_l):
+	isetmd.dq
+	mov.l @(r4, 96), r0
+#ifdef __BJX1_64E__
+	mov #64, r1
+#else
+	mov #32, r1
+#endif
+	cmp/ge r1, r0
+	bt __va64_arg_l.L0
+	
+//	add r4, r0
+//	mov.q @r0, r6
+	
+	mov.q @(r4, r0), r6
+	add #8, r0
+	mov.l  r0, @(r4, 96)
+//	brk
+
+	mov r6, r0
+	rts
+	nop
+__va64_arg_l.L0:
+	isetmd.dq
+	mov.q @(r4, 112), r0
+	mov.q @r0+, r6
+	mov.q  r0, @(r4, 112)
+	mov r6, r0
+	rts
+	nop
+
+.global X(__va64_arg_x)
+X(__va64_arg_x):
+	isetmd.dq
+	mov.l @(r4, 96), r0
+#ifdef __BJX1_64E__
+	mov #56, r1
+#else
+	mov #24, r1
+#endif
+	cmp/ge r1, r0
+	bt __va64_arg_x.L0
+
+	mov.q @(r4, r0), r6
+	add #8, r0
+	mov.q @(r4, r0), r7
+	add #8, r0
+	mov.l  r0, @(r4, 96)
+	mov r6, r0
+	mov r7, r1
+	rts
+	nop
+__va64_arg_x.L0:
+	isetmd.dq
+	mov.q @(r4, 112), r0
+	mov.q @r0+, r6
+	mov.q @r0+, r7
+	mov.q  r0, @(r4, 112)
+	mov r6, r0
+	mov r7, r1
+	rts
+	nop
+
+.global X(__va64_arg_f)
+X(__va64_arg_f):
+	mov.l @(r4, 104), r0
+	mov #96, r1
+	cmp/ge r1, r0
+	bt __va64_arg_f.L0
+
+	fmov.s @(r4, r0), fr0
+	add #4, r0
+	mov.l  r0, @(r4, 104)
+	rts
+	nop
+__va64_arg_f.L0:
+	isetmd.dq
+	mov.q @(r4, 112), r0
+	fmov.s @r0+, fr0
+	mov.q  r0, @(r4, 112)
+	rts
+	nop
+
+.global X(__va64_arg_d)
+X(__va64_arg_d):
+	mov.l @(r4, 104), r0
+	
+	add #7, r0
+	and #0xF8, r0
+	
+	mov #96, r1
+	cmp/ge r1, r0
+	bt __va64_arg_d.L0
+
+	add r4, r0
+	fmov.s @r0+, fr0
+	fmov.s @r0+, fr1
+	sub r4, r0
+	mov.l  r0, @(r4, 104)
+	rts
+	nop
+__va64_arg_d.L0:
+	isetmd.dq
+	mov.q @(r4, 112), r0
+	fmov.s @r0+, fr1
+	fmov.s @r0+, fr0
+	mov.q  r0, @(r4, 112)
+	rts
+	nop
+#endif
+
+
 _gdb_gen_isr:
 _gdb_int_isr:
 	mov.l _intevt, r3
 	mov.l _vecevt, r1
+#ifdef __BJX1_64__
+	extu.l r3
+#endif
 	mov.l @r3, r0
 	shll2 r0
 	mov.l @(r0, r1), r2
@@ -1295,6 +1587,7 @@ _gdb_tlb_isr:
 	bra _gdb_illegalinst_isr
 	nop
 
+.align 4
 _traevt: .long 0xFF000020
 _expevt: .long 0xFF000024
 _intevt: .long 0xFF000028

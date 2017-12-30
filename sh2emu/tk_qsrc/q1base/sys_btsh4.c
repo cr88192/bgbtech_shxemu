@@ -345,6 +345,8 @@ void Sys_CheckSanity(void)
 	}
 
 #if 1
+	if(!rec)	tk_puts("Sanity A\n");
+
 	if(LittleShort(0x1234)!=0x1234)
 		__debugbreak();
 	if(LittleLong(0x12345678)!=0x12345678)
@@ -354,6 +356,8 @@ void Sys_CheckSanity(void)
 	if(LittleLong(0x89ABCDEF)!=0x89ABCDEF)
 		__debugbreak();
 
+	if(!rec)	tk_puts("Sanity B\n");
+
 	if(LittleShort(0x12345678)!=0x5678)
 		__debugbreak();
 	if(LittleShort(0x89ABCDEF)!=(short)0xCDEF)
@@ -361,6 +365,8 @@ void Sys_CheckSanity(void)
 
 	if(LittleFloat(M_PI)!=((float)M_PI))
 		__debugbreak();
+
+	if(!rec)	tk_puts("Sanity C\n");
 
 	if(LittleShort(*(short *)(pat_tst0+2))!=0x1234)
 		__debugbreak();
@@ -376,6 +382,8 @@ void Sys_CheckSanity(void)
 	if(LittleShort(*(int *)(pat_tst0+4))!=(short)0xCDEF)
 		__debugbreak();
 
+	if(!rec)	tk_puts("Sanity D\n");
+
 
 	i=4095;
 	if(&pr_functions[i] != pr_functions+i)
@@ -387,13 +395,17 @@ void Sys_CheckSanity(void)
 		__debugbreak();
 	if(sizeof(dfunction_t)!=36)
 		__debugbreak();
-		
+
+	if(!rec)	tk_puts("Sanity E\n");
+
 	pj=(int *)pat_tst0+3;
 	pk=(int *)pat_tst0;
 	if((pj-pk)!=3)
 		__debugbreak();
 	if(((byte *)pj-(byte *)pk)!=12)
 		__debugbreak();
+
+	if(!rec)	tk_puts("Sanity F\n");
 #endif
 
 	i=3; j=4; k=5;
@@ -404,12 +416,16 @@ void Sys_CheckSanity(void)
 	if((i*j)!=12)
 		__debugbreak();
 
+	if(!rec)	tk_puts("Sanity G\n");
+
 	if((i&j)!=0)
 		__debugbreak();
 	if((i|k)!=7)
 		__debugbreak();
 	if((i^k)!=6)
 		__debugbreak();
+
+	if(!rec)	tk_puts("Sanity H\n");
 
 	i=-6972; j=1;
 
@@ -437,6 +453,8 @@ void Sys_CheckSanity(void)
 	if((2<<k)!=1024)
 		__debugbreak();
 
+	if(!rec)	tk_puts("Sanity I\n");
+
 	i>>=3;
 	if(i!=(-872))
 		__debugbreak();
@@ -454,7 +472,9 @@ void Sys_CheckSanity(void)
 		__debugbreak();
 	if(ff!=(-6972.0))
 		__debugbreak();
-		
+
+	if(!rec)	tk_puts("Sanity J\n");
+
 	f=3.14159; ff=f;
 	i=f; j=ff;
 	if(i!=3)
@@ -478,6 +498,8 @@ void Sys_CheckSanity(void)
 		__debugbreak();
 	if(floor(3.14)!=3.0)
 		__debugbreak();
+
+	if(!rec)	tk_puts("Sanity K\n");
 
 	if(i)
 		__debugbreak();
@@ -504,6 +526,8 @@ void Sys_CheckSanity(void)
 	if(k || l) {}
 	else	__debugbreak();
 
+	if(!rec)	tk_puts("Sanity L\n");
+
 	if((i && j) || !(j && l))
 		__debugbreak();
 	if((i || j) && (j && l)) {}
@@ -518,6 +542,8 @@ void Sys_CheckSanity(void)
 	else	__debugbreak();
 	if((j && l) || (i && j)) {}
 	else	__debugbreak();
+
+	if(!rec)	tk_puts("Sanity M\n");
 
 	i='5';
 	if (i >= '0' && i <= '9') {}
@@ -536,6 +562,8 @@ void Sys_CheckSanity(void)
 	i=486; j=7;
 	if((i%j)!=3)
 		__debugbreak();
+
+	if(!rec)	tk_puts("Sanity N\n");
 
 	if(!rec)
 	{
@@ -561,7 +589,9 @@ void Sys_CheckSanity(void)
 	
 	if(rec<0)
 		__debugbreak();
-	
+
+	if(!rec)	tk_puts("Sanity O\n");
+
 	if(!rec)
 	{
 		tk_puts("Check for: Int Stomp\n");
@@ -601,6 +631,168 @@ void Sys_CheckSanity(void)
 		g=ff*f;
 		h=gf*f;
 	}
+
+	if(!rec)	tk_puts("Sanity P\n");
+
+#ifdef _BGBCC
+	struct {
+		short float sfa;
+		short float sfb;
+		short float sfc;
+	}sfas;
+	short float sfa[8];
+	short float sf1, sf2, sf3;
+	u16 *sfxa;
+	sf1=2.0;
+	sf2=3.0;
+	sf3=sf1+sf2;
+	tk_printf("F16 sizeof=%d\n", sizeof(short float));
+	tk_printf("F16 A sf1=%f sf2=%f sf3=%f\n", sf1, sf2, sf3);
+	
+	sfa[0]=sf1;
+	sfa[1]=sf2;
+	sfa[2]=sfa[0]+sfa[1];
+	sf1=sfa[2];
+	sf2=sfa[1];
+	sf3=sfa[0];
+	tk_printf("F16 B sf1=%f sf2=%f sf3=%f\n", sf1, sf2, sf3);
+
+	sfxa=(u16 *)sfa;
+	tk_printf("F16 C sf1=%X sf2=%X sf3=%X\n", sfxa[0], sfxa[1], sfxa[2]);
+	
+	sfas.sfa=sf1;
+	sfas.sfb=sf2;
+	sfas.sfc=sf3;
+
+	tk_printf("F16 D sf1=%f sf2=%f sf3=%f\n", sfas.sfa, sfas.sfb, sfas.sfc);
+
+#if 1
+	tk_printf("VAR sizeof=%d\n", sizeof(__variant));
+
+	__variant vf0, vf1, vf2;
+	vf0=2;
+//	*((int *)-1)=-1;
+	vf1=3.0;
+//	*((int *)-1)=-1;
+	vf2=vf0+vf1;
+	tk_printf("VAR A vf1=%f vf2=%f vf3=%f\n",
+		(float)vf0, (float)vf1, (float)vf2);
+	tk_printf("VAR B vf1=%d vf2=%d vf3=%d\n",
+		(int)vf0, (int)vf1, (int)vf2);
+	tk_printf("VAR C-1 vf1=%8X_%8X\n", ((int *)(&vf0))[1], ((int *)(&vf0))[0]);
+	tk_printf("VAR C-2 vf2=%8X_%8X\n", ((int *)(&vf1))[1], ((int *)(&vf1))[0]);
+	tk_printf("VAR C-3 vf3=%8X_%8X\n", ((int *)(&vf2))[1], ((int *)(&vf2))[0]);
+//	*((int *)-1)=-1;
+#endif
+
+#endif
+
+	if(!rec)	tk_puts("Sanity Q\n");
+}
+
+void Sys_CheckSanityB(void)
+{
+	u32 t_arr[4]={0x12345678, 0xAB89EFCD, 0x00001234, 0x89ABCDEF};
+	u64 t_arrl[4]={
+		0x0000123412345678ULL, 0xAB89EFCD12345678ULL,
+		0x00001234, 0x89ABCDEF};
+	byte b_arr0[16];
+	u32 ui, uj, uk;
+	u64 uli, ulj, ulk;
+	int i, j, k;
+
+	tk_printf("VA Tst: (%X %X %X %X) (%X %X %X %X)\n",
+		0x12345678, 0x89ABCDEF,	0x56781234, 0xCDEF89AB,
+		0x34127856, 0xAB89EFCD,	0x78563412, 0xEFCDAB89);
+
+#if 1
+	if((t_arr[0]>>4)!=0x01234567)
+		__debugbreak();
+	if((((s32)t_arr[1])>>4)!=((s32)0xFAB89EFC))
+		__debugbreak();
+	if((((u32)t_arr[1])>>4)!=((u32)0x0AB89EFC))
+		__debugbreak();
+
+	if((t_arr[0]>>11)!=0x0002468A)
+		__debugbreak();
+	if((((s32)t_arr[1])>>13)!=((s32)0xFFFD5C4F))
+		__debugbreak();
+	if((((u32)t_arr[1])>>13)!=((u32)0x00055C4F))
+		__debugbreak();
+	if((t_arr[2]<<17)!=0x24680000)
+		__debugbreak();
+
+	if(((t_arr[0]>>4)&15)!=7)
+		__debugbreak();
+
+//	if((((s64)(t_arr[0])>>4)&15)!=7)
+//		__debugbreak();
+//	if(((0x0123456789ABCDEFLL>>44)&15)!=5)
+//		__debugbreak();
+
+	tk_puts("Q Pt0 OK\n");
+	
+	((short *)(b_arr0))[0]=0x1234;
+	((short *)(b_arr0))[1]=0xABCD;
+	if(((short *)(b_arr0))[0]!=0x1234)
+		__debugbreak();
+	if(((short *)(b_arr0))[1]!=((int)0xFFFFABCD))
+		__debugbreak();
+	if(((unsigned short *)(b_arr0))[0]!=0x1234)
+		__debugbreak();
+	if(((unsigned short *)(b_arr0))[1]!=0xABCD)
+		__debugbreak();
+
+	tk_puts("Q Pt0 OK 1\n");
+
+	((char *)(b_arr0))[0]=0x1234;
+	((char *)(b_arr0))[1]=0xABCD;
+	if(((signed char *)(b_arr0))[0]!=0x34)
+		__debugbreak();
+	if(((signed char *)(b_arr0))[1]!=((int)0xFFFFFFCD))
+		__debugbreak();
+	if(((unsigned char *)(b_arr0))[0]!=0x34)
+		__debugbreak();
+	if(((unsigned char *)(b_arr0))[1]!=0xCD)
+		__debugbreak();
+
+	tk_puts("Q Pt0 OK 2\n");
+
+	i=t_arr[0]; j=i<<16; k=j>>16;
+	if(k!=0x5678)
+		__debugbreak();
+	i=t_arr[3]; j=i<<16; k=j>>16;
+	if(k!=0xFFFFCDEF)
+		__debugbreak();
+	i=t_arr[3]; j=i<<16; k=((unsigned int)j)>>16;
+	if(k!=0xCDEF)
+		__debugbreak();
+
+	tk_puts("Q Pt0 OK 3\n");
+	
+	ui=t_arr[3];	uli=ui;
+	if(uli!=0x0000000089ABCDEFULL)
+		__debugbreak();
+	i=t_arr[3];		uli=i;
+	if(uli!=0xFFFFFFFF89ABCDEFULL)
+		__debugbreak();
+
+	uli=t_arr[3];	ulj=t_arr[0];	ulk=uli*ulj;
+	if(ulk!=0x09CA39E0E242D208ULL)
+		__debugbreak();
+	uli=(s32)(t_arr[3]);	ulj=(s32)(t_arr[0]);	ulk=uli*ulj;
+	if(ulk!=0xF795E368E242D208ULL)
+		__debugbreak();
+
+	tk_puts("Q Pt0 OK 4\n");
+
+	uli=t_arrl[0];	ulj=t_arrl[1];
+	if(uli==ulj)	__debugbreak();
+	if(uli>ulj)		__debugbreak();
+	if(uli>=ulj)	__debugbreak();
+
+	tk_puts("Q Pt0 OK 5\n");
+#endif
 }
 
 //=============================================================================
@@ -613,6 +805,8 @@ int main (int argc, char **argv)
 	int i, j, k;
 
 	tk_puts("Q Main\n");
+
+	Sys_CheckSanityB();
 
 //	parms.memsize = 8*1024*1024;
 	parms.memsize = 24*1024*1024;

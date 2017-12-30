@@ -186,6 +186,142 @@ void BTSH_Op_CMPPZ_Reg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[BTESH2_REG_SR]=s;
 }
 
+
+#if 1
+void BTSH_Op_CMPEQ_RegImmQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=op->imm;
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(i==j);
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPHS_RegImmQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=op->imm;
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(i>=j);
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPGE_RegImmQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=op->imm;
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(((s64)i)>=((s64)j));
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPHI_RegImmQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=op->imm;
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(i>j);
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPGT_RegImmQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=op->imm;
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(((s64)i)>((s64)j));
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPEQ_RegRegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=BTESH2_GetRegQWord(cpu, op->rm);
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(i==j);
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPHS_RegRegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=BTESH2_GetRegQWord(cpu, op->rm);
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(i>=j);
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPGE_RegRegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=BTESH2_GetRegQWord(cpu, op->rm);
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(((s64)i)>=((s64)j));
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPHI_RegRegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=BTESH2_GetRegQWord(cpu, op->rm);
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(i>j);
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPGT_RegRegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=BTESH2_GetRegQWord(cpu, op->rm);
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(((s64)i)>((s64)j));
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPPL_RegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+//	i=cpu->regs[op->rn];
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(((s64)i)>0);
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+
+void BTSH_Op_CMPPZ_RegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k, s;
+//	i=cpu->regs[op->rn];
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	s=cpu->regs[BTESH2_REG_SR];
+	k=(((s64)i)>=0);
+	s=(s&(~1))|(k&1);
+	cpu->regs[BTESH2_REG_SR]=s;
+}
+#endif
+
+
 void BTSH_Op_CMPSTR_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i, j, k, s;
@@ -326,6 +462,44 @@ void BTSH_Op_EXTUW_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	cpu->regs[op->rn]=k;
 }
 
+#if 1
+void BTSH_OpJQ_EXTSB_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, k;
+	i=cpu->regs[op->rm];
+	k=(sbyte)i;
+	cpu->regs[BTESH2_REG_RLO+op->rn]=k;
+	cpu->regs[BTESH2_REG_RHI+op->rn]=k>>32;
+}
+
+void BTSH_OpJQ_EXTSW_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, k;
+	i=cpu->regs[op->rm];
+	k=(s16)i;
+	cpu->regs[BTESH2_REG_RLO+op->rn]=k;
+	cpu->regs[BTESH2_REG_RHI+op->rn]=k>>32;
+}
+
+void BTSH_OpJQ_EXTUB_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, k;
+	i=cpu->regs[op->rm];
+	k=(byte)i;
+	cpu->regs[BTESH2_REG_RLO+op->rn]=k;
+	cpu->regs[BTESH2_REG_RHI+op->rn]=k>>32;
+}
+
+void BTSH_OpJQ_EXTUW_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, k;
+	i=cpu->regs[op->rm];
+	k=(u16)i;
+	cpu->regs[BTESH2_REG_RLO+op->rn]=k;
+	cpu->regs[BTESH2_REG_RHI+op->rn]=k>>32;
+}
+#endif
+
 void BTSH_Op_MACL_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 s;
@@ -409,6 +583,29 @@ void BTSH_Op_MULL_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	k=i*j;
 //	cpu->regs[BTESH2_REG_MACH]=(u32)(k>>32);
 	cpu->regs[BTESH2_REG_MACL]=(u32)k;
+//	cpu->regs[BTESH2_REG_RHI+BTESH2_REG_MACL]=k>>31;
+}
+
+void BTSH_Op_MULL_RegRegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	s64 i, j, k;
+	i=(s32)(cpu->regs[op->rn]);
+	j=(s32)(cpu->regs[op->rm]);
+	k=i*j;
+//	cpu->regs[BTESH2_REG_MACH]=(u32)(k>>32);
+	cpu->regs[BTESH2_REG_RLO+BTESH2_REG_MACL]=(u32)k;
+	cpu->regs[BTESH2_REG_RHI+BTESH2_REG_MACL]=k>>32;
+}
+
+void BTSH_Op_MULQ_RegRegQ(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	s64 i, j, k;
+	i=BTESH2_GetRegQWord(cpu, op->rn);
+	j=BTESH2_GetRegQWord(cpu, op->rm);
+	k=i*j;
+//	cpu->regs[BTESH2_REG_MACH]=(u32)(k>>32);
+	cpu->regs[BTESH2_REG_RLO+BTESH2_REG_MACL]=(u32)k;
+	cpu->regs[BTESH2_REG_RHI+BTESH2_REG_MACL]=k>>32;
 }
 
 void BTSH_Op_MULSW_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -632,6 +829,26 @@ void BTSH_Op_MULQ_RegRegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	k=i*j;
 	cpu->regs[op->ro+BTESH2_REG_RLO]=k;
 	cpu->regs[op->ro+BTESH2_REG_RHI]=k>>32;
+}
+
+void BTSH_Op_NEGQ_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k;
+	j=cpu->regs[op->rm+BTESH2_REG_RLO]|
+		((u64)cpu->regs[op->rm+BTESH2_REG_RHI]<<32);
+	k=-j;
+	cpu->regs[op->rn+BTESH2_REG_RLO]=k;
+	cpu->regs[op->rn+BTESH2_REG_RHI]=k>>32;
+}
+
+void BTSH_Op_NOTQ_RegReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
+{
+	u64 i, j, k;
+	j=cpu->regs[op->rm+BTESH2_REG_RLO]|
+		((u64)cpu->regs[op->rm+BTESH2_REG_RHI]<<32);
+	k=~j;
+	cpu->regs[op->rn+BTESH2_REG_RLO]=k;
+	cpu->regs[op->rn+BTESH2_REG_RHI]=k>>32;
 }
 
 void BTSH_Op_TASB_StReg(BTESH2_CpuState *cpu, BTESH2_Opcode *op)

@@ -15,6 +15,15 @@ Normal instructions will be 16 bit, and are expressed here as nibbles.
 * d: Expresses a displacement.
 * i: Expresses an immediate value (signed)
 * j: Expresses an immediate value (unsigned)
+* k: Immediate Shift Value
+* s: Source (Left) register.
+* t: Source (Right) register.
+* o: Offset or Index register.
+* P/p: Source Register (m), 3-bit (Bit 3 set/clear)
+* Q/q: Destination Register (n), 3-bit (Bit 3 set/clear)
+** The 3 bit registers map to 0..6=R8..R14 and 7=R0
+** For FRn, they map to FR8..FR15.
+
 
 Displacements:
 * Are normally scaled by the size of the data type.
@@ -336,8 +345,12 @@ All
 * 88ii       CMP/EQ #imm8s, R0
 
 BJX1
-* 8Eii-3ni0  CMPEQ #imm12s, Rn
-* 8Eii-88ii  CMPEQ #imm16s, R0
+* 8Eii-3ni0  CMP/EQ #imm12s, Rn
+* 8Eii-88ii  CMP/EQ #imm16s, R0
+
+BJX1 (JQ=1)
+* C5qp       CMPQ/EQ Rm, Rn
+
 
 Compare if Rm and Rn are Equal, setting SR.T if they are equal, and clearing SR.T otherwise.
 
@@ -361,6 +374,9 @@ All
 BJX1
 * 8Eii-3ni7  CMP/GT #imm12s, Rn
 
+BJX1 (JQ=1)
+* C5QP       CMPQ/GT Rm, Rn
+
 Compare if Rn is greater than Rm, setting SR.T if true, and clearing SR.T otherwise.
 
 
@@ -371,6 +387,9 @@ All
 
 BJX1
 * 8Eii-3ni6  CMP/HI #imm12s, Rn
+
+BJX1 (JQ=1)
+* C5Qp       CMPQ/HI Rm, Rn
 
 Compare if Rn is greater than Rm, setting SR.T if true, and clearing SR.T otherwise. The comparison is done as unsigned.
 
@@ -785,7 +804,29 @@ Load or Store a DWord.
 
 === MOV.Q ===
 
-BJX1 (DQ=1)
+BJX1-64
+* 4mA1       MOV.Q Rm, @(PC, R0)
+* 4nA5       MOV.Q @(PC, R0), Rn
+* C0md       MOV.Q Rm, @(SP, disp4)
+* C1qp       MOV.Q Rm, @Rn
+* C1qP       MOV.Q @Rm, Rn
+* C1Qp       MOV.Q Rm, @(Rn, R0)
+* C1QP       MOV.Q @(Rm, R0), Rn
+* C4md       MOV.Q @(SP, disp4), Rn
+
+BJX1-64
+* 8Eod-0nm7  MOV.Q Rm, @(Rn, Ro, disp4)
+* 8Eod-0nmF  MOV.Q @(Rm, Ro, disp4), Rn
+* 8Edd-2nm3  MOV.Q Rm, @(Rn, disp8s)
+* 8Edd-6nm3  MOV.Q @(Rm, disp8s), Rn
+* 8Emo-4n70  MOV.Q Rm, @(Rn, Ro)
+* 8Emo-4nF0  MOV.Q @(Rm, Ro), Rn
+
+BJX1-64 (DQ=0)
+* 4n64  MOV.Q @R0, Rn
+* 4m74  MOV.Q Rm, @R0
+
+BJX1-64 (DQ=1)
 * 0nm5  MOV.Q Rm, @(R0, Rn)
 * 0nmD  MOV.Q @(R0, Rm), Rn
 * 2nm1  MOV.Q Rm, @Rn
@@ -797,24 +838,10 @@ BJX1 (DQ=1)
 * 81nd  MOV.Q R0, @(Rn, disp4)
 * 85md  MOV.Q @(Rm, disp4), R0
 * 9ndd  MOV.Q @(PC, disp8), Rn
+* / 4mD1  MOV.Q Rm, @(PC, R0)
+* / 4nD5  MOV.Q @(PC, R0), Rn
 
-BJX1 (DQ=0)
-* 4n64  MOV.Q @R0, Rn
-* 4m74  MOV.Q Rm, @R0
-
-BJX1 (DQ=1)
-* 4mD1  MOV.Q Rm, @(PC, R0)
-* 4nD5  MOV.Q @(PC, R0), Rn
-
-BJX1
-* 8Eod-0nm7  MOV.Q Rm, @(Rn, Ro, disp4)
-* 8Eod-0nmF  MOV.Q @(Rm, Ro, disp4), Rn
-* 8Edd-2nm3  MOV.Q Rm, @(Rn, disp8s)
-* 8Edd-6nm3  MOV.Q @(Rm, disp8s), Rn
-* 8Emo-4n70  MOV.Q Rm, @(Rn, Ro)
-* 8Emo-4nF0  MOV.Q @(Rm, Ro), Rn
-
-Load or store a WORD.
+Load or store a QWORD.
 
 
 === MOV.W ===
@@ -1172,12 +1199,14 @@ If JQ is 1:
 * DQ=1: A 64-bit value is shifted.
 
 
-=== SHAD / SHAL (3R) ===
+=== SHAD (3R) ===
 
 BJX1
 * 8Eii-4nmC  SHAD Rm, #imm, Rn
 * 8Est-4n83  SHAD Rs, Rt, Rn
-* 8Est-4n83  SHAL Rs, Rt, Rn	//Alias for SHAD (3R)
+
+BJX1 (JQ=1)
+* CC3e-8nst  SHAD Rs, Rt, Rn
 
 Arithmetic Barrel Shift.
 
@@ -1212,9 +1241,7 @@ BJX1
 * 8Est-4n93  SHAR Rs, Rt, Rn
 
 BJX1 (JQ=1)
-* CC3e-9nst  SHAR Rs, Rt, Rn		// (Q=0|e=8) Rn=Rs>>Rt (Signed)
-* CC3e-9nsi  SHAR.L Rs, imm5, Rn	// (Q=1&S=1) Rn=Rs>>imm5 (Signed)
-* CC3e-9nsi  SHAR.Q Rs, imm6, Rn	// (Q=1&N=1) Rn=Rs>>imm6 (Signed)
+* CC3e-9nst  SHAR Rs, Rt, Rn
 
 Arithmetic Shift Right.
 * Behaves like SHAD with a negated argument.
@@ -1240,17 +1267,14 @@ If JQ is 1:
 * DQ=1: A 64-bit value is shifted.
 
 
-=== SHLD / SHLL (3R) ===
+=== SHLD (3R) ===
 
 BJX1
 * 8Eii-4nmD  SHLD Rm, #imm, Rn
 * 8Est-4n63  SHLD Rs, Rt, Rn
-* 8Est-4n63  SHLL Rs, Rt, Rn		(Alias for SHLD 3R)
 
 BJX1 (JQ=1)
-* CC3e-6nst  SHLL Rs, Rt, Rn
-* CC3e-6nsi  SHLL.L Rs, imm5, Rn	// (Q=1&S=1) Rn=Rs SHL imm5
-* CC3e-6nsi  SHLL.Q Rs, imm6, Rn	// (Q=1&N=1) Rn=Rs SHL imm6
+* CC3e-6nst  SHLD Rs, Rt, Rn
 
 Logical Barrel Shift.
 
@@ -1275,7 +1299,7 @@ Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
 * 3nnC  SHLL1 Rn	(ADD Rn, Rn)
 
 Shift value left by 1 bit.
-This form is a pseudo-operation implemented by adding a value to itself.
+This form is a pseudo-operation implemented by adding the register to itself.
 It is defined mostly as a special case which does not effect SR.T.
 
 Operation is equivalent independent of DQ.
@@ -1331,8 +1355,6 @@ BJX1
 
 BJX1 (JQ=1)
 * CC3e-7nst  SHLR Rs, Rt, Rn
-* CC3e-7nsi  SHLR.L Rs, imm5, Rn	// (Q=1&S=1) Rn=Rs>>imm5 (Unsigned)
-* CC3e-7nsi  SHLR.Q Rs, imm6, Rn	// (Q=1&N=1) Rn=Rs>>imm6 (Unsigned)
 
 Logical Shift Right.
 * Behaves like SHLD with a negated argument.
@@ -1505,6 +1527,11 @@ All
 
 BJX1
 * 8Ejj-C8nj  TST #imm12, Rn
+
+BJX1 (JQ=1)
+* C5qP       TST.Q Rm, Rn
+
+Takes the bitwise AND of Rm and Rn, and sets SR.T if the result is Zero.
 
 
 === TST.B ===

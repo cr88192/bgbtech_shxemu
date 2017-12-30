@@ -109,7 +109,7 @@ force_inline void BTESH2_FMMU_SetupForPSpan(BTESH2_CpuState *cpu)
 	BTESH2_PhysSpan *sp, *sp1;
 	
 	sp=cpu->pspan;
-	if(sp && (sp->flags&BTESH2_SPFL_SIMPLEMEM_LE))
+	if(sp && (sp->flags&BTESH2_SPFL_SIMPLEMEM_LE) && sp->data)
 	{
 		cpu->pspan_pbase=sp->base;
 		cpu->pspan_prng3=sp->range_n3;
@@ -118,7 +118,7 @@ force_inline void BTESH2_FMMU_SetupForPSpan(BTESH2_CpuState *cpu)
 	}
 
 	sp1=cpu->pspanb;
-	if(sp1 && (sp1->flags&BTESH2_SPFL_SIMPLEMEM_LE))
+	if(sp1 && (sp1->flags&BTESH2_SPFL_SIMPLEMEM_LE) && sp1->data)
 	{
 		cpu->pspan_pbase=sp1->base;
 		cpu->pspan_prng3=sp1->range_n3;
@@ -138,6 +138,9 @@ int BTESH2_GetAddrByteFMMU_NoAT(BTESH2_CpuState *cpu, btesh2_vaddr addr)
 	BTESH2_PhysSpan *sp, *sp1;
 	btesh2_vaddr addr1, ra1;
 	int i;
+
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
 
 	addr1=addr&0x1FFFFFFF;
 	
@@ -201,6 +204,9 @@ int BTESH2_GetAddrWordFMMU_NoAT(BTESH2_CpuState *cpu, btesh2_vaddr addr)
 	BTESH2_PhysSpan *sp, *sp1;
 	btesh2_vaddr addr1, ra1;
 	int i;
+
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
 
 	addr1=addr&0x1FFFFFFF;
 
@@ -284,6 +290,9 @@ default_inline u32 BTESH2_GetAddrDWordFMMU_NoAT(
 	btesh2_vaddr addr1, ra1;
 	int i;
 
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
+
 	addr1=addr&0x1FFFFFFF;
 
 	ra1=addr1-cpu->pspan_pbase;
@@ -340,6 +349,9 @@ default_inline u32 BTESH2_GetAddrDWordFMMU(
 	btesh2_vaddr addr1;
 	int i;
 
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
+
 	if(((addr&0x80000000) ||
 		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
 		((addr>>29)<6))
@@ -368,6 +380,9 @@ default_inline u64 BTESH2_GetAddrQWordFMMU(
 		return(BTESH2_GetAddrQWordFMMU_NoAT(cpu, addr));
 	}
 #endif
+
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
 
 	addr1=BTESH2_FastMapVirtToPhys(cpu, addr);
 	v=BTESH2_GetAddrQWordPhy(cpu, addr1);
@@ -456,6 +471,9 @@ int BTESH2_SetAddrByteFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 		return(-1);
 //	if(BTESH2_CheckAddrTrapSmc(cpu, addr, val))
 //		return(-1);
+
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
 
 	if(((addr&0x80000000) ||
 		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
@@ -555,6 +573,9 @@ int BTESH2_SetAddrWordFMMU_NoAT(
 //	if(BTESH2_CheckAddrTrapSmc(cpu, addr, val))
 //		return(-1);
 
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
+
 	return(BTESH2_SetAddrWordFMMU_NoAT_I(cpu, addr, val));
 }
 
@@ -567,6 +588,9 @@ int BTESH2_SetAddrWordFMMU(BTESH2_CpuState *cpu, btesh2_vaddr addr, int val)
 		return(-1);
 //	if(BTESH2_CheckAddrTrapSmc(cpu, addr, val))
 //		return(-1);
+
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
 
 	if(((addr&0x80000000) ||
 		!(cpu->regs[BTESH2_REG_MMUCR]&BTESH2_MMUCR_AT)) &&
@@ -634,6 +658,9 @@ int BTESH2_SetAddrDWordFMMU_NoAT(BTESH2_CpuState *cpu,
 		return(-1);
 //	if(BTESH2_CheckAddrTrapSmc(cpu, addr, val))
 //		return(-1);
+
+//	if(addr>>32)
+//		{ BTESH2_ThrowTrap(cpu, BTESH2_EXC_INVADDR); }
 
 	return(BTESH2_SetAddrDWordFMMU_NoAT_I(cpu, addr, val));
 }

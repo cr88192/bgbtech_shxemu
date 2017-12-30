@@ -30,8 +30,8 @@ NULL				//fputc
 
 int tk_ird_init()
 {
-	u32 reladdr;
-	byte *ird;
+	u32 reladdr, absa;
+	byte *ird, *ird1;
 
 	if(tk_ird_imgbuf)
 		return(0);
@@ -52,13 +52,26 @@ int tk_ird_init()
 	strcpy(kerninit, P_KINIT_ADDR);
 	
 #ifdef ARCH_SH4
+// #if 1
 //	ird=(byte *)(0x90000000+reladdr);
-	ird=(byte *)(0x8C000000+reladdr);
+	ird=(byte *)(0x8C000000U+reladdr);
 #else
 	ird=(byte *)(0x10000000+reladdr);
 #endif
 	tk_ird_imgbuf=ird;
-	tk_printf("tk_ird_init: IRD=%p\n", tk_ird_imgbuf);
+//	__debugbreak();
+	
+	ird1=ird;
+
+	if(ird1!=ird)
+		__debugbreak();
+
+	absa=(u32)ird1;
+
+//	__debugbreak();
+
+	tk_printf("tk_ird_init: IRD=%p\n", absa);
+//	tk_printf("tk_ird_init: IRD=%p\n", tk_ird_imgbuf);
 	return(1);
 }
 

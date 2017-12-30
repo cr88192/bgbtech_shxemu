@@ -26,3 +26,6 @@
 #include "tk_core/tk_vfile.c"
 
 #include "pdpc201/btshx_supa.c"
+#include "pdpc201/btshx_lva.c"
+#include "pdpc201/btshx_xli.c"
+#include "pdpc201/btshx_xlf.c"

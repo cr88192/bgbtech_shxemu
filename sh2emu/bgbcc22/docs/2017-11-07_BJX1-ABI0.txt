@@ -80,7 +80,7 @@ Structure Return
 ** This address will be filled in by the called function.
 
 
-=== BJX1-64 ABI ===
+=== BJX1-64A ABI ===
 
 General
 * The 64-bit ABI will be similar to the 32-bit ABI.
@@ -89,6 +89,7 @@ General
 * 64-bit structure members will have 64-bit alignment.
 * In other cases, only 32-bit alignment is required for 64-bit values.
 * The stack frame is to have a 128-bit alignment.
+* SR.DQ will be Clear on function entry and return.
 
 Register Use:
 * R0/R1: Scratch, Return Value A/B
@@ -136,13 +137,14 @@ Structure Return
 * For other structures, a return address will be passed in R2.
 
 
-=== BJX1-64u ABI ===
+=== BJX1-64u/64B ABI ===
 
 BJX1-64u will be a subset of BJX1-64.
 * Only R0..R15 are supported.
 ** Register use will be similar to the 32-bit ABI.
 * Only 16-bit instruction forms are allowed in BJX1-64u.
 * FPU is optional.
+* SR.DQ will be Clear on function entry and return.
 * Otherwise it is similar to the 64-bit ABI.
 
 

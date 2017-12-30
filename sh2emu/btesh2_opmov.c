@@ -228,15 +228,19 @@ void BTSH_Op_MOV_RegSrIncLdD(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	v=BTESH2_GetAddrDWord(cpu, cpu->regs[op->rm]-4);
 	cpu->regs[op->rn]=v;
 
-	if(v&BTESH2_SRFL_JQ)
-		{ cpu->csfl|=BTESH2_CSFL_SRJQ; }
-	else
-		{ cpu->csfl&=~BTESH2_CSFL_SRJQ; }
+	BTSH_Op_UpdateForSr(cpu);
 
-	if(v&BTESH2_SRFL_DQ)
-		{ cpu->csfl|=BTESH2_CSFL_SRDQ; }
-	else
-		{ cpu->csfl&=~BTESH2_CSFL_SRDQ; }
+#if 0
+//	if(v&BTESH2_SRFL_JQ)
+//		{ cpu->csfl|=BTESH2_CSFL_SRJQ; }
+//	else
+//		{ cpu->csfl&=~BTESH2_CSFL_SRJQ; }
+
+//	if(v&BTESH2_SRFL_DQ)
+//		{ cpu->csfl|=BTESH2_CSFL_SRDQ; }
+//	else
+//		{ cpu->csfl&=~BTESH2_CSFL_SRDQ; }
+#endif
 }
 
 

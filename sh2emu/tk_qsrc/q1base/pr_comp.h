@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // this file is shared by quake and qcc
 
+//typedef nlint	func_t;
+//typedef nlint	string_t;
 typedef int	func_t;
 typedef int	string_t;
 

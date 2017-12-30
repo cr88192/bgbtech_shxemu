@@ -49,6 +49,7 @@ SRCS=\
 	shcc/shx_ldix.c \
 	shcc/shx_lparith.c \
 	shcc/shx_lpreg.c \
+	shcc/shx_lqarith.c \
 	shcc/shx_lvarith.c \
 	shcc/shx_lxarith.c \
 	shcc/shx_pecoff.c \

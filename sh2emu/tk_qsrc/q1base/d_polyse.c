@@ -151,6 +151,13 @@ void D_PolysetDraw (void)
 		__debugbreak();
 	if(edgetables[11].pleftedgevert2!=NULL)
 		__debugbreak();
+
+	if(edgetables[11].prightedgevert0!=r_p0)
+		__debugbreak();
+	if(edgetables[11].prightedgevert1!=r_p1)
+		__debugbreak();
+	if(edgetables[11].prightedgevert2!=NULL)
+		__debugbreak();
 #endif
 
 	if(r_pixbytes==2)
@@ -995,6 +1002,7 @@ void D_PolysetDrawSpans16 (spanpackage_t *pspanpackage)
 			do
 			{
 				if ((lzi >> 16) >= *lpz)
+//				if (((lzi >> 16) >= *lpz) && !((lzi>>16)&0x8000))
 				{
 //					if(!tk_ptrIsRam(lptex))
 //						return;
@@ -1125,10 +1133,10 @@ void D_RasterizeAliasPolySmooth (void)
 
 	ofs=(plefttop[2] >> 16) + (plefttop[3] >> 16) * r_affinetridesc.skinwidth;
 	
-	if(ofs<0)
-		return;
-	if(ofs>=(r_affinetridesc.skinwidth*r_affinetridesc.skinheight))
-		return;
+//	if(ofs<0)
+//		return;
+//	if(ofs>=(r_affinetridesc.skinwidth*r_affinetridesc.skinheight))
+//		return;
 	
 	d_ptex = (byte *)r_affinetridesc.pskin + ofs;
 	d_ptex16 = (u16 *)r_affinetridesc.pskin + ofs;

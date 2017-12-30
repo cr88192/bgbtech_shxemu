@@ -1,3 +1,5 @@
+void BTSH_Op_UpdateForSr(BTESH2_CpuState *cpu);
+
 void BTSH_Op_BF_Abs(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i;
@@ -267,8 +269,12 @@ void BTSH_Op_SETT_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 void BTSH_Op_CLRMAC_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 {
 	u32 i;
-	cpu->regs[BTESH2_REG_MACL]=0;
-	cpu->regs[BTESH2_REG_MACH]=0;
+//	cpu->regs[BTESH2_REG_MACL]=0;
+//	cpu->regs[BTESH2_REG_MACH]=0;
+	cpu->regs[BTESH2_REG_RLO+BTESH2_REG_MACL]=0;
+	cpu->regs[BTESH2_REG_RLO+BTESH2_REG_MACH]=0;
+	cpu->regs[BTESH2_REG_RHI+BTESH2_REG_MACL]=0;
+	cpu->regs[BTESH2_REG_RHI+BTESH2_REG_MACH]=0;
 }
 
 void BTSH_Op_CLRS_Z(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
@@ -296,6 +302,8 @@ void BTSH_Op_ICLRMD_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	if(op->imm&2)i&=~BTESH2_SRFL_JQ;
 	cpu->regs[BTESH2_REG_SR]=i;
 
+//	BTSH_Op_UpdateForSr(cpu);
+
 	if(i&BTESH2_SRFL_JQ)
 		{ cpu->csfl|=BTESH2_CSFL_SRJQ; }
 	else
@@ -315,6 +323,8 @@ void BTSH_Op_ISETMD_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 	if(op->imm&1)i|=BTESH2_SRFL_DQ;
 	if(op->imm&2)i|=BTESH2_SRFL_JQ;
 	cpu->regs[BTESH2_REG_SR]=i;
+
+//	BTSH_Op_UpdateForSr(cpu);
 
 	if(i&BTESH2_SRFL_JQ)
 		{ cpu->csfl|=BTESH2_CSFL_SRJQ; }
@@ -563,8 +573,9 @@ void BTSH_Op_TRAPA_Imm(BTESH2_CpuState *cpu, BTESH2_Opcode *op)
 
 void BTSH_Op_TrapInt(BTESH2_CpuState *cpu, int ro)
 {
-	u32 pc;
-	u32 sp, vbr, sr, im, exp;
+	u64 vbr, pc;
+//	u32 pc;
+	u32 sp, vbrl, vbrh, sr, im, exp;
 	u32 sph, srh, pch;
 
 	sr=cpu->regs[BTESH2_REG_SR];
@@ -615,14 +626,19 @@ void BTSH_Op_TrapInt(BTESH2_CpuState *cpu, int ro)
 			BTESH2_ThrowTrap(cpu, ro);
 			return;
 		}
+
+		vbrl=cpu->regs[BTESH2_REG_RLO+BTESH2_REG_VBR];
+		vbrh=cpu->regs[BTESH2_REG_RHI+BTESH2_REG_VBR];
+		vbr=((u64)vbrl)|(((u64)vbrh)<<32);
 	
 		pc=vbr+0x100;
 		cpu->regs[BTESH2_REG_EXPEVT]=exp;
 		cpu->regs[BTESH2_REG_INTEVT]=ro;
 
 		sr=cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SR];
-		sp=cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SP];
 		srh=cpu->regs[BTESH2_REG_RHI+BTESH2_REG_SR];
+
+		sp=cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SP];
 		sph=cpu->regs[BTESH2_REG_RHI+BTESH2_REG_SP];
 
 //		if(!(sr&BTESH2_SRFL_JQ))
@@ -634,15 +650,19 @@ void BTSH_Op_TrapInt(BTESH2_CpuState *cpu, int ro)
 			cpu->regs[BTESH2_REG_RLO+BTESH2_REG_PC];
 		cpu->regs[BTESH2_REG_RHI+BTESH2_REG_SPC]=
 			cpu->regs[BTESH2_REG_RHI+BTESH2_REG_PC];
+
 		cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SSR]=sr;
-		cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SGR]=sp;
 		cpu->regs[BTESH2_REG_RHI+BTESH2_REG_SSR]=srh;
+
+		cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SGR]=sp;
 		cpu->regs[BTESH2_REG_RHI+BTESH2_REG_SGR]=sph;
 
 		sr&=~(BTESH2_SRFL_JQ|BTESH2_SRFL_DQ);
 		sr|=srh&(BTESH2_SRFL_JQ|BTESH2_SRFL_DQ);
 
 		cpu->regs[BTESH2_REG_RLO+BTESH2_REG_PC]=pc;
+		cpu->regs[BTESH2_REG_RHI+BTESH2_REG_PC]=pc>>32;
+
 		cpu->regs[BTESH2_REG_RLO+BTESH2_REG_SR]=
 			sr|BTESH2_SRFL_BL|BTESH2_SRFL_MD|BTESH2_SRFL_RB;
 		BTSH_Op_SetRegBank(cpu, 1);

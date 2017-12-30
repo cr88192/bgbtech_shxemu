@@ -368,8 +368,12 @@ int BGBCC_SHXC_SaveFrameOfsForReg(
 {
 	int ofs;
 	
+	if(!BGBCC_SHX_EmitCheckRegExtGPR(sctx, reg))
+		return(0);
+	
 	ofs=0;
-	switch(reg)
+//	switch(reg)
+	switch(reg&31)
 	{
 	case BGBCC_SH_REG_PR: ofs=-4; break;
 	case BGBCC_SH_REG_R14: ofs=-8; break;
@@ -379,6 +383,15 @@ int BGBCC_SHXC_SaveFrameOfsForReg(
 	case BGBCC_SH_REG_R10: ofs=-24; break;
 	case BGBCC_SH_REG_R9: ofs=-28; break;
 	case BGBCC_SH_REG_R8: ofs=-32; break;
+
+	case BGBCC_SH_REG_R31: ofs=-36; break;
+	case BGBCC_SH_REG_R30: ofs=-40; break;
+	case BGBCC_SH_REG_R29: ofs=-44; break;
+	case BGBCC_SH_REG_R28: ofs=-48; break;
+	case BGBCC_SH_REG_R27: ofs=-52; break;
+	case BGBCC_SH_REG_R26: ofs=-56; break;
+	case BGBCC_SH_REG_R25: ofs=-60; break;
+	case BGBCC_SH_REG_R24: ofs=-64; break;
 
 //	case BGBCC_SH_REG_RQ15: ofs=-8; break;
 	case BGBCC_SH_REG_RQ14: ofs=-8; break;
@@ -436,13 +449,16 @@ int BGBCC_SHXC_EmitSaveFrameReg(
 	ofs=BGBCC_SHXC_SaveFrameOfsForReg(ctx, sctx, reg);
 	if(ofs!=0)
 	{
-		if(sctx->reg_save&(1<<(reg&15)))
+//		if(sctx->reg_save&(1<<(reg&15)))
+		if(sctx->reg_save&(1<<(reg&31)))
 			return(0);
 
-		if(!sctx->is_simpass && !(sctx->reg_vsave&(1<<(reg&15))))
+//		if(!sctx->is_simpass && !(sctx->reg_vsave&(1<<(reg&15))))
+		if(!sctx->is_simpass && !(sctx->reg_vsave&(1<<(reg&31))))
 			{ BGBCC_DBGBREAK }
 
-		sctx->reg_save|=1<<(reg&15);
+//		sctx->reg_save|=1<<(reg&15);
+		sctx->reg_save|=1<<(reg&31);
 		BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, ofs, reg);
 		return(1);
 	}
@@ -450,13 +466,16 @@ int BGBCC_SHXC_EmitSaveFrameReg(
 	ofs=BGBCC_SHXC_SaveFrameOfsForFpReg(ctx, sctx, reg);
 	if(ofs!=0)
 	{
-		if(sctx->freg_save&(1<<(reg&15)))
+//		if(sctx->freg_save&(1<<(reg&15)))
+		if(sctx->freg_save&(1<<(reg&31)))
 			return(0);
 
-		if(!sctx->is_simpass && !(sctx->freg_vsave&(1<<(reg&15))))
+//		if(!sctx->is_simpass && !(sctx->freg_vsave&(1<<(reg&15))))
+		if(!sctx->is_simpass && !(sctx->freg_vsave&(1<<(reg&31))))
 			{ BGBCC_DBGBREAK }
 
-		sctx->freg_save|=1<<(reg&15);
+//		sctx->freg_save|=1<<(reg&15);
+		sctx->freg_save|=1<<(reg&31);
 		BGBCC_SHXC_EmitStoreFrameOfsReg(ctx, sctx, ofs, reg);
 		return(1);
 	}
@@ -473,7 +492,8 @@ int BGBCC_SHXC_EmitReloadSavedFrameReg(
 	ofs=BGBCC_SHXC_SaveFrameOfsForReg(ctx, sctx, reg);
 	if(ofs!=0)
 	{
-		if(!(sctx->reg_save&(1<<(reg&15))))
+//		if(!(sctx->reg_save&(1<<(reg&15))))
+		if(!(sctx->reg_save&(1<<(reg&31))))
 			return(0);
 
 //		sctx->reg_save|=1<<(reg&15);
@@ -484,7 +504,8 @@ int BGBCC_SHXC_EmitReloadSavedFrameReg(
 	ofs=BGBCC_SHXC_SaveFrameOfsForFpReg(ctx, sctx, reg);
 	if(ofs!=0)
 	{
-		if(!(sctx->freg_save&(1<<(reg&15))))
+//		if(!(sctx->freg_save&(1<<(reg&15))))
+		if(!(sctx->freg_save&(1<<(reg&31))))
 			return(0);
 
 		BGBCC_SHXC_EmitLoadFrameOfsReg(ctx, sctx, ofs, reg);
@@ -493,6 +514,7 @@ int BGBCC_SHXC_EmitReloadSavedFrameReg(
 	return(0);
 }
 
+#if 0
 // const byte bgbcc_shx_cachereg[6]={ 13, 11, 10, 9, 8, 255 };
 // const byte bgbcc_shx_cachereg[8]={ 14, 13, 12, 11, 10, 9, 8, 255 };
 const byte bgbcc_shx_cachereg[8]={
@@ -510,8 +532,45 @@ const byte bgbcc_shx_qcachereg[8]={
 	BGBCC_SH_REG_RQ12, BGBCC_SH_REG_RQ11,
 	BGBCC_SH_REG_RQ10, BGBCC_SH_REG_RQ9,
 	BGBCC_SH_REG_RQ8, BGBCC_SH_REG_ZZR };
-const byte bgbcc_shx_maxreg=8;
+const byte bgbcc_shx_maxreg=7;
+#endif
 
+#if 1
+// const byte bgbcc_shx_cachereg[6]={ 13, 11, 10, 9, 8, 255 };
+// const byte bgbcc_shx_cachereg[8]={ 14, 13, 12, 11, 10, 9, 8, 255 };
+const byte bgbcc_shx_cachereg[16]={
+	BGBCC_SH_REG_R14, BGBCC_SH_REG_R13,
+	BGBCC_SH_REG_R12, BGBCC_SH_REG_R11,
+	BGBCC_SH_REG_R10, BGBCC_SH_REG_R9,
+	BGBCC_SH_REG_R8, 
+	BGBCC_SH_REG_R31, BGBCC_SH_REG_R30,
+	BGBCC_SH_REG_R29, BGBCC_SH_REG_R28,
+	BGBCC_SH_REG_R27, BGBCC_SH_REG_R26,
+	BGBCC_SH_REG_R25, BGBCC_SH_REG_R24, 
+	BGBCC_SH_REG_ZZR };
+const byte bgbcc_shx_jcachereg[16]={
+	BGBCC_SH_REG_RD14, BGBCC_SH_REG_RD13,
+	BGBCC_SH_REG_RD12, BGBCC_SH_REG_RD11,
+	BGBCC_SH_REG_RD10, BGBCC_SH_REG_RD9,
+	BGBCC_SH_REG_RD8,
+	BGBCC_SH_REG_RD31, BGBCC_SH_REG_RD30,
+	BGBCC_SH_REG_RD29, BGBCC_SH_REG_RD28,
+	BGBCC_SH_REG_RD27, BGBCC_SH_REG_RD26,
+	BGBCC_SH_REG_RD25, BGBCC_SH_REG_RD24, 
+	BGBCC_SH_REG_ZZR };
+const byte bgbcc_shx_qcachereg[16]={
+	BGBCC_SH_REG_RQ14, BGBCC_SH_REG_RQ13,
+	BGBCC_SH_REG_RQ12, BGBCC_SH_REG_RQ11,
+	BGBCC_SH_REG_RQ10, BGBCC_SH_REG_RQ9,
+	BGBCC_SH_REG_RQ8,
+	BGBCC_SH_REG_RQ31, BGBCC_SH_REG_RQ30,
+	BGBCC_SH_REG_RQ29, BGBCC_SH_REG_RQ28,
+	BGBCC_SH_REG_RQ27, BGBCC_SH_REG_RQ26,
+	BGBCC_SH_REG_RQ25, BGBCC_SH_REG_RQ24, 
+	BGBCC_SH_REG_ZZR };
+const byte bgbcc_shx_maxreg=7;
+const byte bgbcc_shx_maxreg_egpr=15;
+#endif
 
 /* Try to get Variable as register.
  * Will return a value as a register if possible, but may fail.
@@ -598,7 +657,8 @@ int BGBCC_SHXC_EmitTryGetRegister(
 #if 1
 	/* value already in a register? */
 //	for(i=0; i<5; i++)
-	for(i=0; i<bgbcc_shx_maxreg; i++)
+//	for(i=0; i<bgbcc_shx_maxreg; i++)
+	for(i=0; i<sctx->maxreg_gpr; i++)
 	{
 		if(excl&(1<<i))
 			continue;
@@ -641,7 +701,8 @@ int BGBCC_SHXC_EmitTryGetRegister(
 	
 		/* Check for registers not holding a live value. */
 //		for(i=0; i<5; i++)
-		for(i=0; i<bgbcc_shx_maxreg; i++)
+//		for(i=0; i<bgbcc_shx_maxreg; i++)
+		for(i=0; i<sctx->maxreg_gpr; i++)
 		{
 			if(excl&(1<<i))
 				continue;
@@ -655,7 +716,8 @@ int BGBCC_SHXC_EmitTryGetRegister(
 			if(!((sctx->regalc_save)&(1<<i)))
 			{
 				creg=bgbcc_shx_cachereg[i];
-				if(sctx->reg_save&(1<<(creg&15)))
+//				if(sctx->reg_save&(1<<(creg&15)))
+				if(sctx->reg_save&(1<<(creg&31)))
 					{ bi=i; break; }
 
 				nsv++;
@@ -713,7 +775,8 @@ int BGBCC_SHXC_EmitTryGetRegister(
 			sctx->regalc_save|=1<<i;
 			sctx->regalc_ltcnt[i]=0;
 			sctx->regalc_map[i]=reg;
-			sctx->regalc_utcnt[i]=1;
+//			sctx->regalc_utcnt[i]=1;
+			sctx->regalc_utcnt[i]++;
 			sctx->regalc_live|=1<<i;
 			if(fl&1)
 				{ sctx->regalc_dirty|=1<<i; }
@@ -808,7 +871,8 @@ int BGBCC_SHXC_EmitGetRegister(
 		excl|=4;
 
 //	for(i=0; i<5; i++)
-	for(i=0; i<bgbcc_shx_maxreg; i++)
+//	for(i=0; i<bgbcc_shx_maxreg; i++)
+	for(i=0; i<sctx->maxreg_gpr; i++)
 		if(sctx->regalc_ltcnt[i]<255)
 			sctx->regalc_ltcnt[i]++;
 
@@ -816,7 +880,8 @@ int BGBCC_SHXC_EmitGetRegister(
 	bi=-1; nsv=0;
 	/* Check for registers not holding a live value. */
 //	for(i=0; i<5; i++)
-	for(i=0; i<bgbcc_shx_maxreg; i++)
+//	for(i=0; i<bgbcc_shx_maxreg; i++)
+	for(i=0; i<sctx->maxreg_gpr; i++)
 	{
 		if(excl&(1<<i))
 			continue;
@@ -830,7 +895,8 @@ int BGBCC_SHXC_EmitGetRegister(
 		if(!((sctx->regalc_save)&(1<<i)))
 		{
 			creg=bgbcc_shx_cachereg[i];
-			if(sctx->reg_save&(1<<(creg&15)))
+//			if(sctx->reg_save&(1<<(creg&15)))
+			if(sctx->reg_save&(1<<(creg&31)))
 				{ bi=i; break; }
 
 			nsv++;
@@ -863,7 +929,8 @@ int BGBCC_SHXC_EmitGetRegister(
 	
 	if(bi<0)
 	{
-		for(i=0; i<bgbcc_shx_maxreg; i++)
+//		for(i=0; i<bgbcc_shx_maxreg; i++)
+		for(i=0; i<sctx->maxreg_gpr; i++)
 		{
 			if(excl&(1<<i))
 				continue;
@@ -941,7 +1008,8 @@ int BGBCC_SHXC_EmitGetRegister(
 
 	/* Check for unallocated registers. */
 //	for(i=0; i<5; i++)
-	for(i=0; i<bgbcc_shx_maxreg; i++)
+//	for(i=0; i<bgbcc_shx_maxreg; i++)
+	for(i=0; i<sctx->maxreg_gpr; i++)
 	{
 		if(excl&(1<<i))
 			continue;
@@ -1220,7 +1288,8 @@ int BGBCC_SHXC_EmitReleaseRegister(
 
 	/* value in register? */
 //	for(i=0; i<5; i++)
-	for(i=0; i<bgbcc_shx_maxreg; i++)
+//	for(i=0; i<bgbcc_shx_maxreg; i++)
+	for(i=0; i<sctx->maxreg_gpr; i++)
 	{
 		if(!((sctx->regalc_save)&(1<<i)))
 			continue;
@@ -1406,7 +1475,8 @@ int BGBCC_SHXC_EmitSyncRegisters(
 
 	/* value in register? */
 //	for(i=0; i<5; i++)
-	for(i=0; i<bgbcc_shx_maxreg; i++)
+//	for(i=0; i<bgbcc_shx_maxreg; i++)
+	for(i=0; i<sctx->maxreg_gpr; i++)
 	{
 		BGBCC_SHXC_EmitSyncRegisterIndex(ctx, sctx, i);
 		sctx->regalc_utcnt[i]=0;
@@ -1424,8 +1494,13 @@ int BGBCC_SHXC_EmitLabelFlushRegisters(
 
 	BGBCC_SHXC_EmitLabelFlushFpRegisters(ctx, sctx);
 
+	sctx->maxreg_gpr=bgbcc_shx_maxreg;
+	if(sctx->has_bjx1egpr && sctx->use_egpr)
+		sctx->maxreg_gpr=bgbcc_shx_maxreg_egpr;
+
 //	for(i=0; i<5; i++)
-	for(i=0; i<bgbcc_shx_maxreg; i++)
+//	for(i=0; i<bgbcc_shx_maxreg; i++)
+	for(i=0; i<sctx->maxreg_gpr; i++)
 	{
 		if(!((sctx->regalc_save)&(1<<i)))
 			continue;

@@ -852,6 +852,20 @@ int UAX_Asm_RegIsXmmP(int reg)
 	return(0);
 }
 
+int UAX_Asm_RegTypeEquivP(int reg0, int reg1)
+{
+	if((reg0&0xF0)==(reg1&0xF0))
+		return(1);
+	return(0);
+}
+
+int UAX_Asm_RegAsDWord(int reg)
+{
+	if(reg==UAX_REG_Z)
+		return(UAX_REG_Z);
+	return(reg&15);
+}
+
 int UAX_Asm_OpArgRegDWordP(UAX_OpcodeArg *rm)
 {
 	if(!UAX_Asm_OpArgRegP(rm))
@@ -1820,3 +1834,4 @@ int UAX_AsmTestRegReg(UAX_Context *ctx, int dreg, int sreg)
 	{ return(UAX_AsmInsnRegReg(ctx, UAX_OP_TEST, dreg, sreg)); }
 int UAX_AsmTestRegImm(UAX_Context *ctx, int dreg, s64 imm)
 	{ return(UAX_AsmInsnRegImm(ctx, UAX_OP_TEST, dreg, imm)); }
+

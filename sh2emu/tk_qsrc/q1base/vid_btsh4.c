@@ -31,9 +31,13 @@ viddef_t	vid;				// global video state
 // #define	BASEWIDTH	480
 // #define	BASEHEIGHT	360
 
-#if 1
+// #define SCRZBUF
+
+// #if 1
 // #ifndef CONGFX
 // #if !defined(CONGFX) && !defined(_BGBCC)
+// #if !defined(CONGFX) && !defined(SCRZBUF)
+#if 0
 
 #define	BASEWIDTH	640
 #define	BASEHEIGHT	480
@@ -42,6 +46,18 @@ viddef_t	vid;				// global video state
 
 #define	BASEWIDTH	320
 #define	BASEHEIGHT	200
+
+#endif
+
+#ifdef SCRZBUF
+
+#define	DISPWIDTH	(BASEWIDTH*2)
+#define	DISPHEIGHT	(BASEHEIGHT*2)
+
+#else
+
+#define	DISPWIDTH	BASEWIDTH
+#define	DISPHEIGHT	BASEHEIGHT
 
 #endif
 
@@ -131,6 +147,31 @@ int VID_BlendRatio16(int pixa, int pixb, int rat)
 	v2=((255-rat)*v0+rat*v1+0x00100)>>8;
 	return((y2&0xFC00)|(u2&0x001F)|(v2&0x03E0));
 
+//	return(VID_BlendEven16(pixa, VID_BlendEven16(pixa, pixb)));
+}
+
+int VID_ScanBlendRatio16(u16 *dpix, u16 *spix, int cnt, int pixb, int rat)
+{
+	u16 *cs, *ct, *cse;
+	int pixa, pixc;
+	int y0, y1, y2, u0, u1, u2, v0, v1, v2;
+	
+	cs=spix; ct=dpix; cse=spix+cnt;
+	
+	while(cs<cse)
+	{
+		pixa=*cs++;
+		y0=(pixa&0xFC00);	y1=(pixb&0xFC00);
+		y2=((255-rat)*y0+rat*y1+0x02000)>>8;
+		u0=(pixa&0x001F);	u1=(pixb&0x001F);
+		u2=((255-rat)*u0+rat*u1+0x00008)>>8;
+		v0=(pixa&0x03E0);	v1=(pixb&0x03E0);
+		v2=((255-rat)*v0+rat*v1+0x00100)>>8;
+		pixc=(y2&0xFC00)|(u2&0x001F)|(v2&0x03E0);
+		*ct++=pixc;
+	}
+
+	return(0);
 //	return(VID_BlendEven16(pixa, VID_BlendEven16(pixa, pixb)));
 }
 
@@ -352,10 +393,14 @@ void	VID_Init (unsigned char *palette)
 //	vid_vreg[(0x5C/4)]=319|(239<<10)|(321<<20);
 //	vid_vreg[(0x5C/4)]=319|(199<<10)|(321<<20);
 
+//	vid_vreg[(0x5C/4)]=
+//		(BASEWIDTH-1)|
+//		((BASEHEIGHT-1)<<10)|
+//		((BASEWIDTH+1)<<20);
 	vid_vreg[(0x5C/4)]=
-		(BASEWIDTH-1)|
-		((BASEHEIGHT-1)<<10)|
-		((BASEWIDTH+1)<<20);
+		(DISPWIDTH-1)|
+		((DISPHEIGHT-1)<<10)|
+		((DISPWIDTH+1)<<20);
 
 	vid_vram=(u32 *)0xA5000000;
 #endif
@@ -380,10 +425,14 @@ void	VID_Init (unsigned char *palette)
 //	vid_vreg[(0x44/4)]=0x0081;
 	vid_vreg[(0x44/4)]=0x0085;
 
+//	vid_vreg[(0x5C/4)]=
+//		(BASEWIDTH/2-1)|
+//		((BASEHEIGHT-1)<<10)|
+//		((BASEWIDTH/2+1)<<20);
 	vid_vreg[(0x5C/4)]=
-		(BASEWIDTH/2-1)|
-		((BASEHEIGHT-1)<<10)|
-		((BASEWIDTH/2+1)<<20);
+		(DISPWIDTH/2-1)|
+		((DISPHEIGHT-1)<<10)|
+		((DISPWIDTH/2+1)<<20);
 #endif
 
 #endif
@@ -739,6 +788,7 @@ void	VID_Update (vrect_t *rects)
 
 	byte *ics;
 	u16 *ict16, *ics16, *ics16b;
+	u16 *icz16;
 	u32 *ict;
 	u32 bxa, bxb;
 	int pix;
@@ -805,16 +855,94 @@ void	VID_Update (vrect_t *rects)
 			ict16=(u16 *)vid_vram;
 			for(i=0; i<BASEHEIGHT; i++)
 			{
+				ict16=((u16 *)vid_vram)+(i*DISPWIDTH);
+
+#if 0
 				for(j=0; j<BASEWIDTH; j++)
 				{
 					pix=*ics16++;
 					pix=VID_BlendRatio16(pix, vid_blendv, vid_blendp);
 					*ict16++=pix;
 				}
+#endif
+
+#if 1
+				VID_ScanBlendRatio16(
+					ict16, ics16, BASEWIDTH,
+					vid_blendv, vid_blendp);
+				ics16+=BASEWIDTH;
+#endif
 			}
 		}else
 		{
+			if(BASEWIDTH!=DISPWIDTH)
+			{
+				ics16=(u16 *)vid.buffer;
+				ict16=(u16 *)vid_vram;
+				icz16=(u16 *)d_pzbuffer;
+
+				for(i=0; i<BASEHEIGHT; i++)
+				{
+#if 0
+					ict16=((u16 *)vid_vram)+(i*DISPWIDTH);
+					for(j=0; j<BASEWIDTH; j++)
+					{
+						pix=*ics16++;
+						*ict16++=pix;
+					}
+#endif
+
+#ifdef SCRZBUF
+					for(j=0; j<BASEWIDTH; j++)
+					{
+						pix=icz16[j];
+						
+						if(pix>=0x4000)
+						{
+							pix=0xFFFF;
+						}else if(pix>=0x2000)
+						{
+							pix=((pix<<1)&0x3FFF)|0xC000;
+						}else if(pix>=0x1000)
+						{
+							pix=((pix<<2)&0x3FFF)|0x8000;
+						}else if(pix>=0x0800)
+						{
+							pix=((pix<<3)&0x3FFF)|0x4000;
+						}else
+						{
+//							pix=((pix<<4)&0x3FFF);
+							pix=(pix<<4);
+						}
+						
+//						if(pix<0x4000)pix<<=1;
+//						if(pix<0x1000)pix<<=1;
+//						if(pix<0x0400)pix<<=1;
+//						if(pix<0x0100)pix<<=1;
+//						pix=((pix<<6)&0xFFFFFC00)+0x0210;
+//						pix=((pix<<2)&0xFFFFFC00)+0x0210;
+						pix=((pix<<4)&0xFFFFFC00)+0x0210;
+						if(pix<0x0210)pix=0x0210;
+						if(pix>0xFE10)pix=0xFE10;
+						ict16[BASEWIDTH+j]=pix;
+					}
+
+//					Q_memcpy(ict16+BASEWIDTH, icz16, BASEWIDTH*2);
+					icz16+=BASEWIDTH;
+#endif
+
+					Q_memcpy(ict16, ics16, BASEWIDTH*2);
+					ict16+=DISPWIDTH;
+					ics16+=BASEWIDTH;
+				}
+
+				return;
+			}
+		
 			Q_memcpy(vid_vram, vid.buffer, BASEWIDTH*BASEHEIGHT*2);
+//			memcpy(vid_vram, vid.buffer, BASEWIDTH*BASEHEIGHT*2);
+
+//			__debugbreak();
 		}
 		return;
 	}
@@ -826,6 +954,7 @@ void	VID_Update (vrect_t *rects)
 	ict16=(u16 *)vid_vram;
 	for(i=0; i<BASEHEIGHT; i++)
 	{
+		ict16=((u16 *)vid_vram)+(i*DISPWIDTH);
 		for(j=0; j<BASEWIDTH; j+=8)
 		{
 			ict16[0]=d_8to16table[ics[0]];
