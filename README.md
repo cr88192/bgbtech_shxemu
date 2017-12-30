@@ -12,3 +12,11 @@ Thus far, this isn't really expected to be a serious project.
 
 What is SH?
 SH is also known as SuperH, which was an ISA used in several Sega consoles (32X, Saturn, and Dreamcast), as well as various other uses in consumer electronics. It is a 32-bit RISC style ISA with 16-bit instruction words, 16 GPRs, and FPU (in the SH-4).
+
+
+sh2emu: SH and BJX1 emulator
+
+sh2emu/bgbcc22: an experimental C compiler, mostly intended for BJX1
+* For targeting SH2 or SH4, using GCC is recommended.
+
+sh2emu/tk_qsrc: Quake 1 source, also includes the C library.
