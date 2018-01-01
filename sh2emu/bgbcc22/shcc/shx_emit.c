@@ -671,12 +671,33 @@ int BGBCC_SHX_EmitLoadRegImm(
 #endif
 
 #if 1
-		if(((((s32)imm)<<18)>>18)==imm)
+//		if(((((s32)imm)<<18)>>18)==imm)
+		if((((s16)imm)==imm) && (reg&0x10))
 		{
-			opw1=0xCE00|((reg<<3)&0x0080)|((imm>>8)&63);
+//			opw1=0xCE00|((reg<<3)&0x0080)|((imm>>8)&63);
+			opw1=0xCE00|((imm>>8)&255);
 			opw2=0xE000|((reg&15)<<8)|(imm&255);
 			BGBCC_SHX_EmitWord(ctx, opw1);
 			BGBCC_SHX_EmitWord(ctx, opw2);
+			return(1);
+		}
+#endif
+
+#if 1
+		if(reg&0x10)
+		{
+			v=imm;
+			if(v&0x00008000)v+=0x00010000;
+
+			opw1=0xCE00|((v>>24)&0xFF);
+			opw2=0xE000|((v>>16)&0xFF)|((reg&15)<<8);
+			opw3=0xCE00|((v>> 8)&0xFF);
+			opw4=0x9000|((v    )&0xFF)|((reg&15)<<8);
+
+			BGBCC_SHX_EmitWord(ctx, opw1);
+			BGBCC_SHX_EmitWord(ctx, opw2);
+			BGBCC_SHX_EmitWord(ctx, opw3);
+			BGBCC_SHX_EmitWord(ctx, opw4);
 			return(1);
 		}
 #endif
@@ -795,6 +816,63 @@ int BGBCC_SHX_EmitLoadRegImm64P(
 	if(BGBCC_SHX_EmitCheckRegExtGPR(ctx, reg) &&
 		ctx->is_addr64)
 	{
+		if(1)
+		{
+			lv=imm;
+			if(lv&0x0000000000008000)lv+=0x0000000000010000;
+			if(lv&0x0000000080000000)lv+=0x0000000100000000;
+			if(lv&0x0000800000000000)lv+=0x0001000000000000;
+
+			opw1=-1; opw2=-1; opw3=-1; opw4=-1;
+
+			opw5=0xCE00|((lv>>24)&0xFF);
+			opw6=0x9000|((lv>>16)&0xFF)|((reg&15)<<8);
+			opw7=0xCE00|((lv>> 8)&0xFF);
+			opw8=0x9000|((lv    )&0xFF)|((reg&15)<<8);
+
+			if(lv>>48)
+			{
+				opw1=0xCE00|((lv>>56)&0xFF);
+				opw2=0xE000|((lv>>48)&0xFF)|((reg&15)<<8);
+				opw3=0xCE00|((lv>>40)&0xFF);
+				opw4=0x9000|((lv>>32)&0xFF)|((reg&15)<<8);
+			}else if(lv>>32)
+			{
+				opw3=0xCE00|((lv>>40)&0xFF);
+				opw4=0xE000|((lv>>32)&0xFF)|((reg&15)<<8);
+			}else if(lv>>16)
+			{
+				opw5=0xCE00|((lv>>24)&0xFF);
+				opw6=0xE000|((lv>>16)&0xFF)|((reg&15)<<8);
+				opw7=0xCE00|((lv>> 8)&0xFF);
+				opw8=0x9000|((lv    )&0xFF)|((reg&15)<<8);
+			}else
+			{
+				opw5=-1;
+				opw6=-1;
+				opw7=0xCE00|((lv>> 8)&0xFF);
+				opw8=0xE000|((lv    )&0xFF)|((reg&15)<<8);
+			}
+			
+			if(opw1>=0)
+				BGBCC_SHX_EmitWord(ctx, opw1);
+			if(opw2>=0)
+				BGBCC_SHX_EmitWord(ctx, opw2);
+			if(opw3>=0)
+				BGBCC_SHX_EmitWord(ctx, opw3);
+			if(opw4>=0)
+				BGBCC_SHX_EmitWord(ctx, opw4);
+			if(opw5>=0)
+				BGBCC_SHX_EmitWord(ctx, opw5);
+			if(opw6>=0)
+				BGBCC_SHX_EmitWord(ctx, opw6);
+			if(opw7>=0)
+				BGBCC_SHX_EmitWord(ctx, opw7);
+			if(opw8>=0)
+				BGBCC_SHX_EmitWord(ctx, opw8);
+			return(1);
+		}
+
 		for(i=0; i<8; i++)
 		{
 			if(!(ctx->sreg_live&(1<<i)))

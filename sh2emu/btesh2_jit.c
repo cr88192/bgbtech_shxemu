@@ -298,7 +298,7 @@ int BTESH2_JitStoreVMRegImm(UAX_Context *jctx, int idx, s64 val)
 			UAX_AsmInsnRegReg(jctx, UAX_OP_MOV, reg1, UAX_REG_RAX);
 		}else
 		{
-			UAX_AsmInsnRegImm(jctx, UAX_OP_MOV, UAX_REG_EAX, val);
+			UAX_AsmInsnRegImm32(jctx, UAX_OP_MOV, UAX_REG_EAX, val);
 			UAX_AsmInsnRegReg(jctx, UAX_OP_MOV, reg1, UAX_REG_EAX);
 		}
 

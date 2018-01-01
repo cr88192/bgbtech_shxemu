@@ -477,6 +477,44 @@ int BGBCC_SHX_EmitCheckAutoLabelNear8(
 	return(0);
 }
 
+
+int BGBCC_SHX_EmitCheckAutoLabelNear16B(
+	BGBCC_SHX_Context *ctx, int lbl)
+{
+	int i, j, k, rngb, rngw, rngw16, szrng;
+
+	if(!ctx->has_bjx1jmp)
+		return(0);
+
+	szrng=ctx->simfnnsz-ctx->simfnmsz;
+	if(szrng<0)szrng=999999;
+
+//	i=BGBCC_SHX_LookupSimLabelIndex(ctx, lbl);
+	i=BGBCC_SHX_LookupLabelIndex(ctx, lbl);
+	if((i>=0) && (ctx->lbl_sec[i]==ctx->sec))
+//	if((i>=0) && (ctx->lbl_sec[i]==ctx->sec) && ctx->is_stable)
+	{
+		j=ctx->lbl_ofs[i];
+		rngb=244;
+		rngw=4080;
+		rngw16=65280;
+		if(i>=ctx->nlbl)
+			return(0);
+			
+		k=BGBCC_SHX_EmitGetOffs(ctx);
+		j=j-(k+4);
+		if(j<0)j=-j;
+		
+		if(j<rngw16)
+			{ return(1); }
+		
+		return(0);
+	}
+	
+	return(0);
+}
+
+
 int BGBCC_SHX_EmitOpAutoLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 {
 	int i, j, k, rngb, rngw, rngw16, szrng;

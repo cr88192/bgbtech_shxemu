@@ -1715,6 +1715,11 @@ int UAX_AsmInsnRegImm(UAX_Context *ctx, int nmid, int dreg, s64 disp)
 	return(i);
 }
 
+int UAX_AsmInsnRegImm32(UAX_Context *ctx, int nmid, int dreg, s32 disp)
+{
+	return(UAX_AsmInsnRegImm(ctx, nmid, dreg, disp));
+}
+
 int UAX_AsmInsnStRegDisp32(UAX_Context *ctx, int nmid,
 	int dreg, s32 disp)
 {
@@ -1761,7 +1766,7 @@ int UAX_AsmInsnStRegDispImm(UAX_Context *ctx, int nmid,
 }
 
 int UAX_AsmInsnStRegDispImm32(UAX_Context *ctx, int nmid,
-	int dreg, s32 disp, s64 imm)
+	int dreg, s32 disp, s32 imm)
 {
 	UAX_OpcodeArg ta0, ta1;
 	int i;

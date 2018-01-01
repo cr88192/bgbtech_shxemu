@@ -1260,6 +1260,7 @@ int BGBCC_SHX_TryEmitOpFarLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl);
 int BGBCC_SHX_EmitOpFar16Label(BGBCC_SHX_Context *ctx, int nmid, int lbl);
 int BGBCC_SHX_TryEmitOpFar16Label(BGBCC_SHX_Context *ctx, int nmid, int lbl);
 int BGBCC_SHX_EmitCheckAutoLabelNear8(BGBCC_SHX_Context *ctx, int lbl);
+int BGBCC_SHX_EmitCheckAutoLabelNear16B(BGBCC_SHX_Context *ctx, int lbl);
 int BGBCC_SHX_EmitOpAutoLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl);
 int BGBCC_SHX_TryEmitOpCmpRegLabel(BGBCC_SHX_Context *ctx,int nmid, int reg, int lbl);
 int BGBCC_SHX_TryEmitOpCmpRegRegLabel(BGBCC_SHX_Context *ctx,int nmid, int rm, int rn, int lbl);

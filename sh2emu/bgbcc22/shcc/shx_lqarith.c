@@ -804,12 +804,14 @@ int BGBCC_SHXC_EmitJCmpVRegZeroQLong(
 	switch(cmp)
 	{
 	case CCXL_CMP_EQ:
-		nm1=BGBCC_SH_NMID_CMPEQ;
+		nm1=BGBCC_SH_NMID_CMPQEQ;
+//		nm1=BGBCC_SH_NMID_CMPEQ;
 		nm2=BGBCC_SH_NMID_BT;
 //		nm3=BGBCC_SH_NMID_BREQ;
 		break;
 	case CCXL_CMP_NE:
-		nm1=BGBCC_SH_NMID_CMPEQ;
+		nm1=BGBCC_SH_NMID_CMPQEQ;
+//		nm1=BGBCC_SH_NMID_CMPEQ;
 		nm2=BGBCC_SH_NMID_BF;
 //		nm3=BGBCC_SH_NMID_BRNE;
 		break;

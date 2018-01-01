@@ -173,7 +173,10 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 		BGBPP_AddStaticDefine(NULL, "__BJX1_64__", "");
 
 		if(shctx->has_bjx1egpr)
-			{ BGBPP_AddStaticDefine(NULL, "__BJX1_64E__", ""); }
+		{
+			BGBPP_AddStaticDefine(NULL, "__BJX1_64E__", "");
+			BGBPP_AddStaticDefine(NULL, "__BJX1_64A__", "");
+		}
 	}
 
 	return(0);
@@ -1159,6 +1162,9 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 //	sctx->dfl_dq=2;
 //	sctx->dfl_dq=3;
 	sctx->dfl_dq=4;
+
+	if(sctx->is_addr64 && !sctx->has_bjx1egpr)
+		sctx->dfl_dq=2;
 
 	for(np=0; np<6; np++)
 	{

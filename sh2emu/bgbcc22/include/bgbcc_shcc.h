@@ -846,6 +846,9 @@ s64 t_lvt16_val[1024*2];
 int *genlabel_srcpos;
 int genlabel_limit;
 int t_genlabel_srcpos[4096];
+
+int epihash_key[1024];
+int epihash_lbl[1024];
 };
 
 /*

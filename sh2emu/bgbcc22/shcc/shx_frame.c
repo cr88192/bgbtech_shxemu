@@ -3555,6 +3555,8 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 	BGBCC_CCXL_RegisterInfo *obj)
 {
 	ccxl_type tty;
+	u64 uli;
+	int epik, epix, epilbl;
 	int bo, co;
 	int ob, ov;
 	int tr0, tr1;
@@ -3625,6 +3627,26 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 
 //	BGBCC_SHXC_ResetFpscrDefaults(ctx, sctx);
 
+	epik=	((sctx->reg_save >> 8)&0x000000FF)|
+			((sctx->reg_save >>16)&0x0000FF00)|
+			((sctx->freg_save<< 8)&0x00FF0000);
+	if(sctx->use_fpr)
+		epik|=0x01000000;
+	if(!(sctx->is_leaf&1))
+		epik|=0x02000000;
+		
+	uli=epik;
+	uli=(uli+1)*65521;
+	uli=(uli+1)*65521;
+	uli=(uli+1)*251;
+	epix=(uli>>32)&1023;
+
+//	epix=(((((u64)epik)+1)*2147483647LL)>>32)&1023;
+	epilbl=sctx->epihash_lbl[epix];
+
+	if(sctx->reg_save&0x00FF00FF)		epilbl=0;
+	if(sctx->freg_save&0xFFFF00FF)		epilbl=0;
+
 #if 1
 	k=sctx->frm_offs_save;
 	p0=BGBCC_SHX_TryEmitOpRegImm(sctx, BGBCC_SH_NMID_ADD,
@@ -3636,6 +3658,36 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_ADD, tr0, BGBCC_SH_REG_SP);
 		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
 	}
+
+	if((sctx->epihash_key[epix]==epik) && (epilbl>0) &&
+		!sctx->is_simpass &&
+		BGBCC_SHX_EmitCheckAutoLabelNear16B(sctx, epilbl))
+	{
+//		BGBCC_SHX_EmitOpAutoLabel(sctx, BGBCC_SH_NMID_BRAN, epilbl);
+		BGBCC_SHX_TryEmitOpFar16Label(sctx, BGBCC_SH_NMID_BRAN, epilbl);
+
+		BGBCC_SHX_EmitFlushIndexImmBasic(sctx);
+		BGBCC_SHXC_EmitLabelFlushRegisters(ctx, sctx);
+
+		if(sctx->is_leaf==2)
+			sctx->is_leaf=1;
+
+		co=BGBCC_SHX_EmitGetOffs(sctx);
+		sctx->fnsz_epi=co-bo;
+
+		return(0);
+	}
+
+#if 1
+	if(!sctx->is_simpass)
+	{
+		epilbl=BGBCC_SHX_GenLabel(sctx);
+		BGBCC_SHX_EmitLabel(sctx, epilbl);
+
+		sctx->epihash_key[epix]=epik;
+		sctx->epihash_lbl[epix]=epilbl;
+	}
+#endif
 
 //	BGBCC_SHX_EmitWord(sctx, 0x0848);	//Debug, Clear Token
 
@@ -3699,7 +3751,8 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 		BGBCC_SHX_EmitOpLdIncRegReg(sctx, BGBCC_SH_NMID_LDSL,
 			BGBCC_SH_REG_SP, BGBCC_SH_REG_PR);
 
-		if(sctx->has_movi20)
+//		if(sctx->has_movi20)
+		if(1)
 		{
 			BGBCC_SHX_EmitOpNone(sctx, BGBCC_SH_NMID_RTSN);
 		}else
@@ -3718,8 +3771,9 @@ int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,
 			BGBCC_SHX_EmitSetOffsWord(sctx, ob-2, 0x000B);
 			BGBCC_SHX_EmitWord(sctx, ov);
 		}else
-			if(sctx->has_movi20)
+//			if(sctx->has_movi20)
 //			if(0)
+		if(1)
 		{
 			BGBCC_SHX_EmitOpNone(sctx, BGBCC_SH_NMID_RTSN);
 		}else

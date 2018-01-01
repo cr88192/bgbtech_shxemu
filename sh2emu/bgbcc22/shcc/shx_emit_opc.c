@@ -231,8 +231,8 @@ int BGBCC_SHX_TryEmitOpNone(BGBCC_SHX_Context *ctx, int nmid)
 	case BGBCC_SH_NMID_BRK:		opw=0x003B; break;
 
 	case BGBCC_SH_NMID_RTSN:
-		if(!ctx->has_movi20)
-			break;
+//		if(!ctx->has_movi20)
+//			break;
 		opw=0x006B; break;
 
 	default:
@@ -358,7 +358,9 @@ int BGBCC_SHX_TryEmitOpReg(BGBCC_SHX_Context *ctx, int nmid, int reg)
 	if((nmid==BGBCC_SH_NMID_CMPQEQ) ||
 		(nmid==BGBCC_SH_NMID_TSTQ))
 	{
-		return(BGBCC_SHX_TryEmitOpRegReg(ctx, nmid, reg, reg));
+//		return(BGBCC_SHX_TryEmitOpRegReg(ctx, nmid, reg, reg));
+		return(BGBCC_SHX_TryEmitOpRegReg(ctx,
+			BGBCC_SH_NMID_TSTQ, reg, reg));
 	}
 
 	BGBCC_SHX_EmitCheckRegSafe(ctx, nmid, reg);
@@ -3972,16 +3974,20 @@ int BGBCC_SHX_TryEmitOpRegImm(BGBCC_SHX_Context *ctx,
 		{
 		case BGBCC_SH_NMID_ADD:	
 //			if(((sbyte)imm)!=imm)
-			if(imm1!=imm)
+//			if(imm1!=imm)
+			if(((s16)imm)!=imm)
 				break;
-			opw=opw1|((imm>>8)&0x3F);
+//			opw=opw1|((imm>>8)&0x3F);
+			opw=0xCE00|((imm>>8)&255);
 			opw2=0x7000|((reg&15)<<8)|(imm&255);
 			break;
 		case BGBCC_SH_NMID_MOV:	
 //			if(((sbyte)imm)!=imm)
-			if(imm1!=imm)
+//			if(imm1!=imm)
+			if(((s16)imm)!=imm)
 				break;
-			opw=opw1|((imm>>8)&0x3F);
+//			opw=opw1|((imm>>8)&0x3F);
+			opw=0xCE00|((imm>>8)&255);
 			opw2=0xE000|((reg&15)<<8)|(imm&255);
 			break;
 		}

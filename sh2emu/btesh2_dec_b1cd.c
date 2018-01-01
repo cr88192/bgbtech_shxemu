@@ -607,12 +607,14 @@ int BTESH2_DecodeOpcode_BJX1_CE(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
 		break;
 	case 0x7: /* 7--- */
 //		i=((byte)opw)|(((byte)opw2)<<8);
-		i=((opw&0x3F)<<8)|((byte)opw2);
-		i=((s16)(i<<2))>>2;
+//		i=((opw&0x3F)<<8)|((byte)opw2);
+		i=(((byte)opw)<<8)|((byte)opw2);
+//		i=((s16)(i<<2))>>2;
 		op->rn=(opw2>>8)&15;
 		op->imm=(u64)((s16)i);
-		if(opw&0x0080)	op->rn+=BTESH2_REG_R16;
-		if(opw&0x0040)	break;
+//		if(opw&0x0080)	op->rn+=BTESH2_REG_R16;
+//		if(opw&0x0040)	break;
+		op->rn+=BTESH2_REG_R16;
 
 		op->nmid=BTESH2_NMID_ADD;
 		op->fmid=BTESH2_FMID_REGIMM;
@@ -620,7 +622,15 @@ int BTESH2_DecodeOpcode_BJX1_CE(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
 		break;
 
 	case 0x9: /* 9--- */
+		i=(((byte)opw)<<8)|((byte)opw2);
+		op->rn=(opw2>>8)&15;
+		op->imm=(s16)i;
+		op->rn+=BTESH2_REG_R16;
+		op->nmid=BTESH2_NMID_LDSH16;
+		op->fmid=BTESH2_FMID_REGIMM;
+		op->Run=BTSH_Op_LDSH16_RegImm;
 		break;
+
 	case 0xA: /* A--- */
 		break;
 	case 0xB: /* B--- */
@@ -629,13 +639,16 @@ int BTESH2_DecodeOpcode_BJX1_CE(BTESH2_CpuState *cpu, BTESH2_Opcode *op,
 	case 0xD: /* D--- */
 		break;
 	case 0xE: /* E--- */
-		i=((opw&0x3F)<<8)|((byte)opw2);
-		i=((s16)(i<<2))>>2;
+//		i=((byte)opw)|(((byte)opw2)<<8);
+//		i=((opw&0x3F)<<8)|((byte)opw2);
+		i=(((byte)opw)<<8)|((byte)opw2);
+//		i=((s16)(i<<2))>>2;
 		op->rn=(opw2>>8)&15;
 		op->imm=(u64)((s16)i);
 
-		if(opw&0x0080)	op->rn+=BTESH2_REG_R16;
-		if(opw&0x0040)	break;
+//		if(opw&0x0080)	op->rn+=BTESH2_REG_R16;
+//		if(opw&0x0040)	break;
+		op->rn+=BTESH2_REG_R16;
 
 		op->nmid=BTESH2_NMID_MOV;
 		op->fmid=BTESH2_FMID_REGIMM;
