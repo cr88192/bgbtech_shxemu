@@ -69,10 +69,25 @@ int BGBCC_SHX_TryEmitOpLabel(BGBCC_SHX_Context *ctx, int nmid, int lbl)
 		rlty=BGBCC_SH_RLC_RELW12;
 		opw=0xB000; break;
 
+#if 0
 	case BGBCC_SH_NMID_BRAN:
 		rlty=BGBCC_SH_RLC_RELW12;
 		opw=0xA000;
 		opw2=0x0009;
+		break;
+#endif
+
+	case BGBCC_SH_NMID_BRAN:
+		if(ctx->has_bjx1jmp)
+		{
+			rlty=BGBCC_SH_RLC_RELW8;
+			opw=0x8200;
+		}else
+		{
+			rlty=BGBCC_SH_RLC_RELW12;
+			opw=0xA000;
+			opw2=0x0009;
+		}
 		break;
 
 	case BGBCC_SH_NMID_BT:
@@ -504,7 +519,11 @@ int BGBCC_SHX_EmitCheckAutoLabelNear16B(
 		k=BGBCC_SHX_EmitGetOffs(ctx);
 		j=j-(k+4);
 		if(j<0)j=-j;
-		
+
+		if(j<rngb)
+			{ return(3); }
+		if(j<rngw)
+			{ return(2); }
 		if(j<rngw16)
 			{ return(1); }
 		

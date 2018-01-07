@@ -4,6 +4,7 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 	ccxl_type dtype, ccxl_type stype,
 	ccxl_register dreg, ccxl_register sreg)
 {
+	int csreg, ctreg, cdreg;
 	int tr0, tr1;
 	int nm1, nm2;
 	int dt, st;
@@ -135,6 +136,33 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 			(st==CCXL_TY_L) || (st==CCXL_TY_UL)) &&
 			sctx->is_addr64)
 		{
+			if(sctx->has_bjx1egpr)
+			{
+				return(BGBCC_SHXC_EmitOpNmidVRegVReg(ctx, sctx, dtype,
+					BGBCC_SH_NMID_EXTSL, dreg, sreg));
+			}
+
+#if 0
+			if(sctx->has_bjx1egpr)
+			{
+				csreg=BGBCC_SHXC_EmitTryGetRegisterRead(ctx, sctx, sreg);
+				cdreg=BGBCC_SHXC_EmitTryGetRegisterWrite(ctx, sctx, dreg);
+
+				if((csreg<0) || (csreg==BGBCC_SH_REG_ZZR))
+					csreg=BGBCC_SHXC_EmitGetRegisterRead(ctx, sctx, sreg);
+				if((cdreg<0) || (cdreg==BGBCC_SH_REG_ZZR))
+					cdreg=BGBCC_SHXC_EmitGetRegisterWrite(ctx, sctx, dreg);
+
+				nm1=BGBCC_SH_NMID_EXTSL;
+				BGBCC_SHX_EmitOpRegReg(sctx, nm1, csreg, cdreg);
+
+				BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
+				BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
+				return(1);
+			}
+#endif
+
+#if 1
 			nm1=BGBCC_SH_NMID_EXTSL;
 			tr1=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 
 				BGBCC_SH_REGCLS_QGR);
@@ -144,6 +172,7 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 			BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, tr0);
 			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr1);
 			return(1);
+#endif
 		}
 
 		if((st==CCXL_TY_L) || (st==CCXL_TY_UL))
@@ -256,6 +285,12 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 			(st==CCXL_TY_L) || (st==CCXL_TY_UL)) &&
 			sctx->is_addr64)
 		{
+			if(sctx->has_bjx1egpr)
+			{
+				return(BGBCC_SHXC_EmitOpNmidVRegVReg(ctx, sctx, dtype,
+					BGBCC_SH_NMID_EXTUL, dreg, sreg));
+			}
+
 			nm1=BGBCC_SH_NMID_EXTUL;
 			tr1=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 
 				BGBCC_SH_REGCLS_QGR);
@@ -437,6 +472,12 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 			if(dt==CCXL_TY_US)
 				nm1=BGBCC_SH_NMID_EXTUW;
 
+			if(sctx->has_bjx1egpr)
+			{
+				return(BGBCC_SHXC_EmitOpNmidVRegVReg(ctx, sctx, dtype,
+					nm1, dreg, sreg));
+			}
+
 			tr1=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 
 				BGBCC_SH_REGCLS_QGR);
 			tr0=BGBCC_SH_REG_RD0+(tr1&31);
@@ -559,6 +600,14 @@ int BGBCC_SHXC_EmitConvVRegVReg(
 
 		if((st==CCXL_TY_SB) || (st==CCXL_TY_SS) || (st==CCXL_TY_I))
 		{
+#if 0
+			if(sctx->has_bjx1egpr)
+			{
+				return(BGBCC_SHXC_EmitOpNmidVRegVReg(ctx, sctx, dtype,
+					nm1, dreg, sreg));
+			}
+#endif
+
 			tr1=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 
 				BGBCC_SH_REGCLS_QGR);
 			tr0=BGBCC_SH_REG_RD0+(tr1&31);

@@ -1219,6 +1219,7 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		case CCXL_BINOP_SHL: s0="<<"; break;
 		case CCXL_BINOP_SHR: s0=">>"; break;
 		case CCXL_BINOP_SHRR: s0=">>>"; break;
+		default: s0=NULL; BGBCC_DBGBREAK; break;
 		}
 		BGBCC_CCXL_StackBinaryOp(ctx, s0);
 		break;
@@ -1233,6 +1234,9 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		case CCXL_CMP_GT: s0=">"; break;
 		case CCXL_CMP_LE: s0="<="; break;
 		case CCXL_CMP_GE: s0=">="; break;
+		case CCXL_CMP_TST:		s0="&"; break;
+		case CCXL_CMP_NTST:		s0="!&"; break;
+		default: s0=NULL; BGBCC_DBGBREAK; break;
 		}
 		BGBCC_CCXL_StackBinaryOp(ctx, s0);
 		break;
@@ -1247,6 +1251,7 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		case CCXL_UNOP_LNOT: s0="!"; break;
 		case CCXL_UNOP_INC: s0="++"; break;
 		case CCXL_UNOP_DEC: s0="--"; break;
+		default: s0=NULL; BGBCC_DBGBREAK; break;
 		}
 		BGBCC_CCXL_StackUnaryOp(ctx, s0);
 		break;
@@ -1267,6 +1272,7 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		case CCXL_BINOP_SHL: s0="<<"; break;
 		case CCXL_BINOP_SHR: s0=">>"; break;
 		case CCXL_BINOP_SHRR: s0=">>>"; break;
+		default: s0=NULL; BGBCC_DBGBREAK; break;
 		}
 		BGBCC_CCXL_StackBinaryOpStore(ctx, s0, s1);
 		break;
@@ -1282,13 +1288,16 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		case CCXL_CMP_GT: s0=">"; break;
 		case CCXL_CMP_LE: s0="<="; break;
 		case CCXL_CMP_GE: s0=">="; break;
+		case CCXL_CMP_TST:		s0="&"; break;
+		case CCXL_CMP_NTST:		s0="!&"; break;
+		default: s0=NULL; BGBCC_DBGBREAK; break;
 		}
 		BGBCC_CCXL_StackBinaryOpStore(ctx, s0, s1);
 		break;
 	case BGBCC_RIL3OP_LDUNOP:
 		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
 		s1=BGBCC_CCXLR3_ReadString(ctx, &cs);
-		switch(i0)
+		switch(i0&7)
 		{
 		case CCXL_UNOP_MOV: s0="+"; break;
 		case CCXL_UNOP_NEG: s0="-"; break;
@@ -1296,8 +1305,10 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		case CCXL_UNOP_LNOT: s0="!"; break;
 		case CCXL_UNOP_INC: s0="++"; break;
 		case CCXL_UNOP_DEC: s0="--"; break;
+		default: s0=NULL; BGBCC_DBGBREAK; break;
 		}
-		BGBCC_CCXL_StackUnaryOpName(ctx, s0, s1);
+//		BGBCC_CCXL_StackUnaryOpName(ctx, s0, s1);
+		BGBCC_CCXL_StackUnaryOpNameB(ctx, s0, s1, i0/16);
 		break;
 	case BGBCC_RIL3OP_STUNOP:
 		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
@@ -1310,6 +1321,7 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		case CCXL_UNOP_LNOT: s0="!"; break;
 		case CCXL_UNOP_INC: s0="++"; break;
 		case CCXL_UNOP_DEC: s0="--"; break;
+		default: s0=NULL; BGBCC_DBGBREAK; break;
 		}
 		BGBCC_CCXL_StackUnaryOpStore(ctx, s0, s1);
 		break;
@@ -1427,6 +1439,9 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		case CCXL_CMP_GT: s0=">"; break;
 		case CCXL_CMP_LE: s0="<="; break;
 		case CCXL_CMP_GE: s0=">="; break;
+		case CCXL_CMP_TST:		s0="&"; break;
+		case CCXL_CMP_NTST:		s0="!&"; break;
+		default: s0=NULL; BGBCC_DBGBREAK; break;
 		}
 
 		BGBCC_CCXL_CompileJmpCond(ctx, s0, lbl);

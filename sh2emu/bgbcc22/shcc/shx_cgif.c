@@ -718,10 +718,15 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,
 		BGBCC_SHXC_EmitSyncRegisters(ctx, sctx);
 		BGBCC_SHXC_ResetFpscrLocal(ctx, sctx);
 //		BGBCC_SHXC_ResetFpscrUnknown(ctx, sctx);
-		BGBCC_SHX_EmitOpAutoLabel(sctx, BGBCC_SH_NMID_BRA,
+
+//		BGBCC_SHX_EmitOpAutoLabel(sctx, BGBCC_SH_NMID_BRA,
+//			op->imm.si);
+//		BGBCC_SHX_EmitOpNone(sctx,
+//			BGBCC_SH_NMID_NOP);
+
+		BGBCC_SHX_EmitOpAutoLabel(sctx, BGBCC_SH_NMID_BRAN,
 			op->imm.si);
-		BGBCC_SHX_EmitOpNone(sctx,
-			BGBCC_SH_NMID_NOP);
+
 //		BGBCC_SHX_EmitFlushIndexImm16(sctx);
 //		BGBCC_SHX_EmitFlushIndexImm32(sctx);
 		BGBCC_SHX_EmitFlushIndexImmBasic(sctx);
@@ -1022,12 +1027,12 @@ ccxl_status BGBCC_SHXC_EndFunction(BGBCC_TransState *ctx,
 
 ccxl_status BGBCC_SHXC_BuildFunctionBody(
 	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
-	BGBCC_CCXL_RegisterInfo *obj)
+	BGBCC_CCXL_RegisterInfo *obj, int fcnlbl)
 {
 	int bo, co, bo1, co1;
 	int i, j, k;
 
-	BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj);
+	BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj, fcnlbl);
 	
 	bo=BGBCC_SHX_EmitGetOffs(sctx);
 
@@ -1185,8 +1190,8 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 
 		bo=BGBCC_SHX_EmitGetOffs(sctx);
 
-		BGBCC_SHX_EmitLabel(sctx, l0);
-		BGBCC_SHXC_BuildFunctionBody(ctx, sctx, obj);
+//		BGBCC_SHX_EmitLabel(sctx, l0);
+		BGBCC_SHXC_BuildFunctionBody(ctx, sctx, obj, l0);
 
 #if 0
 		BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj);
@@ -1314,9 +1319,8 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 
 	bo1=BGBCC_SHX_EmitGetOffs(sctx);
 
-	BGBCC_SHX_EmitLabel(sctx, l0);
-
-	BGBCC_SHXC_BuildFunctionBody(ctx, sctx, obj);
+//	BGBCC_SHX_EmitLabel(sctx, l0);
+	BGBCC_SHXC_BuildFunctionBody(ctx, sctx, obj, l0);
 
 #if 0
 	BGBCC_SHXC_EmitFrameProlog(ctx, sctx, obj);

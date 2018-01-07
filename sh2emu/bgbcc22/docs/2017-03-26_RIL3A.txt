@@ -317,6 +317,8 @@ Comparison Operator
 * 0x05, GE
 * 0x06, AL
 * 0x07, NV
+* 0x08, TST ((A&B)!=0)
+* 0x09, NTST ((A&B)==0)
 
 
 === Opcode List ===
@@ -466,6 +468,11 @@ Opcodes (Executable Code)
 ** SVLI opr;
 ** STRING name;
 ** Apply a unary operator to a variable
+** (opr&15): Operator
+** (opr>>4): Operation Mode
+*** 0: Operator applied to variable, nothing loaded to stack.
+*** 1: Operator applied to variable, store updated value to stack.
+*** 2: Operator applied to variable, store prior value to stack.
 
 * 0x37, LDCONSTV ( -- Void )
 ** Load a Void onto the stack.
@@ -593,16 +600,17 @@ Opcodes (Executable Code)
 * 0x5F, STCALLP ( Mark * Ptr -- )
 ** STRING dstname;
 ** Call a function given as a pointer on the stack.
+** Stores return value in dstname.
 
 
-* 0x60, ADD
-* 0x61, SUB
-* 0x62, MUL
-* 0x63, AND
-* 0x64, OR
-* 0x65, XOR
-* 0x66, SHL
-* 0x67, SAR
+* 0x60, ADD ( A B -- A+B )
+* 0x61, SUB ( A B -- A-B )
+* 0x62, MUL ( A B -- A*B )
+* 0x63, AND ( A B -- A&B )
+* 0x64, OR  ( A B -- A|B )
+* 0x65, XOR ( A B -- A^B )
+* 0x66, SHL ( A B -- A<<B )
+* 0x67, SAR ( A B -- A>>B )
 
 * 0x68, ADDC
 ** SVLI val;

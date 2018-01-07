@@ -461,6 +461,14 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	if(BCCX_TagIsCstP(l, &bgbcc_rcst_preinc, "preinc"))
 	{
 		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "expr"));
+		
+		if(BCCX_TagIsCstP(t, &bgbcc_rcst_ref, "ref"))
+		{
+			s0=BCCX_GetCst(t, &bgbcc_rcst_name, "name");
+			BGBCC_CCXL_StackUnaryOpNameB(ctx, "++", s0, 1);
+			return;
+		}
+		
 		BGBCC_CCXL_CompileExpr(ctx, t);
 		BGBCC_CCXL_StackUnaryOp(ctx, "++");
 //		BGBCC_CCXL_StackDup(ctx);
@@ -472,6 +480,14 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	if(BCCX_TagIsCstP(l, &bgbcc_rcst_predec, "predec"))
 	{
 		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "expr"));
+
+		if(BCCX_TagIsCstP(t, &bgbcc_rcst_ref, "ref"))
+		{
+			s0=BCCX_GetCst(t, &bgbcc_rcst_name, "name");
+			BGBCC_CCXL_StackUnaryOpNameB(ctx, "--", s0, 1);
+			return;
+		}
+
 		BGBCC_CCXL_CompileExpr(ctx, t);
 		BGBCC_CCXL_StackUnaryOp(ctx, "--");
 //		BGBCC_CCXL_StackDup(ctx);
@@ -483,6 +499,14 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	if(BCCX_TagIsCstP(l, &bgbcc_rcst_postinc, "postinc"))
 	{
 		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "expr"));
+
+		if(BCCX_TagIsCstP(t, &bgbcc_rcst_ref, "ref"))
+		{
+			s0=BCCX_GetCst(t, &bgbcc_rcst_name, "name");
+			BGBCC_CCXL_StackUnaryOpNameB(ctx, "++", s0, 2);
+			return;
+		}
+
 		BGBCC_CCXL_CompileExpr(ctx, t);
 //		BGBCC_CCXL_StackDup(ctx);
 		BGBCC_CCXL_StackDupB(ctx);
@@ -494,6 +518,14 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 	if(BCCX_TagIsCstP(l, &bgbcc_rcst_postdec, "postdec"))
 	{
 		t=BGBCC_CCXL_ReduceExpr(ctx, BCCX_Fetch(l, "expr"));
+
+		if(BCCX_TagIsCstP(t, &bgbcc_rcst_ref, "ref"))
+		{
+			s0=BCCX_GetCst(t, &bgbcc_rcst_name, "name");
+			BGBCC_CCXL_StackUnaryOpNameB(ctx, "--", s0, 2);
+			return;
+		}
+
 		BGBCC_CCXL_CompileExpr(ctx, t);
 //		BGBCC_CCXL_StackDup(ctx);
 		BGBCC_CCXL_StackDupB(ctx);

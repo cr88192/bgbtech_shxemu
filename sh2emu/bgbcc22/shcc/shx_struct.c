@@ -511,6 +511,33 @@ int BGBCC_SHXC_EmitValueCopyRegRegSz(
 		return(1);
 	}
 
+	if((al>=8) && sctx->is_addr64 && sctx->has_bjx1mov)
+	{
+		if(sz==8)
+		{
+			nm1=BGBCC_SH_NMID_MOVQ;
+			tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+			BGBCC_SHX_EmitOpLdRegDispReg(sctx, nm1, sreg, 0, tr0);
+			BGBCC_SHX_EmitOpRegStRegDisp(sctx, nm1, tr0, dreg, 0);
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
+			return(1);
+		}
+
+		if(sz==16)
+		{
+			nm1=BGBCC_SH_NMID_MOVQ;
+			tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+			tr1=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
+			BGBCC_SHX_EmitOpLdRegDispReg(sctx, nm1, sreg, 0, tr0);
+			BGBCC_SHX_EmitOpLdRegDispReg(sctx, nm1, sreg, 4, tr1);
+			BGBCC_SHX_EmitOpRegStRegDisp(sctx, nm1, tr0, dreg, 0);
+			BGBCC_SHX_EmitOpRegStRegDisp(sctx, nm1, tr1, dreg, 4);
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
+			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr1);
+			return(1);
+		}
+	}
+
 	if((sz<=8) && (al>=4))
 	{
 		tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);

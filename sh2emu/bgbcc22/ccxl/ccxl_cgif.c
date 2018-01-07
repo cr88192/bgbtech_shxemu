@@ -97,6 +97,9 @@ ccxl_status BGBCC_CCXL_EmitJumpRegZero(BGBCC_TransState *ctx,
 
 	if(ctx->cgif_no3ac)
 		return(0);
+		
+	if(cmpop<0)
+		{ BGBCC_DBGBREAK }
 
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_JCMP_ZERO;
@@ -114,6 +117,9 @@ ccxl_status BGBCC_CCXL_EmitJumpRegCmpI(BGBCC_TransState *ctx,
 	ccxl_label lbl)
 {
 	BGBCC_CCXL_VirtOp *op;
+
+	if(cmpop<0)
+		{ BGBCC_DBGBREAK }
 
 	op=BGBCC_CCXL_AllocVirtOp(ctx);
 	op->opn=CCXL_VOP_JCMP;

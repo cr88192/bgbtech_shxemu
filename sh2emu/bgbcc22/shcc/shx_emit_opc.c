@@ -1997,9 +1997,11 @@ int BGBCC_SHX_TryEmitOpRegStRegDisp(
 			if(((rm&15)<8) || ((rm&15)>15))		break;
 			if((disp>>2)<16)
 				{ opw=0x8600|((rm&7)<<4)|((disp>>2)&15); break; }
+#if 0
 //			if((disp>>2)<32)
 			if(((disp>>2)<32) && !ctx->is_addr64)
 				{ opw=0x8700|((rm&7)<<4)|((disp>>2)&15); break; }
+#endif
 			break;
 		}
 	}
@@ -2377,8 +2379,8 @@ int BGBCC_SHX_TryEmitOpLdRegDispReg(BGBCC_SHX_Context *ctx,
 			if((disp>>2)<16)
 				{ opw=0x8680|((rn&7)<<4)|((disp>>2)&15); break; }
 //			if((disp>>2)<32)
-			if(((disp>>2)<32) && !ctx->is_addr64)
-				{ opw=0x8780|((rn&7)<<4)|((disp>>2)&15); break; }
+//			if(((disp>>2)<32) && !ctx->is_addr64)
+//				{ opw=0x8780|((rn&7)<<4)|((disp>>2)&15); break; }
 			break;
 		}
 	}

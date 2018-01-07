@@ -847,8 +847,13 @@ int *genlabel_srcpos;
 int genlabel_limit;
 int t_genlabel_srcpos[4096];
 
+/* Epilog Caching */
 int epihash_key[1024];
 int epihash_lbl[1024];
+
+/* Prolog Caching */
+int eprhash_key[1024];
+int eprhash_lbl[1024];
 };
 
 /*

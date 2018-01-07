@@ -905,6 +905,7 @@ ccxl_status BGBCC_CCXL_StackBinaryOp(BGBCC_TransState *ctx, char *op);
 ccxl_status BGBCC_CCXL_StackUnaryOp(BGBCC_TransState *ctx, char *op);
 ccxl_status BGBCC_CCXL_StackBinaryOpStore(BGBCC_TransState *ctx,char *op, char *name);
 ccxl_status BGBCC_CCXL_StackUnaryOpName(BGBCC_TransState *ctx,char *op, char *name);
+ccxl_status BGBCC_CCXL_StackUnaryOpNameB(BGBCC_TransState *ctx,char *op, char *name, int mod);
 ccxl_status BGBCC_CCXL_StackUnaryOpStore(BGBCC_TransState *ctx,char *op, char *dname);
 ccxl_status BGBCC_CCXL_StackLoadSlotStore(BGBCC_TransState *ctx, char *name, char *dname);
 ccxl_status BGBCC_CCXL_StackLoadSlotStoreI(BGBCC_TransState *ctx, char *name, char *dname);
@@ -1102,7 +1103,7 @@ ccxl_status BGBCC_SHXC_CompileVirtOp(BGBCC_TransState *ctx,BGBCC_SHX_Context *sc
 ccxl_status BGBCC_SHXC_PrintVirtTr(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtTr *tr, int idx);
 ccxl_status BGBCC_SHXC_CompileVirtTr(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, BGBCC_CCXL_VirtTr *tr, int idx);
 ccxl_status BGBCC_SHXC_EndFunction(BGBCC_TransState *ctx,BGBCC_CCXL_LiteralInfo *obj);
-ccxl_status BGBCC_SHXC_BuildFunctionBody(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj);
+ccxl_status BGBCC_SHXC_BuildFunctionBody(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, int fcnlbl);
 ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,BGBCC_CCXL_RegisterInfo *obj);
 ccxl_status BGBCC_SHXC_BuildGlobal_EmitLitAsType(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register value);
 ccxl_status BGBCC_SHXC_BuildGlobal(BGBCC_TransState *ctx,BGBCC_CCXL_RegisterInfo *obj);
@@ -1344,7 +1345,8 @@ int BGBCC_SHXC_EmitLdaFrameVRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sct
 int BGBCC_SHXC_GetFrameVRegFlags(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register sreg);
 int BGBCC_SHXC_SetupFrameVRegSpan(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register sreg);
 int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj);
-int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj);
+int BGBCC_SHXC_CalcFrameEpiKey(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, int rqt, int *repik, int *repix);
+int BGBCC_SHXC_EmitFrameProlog(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj, int fcnlbl);
 int BGBCC_SHXC_EmitFrameEpilog(BGBCC_TransState *ctx,BGBCC_SHX_Context *sctx, BGBCC_CCXL_RegisterInfo *obj);
 //AHSRC:shcc/shx_ldix.c
 int BGBCC_SHXC_EmitLdix_FillSzNmTy(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, int *rsz, int *rnm1, int *rnm2, int *rnm3, int *rnm4);
