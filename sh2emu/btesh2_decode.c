@@ -2003,8 +2003,19 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				}
 			}
 			break;
+
 		case 0x2: /* 82-- */
+#if 1
+			i=(opw<<24)>>24;
+			op->imm=pc+2*i+4;
+			op->fl=BTESH2_OPFL_CTRLF|BTESH2_OPFL_INVDLYSLOT;
+			op->nmid=BTESH2_NMID_BRAN;
+			op->fmid=BTESH2_FMID_ABS;
+			op->Run=BTSH_Op_BRA_Abs;
 			break;
+#endif
+			break;
+
 		case 0x3: /* 83-- */
 #if 1
 			if(opw&0x0080)
@@ -2084,6 +2095,17 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 			}
 			break;
 		case 0x7: /* 87-- */
+#if 0
+			i=(opw<<24)>>24;
+			op->imm=pc+2*i+4;
+			op->fl=BTESH2_OPFL_CTRLF|BTESH2_OPFL_INVDLYSLOT;
+			op->nmid=BTESH2_NMID_BRAN;
+			op->fmid=BTESH2_FMID_ABS;
+			op->Run=BTSH_Op_BRA_Abs;
+			break;
+#endif
+
+#if 0
 			if(cpu->csfl&BTESH2_CSFL_SRJQ)
 			{
 				if(opw&0x0080)
@@ -2126,6 +2148,9 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				}
 			}
 			break;
+#endif
+			break;
+
 		case 0x8: /* 88-- */
 			op->rn=0;
 			op->imm=(sbyte)opw;
@@ -2832,14 +2857,14 @@ int BTESH2_DecodeOpcode(BTESH2_CpuState *cpu,
 				op->Run=BTSH_Op_PSETMD4_Imm;
 				break;
 
-			case 0xE:
+			case 0xE: /* F-ED */
 				op->rn=((opw>>10)&3)<<2;
 				op->rm=((opw>> 8)&3)<<2;
 				op->nmid=BTESH2_NMID_FIPR;
 				op->fmid=BTESH2_FMID_FREGREG;
 				op->Run=BTSH_Op_FIPR_RR;
 				break;
-			case 0xF:
+			case 0xF: /* F-FD */
 				switch((opw>>8)&15)
 				{
 				case 0x3:

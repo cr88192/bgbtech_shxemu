@@ -13,7 +13,7 @@ Registers:
 *	Registers will be 32 or 64 bits.
 *	R0..R15: General-Purpose Registers
 **		R15/SP: Stack Pointer
-**		R16..R31: Extended General-Purpose Registers (64A only)
+*	R16..R31: Extended General-Purpose Registers (BJX1-64A only)
 *	SR: Status Register
 *	GBR: Global Base Register
 *	VBR: Vector Base Register
@@ -36,8 +36,11 @@ Registers:
 
 *	R0_A..R7_A: R0..R7 (Bank A, User)
 *	R0_B..R7_B: R0..R7 (Bank B, Super)
-		Transistions between user and supervisor mode Flip Banks A and B.
-		User or Supervisor mode determines which bank R0..R7 map to.
+**		Transistions between user and supervisor mode Flip Banks A and B.
+**		User or Supervisor mode determines which bank R0..R7 map to.
+*	R16_A..R23_A: R16..R23 (Bank A, User, BJX1-64A)
+*	R16_B..R23_B: R16..R23 (Bank B, Super, BJX1-64A)
+**		R16 through R23 are also swapped in BJX1-64A.
 
 Status Register (SRn)
 * SR0, MACH
@@ -59,7 +62,7 @@ Control Registrer (CRn)
 * CR4, SPC
 * CR5
 * CR6
-* CR7 PC
+* CR7, PC
 
 Hidden Control Registers
 * CR8, MMUCR
@@ -492,7 +495,7 @@ The 32-bit I-Forms will be organized into block-ranges.
 * 0xx1, MOVI20S
 * 3xx1, MOV I-Forms
 * 3xx9, Reserved/Unused
-* 82xx, XPFX1
+* / 82xx, XPFX1
 * / 83xx, XPFX3
 * / 86xx, XPFX4
 * / 87xx, XPFX5
@@ -835,7 +838,8 @@ Basic I-Forms (16-bit)
 **	80nd MOV.B R0, @(Rn,disp)	//Store Byte
 **	81nd MOV.W/Q R0, @(Rn,disp)	//Store Word or Quad
 ***		Always Word if disp==0
-**	82-- - XPFX1/Escape32B
+**	82-- / XPFX1/Escape32B
+**	82dd BRA/N disp8
 **	83dd / JSR/N disp
 ***		83pd ! MOV.L Rm, @(SP,disp4)	//R8..R14,R0; Disp=16..31
 ***		83Qd ! MOV.L @(SP,disp4), Rn	//R8..R14,R0; Disp=16..31
@@ -843,11 +847,11 @@ Basic I-Forms (16-bit)
 **	85md MOV.W/Q @(Rm,disp), R0
 ***		Always Word if disp==0
 **	86-- / BST / BCLR
-**	87-- / BST / BCLR
 ***		86pd ! FMOV.S FRm, @(SP,disp4)	//FR8..R15; Disp=0..15
 ***		86Qd ! FMOV.S @(SP,disp4), FRn	//FR8..R15; Disp=0..15
-***		87pd ! FMOV.S FRm, @(SP,disp4)	//FR8..R15; Disp=16..31 (BJX1-32)
-***		87Qd ! FMOV.S @(SP,disp4), FRn	//FR8..R15; Disp=16..31 (BJX1-32)
+**	87-- / BST / BCLR
+***		87pd / FMOV.S FRm, @(SP,disp4)	//FR8..R15; Disp=16..31 (BJX1-32)
+***		87Qd / FMOV.S @(SP,disp4), FRn	//FR8..R15; Disp=16..31 (BJX1-32)
 ***		87pd / MOV.Q Rm, @(SP,disp4)	//R8..R14,R0; Disp=0..15 (BJX1-64)
 ***		87Qd / MOV.Q @(SP,disp4), Rn	//R8..R14,R0; Disp=0..15 (BJX1-64)
 **	88ii CMPEQ./Q #imm, R0
@@ -894,9 +898,9 @@ Basic I-Forms (16-bit)
 **	CCjj TST.B #imm, @(GBR,R0)		//32-bit only, BJX1 deprecated
 ***		CCxx-xxxx					//BJX1-64
 **	CDjj AND.B #imm, @(GBR,R0)		//32-bit only, BJX1 deprecated
-***		CDxx-xxxx					//BJX1-64
+***		CDxx-xxxx-xxxx-xxxx			//BJX1-64
 **	CEjj XOR.B #imm, @(GBR,R0)		//32-bit only, BJX1 deprecated
-***		CExx-xxxx-xxxx-xxxx ?		//BJX1-64
+***		CExx-xxxx 					//BJX1-64
 **	CFjj OR.B #imm, @(GBR,R0)		//32-bit only, BJX1 deprecated
 ***		CFxx-xxxx-xxxx ?			//BJX1-64
 * Dndd MOV.L @(PC,disp), Rn			//Load DWord, DWord aligned.
@@ -1084,7 +1088,7 @@ PSETMD 12-bit
 ** This group of instructions is not present in BJX1.
 
 
-=== XPFX0: General 32-bit I-Forms ===
+=== XPFX0: General 32-bit I-Forms (BJX1) ===
 
 For XPFX0 I-Forms
 * The prefix will give the high bits of multi-part immediates for 32-bit I-Forms.
@@ -1282,7 +1286,7 @@ XPFX0/Escape32 I-Forms
 *	8Exx-Fxxx (Ext-FPU / SIMD)
 
 
-=== XPFX2: Prefix Blocks ===
+=== XPFX2: Prefix Blocks (BJX1) ===
 
 * 8C0x-xxxx  -
 * 8C1x-xxxx  -
@@ -1294,7 +1298,7 @@ XPFX0/Escape32 I-Forms
 * 8C7x-xxxx  -
 
 
-=== XPFY0: Prefix Blocks (BJX1-64 Only) ===
+=== XPFY0: Prefix Blocks (BJX1-64A Only) ===
 
 These blocks only exists in BJX1-64A Profile.
 
@@ -1356,7 +1360,7 @@ XPFY0 I-Forms
 **	CC0e-0nmE MOV.L/Q @(R0,Rm), Rn	//Load DWord From R0+Rm into Rn
 **	CC0e-0nmF -
 * 1---
-**	CC0e-1nmd MOV.L/Q Rm, @(Rn,disp5)		//Store DWord Rm to Rn+(4|8)*Disp
+**	CC0e-1nmd ? MOV.L/Q Rm, @(Rn,disp5)		//Store DWord Rm to Rn+(4|8)*Disp
 **	Deprecate?: Redundant with CExx-2nm2/2nm3
 * 2---
 **	CC0e-2nm0 MOV.B Rm, @Rn			//Store Byte Rm to @Rn
@@ -1404,7 +1408,7 @@ XPFY0 I-Forms
 **	CC0e-4nmE (LDC Block)
 **	CC0e-4nmF -
 * 5---
-**	CC0e-5nmd MOV.L/Q @(Rm,disp5), Rn	//Load DWord From Rm+(4|8)*Disp
+**	CC0e-5nmd ? MOV.L/Q @(Rm,disp5), Rn	//Load DWord From Rm+(4|8)*Disp
 **	Deprecate?: Redundant with CExx-6nm2/6nm3
 * 6---
 **	CC0e-6nm0 MOV.B @Rm, Rn				//B: Zero extend to QWord
@@ -1427,19 +1431,19 @@ XPFY0 I-Forms
 ***		(Q=1,B=0): EXTU.WQ / EXTS.WQ, Extend Word to QWord
 ***		(Q=1,B=1): EXTU.L / EXTS.L, Extend DWord to QWord
 * 7---
-**	CC0e-7nii ADD #imm8, Rn		//Add 8-bit Immed, supports Quad
+**	CC0e-7nii ? ADD #imm8, Rn		//Add 8-bit Immed, supports Quad
 **	Deprecate?: Redundant with CEfi-7nii
 * 8---
 * 9---
 * A---
-**	CC0e-Anmo MOV.L/Q Rm, @(Rn,Ro)		//Store Rm to Rn+(4|8)*Ro
+**	CC0e-Anmo ? MOV.L/Q Rm, @(Rn,Ro)		//Store Rm to Rn+(4|8)*Ro
 **	Deprecate: Redundant with CExx-0nm6/0nm7
 * B---
-**	CC0e-Bnmd MOV.L/Q @(Rm,Ro), Rn		//Load From Rm+(4|8)*Ro
+**	CC0e-Bnmd ? MOV.L/Q @(Rm,Ro), Rn		//Load From Rm+(4|8)*Ro
 **	Deprecate: Redundant with CExx-0nmE/0nmF
 * C---
 * D---
-**	CC0e-Enii MOV #imm8, Rn		//Load 8-bit constant, supports Quad
+**	CC0e-Enii ? MOV #imm8, Rn		//Load 8-bit constant, supports Quad
 **	Deprecate?: Redundant with CEfi-Enii
 * F---
 
@@ -1574,24 +1578,28 @@ Op Ranges
 **		CEfd-6nmD MOVU.W @(Rm,disp6), Rn
 **		CEfd-6nmE MOVU.L @(Rm,disp6), Rn
 **		CEed-6nmF -
-*	CEfi-7nii ADD #imm14, Rn
+*	CEfi-7nii / ADD #imm14, Rn
+*	CEii-7nii ADD #imm16, Rn		//Rn=R16..R31
 *	CExx-8xxx
-*	CExx-9xxx
+*	CEii-9nii LDSH16 #imm16, Rn		//Rn=(Rn<<16)+Imm16, Rn=R16..R31
 *	CExx-Axxx
 *	CExx-Bxxx
 *	CExx-Cxxx
 *	CExx-Dxxx
-*	CEfi-Enii MOV #imm14, Rn
+*	CEfi-Enii / MOV #imm14, Rn
+*	CEii-Enii MOV #imm16, Rn		//Rn=R16..R31
 *	CExx-Fxxx
 
 
-=== XPFZ0: Very Wide Block (Possible) ===
+=== XPFZ0: Very Wide Block (Possible, Unlikely) ===
+
+The use of 64 and 48 bit blocks is possible, but look unlikely at this point.
 
 XPFZ0, 64-bit Block
-*	CE7n-iiii-iiii-iiii ADD.Q #imm48, Rn	//Add 48-bit Quad Constant
-*	CEA0-dddd-dddd-dddd BRA #imm48, Rn		//Branch Disp48
-*	CEB0-dddd-dddd-dddd BSR #imm48, Rn		//Call Disp48
-*	CEEn-iiii-iiii-iiii MOV.Q #imm48, Rn	//Load 48-bit Quad Constant
+*	CD7n-iiii-iiii-iiii ADD.Q #imm48, Rn	//Add 48-bit Quad Constant
+*	CDA0-dddd-dddd-dddd BRA #imm48, Rn		//Branch Disp48
+*	CDB0-dddd-dddd-dddd BSR #imm48, Rn		//Call Disp48
+*	CDEn-iiii-iiii-iiii MOV.Q #imm48, Rn	//Load 48-bit Quad Constant
 
 
 XPFZ1, 48-bit Block

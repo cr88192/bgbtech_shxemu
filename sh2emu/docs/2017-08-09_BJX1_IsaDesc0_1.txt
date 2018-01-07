@@ -267,6 +267,8 @@ BJX1
 Branch to Subroutine with Delay Slot.
 This copies the return PC address into the PR register, and branches to relative address given by the displacement.
 
+The return PR points to the instruction following the delay slot.
+
 
 === BSRF ===
 
@@ -283,6 +285,8 @@ BJX1
 
 Branch to Subroutine with No Delay Slot.
 This copies the return PC address into the PR register, and branches to relative address given by the displacement.
+
+The return PR points to the following instruction.
 
 
 === BT ===
