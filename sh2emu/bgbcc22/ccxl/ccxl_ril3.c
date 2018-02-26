@@ -1527,6 +1527,28 @@ void BGBCC_CCXLR3_DecodeBufCmd(
 		BGBCC_CCXL_StackCastSigStore(ctx, s0, s1);
 		break;
 
+	case BGBCC_RIL3OP_CSELCMP:
+		i0=BGBCC_CCXLR3_ReadSVLI(ctx, &cs);
+		switch(i0&15)
+		{
+		case CCXL_CMP_EQ:		s0="=="; break;
+		case CCXL_CMP_NE:		s0="!="; break;
+		case CCXL_CMP_LT:		s0="<"; break;
+		case CCXL_CMP_GT:		s0=">"; break;
+		case CCXL_CMP_LE:		s0="<="; break;
+		case CCXL_CMP_GE:		s0=">="; break;
+		case CCXL_CMP_TST:		s0="&"; break;
+		case CCXL_CMP_NTST:		s0="!&"; break;
+		default:				s0=NULL; BGBCC_DBGBREAK; break;
+		}
+		switch(i0/16)
+		{
+		case 0:		BGBCC_CCXL_StackCSelCmp(ctx, s0); break;
+		case 1:		BGBCC_CCXL_StackCSelCmpZero(ctx, s0); break;
+		default:	BGBCC_DBGBREAK; break;
+		}
+		break;
+
 	default:
 		__debugbreak();
 		break;

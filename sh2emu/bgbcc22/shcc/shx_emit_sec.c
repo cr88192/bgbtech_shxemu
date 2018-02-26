@@ -162,6 +162,67 @@ int BGBCC_SHX_EmitByte(BGBCC_SHX_Context *ctx, int val)
 	return(0);
 }
 
+int BGBCC_SHX_EmitStatWord(BGBCC_SHX_Context *ctx, int val)
+{
+	if((ctx->sec!=BGBCC_SH_CSEG_TEXT) ||
+		ctx->is_simpass)
+	{
+		ctx->stat_opc_issfx=0;
+		return(0);
+	}
+
+	if(ctx->stat_opc_issfx)
+	{
+		ctx->stat_opc_issfx=0;
+		return(0);
+	}
+	
+	ctx->stat_opc_tot++;
+	
+	if((val&0xFF00)==0x8A00)
+	{
+		ctx->stat_opc_ext8a++;
+		ctx->stat_opc_issfx=5;
+		return(0);
+	}
+
+	if((val&0xFF00)==0x8E00)
+	{
+		ctx->stat_opc_ext8e++;
+		ctx->stat_opc_issfx=1;
+		return(0);
+	}
+
+	if(ctx->is_addr64)
+	{
+		if((val&0xFF00)==0xCE00)
+		{
+			ctx->stat_opc_extCe++;
+			ctx->stat_opc_issfx=2;
+			return(0);
+		}
+
+		if((val&0xFFF0)==0xCC30)
+		{
+			ctx->stat_opc_extCC3++;
+			ctx->stat_opc_issfx=3;
+			return(0);
+		}
+
+		if((val&0xFFF0)==0xCC00)
+		{
+			ctx->stat_opc_extCC0++;
+			ctx->stat_opc_issfx=4;
+			return(0);
+		}
+	}
+
+	ctx->stat_opc_base16++;
+	ctx->stat_opc_issfx=0;
+	return(0);
+
+}
+
 int BGBCC_SHX_EmitWord(BGBCC_SHX_Context *ctx, int val)
 {
 	int i, j, k;
@@ -170,6 +231,8 @@ int BGBCC_SHX_EmitWord(BGBCC_SHX_Context *ctx, int val)
 //	{
 //		BGBCC_DBGBREAK
 //	}
+
+	BGBCC_SHX_EmitStatWord(ctx, val);
 
 	if(!val && (ctx->sec==BGBCC_SH_CSEG_TEXT))
 	{

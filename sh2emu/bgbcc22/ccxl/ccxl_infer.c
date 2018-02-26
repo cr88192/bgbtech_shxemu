@@ -14,7 +14,7 @@ int BGBCC_CCXL_InferExpr(BGBCC_TransState *ctx,
 	int opr;
 	int i;
 
-	*rdty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_I);
+	*rdty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_UNDEF_I);
 
 	if(BCCX_TagIsCstP(l, &bgbcc_rcst_int, "int"))
 	{
@@ -257,8 +257,10 @@ int BGBCC_CCXL_InferExpr(BGBCC_TransState *ctx,
 		if(s0)
 		{
 			i0=BGBCC_CCXL_TryLookupAsRegister(ctx, s0, &treg, false);
-			if(i0<0)
+			if(i0<=0)
+			{
 				return(0);
+			}
 			tty=BGBCC_CCXL_GetRegReturnType(ctx, treg);
 			*rdty=tty;
 			return(1);
@@ -358,5 +360,221 @@ int BGBCC_CCXL_InferExpr(BGBCC_TransState *ctx,
 #endif
 
 //	*rdty=BGBCC_CCXL_MakeTypeID(ctx, CCXL_TY_I);
+	return(0);
+}
+
+/*
+ &1 = Expression does not have side effects.
+ &2 = Expression will not modify conditional status.
+ */
+int BGBCC_CCXL_InferExprCleanP(BGBCC_TransState *ctx, BCCX_Node *l)
+{
+	ccxl_register sreg, treg;
+	BGBCC_CCXL_LiteralInfo *st;
+	BCCX_Node *c, *t, *v, *x, *ln, *rn;
+	char *s0, *s1, *s2, *s3;
+	char *suf, *op;
+	s64 li, lj;
+	int i0, i1, i2, i3;
+	int opr;
+	int i;
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_int, "int"))
+		{ return(3); }
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_real, "real"))
+		{ return(1); }
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_string, "string"))
+		{ return(3); }
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_charstring, "charstring"))
+		{ return(3); }
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_ref, "ref"))
+		{ return(3); }
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_binary, "binary"))
+	{
+		op=BCCX_GetCst(l, &bgbcc_rcst_op, "op");
+		if(!op)
+			return(0);
+
+		ln=BCCX_Fetch(l, "left");
+		rn=BCCX_Fetch(l, "right");
+
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, ln);
+		i1=BGBCC_CCXL_InferExprCleanP(ctx, rn);
+
+		opr=-1;
+		if(!strcmp(op, "+"))
+			opr=CCXL_BINOP_ADD;
+		if(!strcmp(op, "-"))
+			opr=CCXL_BINOP_SUB;
+		if(!strcmp(op, "*"))
+			opr=CCXL_BINOP_MUL;
+		if(!strcmp(op, "&"))
+			opr=CCXL_BINOP_AND;
+		if(!strcmp(op, "|"))
+			opr=CCXL_BINOP_OR;
+		if(!strcmp(op, "^"))
+			opr=CCXL_BINOP_XOR;
+
+		if(!strcmp(op, "<<"))
+			opr=CCXL_BINOP_SHL;
+		if(!strcmp(op, ">>"))
+			opr=CCXL_BINOP_SHR;
+		if(!strcmp(op, ">>>"))
+			opr=CCXL_BINOP_SHRR;
+
+		if(opr>=0)
+		{
+			return(i0&i1);
+		}
+
+		opr=-1;
+		if(!strcmp(op, "=="))opr=CCXL_CMP_EQ;
+		if(!strcmp(op, "!="))opr=CCXL_CMP_NE;
+		if(!strcmp(op, "<"))opr=CCXL_CMP_LT;
+		if(!strcmp(op, ">"))opr=CCXL_CMP_GT;
+		if(!strcmp(op, "<="))opr=CCXL_CMP_LE;
+		if(!strcmp(op, ">="))opr=CCXL_CMP_GE;
+
+		if(!strcmp(op, "&&"))
+			opr=CCXL_BINOP_AND;
+		if(!strcmp(op, "||"))
+			opr=CCXL_BINOP_OR;
+
+		if(!strcmp(op, "/"))
+			opr=CCXL_BINOP_DIV;
+		if(!strcmp(op, "%"))
+			opr=CCXL_BINOP_MOD;
+
+		if(opr>=0)
+			{ return(i0&i1&1); }
+
+		return(0);
+	}
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_unary, "unary"))
+	{
+		op=BCCX_GetCst(l, &bgbcc_rcst_op, "op");
+		if(!op)
+			return(0);
+
+		t=BCCX_Fetch(l, "value");
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, t);
+
+		if(!strcmp(op, "!"))
+		{
+			return(i0&1);
+		}
+
+		if(!strcmp(op, "+") ||
+			!strcmp(op, "-") ||
+			!strcmp(op, "~"))
+		{
+			return(i0);
+		}
+
+		if(!strcmp(op, "*"))
+		{
+			return(i0);
+		}
+
+		return(0);
+	}
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_assign, "assign"))
+	{
+		return(0);
+	}
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_cast, "cast"))
+	{
+		t=BCCX_Fetch(l, "value");
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, t);
+		return(i0);
+	}
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_funcall, "funcall"))
+	{
+/*
+		s0=BCCX_GetCst(l, &bgbcc_rcst_name, "name");
+		if(s0)
+		{
+			i0=BGBCC_CCXL_TryLookupAsRegister(ctx, s0, &treg, false);
+			if(i0<0)
+				return(0);
+			tty=BGBCC_CCXL_GetRegReturnType(ctx, treg);
+			*rdty=tty;
+			return(1);
+		}
+*/
+		
+		return(0);
+	}
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_if, "if"))
+	{
+		c=BCCX_Fetch(l, "then");
+		ln=BCCX_Fetch(l, "then");
+		rn=BCCX_Fetch(l, "else");
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, ln);
+		i1=BGBCC_CCXL_InferExprCleanP(ctx, rn);
+		i2=BGBCC_CCXL_InferExprCleanP(ctx, c);
+		return(i0&i1&i2&(~2));
+	}
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_comma, "comma"))
+	{
+		ln=BCCX_Fetch(l, "left");
+		rn=BCCX_Fetch(l, "right");
+
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, ln);
+		i1=BGBCC_CCXL_InferExprCleanP(ctx, rn);
+
+		return(i0&i1);
+	}
+
+#if 1
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_loadindex, "loadindex"))
+	{
+		t=BCCX_Fetch(l, "array");
+		v=BCCX_Fetch(l, "index");
+
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, t);
+		i1=BGBCC_CCXL_InferExprCleanP(ctx, v);
+		return(i0&i1);
+	}
+#endif
+
+#if 1
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_objref, "objref"))
+	{
+		t=BCCX_Fetch(l, "value");
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, t);
+		return(i0);
+	}
+#endif
+
+#if 1
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_getindex, "getindex"))
+	{
+		t=BCCX_Fetch(l, "array");
+		v=BCCX_Fetch(l, "index");
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, t);
+		i1=BGBCC_CCXL_InferExprCleanP(ctx, v);
+		return(i0&i1);
+	}
+
+	if(BCCX_TagIsCstP(l, &bgbcc_rcst_sizeof, "sizeof") ||
+		BCCX_TagIsCstP(l, &bgbcc_rcst_sizeof_expr, "sizeof_expr") ||
+		BCCX_TagIsCstP(l, &bgbcc_rcst_offsetof, "offsetof"))
+	{
+		return(3);
+	}
+#endif
+
 	return(0);
 }

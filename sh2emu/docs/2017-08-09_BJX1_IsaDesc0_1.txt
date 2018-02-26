@@ -24,6 +24,15 @@ Normal instructions will be 16 bit, and are expressed here as nibbles.
 ** The 3 bit registers map to 0..6=R8..R14 and 7=R0
 ** For FRn, they map to FR8..FR15.
 
+* e: qnst | qnmo
+** q=Quad (analogous to DQ for many ops)
+** n/s/t: bit 4 for n/s/t registers.
+** n/m/o: bit 4 for n/m/o registers.
+*** For 2-register ops, o may select an alternate form.
+*** MOV.B/MOV.W (2R): o means use a zero-extending form.
+* f: nmii
+** n/m: bit 4 for n/m registers.
+** ii: immediate bits.
 
 Displacements:
 * Are normally scaled by the size of the data type.
@@ -92,7 +101,11 @@ All
 BJX1
 * 8Eii-7nii  ADD #imm16s, Rn
 
-Add Rm or Imm8 to the value in Rn.
+BJX1-64A
+* CC0e-3nmC  ADD Rm, Rn				//EGPR
+* CEii-7nii  ADD #imm16s, Rn		//Rn=R16..R31
+
+Add Rm, Imm8, or Imm16 to the value in Rn.
 
 
 === ADD (3R) ===
@@ -101,7 +114,7 @@ BJX1
 * 8Ejj-3nmC  ADD Rm, #imm8, Rn
 * 8Est-4n03  ADD Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-0nst  ADD Rs, Rt, Rn
 
 Add Imm8 or Rt to Rm or Rs and store the value in Rn.
@@ -137,10 +150,13 @@ DQ:
 
 All
 * 2nm9  AND Rm, Rn
-* C9jj  AND #imm8, Rn
+* C9jj  AND #imm8, R0
 
 BJX1
 * 8Eii-C9ni  AND #imm12s, Rn
+
+BJX1-64A
+* CC0e-2nm9  AND Rm, Rn
 
 And Rm or Immediate with the value in Rn, storing result into Rn.
 Operation is equivalent independent of DQ.
@@ -153,8 +169,10 @@ BJX1
 * 8Ejj-3nm9  AND Rm, #-imm8, Rn
 * 8Est-4n33  AND Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-3nst  AND Rs, Rt, Rn
+* CEfj-2nm9  AND Rm, #imm6, Rn
+* CEfj-3nm9  AND Rm, #-imm6, Rn
 
 And Rt or Immediate with the value in Rs or Rm, storing result into Rn.
 Operation is equivalent independent of DQ.
@@ -164,7 +182,7 @@ The 2xx9 form is zero-extended, whereas the 3xx9 form is extended with ones (neg
 
 === AND.B ===
 
-All, BJX1 (JQ=0)
+All, BJX1-32
 * CDjj  AND #imm8, @(R0, GBR)		//32-bit only
 
 And Imm8 with the byte found at this address.
@@ -199,10 +217,10 @@ Branches to the relative displacement if SR.T is Zero.
 === BRA ===
 
 All
-* Addd       BRA label12s
+* Addd        BRA label12s
 
 BJX1
-* 8Edd-Addd  BRA label20s
+* 8Edd-Addd ? BRA label20s
 
 Unconditional branch with Delay Slot.
 
@@ -217,11 +235,12 @@ Relative computed branch with Delay Slot.
 === BRA/N ===
 
 BJX1
+* 82dd       BRA/N label8s
 * 8Edd-82dd  BRA/N label16s
 
 Unconditional branch with No Delay Slot.
 
-=== BRcc (BJX1) ===
+=== BRcc (BJX1, Drop?) ===
 
 BJX1
 *		8Edd-4mb5 ? BRxx Rm, disp8
@@ -259,10 +278,10 @@ Breakpoint.
 === BSR ===
 
 All
-* Bddd       BSR label12s
+* Bddd        BSR label12s
 
 BJX1
-* 8Edd-Bddd  BSR label20s
+* 8Edd-Bddd ? BSR label20s
 
 Branch to Subroutine with Delay Slot.
 This copies the return PC address into the PR register, and branches to relative address given by the displacement.
@@ -318,6 +337,7 @@ Branches to the relative displacement if SR.T is Non-Zero.
 * 2nm3  CAS.L Rm, Rn, @R0
 
 Compare and Swap.
+Operation is equivalent independent of DQ.
 
 
 === CLRMAC ===
@@ -352,8 +372,12 @@ BJX1
 * 8Eii-3ni0  CMP/EQ #imm12s, Rn
 * 8Eii-88ii  CMP/EQ #imm16s, R0
 
-BJX1 (JQ=1)
+BJX1-64
 * C5qp       CMPQ/EQ Rm, Rn
+
+BJX1-64A
+* CC0e-3nm0  CMP/EQ Rm, Rn
+* CEfi-3ni0  CMP/EQ #imm10s, Rn
 
 
 Compare if Rm and Rn are Equal, setting SR.T if they are equal, and clearing SR.T otherwise.
@@ -367,6 +391,10 @@ All
 BJX1
 * 8Eii-3ni3  CMP/GE #imm12s, Rn
 
+BJX1-64A
+* CC0e-3nm3  CMP/GE Rm, Rn
+* CEfi-3ni3  CMP/GE #imm10s, Rn
+
 Compare if Rn is greater than or equal to Rm, setting SR.T if true, and clearing SR.T otherwise.
 
 
@@ -378,8 +406,12 @@ All
 BJX1
 * 8Eii-3ni7  CMP/GT #imm12s, Rn
 
-BJX1 (JQ=1)
+BJX1-64
 * C5QP       CMPQ/GT Rm, Rn
+
+BJX1-64A
+* CC0e-3nm7  CMP/GT Rm, Rn
+* CEfi-3ni7  CMP/GT #imm10s, Rn
 
 Compare if Rn is greater than Rm, setting SR.T if true, and clearing SR.T otherwise.
 
@@ -392,8 +424,12 @@ All
 BJX1
 * 8Eii-3ni6  CMP/HI #imm12s, Rn
 
-BJX1 (JQ=1)
+BJX1-64
 * C5Qp       CMPQ/HI Rm, Rn
+
+BJX1-64A
+* CC0e-3nm6  CMP/HI Rm, Rn
+* CEfi-3ni6  CMP/HI #imm10s, Rn
 
 Compare if Rn is greater than Rm, setting SR.T if true, and clearing SR.T otherwise. The comparison is done as unsigned.
 
@@ -405,6 +441,10 @@ All
 
 BJX1
 * 8Eii-3ni2  CMP/HS #imm12s, Rn
+
+BJX1-64A
+* CC0e-3nm2  CMP/HS Rm, Rn
+* CEfi-3ni2  CMP/HS #imm10s, Rn
 
 Compare if Rn is greater than or equal to Rm, setting SR.T if true, and clearing SR.T otherwise. The comparison is done as unsigned.
 
@@ -425,11 +465,20 @@ Compare Rn with Zero, setting SR.T if Rn is greater than or equal to Zero.
 
 === CMP/STR ===
 
-All, BJX1 (JQ=0)
+All, BJX1-32
 * 2nmC  CMP/STR Rm, Rn
 
 Set SR.T if any byte in Rm equals the corresponding byte in Rn.
 This operation is invalid in BJX1-64.
+
+
+=== CSELT ===
+
+BJX1
+* 8Est-4nA3	CSELT Rs, Rt, Rn
+
+Conditional Select.
+Selests Rs or Rt based on the value of SR.T, picking Rs is Set, or Rt if Clear.
 
 
 === DIV0S ===
@@ -506,7 +555,10 @@ Decrements Rn, setting SR.T if the result is Zero, clearing SR.T otherwise.
 === EXTS.B ===
 
 All
-* 6nmE  EXTS.B Rm, Rn
+* 6nmE       EXTS.B Rm, Rn
+
+BJX1-64A
+* CC0e-6nmE  EXTS.B Rm, Rn
 
 Sign extend the Byte value in Rm and store the result in Rn.
 Operation is equivalent independent of DQ.
@@ -515,16 +567,22 @@ Operation is equivalent independent of DQ.
 === EXTS.L ===
 
 All
-* 4n54  EXTS.L Rn
+* 4n54       EXTS.L Rn
 
-Sign extend the Byte value in Rm and store the result in Rn.
+BJX1-64A
+* CC0e-6nmF  EXTS.L Rm, Rn	//o=1
+
+Sign extend the DWORD value in Rm and store the result in Rn.
 Operation is equivalent independent of DQ.
 
 
 === EXTS.W ===
 
 All
-* 6nmF  EXTS.W Rm, Rn
+* 6nmF       EXTS.W Rm, Rn
+
+BJX1-64A
+* CC0e-6nmF  EXTS.W Rm, Rn	//o=0
 
 Sign extend the Word value in Rm and store the result in Rn.
 Operation is equivalent independent of DQ.
@@ -533,7 +591,10 @@ Operation is equivalent independent of DQ.
 === EXTU.B ===
 
 All
-* 6nmC  EXTU.B Rm, Rn
+* 6nmC       EXTU.B Rm, Rn
+
+BJX1-64A
+* CC0e-6nmC  EXTU.B Rm, Rn
 
 Zero extend the Byte value in Rm and store the result in Rn.
 Operation is equivalent independent of DQ.
@@ -542,16 +603,22 @@ Operation is equivalent independent of DQ.
 === EXTU.L ===
 
 All
-* 4n44  EXTU.L Rn
+* 4n44       EXTU.L Rn
 
-Zero extend the Byte value in Rm and store the result in Rn.
+BJX1-64A
+* CC0e-6nmD  EXTU.L Rm, Rn	//o=1
+
+Zero extend the DWORD value in Rm and store the result in Rn.
 Operation is equivalent independent of DQ.
 
 
 === EXTU.W ===
 
 All
-* 6nmD  EXTU.W Rm, Rn
+* 6nmD       EXTU.W Rm, Rn
+
+BJX1-64A
+* CC0e-6nmD  EXTU.W Rm, Rn	//o=0
 
 Zero extend the Word value in Rm and store the result in Rn.
 Operation is equivalent independent of DQ.
@@ -643,6 +710,10 @@ BJX1
 * 8Eod-6nm4  LEA.B @(Rm, Ro, disp4), Rn
 * 8Edd-6nm8  LEA.B @(Rm, disp8s), Rn
 
+BJX1-64A
+* CEfo-6nm4  LEA.B @(Rm, Ro), Rn
+* CEfd-6nm8  LEA.B @(Rm, disp6), Rn
+
 Calculate the effective-address of a Byte operation and store the result in Rn.
 If Ro is R0 or R15, the results are undefined.
 
@@ -655,6 +726,10 @@ BJX1
 * 8Eod-6nm5  LEA.W @(Rm, Ro, disp4), Rn
 * 8Edd-6nm9  LEA.W @(Rm, disp8s), Rn
 
+BJX1-64A
+* CEfo-6nm5  LEA.W @(Rm, Ro), Rn
+* CEfd-6nm9  LEA.W @(Rm, disp6), Rn
+
 Calculate the effective-address of a Word operation and store the result in Rn.
 If Ro is R0 or R15, the results are undefined.
 
@@ -664,6 +739,10 @@ If Ro is R0 or R15, the results are undefined.
 BJX1
 * 8Eod-6nm6  LEA.L @(Rm, Ro, disp4), Rn
 * 8Edd-6nmA  LEA.L @(Rm, disp8s), Rn
+
+BJX1-64A
+* CEfo-6nm6  LEA.L @(Rm, Ro), Rn
+* CEfd-6nmA  LEA.L @(Rm, disp6), Rn
 
 Calculate the effective-address of a DWord operation and store the result in Rn.
 If Ro is R0 or R15, the results are undefined.
@@ -675,6 +754,10 @@ BJX1
 * 8Eod-6nm7  LEA.Q @(Rm, Ro, disp4), Rn
 * 8Edd-6nmB  LEA.Q @(Rm, disp8s), Rn
 
+BJX1-64A
+* CEfo-6nm7  LEA.Q @(Rm, Ro), Rn
+* CEfd-6nmB  LEA.Q @(Rm, disp6), Rn
+
 Calculate the effective-address of a QWord operation and store the result in Rn.
 If Ro is R0 or R15, the results are undefined.
 
@@ -683,6 +766,9 @@ If Ro is R0 or R15, the results are undefined.
 
 BJX1
 * 8Eii-9nii  LDSH16 #imm16s, Rn
+
+BJX1-64A
+* CEii-9nii  LDSH16 #imm16s, Rn		//Rn=R16..R31
 
 Does the equivalent of Rn=(Rn<<16)+Imm16.
 Operation is equivalent independent of DQ.
@@ -717,8 +803,10 @@ All
 BJX1
 * 8Eii-Enii  MOV #imm16s, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
+* CC0e-6nm3  MOV Rm, Rn
 * CC0e-Enii  MOV #imm8s, Rn
+* CEii-Enii  MOV #imm16s, Rn	//Rn=R16..R31
 
 Move value between registers or load immediate.
 Operation is equivalent independent of DQ.
@@ -736,7 +824,7 @@ All
 * 6nm4  MOV.B @Rm+, Rn
 * 84mi  MOV.B @(Rm, disp8), R0
 
-BJX1 (JQ=0)
+BJX1-32
 * C0ii  MOV.B R0, @(GBR, disp8)
 * C4ii  MOV.B @(GBR, disp8), R0
 
@@ -756,6 +844,12 @@ BJX1
 * 8Emo-4n40  MOV.B Rm, @(Rn, Ro)
 * 8Emo-4nC0  MOV.B @(Rm, Ro), Rn
 
+BJX1-64A
+* CEeo-0nm4  MOV.B Rm, @(Rn, Ro)
+* CEfd-2nm0  MOV.B Rm, @(Rn, disp6)
+* CEeo-0nmC  MOV.B @(Rm, Ro), Rn
+* CEfd-6nm0  MOV.B @(Rm, disp6), Rn
+
 
 Load or store a Byte.
 Operation is equivalent independent of DQ.
@@ -774,7 +868,7 @@ All
 * 6nm6  MOV.L @Rm+, Rn
 * Dndd  MOV.L @(PC, disp8), Rn
 
-BJX1 (JQ=0)
+BJX1-32
 * C2ii  MOV.L R0, @(GBR, disp8)
 * C6ii  MOV.L @(GBR, disp8), R0
 
@@ -795,6 +889,12 @@ BJX1
 * 8Edd-6nm2  MOV.L @(Rm, disp8s), Rn
 * 8Emo-4n60  MOV.L Rm, @(Rn, Ro)
 * 8Emo-4nE0  MOV.L @(Rm, Ro), Rn
+
+BJX1-64A
+* CEeo-0nm6  MOV.L Rm, @(Rn, Ro)
+* CEfd-2nm2  MOV.L Rm, @(Rn, disp6)
+* CEeo-0nmE  MOV.L @(Rm, Ro), Rn
+* CEfd-6nm2  MOV.L @(Rm, disp6), Rn
 
 BJX1 (Special Case, DQ=0)
 * 83md     ? MOV.L Rm, @(SP, disp4)
@@ -825,6 +925,12 @@ BJX1-64
 * 8Edd-6nm3  MOV.Q @(Rm, disp8s), Rn
 * 8Emo-4n70  MOV.Q Rm, @(Rn, Ro)
 * 8Emo-4nF0  MOV.Q @(Rm, Ro), Rn
+
+BJX1-64A
+* CEeo-0nm7  MOV.Q Rm, @(Rn, Ro)
+* CEfd-2nm3  MOV.Q Rm, @(Rn, disp6)
+* CEeo-0nmF  MOV.Q @(Rm, Ro), Rn
+* CEfd-6nm3  MOV.Q @(Rm, disp6), Rn
 
 BJX1-64 (DQ=0)
 * 4n64  MOV.Q @R0, Rn
@@ -861,7 +967,7 @@ All, BJX1 (DQ=0)
 * 85md  MOV.W @(Rm, disp4), R0
 * 9ndd  MOV.W @(PC, disp8), Rn
 
-BJX1 (JQ=0)
+BJX1-32
 * C1dd  MOV.W R0, @(GBR, disp8)
 * C5ii  MOV.W @(GBR, disp8), R0
 
@@ -884,8 +990,14 @@ BJX1
 * 8Edd-2nm1  MOV.W Rm, @(Rn, disp8s)
 * 8Eod-0nmD  MOV.W @(Rm, Ro, disp4), Rn
 * 8Edd-6nm1  MOV.W @(Rm, disp8s), Rn
-* 8Emo-4n50  MOV.B Rm, @(Rn, Ro)
-* 8Emo-4nD0  MOV.B @(Rm, Ro), Rn
+* 8Emo-4n50  MOV.W Rm, @(Rn, Ro)
+* 8Emo-4nD0  MOV.W @(Rm, Ro), Rn
+
+BJX1-64A
+* CEeo-0nm5  MOV.W Rm, @(Rn, Ro)
+* CEfd-2nm1  MOV.W Rm, @(Rn, disp6)
+* CEeo-0nmD  MOV.W @(Rm, Ro), Rn
+* CEfd-6nm1  MOV.W @(Rm, disp6), Rn
 
 Load or store a WORD.
 
@@ -915,10 +1027,15 @@ Copy SR.T to Rn.
 
 === MOVU.B ===
 
+BJX1
 * 3nm1-8ddd  MOVU.B @(Rm, disp12), Rn
 * 8Edd-6nmC  MOVU.B @(Rm, disp8s), Rn
 
+BJX1-64A
+* CEfd-6nmC  MOVU.B @(Rm, disp6), Rn
+
 Load Unsigned Byte.
+
 
 === MOVU.W ===
 
@@ -927,9 +1044,9 @@ SH2A
 
 BJX1
 * 8Edd-6nmD  MOVU.W @(Rm, disp8s), Rn
-* 8E2d-9ndd  MOVU.W @(PC, disp13), Rn
-* 8E6d-9ndd  MOVU.W @(PC, disp13), RHn
-* 8EAd-9ndd  MOVU.W @(PC, disp13), RQn
+
+BJX1-64A
+* CEfd-6nmD  MOVU.W @(Rm, disp6), Rn
 
 Load Unsigned Word.
 
@@ -938,6 +1055,9 @@ Load Unsigned Word.
 
 BJX1
 * 8Edd-6nmE  MOVU.L @(Rm, disp8s), Rn
+
+BJX1-64A
+* CEfd-6nmE  MOVU.L @(Rm, disp6), Rn
 
 Load Unsigned DWord.
 
@@ -959,8 +1079,10 @@ BJX1
 * 8Ejj-2nmF  MUL Rm, #-imm8, Rn
 * 8Est-4n23  MUL Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-2nst  MUL Rs, Rt, Rn
+* CEfj-2nmE  MUL Rm, #imm6, Rn
+* CEfj-2nmF  MUL Rm, #-imm6, Rn
 
 Multiply values, storing result in Rn.
 In the 2xxE form, the immediate is extended with zeroes (positive).
@@ -969,7 +1091,11 @@ In the 2xxF form, the immediate is extended with ones (negative).
 
 === MUL.L ===
 
+All
 * 0nm7       MUL.L Rm, Rn
+
+BJX1-64A
+* CC0e-0nm7  MUL.L Rm, Rn
 
 Multiply Rm and Rn, storing low bits of result in MACL.
 
@@ -977,7 +1103,10 @@ Multiply Rm and Rn, storing low bits of result in MACL.
 === MULS.Q ===
 
 All, BJX1 (DQ=1)
-* 2nmF  MULS.Q Rm, Rn
+* 2nmF       MULS.Q Rm, Rn
+
+BJX1-64A
+* CC0e-2nmF  MULS.Q Rm, Rn	//q=1
 
 Signed multiply of the QWord values in Rm and Rn, storing the 128-bit result into XMACH:MACH:XMACL:MACL.
 
@@ -985,7 +1114,10 @@ Signed multiply of the QWord values in Rm and Rn, storing the 128-bit result int
 === MULU.Q ===
 
 All, BJX1 (DQ=1)
-* 2nmE  MULU.Q Rm, Rn
+* 2nmE       MULU.Q Rm, Rn
+
+BJX1-64A
+* CC0e-2nmE  MULU.Q Rm, Rn	//q=1
 
 Unsigned multiply of the QWord values in Rm and Rn, storing the result into XMACH:MACH:XMACL:MACL.
 
@@ -993,7 +1125,10 @@ Unsigned multiply of the QWord values in Rm and Rn, storing the result into XMAC
 === MULS.W ===
 
 All, BJX1 (DQ=0)
-* 2nmF  MULS.W Rm, Rn
+* 2nmF       MULS.W Rm, Rn
+
+BJX1-64A
+* CC0e-2nmF  MULS.W Rm, Rn	//q=0
 
 Signed multiply of the Word values in Rm and Rn, storing the result into MACL.
 
@@ -1001,7 +1136,10 @@ Signed multiply of the Word values in Rm and Rn, storing the result into MACL.
 === MULU.W ===
 
 All, BJX1 (DQ=0)
-* 2nmE  MULU.W Rm, Rn
+* 2nmE       MULU.W Rm, Rn
+
+BJX1-64A
+* CC0e-2nmE  MULU.W Rm, Rn	//q=0
 
 Unsigned multiply of the Word values in Rm and Rn, storing the result into MACL.
 
@@ -1009,7 +1147,10 @@ Unsigned multiply of the Word values in Rm and Rn, storing the result into MACL.
 === NEG ===
 
 All
-* 6nmB  NEG Rm, Rn
+* 6nmB       NEG Rm, Rn
+
+BJX1-64A
+* CC0e-6nmB  NEG Rm, Rn
 
 Negate value in Rm and store in Rn.
 Operation is equivalent independent of DQ.
@@ -1037,7 +1178,10 @@ A 4 bit immediate may be supplied to a NOP (with a value between 1 and 14), but 
 === NOT ===
 
 All
-* 6nm7  NOT Rm, Rn
+* 6nm7       NOT Rm, Rn
+
+BJX1-64A
+* CC0e-6nm7  NOT Rm, Rn
 
 Invert bits in Rm and store result in Rn.
 Operation is equivalent independent of DQ.
@@ -1052,6 +1196,9 @@ All
 BJX1
 * 8Eii-CBni  OR #imm12s, Rn
 
+BJX1-64A
+* CC0e-2nmB  OR Rm, Rn
+
 Bitwise Or Rm with Rn.
 Operation is equivalent independent of DQ.
 
@@ -1062,8 +1209,9 @@ BJX1
 * 8Ejj-2nmB  OR Rm, #imm8, Rn
 * 8Est-4n23  OR Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-4nst  OR Rs, Rt, Rn
+* CEfj-2nmB  OR Rm, #imm6, Rn
 
 Or Imm or Rt with Rs Rm or Rs, storing result in Rn.
 Operation is equivalent independent of DQ.
@@ -1071,7 +1219,7 @@ Operation is equivalent independent of DQ.
 
 === OR.B ===
 
-All, BJX1 (JQ=0)
+All, BJX1-32
 * CFii       OR.B #imm8, @(GBR, R0)
 
 Or immediate against a byte in memory.
@@ -1112,7 +1260,7 @@ When JQ is set, this will push a 64-bit value. This operation ignores DQ.
 
 === ROT32 ===
 
-BJX1 (JQ=1)
+BJX1-64
 * 4n14  ROT32 Rn
 
 Rotate a QWord value by 32 bits.
@@ -1186,6 +1334,9 @@ Set SR.T to One.
 SH3+
 * 4nmC       SHAD Rm, Rn
 
+BJX1-64A
+* CC0e-4nmC  SHAD Rm, Rn
+
 
 Arithmetic Barrel Shift.
 
@@ -1209,8 +1360,9 @@ BJX1
 * 8Eii-4nmC  SHAD Rm, #imm, Rn
 * 8Est-4n83  SHAD Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-8nst  SHAD Rs, Rt, Rn
+* CEfi-4nmC  SHAD.L Rm, #imm6, Rn
 
 Arithmetic Barrel Shift.
 
@@ -1224,10 +1376,18 @@ SHAD Rs, Rt, Rn
 === SHAL ===
 
 All
-* 4n20  SHAL Rn
+* 4n20       SHAL Rn
 
 Arithmetic Shift Left.
 Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+
+
+=== SHAL (3R) ===
+
+BJX1-64A
+* CEfi-3nmA SHAL.Q Rm, #imm6, Rn
+
+Arithmetic Shift Left by value given in immediate.
 
 
 === SHAR ===
@@ -1244,8 +1404,9 @@ Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
 BJX1
 * 8Est-4n93  SHAR Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-9nst  SHAR Rs, Rt, Rn
+* CEfi-3nmE  SHAR.Q Rm, #imm6, Rn
 
 Arithmetic Shift Right.
 * Behaves like SHAD with a negated argument.
@@ -1277,8 +1438,9 @@ BJX1
 * 8Eii-4nmD  SHLD Rm, #imm, Rn
 * 8Est-4n63  SHLD Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-6nst  SHLD Rs, Rt, Rn
+* CEfi-4nmD  SHLD Rm, #imm6, Rn
 
 Logical Barrel Shift.
 
@@ -1296,6 +1458,11 @@ All
 
 Logical Shift Left.
 Shifts value right by 1 bit, setting SR.T according to the shifted-out bit.
+
+=== SHLL (3R) ===
+
+BJX1-64A
+* CEfi-3nmB SHLL.Q Rm, #imm6, Rn
 
 
 === SHLL1 (Pseudo) ===
@@ -1357,8 +1524,9 @@ Operation is equivalent independent of DQ.
 BJX1
 * 8Est-4n73  SHLR Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-7nst  SHLR Rs, Rt, Rn
+* CEfi-3nmF  SHLR.Q Rm, #imm6, Rn
 
 Logical Shift Right.
 * Behaves like SHLD with a negated argument.
@@ -1461,6 +1629,9 @@ Store System Register to Memory.
 All
 * 3nm8       SUB Rm, Rn
 
+BJX1-64A
+* CC0e-3nm8  SUB Rm, Rn
+
 Subtract Rm from Rn.
 Operation is equivalent independent of DQ.
 
@@ -1471,8 +1642,9 @@ BJX1
 * 8Ejj-3nm8  SUB Rm, #imm8, Rn
 * 8Est-4n13  SUB Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64
 * CC3e-1nst  SUB Rs, Rt, Rn
+* CEfj-3nm8  SUB Rm, #imm6, Rn
 
 Subtract Imm or Rt from Rm or Rs, storing the result in Rn.
 Operation is equivalent independent of DQ.
@@ -1510,7 +1682,7 @@ Operation is equivalent independent of DQ.
 
 === TAS.B ===
 
-All, BJX1 (JQ=0)
+All, BJX1-32
 * 4n1B  TAS.B @Rn
 
 Test and Set Byte.
@@ -1532,15 +1704,18 @@ All
 BJX1
 * 8Ejj-C8nj  TST #imm12, Rn
 
-BJX1 (JQ=1)
+BJX1-64
 * C5qP       TST.Q Rm, Rn
+
+BJX1-64A
+* CC0e-2nm8  TST Rm, Rn
 
 Takes the bitwise AND of Rm and Rn, and sets SR.T if the result is Zero.
 
 
 === TST.B ===
 
-All, BJX1 (JQ=0)
+All, BJX1-32
 * CCii  TST.B #imm8, @(GBR, R0)
 
 This instruction form is invalid in BJX1-64.
@@ -1555,6 +1730,9 @@ All
 BJX1
 * 8Ejj-CAnj  XOR #imm12, Rn
 
+BJX1-64A
+* CC0e-2nmA  XOR Rm, Rn
+
 Xor Rm or Imm with Rn or R0.
 Operation is equivalent independent of DQ.
 
@@ -1565,8 +1743,9 @@ BJX1
 * 8Eii-2nmA  XOR Rm, #imm8, Rn
 * 8Est-4n53  XOR Rs, Rt, Rn
 
-BJX1 (JQ=1)
+BJX1-64A
 * CC3e-5nst  XOR Rs, Rt, Rn
+* CEfi-2nmA  XOR Rm, #imm6, Rn
 
 Subtract Imm or Rt from Rm or Rs, storing the result in Rn.
 Operation is equivalent independent of DQ.
@@ -1574,7 +1753,7 @@ Operation is equivalent independent of DQ.
 
 === XOR.B ===
 
-All, BJX1 (JQ=0)
+All, BJX1-32
 * CEii  XOR.B #imm8, @(GBR, R0)
 
 This instruction form is invalid in BJX1-64.

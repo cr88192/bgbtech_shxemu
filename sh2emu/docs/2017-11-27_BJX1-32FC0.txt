@@ -325,6 +325,7 @@ Memory Addressing Modes
 If an instruction is preceded with a '/', it is not implemented, but more just to declare that a space is reserved for this instruction.
 
 Instructions precded with '!' are extensions specific to this VM or ISA.
+* '!/', don't use, likely to be dropped.
 * '!?', possible, but debatable.
 * '!!', very uncertain.
 * '?', To Be Decided
@@ -356,7 +357,6 @@ The 32-bit I-Forms will be organized into block-ranges.
 * 0xx1, ! ( MOVI20S, Unsupported)
 * 3xx1, ! ( Extended MOV.x, Unsupported)
 * 3xx9, !
-* 82xx, !
 * 8Axx, MOVI24
 * 8Cxx, XPFX2
 * 8Exx, XPFX0
@@ -679,7 +679,7 @@ Basic I-Forms (16-bit)
 * 8---
 **	80nd MOV.B R0, @(Rn, disp)	//Store Byte
 **	81nd MOV.W R0, @(Rn, disp)	//Store Word or Quad
-**	82xx !
+**	82dd BRA/N disp8
 **	83dd !
 **	84md MOV.B @(Rm, disp), R0
 **	85md MOV.W @(Rm, disp), R0
@@ -893,7 +893,7 @@ XPFX0/Escape32 I-Forms
 ***			8Est-4n73 SHLR Rs, Rt, Rn
 ***			8Est-4n83 SHAD Rs, Rt, Rn
 ***			8Est-4n93 SHAR Rs, Rt, Rn
-***			8Est-4nA3 -
+***			8Est-4nA3 CSELT Rs, Rt, Rn		//Rn=SR.T?Rs:Rt
 ***			8Est-4nB3 -
 ***			8Est-4nC3 FADD FRs, FRt, FRn
 ***			8Est-4nD3 FSUB FRs, FRt, FRn
@@ -910,21 +910,21 @@ XPFX0/Escape32 I-Forms
 **		8Eii-4nmC SHAD Rm, #imm, Rn
 **		8Eii-4nmD SHLD Rm, #imm, Rn
 **		8Exx-4xxE -
-***			8Emo-4n0E MOVU.B @(Rm, Ro), Rn
-***			8Emo-4n1E MOVU.W @(Rm, Ro), Rn
-***			8Emo-4n2E FMOV.S @(Rm, Ro), FRn
-***			8Emo-4n3E FMOV.S FRm, @(Rn, Ro)
-***			8Emo-4n4E MOV.B Rm, @(Rn, Ro)
-***			8Emo-4n5E MOV.W Rm, @(Rn, Ro)
-***			8Emo-4n6E MOV.L Rm, @(Rn, Ro)
+***			8Emo-4n0E   MOVU.B @(Rm, Ro), Rn
+***			8Emo-4n1E   MOVU.W @(Rm, Ro), Rn
+***			8Emo-4n2E   FMOV.S @(Rm, Ro), FRn
+***			8Emo-4n3E   FMOV.S FRm, @(Rn, Ro)
+***			8Emo-4n4E !/ MOV.B Rm, @(Rn, Ro)
+***			8Emo-4n5E !/ MOV.W Rm, @(Rn, Ro)
+***			8Emo-4n6E !/ MOV.L Rm, @(Rn, Ro)
 ***			8Emo-4n7E ! ( N/A )
-***			8Emo-4n8E LEA.B @(Rm, Ro), Rn
-***			8Emo-4n9E LEA.W @(Rm, Ro), Rn
-***			8Emo-4nAE LEA.L @(Rm, Ro), Rn
-***			8Emo-4nBE LEA.Q @(Rm, Ro), Rn
-***			8Emo-4nCE MOV.B @(Rm, Ro), Rn
-***			8Emo-4nDE MOV.W @(Rm, Ro), Rn
-***			8Emo-4nEE MOV.L @(Rm, Ro), Rn
+***			8Emo-4n8E !/ LEA.B @(Rm, Ro), Rn
+***			8Emo-4n9E !/ LEA.W @(Rm, Ro), Rn
+***			8Emo-4nAE !/ LEA.L @(Rm, Ro), Rn
+***			8Emo-4nBE !/ LEA.Q @(Rm, Ro), Rn
+***			8Emo-4nCE !/ MOV.B @(Rm, Ro), Rn
+***			8Emo-4nDE !/ MOV.W @(Rm, Ro), Rn
+***			8Emo-4nEE !/ MOV.L @(Rm, Ro), Rn
 ***			8Emo-4nFE ! ( N/A )
 **		8Exx-4xxF -
 *	8Edd-5nmo MOV.L @(Rm, Ro, disp), Rn
@@ -1323,6 +1323,15 @@ All, BJX1
 Set SR.T if any byte in Rm equals the corresponding byte in Rn.
 
 
+=== CSELT ===
+
+BJX1
+* 8Est-4nA3	CSELT Rs, Rt, Rn
+
+Conditional Select.
+Selests Rs or Rt based on the value of SR.T, picking Rs is Set, or Rt if Clear.
+
+
 === DIV0S ===
 
 * 2nm7       DIV0S Rm, Rn
@@ -1609,8 +1618,8 @@ BJX1
 * 8Edd-2nm0  MOV.B Rm, @(Rn, disp8s)
 * 8Eod-0nmC  MOV.B @(Rm, Ro, disp4), Rn
 * 8Edd-6nm0  MOV.B @(Rm, disp8s), Rn
-* 8Emo-4n40  MOV.B Rm, @(Rn, Ro)
-* 8Emo-4nC0  MOV.B @(Rm, Ro), Rn
+* 8Emo-4n40 !/ MOV.B Rm, @(Rn, Ro)
+* 8Emo-4nC0 !/ MOV.B @(Rm, Ro), Rn
 
 
 Load or store a Byte.
@@ -1645,8 +1654,8 @@ BJX1
 * 8Eod-0nmE  MOV.L @(Rm, Ro, disp4), Rn
 * 8Edd-5nmo  MOV.L @(Rm, Ro, disp8s), Rn
 * 8Edd-6nm2  MOV.L @(Rm, disp8s), Rn
-* 8Emo-4n60  MOV.L Rm, @(Rn, Ro)
-* 8Emo-4nE0  MOV.L @(Rm, Ro), Rn
+* 8Emo-4n60 !/ MOV.L Rm, @(Rn, Ro)
+* 8Emo-4nE0 !/ MOV.L @(Rm, Ro), Rn
 
 Load or Store a DWord.
 
@@ -1679,8 +1688,8 @@ BJX1
 * 8Edd-2nm1  MOV.W Rm, @(Rn, disp8s)
 * 8Eod-0nmD  MOV.W @(Rm, Ro, disp4), Rn
 * 8Edd-6nm1  MOV.W @(Rm, disp8s), Rn
-* 8Emo-4n50  MOV.B Rm, @(Rn, Ro)
-* 8Emo-4nD0  MOV.B @(Rm, Ro), Rn
+* 8Emo-4n50 !/ MOV.B Rm, @(Rn, Ro)
+* 8Emo-4nD0 !/ MOV.B @(Rm, Ro), Rn
 
 Load or store a WORD.
 
@@ -1713,6 +1722,7 @@ Copy SR.T to Rn.
 === MOVU.B ===
 
 BJX1
+* 8Emo-4n0E  MOVU.B @(Rm, Ro), Rn
 * 8Edd-6nmC  MOVU.B @(Rm, disp8s), Rn
 
 Load Unsigned Byte.
@@ -1721,10 +1731,8 @@ Load Unsigned Byte.
 === MOVU.W ===
 
 BJX1
+* 8Emo-4n1E  MOVU.W @(Rm, Ro), Rn
 * 8Edd-6nmD  MOVU.W @(Rm, disp8s), Rn
-* 8E2d-9ndd  MOVU.W @(PC, disp13), Rn
-* 8E6d-9ndd  MOVU.W @(PC, disp13), RHn
-* 8EAd-9ndd  MOVU.W @(PC, disp13), RQn
 
 Load Unsigned Word.
 
@@ -2419,7 +2427,7 @@ All (SZ=1)
 * FnmA       FMOV DRm, @Rn
 * FnmB       FMOV DRm, @-Rn
 
-BJX1 (SZ=0)
+BJX1 (SZ=1)
 * 4nB1       FMOV DRm, @(PC, R0)
 * 4nB5       FMOV @(PC, R0), DRn
 * 8Edd-2nm4  FMOV DRm, @(Rn, disp8s)

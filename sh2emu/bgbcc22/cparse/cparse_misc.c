@@ -366,6 +366,9 @@ fourcc BGBCP_ArchForName(char *name)
 	if(!bgbcp_strcmp(name, "BJX1_64B"))		i=BGBCC_ARCH_SH;
 	if(!bgbcp_strcmp(name, "BJX1L_64B"))	i=BGBCC_ARCH_SH;
 
+	if(!bgbcp_strcmp(name, "BJX1_64C"))		i=BGBCC_ARCH_SH;
+	if(!bgbcp_strcmp(name, "BJX1L_64C"))	i=BGBCC_ARCH_SH;
+
 	return(i);
 }
 
@@ -398,6 +401,9 @@ fourcc BGBCP_SubArchForName(int arch, char *name)
 	if(!bgbcp_strcmp(name, "BJX1_64u"))		i=BGBCC_ARCH_SH_BX6U;
 	if(!bgbcp_strcmp(name, "BJX1L_64u"))	i=BGBCC_ARCH_SH_BX6U;
 	if(!bgbcp_strcmp(name, "BJX1B_64u"))	i=BGBCC_ARCH_SH_BX6V;
+
+	if(!bgbcp_strcmp(name, "BJX1_64C"))		i=BGBCC_ARCH_SH_BX6C;
+	if(!bgbcp_strcmp(name, "BJX1L_64C"))	i=BGBCC_ARCH_SH_BX6C;
 
 	return(i);
 }
@@ -458,6 +464,9 @@ char *BGBCP_NameForSubArch(fourcc arch, fourcc subarch)
 
 	case BGBCC_ARCH_SH_BX6M:
 		s="BJX1L_64B"; break;
+
+	case BGBCC_ARCH_SH_BX6C:
+		s="BJX1L_64C"; break;
 
 	default:
 		s=NULL; break;

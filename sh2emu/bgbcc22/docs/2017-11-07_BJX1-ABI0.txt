@@ -37,7 +37,7 @@ BGBCC SHx ABI (32-bit)
 Register Use:
 * R0/R1: Scratch, Return Value A/B
 * R2: Scratch, Return Struct Address
-* R3: Scratch ,or Preserve (FDPIC)
+* R3: Scratch, or Preserve (FDPIC)
 * R4.. R7: Scratch, Function Arg A/B/C/D
 * R8..R11: Preserve
 * R12: Preserve, or Context Pointer / GOT (FDPIC)

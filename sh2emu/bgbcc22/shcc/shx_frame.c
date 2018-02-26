@@ -2349,12 +2349,19 @@ int BGBCC_SHXC_SetupFrameLayout(BGBCC_TransState *ctx,
 //		if(sctx->vspan_num>56)
 //		if(sctx->vspan_num>64)
 //		if(sctx->vspan_num>68)
+
 		if(sctx->vspan_num>72)
+
+//		if(sctx->vspan_num>80)
+//		if(sctx->vspan_num>88)
 //		if(sctx->vspan_num>96)
 //		if(sctx->vspan_num>128)
 		{
 			sctx->use_egpr=1;
 		}
+		
+//		if(sctx->is_mergece)
+			sctx->use_egpr=0;
 #endif
 
 //		sctx->use_egpr=1;

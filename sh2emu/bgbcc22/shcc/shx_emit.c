@@ -1212,7 +1212,7 @@ int BGBCC_SHX_EmitLoadRegLabelVarRel24(
 			j=j-(k+4);
 			if(j<0)j=-j;
 			
-			if(j<rngw)
+			if((j<rngw) && !ctx->is_betav)
 			{
 				BGBCC_SHX_EmitOpNear12Label(ctx,
 					BGBCC_SH_NMID_BSR, lbl);
@@ -1637,6 +1637,7 @@ int BGBCC_SHX_EmitCheckFlushIndexImmP(BGBCC_SHX_Context *ctx)
 
 int BGBCC_SHX_EmitCheckFlushIndexImm(BGBCC_SHX_Context *ctx)
 {
+	int ob, eo, nsc;
 	int l0;
 
 	if(!BGBCC_SHX_EmitCheckFlushIndexImmP(ctx))
@@ -1644,9 +1645,30 @@ int BGBCC_SHX_EmitCheckFlushIndexImm(BGBCC_SHX_Context *ctx)
 	
 	l0=BGBCC_SHX_GenLabelTemp(ctx);
 
-	BGBCC_SHX_EmitRelocRelW12(ctx, l0);
-	BGBCC_SHX_EmitWord(ctx, 0xA000);
-	BGBCC_SHX_EmitWord(ctx, 0x0009);
+	if(ctx->has_bjx1jmp)
+	{
+		ob=BGBCC_SHX_EmitGetOffs(ctx);
+		eo=(ctx->const_ns16^(ob>>1))&1;
+		nsc=ctx->const_ns16+(ctx->const_ns32*2);
+		
+		if(eo && (nsc<126))
+//		if(!eo && (nsc<126))
+		{
+			BGBCC_SHX_EmitRelocRelW8(ctx, l0);
+			BGBCC_SHX_EmitWord(ctx, 0x8200);
+		}else
+		{
+			BGBCC_SHX_EmitRelocRelW12(ctx, l0);
+			BGBCC_SHX_EmitWord(ctx, 0xA000);
+			BGBCC_SHX_EmitWord(ctx, 0x0009);
+		}
+		
+	}else
+	{
+		BGBCC_SHX_EmitRelocRelW12(ctx, l0);
+		BGBCC_SHX_EmitWord(ctx, 0xA000);
+		BGBCC_SHX_EmitWord(ctx, 0x0009);
+	}
 
 	BGBCC_SHX_EmitFlushIndexImm16(ctx);
 	BGBCC_SHX_EmitFlushIndexImm32(ctx);
@@ -1662,6 +1684,7 @@ int BGBCC_SHX_EmitCheckFlushIndexImm(BGBCC_SHX_Context *ctx)
 
 int BGBCC_SHX_EmitForceFlushIndexImm(BGBCC_SHX_Context *ctx)
 {
+	int ob, eo, nsc;
 	int l0;
 
 //	if(!BGBCC_SHX_EmitCheckFlushIndexImmP(ctx))
@@ -1672,9 +1695,30 @@ int BGBCC_SHX_EmitForceFlushIndexImm(BGBCC_SHX_Context *ctx)
 	
 	l0=BGBCC_SHX_GenLabelTemp(ctx);
 
-	BGBCC_SHX_EmitRelocRelW12(ctx, l0);
-	BGBCC_SHX_EmitWord(ctx, 0xA000);
-	BGBCC_SHX_EmitWord(ctx, 0x0009);
+	if(ctx->has_bjx1jmp)
+	{
+		ob=BGBCC_SHX_EmitGetOffs(ctx);
+		eo=(ctx->const_ns16^(ob>>1))&1;
+		nsc=ctx->const_ns16+(ctx->const_ns32*2);
+		
+		if(eo && (nsc<126))
+//		if(!eo && (nsc<126))
+		{
+			BGBCC_SHX_EmitRelocRelW8(ctx, l0);
+			BGBCC_SHX_EmitWord(ctx, 0x8200);
+		}else
+		{
+			BGBCC_SHX_EmitRelocRelW12(ctx, l0);
+			BGBCC_SHX_EmitWord(ctx, 0xA000);
+			BGBCC_SHX_EmitWord(ctx, 0x0009);
+		}
+		
+	}else
+	{
+		BGBCC_SHX_EmitRelocRelW12(ctx, l0);
+		BGBCC_SHX_EmitWord(ctx, 0xA000);
+		BGBCC_SHX_EmitWord(ctx, 0x0009);
+	}
 
 	BGBCC_SHX_EmitFlushIndexImm16(ctx);
 	BGBCC_SHX_EmitFlushIndexImm32(ctx);

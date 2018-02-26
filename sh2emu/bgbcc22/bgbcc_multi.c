@@ -106,6 +106,7 @@
 #include "shcc/shx_emit_opc.c"
 #include "shcc/shx_emit_lbl.c"
 #include "shcc/shx_emit_bra.c"
+#include "shcc/shx_emit_queue.c"
 #include "shcc/shx_fltrom.c"
 #include "shcc/shx_fpreg.c"
 #include "shcc/shx_frame.c"

@@ -127,6 +127,7 @@ Operating Mode (BJX1-64):
 ** If clear, operators work on 32-bit values.
 ** If set, operators work on 64-bit values.
 ** Some instruction forms may ignore DQ.
+** Change: Setting DQ is deprecated and it should be kept as 0.
 * SRH.TR_JQ and SRH.TR_DQ do similar, but for exception handlers.
 ** When an exception occurs, the mode is to be set according to these bits.
 ** In BJX1-64, TR_JQ may be required to be set.
@@ -568,7 +569,7 @@ Basic I-Forms (16-bit)
 ***		0xC8 -
 ***		0xD8 -
 ***		0xE8 -
-***		0xF8 -
+***		0dF8 -
 **	0--9
 ***		0i09 NOP				//NOP
 ***		0019 DIV0U				//Unsigned Divide
@@ -835,8 +836,8 @@ Basic I-Forms (16-bit)
 **	6nmF EXTS.W Rm, Rn		//Sign Extend Word
 * 7nii ADD./Q #imm, Rn		//Add immediate to register
 * 8---
-**	80nd MOV.B R0, @(Rn,disp)	//Store Byte
-**	81nd MOV.W/Q R0, @(Rn,disp)	//Store Word or Quad
+**	80nd MOV.B R0, @(Rn,disp4)	//Store Byte
+**	81nd MOV.W/Q R0, @(Rn,disp4)	//Store Word or Quad
 ***		Always Word if disp==0
 **	82-- / XPFX1/Escape32B
 **	82dd BRA/N disp8
@@ -1164,7 +1165,7 @@ XPFX0/Escape32 I-Forms
 ***			8Est-4n73 SHLR./Q Rs, Rt, Rn	// Rn=Rs SHLD -Rt
 ***			8Est-4n83 SHAD./Q Rs, Rt, Rn	// Rn=Rs SHAD Rt
 ***			8Est-4n93 SHAR./Q Rs, Rt, Rn	// Rn=Rs SHAD -Rt
-***			8Est-4nA3 -
+***			8Est-4nA3 CSELT Rs, Rt, Rn		//Rn=SR.T?Rs:Rt
 ***			8Est-4nB3 -
 ***			8Est-4nC3 FADD FRs, FRt, FRn	// FRn=FRs+FRt
 ***			8Est-4nD3 FSUB FRs, FRt, FRn	// FRn=FRs-FRt
@@ -1206,22 +1207,22 @@ XPFX0/Escape32 I-Forms
 **		8Eii-4nmC SHAD./Q Rm, #imm, Rn		//Rn=Rm SAL Imm8 | Rn=Rm SAR Imm8
 **		8Eii-4nmD SHLD./Q Rm, #imm, Rn		//Rn=Rm SHL Imm8 | Rn=Rm SHR Imm8
 **		8Exx-4xxE -
-***			8Emo-4n0E MOVU.B @(Rm,Ro), Rn
-***			8Emo-4n1E MOVU.W @(Rm,Ro), Rn
-***			8Emo-4n2E FMOV.S @(Rm,Ro), FRn
-***			8Emo-4n3E FMOV.S FRm, @(Rn,Ro)
-***			8Emo-4n4E MOV.B Rm, @(Rn,Ro)
-***			8Emo-4n5E MOV.W Rm, @(Rn,Ro)
-***			8Emo-4n6E MOV.L Rm, @(Rn,Ro)
-***			8Emo-4n7E MOV.Q Rm, @(Rn,Ro)
-***			8Emo-4n8E LEA.B @(Rm,Ro), Rn	//LEA Byte
-***			8Emo-4n9E LEA.W @(Rm,Ro), Rn	//LEA Word
-***			8Emo-4nAE LEA.L @(Rm,Ro), Rn	//LEA DWord
-***			8Emo-4nBE LEA.Q @(Rm,Ro), Rn	//LEA QWord
-***			8Emo-4nCE MOV.B @(Rm,Ro), Rn
-***			8Emo-4nDE MOV.W @(Rm,Ro), Rn
-***			8Emo-4nEE MOV.L @(Rm,Ro), Rn
-***			8Emo-4nFE MOV.Q @(Rm,Ro), Rn
+***			8Emo-4n0E   MOVU.B @(Rm,Ro), Rn
+***			8Emo-4n1E   MOVU.W @(Rm,Ro), Rn
+***			8Emo-4n2E   FMOV.S @(Rm,Ro), FRn
+***			8Emo-4n3E   FMOV.S FRm, @(Rn,Ro)
+***			8Emo-4n4E ? MOV.B Rm, @(Rn,Ro)
+***			8Emo-4n5E ? MOV.W Rm, @(Rn,Ro)
+***			8Emo-4n6E ? MOV.L Rm, @(Rn,Ro)
+***			8Emo-4n7E ? MOV.Q Rm, @(Rn,Ro)
+***			8Emo-4n8E ? LEA.B @(Rm,Ro), Rn	//LEA Byte
+***			8Emo-4n9E ? LEA.W @(Rm,Ro), Rn	//LEA Word
+***			8Emo-4nAE ? LEA.L @(Rm,Ro), Rn	//LEA DWord
+***			8Emo-4nBE ? LEA.Q @(Rm,Ro), Rn	//LEA QWord
+***			8Emo-4nCE ? MOV.B @(Rm,Ro), Rn
+***			8Emo-4nDE ? MOV.W @(Rm,Ro), Rn
+***			8Emo-4nEE ? MOV.L @(Rm,Ro), Rn
+***			8Emo-4nFE ? MOV.Q @(Rm,Ro), Rn
 **		8Exx-4xxF -
 
 *	8Edd-5nmo MOV.L @(Rm,Ro,disp), Rn		//Rm+(Ro+disp)*4
@@ -1265,18 +1266,18 @@ XPFX0/Escape32 I-Forms
 *	8Edd-Addd ? BRA disp20
 *	8Edd-Bddd ? BSR disp20
 *	C---
-**		8Edd-C0md MOV.B Rm, @(GBR,disp)		//
-**		8Edd-C1md MOV.W/Q Rm, @(GBR,disp)	//
-**		8Edd-C2md MOV.L Rm, @(GBR,disp)		//
+**		8Edd-C0md MOV.B Rm, @(GBR,disp12s)		//
+**		8Edd-C1md MOV.W/Q Rm, @(GBR,disp12s)	//
+**		8Edd-C2md MOV.L Rm, @(GBR,disp12s)		//
 **		8Exx-C3xx -
-**		8Edd-C4nd MOV.B @(GBR,disp), Rn		//
-**		8Edd-C5nd MOV.W/Q @(GBR,disp), Rn	//
-**		8Edd-C6nd MOV.L @(GBR,disp), Rn		//
+**		8Edd-C4nd MOV.B @(GBR,disp12s), Rn		//
+**		8Edd-C5nd MOV.W/Q @(GBR,disp12s), Rn	//
+**		8Edd-C6nd MOV.L @(GBR,disp12s), Rn		//
 **		8Exx-C7xx -
-**		8Eii-C8nj TST #imm12, Rn
-**		8Eii-C9nj AND #imm12, Rn
-**		8Ejj-CAnj XOR #imm12, Rn
-**		8Ejj-CBnj OR #imm12, Rn
+**		8Eii-C8ni TST #imm12s, Rn
+**		8Eii-C9ni AND #imm12s, Rn
+**		8Eii-CAni XOR #imm12s, Rn
+**		8Eii-CBni OR #imm12s, Rn
 **		8Ejj-CCnk ? TST #imm8r, Rn			//TBD
 **		8Ejj-CDnk ? AND #imm8r, Rn			//TBD
 **		8Ejj-CEnk ? XOR #imm8r, Rn			//TBD
@@ -1346,6 +1347,7 @@ XPFY0 I-Forms
 **	CC0e-0nm0 -
 **	CC0e-0nm1 -
 **	CC0e-0nm2 (STC Block)
+*** E.O:      CMOVT		Rm, Rn			//Conditional Move (True)
 **	CC0e-0nm3 -
 **	CC0e-0nm4 MOV.B Rm, @(R0,Rn)	//Move Byte Rm to R0+Rn
 **	CC0e-0nm5 MOV.W Rm, @(R0,Rn)	//Move Word Rm to R0+Rn
@@ -1354,6 +1356,7 @@ XPFY0 I-Forms
 **	CC0e-0nm8 -
 **	CC0e-0nm9 -
 **	CC0e-0nmA (STS Block)
+*** E.O:      CMOVF		Rm, Rn			//Conditional Move (False)
 **	CC0e-0nmB -
 **	CC0e-0nmC MOV.B @(R0,Rm), Rn	//Load Byte From R0+Rm into Rn
 **	CC0e-0nmD MOV.W @(R0,Rm), Rn	//Load Word/Quad From R0+Rm into Rn
@@ -1434,6 +1437,18 @@ XPFY0 I-Forms
 **	CC0e-7nii ? ADD #imm8, Rn		//Add 8-bit Immed, supports Quad
 **	Deprecate?: Redundant with CEfi-7nii
 * 8---
+**	CC0e-80zz  -
+**	CC0f-81dd !? BRA/N disp11s
+**	CC0f-83dd !? BSR/N disp11s
+**	CC0f-85dd !? BRA disp11s
+**	CC0f-87dd !? BSR disp11s
+**	CC0f-89dd !? BT disp11s
+**	CC0f-8Bdd !? BF disp11s
+**	CC0f-8Ddd !? BTS disp11s
+**	CC0f-8Fdd !? BFS disp11s
+***		Special Branches (BWJX).
+***		Optional: Setting F.N will allow branching into BWJX mode.
+***		"PC1=(((PC+6)+(disp*8))&(~7))|1;"
 * 9---
 * A---
 **	CC0e-Anmo ? MOV.L/Q Rm, @(Rn,Ro)		//Store Rm to Rn+(4|8)*Ro
@@ -1519,6 +1534,22 @@ Op Ranges
 **		CEfd-2nm6 FMOV.S @(Rm,disp6), FRn
 **		CExx-2xx7 -
 **		CExx-2xx8 -
+***			CEe0-2nm8 CMOV.B/W		Rm, @(Rn, R0)
+***			CEe1-2nm8 CMOV.L/Q		Rm, @(Rn, R0)
+***			CEe2-2nm8 CMOV.B/W		Rm, @Rn
+***			CEe3-2nm8 CMOV.L/Q		Rm, @Rn
+***			CEe4-2nm8 CMOV.B/W		Rm, @-Rn
+***			CEe5-2nm8 CMOV.L/Q		Rm, @-Rn
+***			CEe6-2nm8 -
+***			CEe7-2nm8 -
+***			CEe8-2nm8 CMOV.B/W		@(Rm, R0), Rn
+***			CEe9-2nm8 CMOV.L/Q		@(Rm, R0), Rn
+***			CEeA-2nm8 CMOV.B/W		@Rm, Rn
+***			CEeB-2nm8 CMOV.L/Q		@Rm, Rn
+***			CEeC-2nm8 CMOV.B/W		@Rm+, Rn
+***			CEeD-2nm8 CMOV.L/Q		@Rm+, Rn
+***			CEeE-2nm8 -
+***			CEeF-2nm8 -
 **		CEfj-2nm9 AND Rm, #imm6, Rn			//Rn=Rm&Imm6
 **		CEfj-2nmA XOR Rm, #imm6, Rn			//
 **		CEfj-2nmB OR Rm, #imm6, Rn			//

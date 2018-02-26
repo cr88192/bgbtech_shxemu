@@ -376,6 +376,8 @@ int BGBCC_SHX_EmitRelocAbs64(BGBCC_SHX_Context *ctx, int lbl)
 
 int BGBCC_SHX_EmitRelocRelW12(BGBCC_SHX_Context *ctx, int lbl)
 	{ return(BGBCC_SHX_EmitRelocTy(ctx, lbl, BGBCC_SH_RLC_RELW12)); }
+int BGBCC_SHX_EmitRelocRelW8(BGBCC_SHX_Context *ctx, int lbl)
+	{ return(BGBCC_SHX_EmitRelocTy(ctx, lbl, BGBCC_SH_RLC_RELW8)); }
 
 
 int BGBCC_SHX_LookupLabelIndex(

@@ -269,6 +269,9 @@
 #define CCXL_VOP_VA_END				0x26
 #define CCXL_VOP_VA_ARG				0x27
 
+#define CCXL_VOP_CSELCMP			0x28
+#define CCXL_VOP_CSELCMP_Z			0x29
+
 #define CCXL_LBL_GLOBALBASE			0x000000	//globals (main context)
 
 #define CCXL_LBL_GENSYMBASE			0x800000	//gensyms (middle)
@@ -398,6 +401,8 @@ ccxl_type stype;
 ccxl_register dst;
 ccxl_register srca;
 ccxl_register srcb;
+ccxl_register srcc;
+ccxl_register srcd;
 ccxl_value imm;
 };
 

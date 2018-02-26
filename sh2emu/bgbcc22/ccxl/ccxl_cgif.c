@@ -837,6 +837,64 @@ ccxl_status BGBCC_CCXL_EmitVaArg(BGBCC_TransState *ctx,
 	return(0);
 }
 
+
+ccxl_status BGBCC_CCXL_EmitCSelCmp(BGBCC_TransState *ctx,
+	ccxl_type type, ccxl_register dst,
+	ccxl_register srca, ccxl_register srcb,
+	ccxl_type ptype, int cmpop, ccxl_register srcc, ccxl_register srcd)
+{
+	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
+	op=BGBCC_CCXL_AllocVirtOp(ctx);
+	op->opn=CCXL_VOP_CSELCMP;
+	
+	//select op
+	op->type=type;
+	op->dst=dst;
+	op->srca=srca;
+	op->srcb=srcb;
+
+	//compare op
+	op->stype=ptype;
+	op->opr=cmpop;
+	op->srcc=srcc;
+	op->srcd=srcd;
+
+	BGBCC_CCXL_AddVirtOp(ctx, op);
+	return(0);
+}
+ccxl_status BGBCC_CCXL_EmitCSelCmpZero(BGBCC_TransState *ctx,
+	ccxl_type type, ccxl_register dst,
+	ccxl_register srca, ccxl_register srcb,
+	ccxl_type ptype, int cmpop, ccxl_register srcc)
+{
+	BGBCC_CCXL_VirtOp *op;
+
+	if(ctx->cgif_no3ac)
+		return(0);
+
+	op=BGBCC_CCXL_AllocVirtOp(ctx);
+	op->opn=CCXL_VOP_CSELCMP_Z;
+
+	//select op
+	op->type=type;
+	op->dst=dst;
+	op->srca=srca;
+	op->srcb=srcb;
+
+	//compare op
+	op->stype=ptype;
+	op->opr=cmpop;
+	op->srcc=srcc;
+
+	BGBCC_CCXL_AddVirtOp(ctx, op);
+	return(0);
+}
+
+
 #endif
 
 

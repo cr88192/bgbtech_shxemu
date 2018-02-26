@@ -303,6 +303,8 @@ extern "C" {
 #define BGBCC_ARCH_SH_BX6U	BGBCC_FOURCC('B', 'X', '6', 'U')
 #define BGBCC_ARCH_SH_BX6V	BGBCC_FOURCC('B', 'X', '6', 'V')
 
+#define BGBCC_ARCH_SH_BX6C	BGBCC_FOURCC('B', 'X', '6', 'C')
+
 //output formats.
 //format specifics depend on target.
 #define BGBCC_IMGFMT_OBJ	BGBCC_FOURCC('O', 'B', 'J', ' ')

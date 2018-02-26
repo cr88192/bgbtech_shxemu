@@ -562,6 +562,18 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		BGBCC_CCXL_GetTypeCompareBinaryDest(ctx, CCXL_CMP_NV, lty, rty, &dty);
 		s0=BGBCC_CCXL_TypeGetSig(ctx, dty);
 
+#if 0
+		i0=BGBCC_CCXL_InferExprCleanP(ctx, ln);
+		i1=BGBCC_CCXL_InferExprCleanP(ctx, rn);
+		if((i&3)==3)
+		{
+			BGBCC_CCXL_CompileExpr(ctx, ln);
+			BGBCC_CCXL_CompileExpr(ctx, rn);
+			BGBCC_CCXL_CompileCSel(ctx, t);
+			return;
+		}
+#endif
+
 //		BGBCC_CCXL_StackBeginU(ctx, "i");
 		BGBCC_CCXL_StackBeginU(ctx, s0);
 		l0=BGBCC_CCXL_GenSym(ctx);
@@ -770,6 +782,13 @@ void BGBCC_CCXL_CompileForm(BGBCC_TransState *ctx, BCCX_Node *l)
 		rn=BCCX_Fetch(l, "right");
 		ln=BGBCC_CCXL_ReduceExpr(ctx, ln);
 		rn=BGBCC_CCXL_ReduceExpr(ctx, rn);
+
+		i=BGBCC_CCXL_InferExprCleanP(ctx, ln);
+		if(i&1)
+		{
+			BGBCC_CCXL_CompileExpr(ctx, rn);
+			return;
+		}
 
 		BGBCC_CCXL_CompileExpr(ctx, ln);
 		BGBCC_CCXL_StackPop(ctx);

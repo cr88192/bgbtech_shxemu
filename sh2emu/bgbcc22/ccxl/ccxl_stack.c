@@ -142,8 +142,9 @@ ccxl_status BGBCC_CCXL_PopRegister(BGBCC_TransState *ctx,
 {
 	int i;
 
-	if(!ctx->regstack || ctx->regstackpos<=0)
+	if(!ctx->regstack || (ctx->regstackpos<=0))
 	{
+		rreg->val=0;
 		BGBCC_CCXL_TagError(ctx, CCXL_TERR_STACK_UNDERFLOW);
 		return(CCXL_STATUS_NO);
 	}
@@ -172,6 +173,7 @@ ccxl_status BGBCC_CCXL_PopURegister(BGBCC_TransState *ctx,
 
 	if(!ctx->uregstack || ctx->uregstackpos<=0)
 	{
+		rreg->val=0;
 		BGBCC_CCXL_TagError(ctx, CCXL_TERR_STACK_UNDERFLOW);
 		return(CCXL_STATUS_NO);
 	}
@@ -369,6 +371,7 @@ int BGBCC_CCXL_TryLookupAsRegister(BGBCC_TransState *ctx,
 		return(CCXL_STATUS_YES);
 	}
 
+	rreg->val=0;
 //	BGBCC_DBGBREAK
 	return(CCXL_STATUS_NO);
 }

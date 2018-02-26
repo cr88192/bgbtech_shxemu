@@ -676,3 +676,225 @@ int BGBCC_CCXL_GetMinMaxSizeofDerefName(BGBCC_TransState *ctx, char *name,
 
 	return(-1);
 }
+
+int BGBCC_CCXL_StackCSelCmp(BGBCC_TransState *ctx, char *op)
+{
+	ccxl_register sreg, treg, sreg2, treg2;
+	ccxl_register ureg, vreg, ureg2, vreg2;
+	ccxl_register dreg, dreg2;
+	ccxl_type sty, tty, dty, bty, pty, uty, vty;
+	double f, g;
+	int opr;
+	int i, j, k;
+
+	opr=-1;
+
+	if(!strcmp(op, "=="))opr=CCXL_CMP_EQ;
+	if(!strcmp(op, "!="))opr=CCXL_CMP_NE;
+	if(!strcmp(op, "<"))opr=CCXL_CMP_LT;
+	if(!strcmp(op, ">"))opr=CCXL_CMP_GT;
+	if(!strcmp(op, "<="))opr=CCXL_CMP_LE;
+	if(!strcmp(op, ">="))opr=CCXL_CMP_GE;
+
+	if(opr>=0)
+	{
+		BGBCC_CCXL_DebugPrintStackLLn(ctx, "CSelCmpOp", __FILE__, __LINE__);
+
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CSELCMP);
+		BGBCC_CCXLR3_EmitArgInt(ctx, opr|0x00);
+
+		j=BGBCC_CCXL_PopRegister(ctx, &treg);
+		i=BGBCC_CCXL_PopRegister(ctx, &sreg);
+		sty=BGBCC_CCXL_GetRegType(ctx, sreg);
+		tty=BGBCC_CCXL_GetRegType(ctx, treg);
+		BGBCC_CCXL_GetTypeCompareBinaryDest(ctx, opr, sty, tty, &pty);
+
+		j=BGBCC_CCXL_PopRegister(ctx, &vreg);
+		i=BGBCC_CCXL_PopRegister(ctx, &ureg);
+		uty=BGBCC_CCXL_GetRegType(ctx, ureg);
+		vty=BGBCC_CCXL_GetRegType(ctx, vreg);
+		BGBCC_CCXL_GetTypeCompareBinaryDest(ctx, opr, uty, vty, &dty);
+
+		if(BGBCC_CCXL_TypeCompatibleP(ctx, pty, sty))
+		{
+			BGBCC_CCXL_RegisterAllocTemporary(ctx, pty, &sreg2);
+			BGBCC_CCXL_EmitConv(ctx, pty, sty, sreg2, sreg);
+			BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
+			sreg=sreg2;
+		}
+
+		if(BGBCC_CCXL_TypeCompatibleP(ctx, pty, tty))
+		{
+			BGBCC_CCXL_RegisterAllocTemporary(ctx, pty, &treg2);
+			BGBCC_CCXL_EmitConv(ctx, pty, tty, treg2, treg);
+			BGBCC_CCXL_RegisterCheckRelease(ctx, treg);
+			treg=treg2;
+		}
+
+
+		if(BGBCC_CCXL_TypeCompatibleP(ctx, dty, uty))
+		{
+			BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &ureg2);
+			BGBCC_CCXL_EmitConv(ctx, dty, uty, ureg2, ureg);
+			BGBCC_CCXL_RegisterCheckRelease(ctx, ureg);
+			ureg=ureg2;
+		}
+
+		if(BGBCC_CCXL_TypeCompatibleP(ctx, dty, vty))
+		{
+			BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &vreg2);
+			BGBCC_CCXL_EmitConv(ctx, dty, vty, vreg2, vreg);
+			BGBCC_CCXL_RegisterCheckRelease(ctx, vreg);
+			vreg=vreg2;
+		}
+
+		BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &dreg);
+
+		BGBCC_CCXL_EmitCSelCmp(ctx,
+			dty, dreg, ureg, vreg,
+			pty, opr, sreg, treg);
+		BGBCC_CCXL_PushRegister(ctx, dreg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, treg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, ureg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, vreg);
+		return(CCXL_STATUS_YES);
+	}
+
+	BGBCC_CCXL_TagError(ctx,
+		CCXL_TERR_STATUS(CCXL_STATUS_ERR_BADOPARGS));
+	return(CCXL_STATUS_NO);
+}
+	
+int BGBCC_CCXL_StackCSelCmpZero(BGBCC_TransState *ctx, char *op)
+{
+	ccxl_register sreg, treg, sreg2, treg2;
+	ccxl_register ureg, vreg, ureg2, vreg2;
+	ccxl_register dreg, dreg2;
+	ccxl_type sty, tty, dty, bty, pty, uty, vty;
+	double f, g;
+	int opr;
+	int i, j, k;
+
+	opr=-1;
+
+	if(!strcmp(op, "=="))opr=CCXL_CMP_EQ;
+	if(!strcmp(op, "!="))opr=CCXL_CMP_NE;
+	if(!strcmp(op, "<"))opr=CCXL_CMP_LT;
+	if(!strcmp(op, ">"))opr=CCXL_CMP_GT;
+	if(!strcmp(op, "<="))opr=CCXL_CMP_LE;
+	if(!strcmp(op, ">="))opr=CCXL_CMP_GE;
+
+	if(opr>=0)
+	{
+		BGBCC_CCXL_DebugPrintStackLLn(ctx, "CSelCmpOpZero", __FILE__, __LINE__);
+
+		BGBCC_CCXLR3_EmitOp(ctx, BGBCC_RIL3OP_CSELCMP);
+		BGBCC_CCXLR3_EmitArgInt(ctx, opr|0x10);
+
+		i=BGBCC_CCXL_PopRegister(ctx, &sreg);
+		sty=BGBCC_CCXL_GetRegType(ctx, sreg);
+
+		j=BGBCC_CCXL_PopRegister(ctx, &vreg);
+		i=BGBCC_CCXL_PopRegister(ctx, &ureg);
+		uty=BGBCC_CCXL_GetRegType(ctx, ureg);
+		vty=BGBCC_CCXL_GetRegType(ctx, vreg);
+		BGBCC_CCXL_GetTypeCompareBinaryDest(ctx, opr, uty, vty, &dty);
+
+
+		if(BGBCC_CCXL_TypeCompatibleP(ctx, dty, uty))
+		{
+			BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &ureg2);
+			BGBCC_CCXL_EmitConv(ctx, dty, uty, ureg2, ureg);
+			BGBCC_CCXL_RegisterCheckRelease(ctx, ureg);
+			ureg=ureg2;
+		}
+
+		if(BGBCC_CCXL_TypeCompatibleP(ctx, dty, vty))
+		{
+			BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &vreg2);
+			BGBCC_CCXL_EmitConv(ctx, dty, vty, vreg2, vreg);
+			BGBCC_CCXL_RegisterCheckRelease(ctx, vreg);
+			vreg=vreg2;
+		}
+
+		BGBCC_CCXL_RegisterAllocTemporary(ctx, dty, &dreg);
+		BGBCC_CCXL_EmitCSelCmpZero(ctx,
+			dty, dreg, ureg, vreg,
+			sty, opr, sreg);
+		BGBCC_CCXL_PushRegister(ctx, dreg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, sreg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, ureg);
+		BGBCC_CCXL_RegisterCheckRelease(ctx, vreg);
+		return(CCXL_STATUS_YES);
+	}
+
+	BGBCC_CCXL_TagError(ctx,
+		CCXL_TERR_STATUS(CCXL_STATUS_ERR_BADOPARGS));
+	return(CCXL_STATUS_NO);
+}
+	
+void BGBCC_CCXL_CompileCSelCmp(BGBCC_TransState *ctx,
+	char *op, BCCX_Node *ln, BCCX_Node *rn)
+{
+	BGBCC_CCXL_CompileExpr(ctx, ln);
+	BGBCC_CCXL_CompileExpr(ctx, rn);
+	BGBCC_CCXL_StackCSelCmp(ctx, op);
+}
+
+void BGBCC_CCXL_CompileCSel(BGBCC_TransState *ctx, BCCX_Node *l)
+{
+	BCCX_Node *t;
+	ccxl_label lbl1;
+	char *op;
+
+	if(!l)
+	{
+		BGBCC_DBGBREAK
+		printf("BGBCC_CCXL_CompileJCF: No Expr\n");
+		return;
+	}
+
+//	l=BGBCC_CCXL_ReduceExpr(ctx, l);
+//	t=BGBCC_CCXL_InferExpr(ctx, l);
+
+#if 0
+	if(BGBCC_CCXL_IsUnaryP(ctx, l, "!"))
+	{
+		BGBCC_CCXL_CompileJCT(ctx, BCCX_Fetch(l, "value"), lbl);
+		return;
+	}
+
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "&&") ||
+		BGBCC_CCXL_IsBinaryP(ctx, l, "||"))
+	{
+		lbl1=BGBCC_CCXL_GenSym(ctx);
+		BGBCC_CCXL_CompileFormJmpTF(ctx, l, lbl1, lbl);
+		BGBCC_CCXL_EmitLabel(ctx, lbl1);
+		return;
+	}
+#endif
+
+	op=NULL;
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "=="))op="!=";
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "!="))op="==";
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "==="))op="!=";
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "!=="))op="==";
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "<"))op=">=";
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, ">"))op="<=";
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "<="))op=">";
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, ">="))op="<";
+
+	if(BGBCC_CCXL_IsBinaryP(ctx, l, "&"))op="!&";
+
+	if(!op)
+	{
+		BGBCC_CCXL_CompileExpr(ctx, l);
+//		BGBCC_CCXL_CompileJmpFalse(ctx, lbl);
+		return;
+	}
+
+	BGBCC_CCXL_CompileCSelCmp(ctx, op,
+		BCCX_Fetch(l, "left"), BCCX_Fetch(l, "right"));
+	return;
+}

@@ -1,0 +1,354 @@
+Idea:
+* Beta64Ve?
+* 64-bit SH-like ISA
+** Will not be binary compatible with SH or BJX1.
+* Low LUT cost.
+** Mostly intended for an IO / DMA Module
+
+
+Execution Model:
+* Fixed width 16-bit instructions.
+* No MMU
+* No FPU
+
+
+Registers:
+* R0 .. R15, GPRs are 64 bit.
+** R0 will be a Stomp Register
+** R15 will be a Stack Pointer
+* CR0 .. CR7
+* SR0 .. SR7
+* R0B .. R7B, Alternate versions of R0..R7.
+
+Status Register (SRn)
+* SR0, MACH
+* SR1, MACL
+* SR2, PR
+* SR3, SGR
+* SR4, -
+* SR5, / FPUL
+* SR6, / FPSCR
+* SR7, -
+
+Control Registrer (CRn)
+* CR0, SR
+* CR1, GBR
+* CR2, VBR
+* CR3, SSR
+* CR4, SPC
+* CR5, -
+* CR6, -
+* CR7, PC
+* CR8 , R0B
+* CR9 , R1B
+* CR10, R2B
+* CR11, R3B
+* CR12, R4B
+* CR13, R5B
+* CR14, R6B
+* CR15, R7B
+
+Interrupt:
+* SR, SP, and PC saved to SSR, SGR, and SPC.
+* ? Swap R0..R7 with R0B .. R7B.
+* Branch to VBR+0x100
+
+
+C ABI
+* Arguments: R4..R7
+** Structures: Pass by Register or Reference (Size > 8B)
+** Stack frame will provide a 4-element spill space before the arguments.
+* Callee Save: R8..R14
+* Return Value: R1
+* Struct Return: R2 (Size > 8B)
+* Global Base: R3
+** Possibly use GBR for Globals.
+
+
+Instructions
+* 0---
+**	0zz0 -
+**	0zz1 -
+**	0nm2 STC	CRm, Rn			//Copy CRm to Rn
+**	0zz3
+***  0m03 BSRF Rm			//Branch to Subroutine (PC+Rm+4)
+***  0-13 -
+***  0m23 BRAF Rm			//Branch to Label (PC+Rn+4)
+***  0n33 -
+***  0n43 -
+***  0n53 -
+***  0n63 -
+***  0n73 -
+***  0n83 PREF @Rn			//Prefetch memory for address
+***  0n93 -
+***  0nA3 -
+***  0nB3 -
+***  0nC3 MOVCA.L R0, Rn
+***  0nE3 ICBI @Rn			//Invalidates I-Cache at Address
+**	0nm4 MOV.B	Rm, @(Rn, R0)	//Move Byte Rm to R0+Rn
+**	0nm5 MOV.W	Rm, @(Rn, R0)	//Move Word Rm to R0+Rn
+**	0nm6 MOV.L	Rm, @(Rn, R0)	//Move DWord Rm to R0+Rn
+**	0nm7 MOV.Q	Rm, @(Rn, R0)	//Move QWord Rm to R0+Rn
+**	0zz8						//Operations without arguments
+***	 0008 CLRT					//Clear SR.T
+***	 0018 SETT					//Set SR.T
+***	 0028 / CLRMAC				//Clear MACH and MACL
+***	 0038 / LDTLB				//LDTLB
+***	 0048 CLRS					//Clear SR.S
+***	 0058 SETS					//Set SR.S
+***	 0068 NOTT
+***  0z78 -
+***  0088 -
+***  0098 -
+***  00A8 -
+***  00B8 -
+***  00C8 -
+***  00D8 -
+***  00E8 -
+***  0zF8 -
+****  00F8 BRA0					//Branch to PC+4+R0*2
+****  01F8 BSR0					//Call to PC+4+R0*2
+****  02F8 BRT0					//Branch if True to PC+4+R0*2
+****  03F8 BRF0					//Branch if False to PC+4+R0*2
+****  04F8 DIV1					//DIV1 R5, R4
+****  05F8 DIV0S				//DIV0S R5, R4
+****  06F8 CASL					//CAS.L R5, R4, @R0
+
+****  08F8 XTRCT	R4, R0		//
+****  09F8 XTRCT	R0, R4		//
+
+**	0--9
+***  0i09 NOP						//NOP
+***  0019 DIV0U						//Unsigned Divide
+***  0n29 MOVT		Rn				//Copy T bit to Rn
+***  0n39 MOVRT		Rn
+***  0m49 BSRF		Rm				//Branch to Subroutine (PC+4+Rm)
+***  0m59 JSR		Rm				//Branch to Subroutine (Rm)
+***  0m69 BRAF		Rm				//Branch to Label (PC+4+Rm)
+***  0m79 JMP		Rm				//Branch to Label (Rm)
+***  0m89 -
+***  0m99 -
+***  0mA9 -
+***  0mB9 -
+***  0nC9 -
+***  0mD9 PREF		@Rn				//Prefetch memory for address
+***  0nE9 ICBI		@Rn				//Invalidates I-Cache at Address
+***  0mF9 -
+**	0nmA STS		SRm, Rn			//Copy SRm to Rn
+**	0zzB
+***  000B RTS				//Return from Function
+***  001B SLEEP				//Sleep until interrupt
+***  002B RTE				//Return From Exception
+***  003B BRK				//Breakpoint Exception
+***  004B -
+***  005B -
+***  006B RTS/N
+***  0m7B ? RTV/N Rm
+***  0x8B -
+***  0x9B -
+***  00AB -
+***  0xBB -
+***  0xCB -
+***  0xDB -
+***  0xEB -
+***  0xFB -
+**	0nmC MOV.B		@(Rm, R0), Rn	//Load Byte From R0+Rm into Rn
+**	0nmD MOV.W		@(Rm, R0), Rn	//Load Word From R0+Rm into Rn
+**	0nmE MOV.L		@(Rm, R0), Rn	//Load DWord From R0+Rm into Rn
+**	0nmF MOV.Q		@(Rm, R0), Rn	//Load QWord From R0+Rm into Rn
+
+* 1nmd MOV.L		Rm, @(Rn,disp)	//Store DWord Rm to Rn+4*Disp
+
+* 2---
+**	2nm0 MOV.B		Rm, @Rn		//Store Byte Rm to @Rn
+**	2nm1 MOV.W		Rm, @Rn		//Store Word/Quad Rm to @Rn
+**	2nm2 MOV.L		Rm, @Rn		//Store Rm to @Rn
+**	2nm3 MOV.Q		Rm, @Rn		//Store Word/Quad Rm to @Rn
+**	2nm4 MOV.B		Rm, @-Rn	//Store Rm to Byte @Rn then Rn=Rn-1
+**	2nm5 MOV.W		Rm, @-Rn	//Store Rm to Word/Quad @Rn then Rn=Rn-2|8
+**	2nm6 MOV.L		Rm, @-Rn	//Store Rm to DWord @Rn then Rn=Rn-4
+**	2nm7 MOV.Q		Rm, @-Rn	//Store Rm to Word/Quad @Rn then Rn=Rn-2|8
+**	2nm8 TST		Rm, Rn		//Test Rm&Rn, updating SR.T
+**	2nm9 AND		Rm, Rn		//And Rm and Rn, Storing result in Rn
+**	2nmA XOR		Rm, Rn		//Xor Rm and Rn, Storing result in Rn
+**	2nmB OR			Rm, Rn		//Or Rm and Rn, Storing result in Rn
+**  2nmC TSTQ		Rm, Rn		//Test Rm&Rn, updating SR.T
+**	2nmD MUL.L		Rm, Rn		//
+**	2nmE MULU.Q		Rm, Rn		//Quad Multiply
+**	2nmF MULS.Q		Rm, Rn		//
+
+* 3---
+**	3nm0 CMP/EQ		Rm, Rn		//Compare for Equality
+**  3nm1 CMPQ/EQ	Rm, Rn		//Compare for Equality
+**	3nm2 CMPQ/HI	Rm, Rn		//Compare for Unsigned Greater
+**	3nm3 CMPQ/GT	Rm, Rn		//Compare for Signed Greater
+**	3nm4 EXTU.L		Rm, Rn		//Zero Extend DWord to QWord
+**	3nm5 DMULU.L	Rm, Rn		//Unsigned Multiply, result in MACH:MACL
+**	3nm6 CMP/HI		Rm, Rn		//Compare for unsigned Greater
+**	3nm7 CMP/GT		Rm, Rn		//Compare for signed Greater
+**	3nm8 SUB		Rm, Rn		//Subtract
+**  3nm9 EXTS.L		Rm, Rn		//Sign Extend DWord to QWord
+**	3nmA SUBC		Rm, Rn		//Subtract, Carry -> T
+**	3nmB NOT		Rm, Rn		//Bitwise Not
+**	3nmC ADD		Rm, Rn		//Add
+**	3nmD DMULS.L	Rm, Rn		//Signed Multiply, result in MACH:MACL
+**	3nmE ADDC		Rm, Rn		//Add with Carry, Carry -> T
+**	3nmF -
+
+* 4---
+**	4zz0
+***  4n00 SHLL Rn
+***  4n10 DT Rn
+***  4n20 SHAL Rn
+***  4n80 -
+***  4mF0 -
+**	4zz1
+***  4n01 SHLR		Rn
+***  4n11 CMPPZ		Rn
+***  4n21 SHAR		Rn
+***  4n31 -
+***  4n41 -
+***  4n51 -
+***  4n61 -
+***  4m71 -
+***  4n81 -
+***  4n91 -
+***  4mA1 MOV.L		Rm, @(GBR, R0)
+***  4nB1 MOV.Q		Rm, @(GBR, R0)
+***  4mC1 MOV.B		Rm, @(PC, R0)
+***  4mD1 MOV.W		Rm, @(PC, R0)
+***  4mE1 MOV.L		Rm, @(PC, R0)
+***  4nF1 MOV.Q		Rm, @(PC, R0)
+**	4nm2  STS.Q		SRm, @-Rn
+**	4nm3  STC.Q		CRm, @-Rn
+**	4zz4
+***  4n04 ROTL Rn
+***  4n14 !
+***  4-24 ROTCL Rn
+***  4n34 ! SHLL4 Rn				//(Rn<<4)->Rn
+***  4n44 !
+**	4--5
+***  4n05 ROTR		Rn			//Rotate Right
+***  4n15 CMPPL		Rn			//Compare Rn>0
+***  4n25 ROTCR		Rn
+***  4n35 -
+***  4n45 -
+***  4n55 -
+***  4n65 -
+***  4n75 -
+***  4n85 LEA.B		@(PC, R0), Rn
+***  4n95 -
+***	 4nA5 MOV.L		@(GBR, R0), Rn
+***  4nB5 MOV.Q		@(GBR, R0), Rn
+***	 4nC5 MOV.B		@(PC, R0), Rn
+***  4nD5 MOV.W		@(PC, R0), Rn
+***	 4nE5 MOV.L		@(PC, R0), Rn
+***  4nF5 MOV.Q		@(PC, R0), Rn
+**	4mo6  LDS.Q		@Rm+, SRo
+**	4mo7  LDC.Q		@Rm+, CRo
+
+**	4zz8
+***  4n08 SHLL2 Rn
+***  4n18 SHLL8 Rn
+***  4n28 SHLL16 Rn
+***  4n38 !
+***  4m48 !
+***  4n58 !
+***  4m68 !
+***  4n78 !
+***  4-88 -
+***  ...
+***  4-F8 -
+**	4zz9
+***  4n09 SHLR2 Rn
+***  4n19 SHLR8 Rn
+***  4n29 SHLR16 Rn
+***  4n39 !
+
+***  4mA9 !
+***  4mE9 !
+
+**	4moA LDS		Rm, SRo
+
+**	4zzB
+***  4m0B JSR Rm
+***  4m1B !
+***  4m2B JMP Rm
+***            ..
+***  4m4B / JSR/N
+***            ..
+
+**	4nmC SHAD		Rm, Rn		//Arithmetic Shift
+**	4nmD SHLD		Rm, Rn		//Logical Shift
+**	4moE LDC		Rm, CRo
+**	4nmF MOV 		Rm, Rn		//MOV Registers
+
+* 5nmd MOV.L		@(Rm, disp), Rn
+
+
+* 6---
+**	6nm0 MOV.B		@Rm, Rn		//Load Byte
+**	6nm1 MOV.W		@Rm, Rn		//Load Word or Quad
+**	6nm2 MOV.L		@Rm, Rn		//Load DWord
+**	6nm3 MOV.Q		@Rm, Rn		//Load Word or Quad
+**	6nm4 MOV.B		@Rm+, Rn	//Load Byte with post-increment
+**	6nm5 MOV.W		@Rm+, Rn	//Load Word or Quad with post-increment
+**	6nm6 MOV.L		@Rm+, Rn	//Loag DWord with post increment
+**	6nm7 MOV.Q		@Rm+, Rn	//Load Word or Quad with post-increment
+**	6nm8 SWAP.B		Rm, Rn		//Swap Low/High bits per Byte
+**	6nm9 SWAP.W		Rm, Rn		//Swap Low/High bits per Word
+**	6nmA NEGC		Rm, Rn		//Negate with carry
+**	6nmB NEG		Rm, Rn		//Negate
+**	6nmC EXTU.B		Rm, Rn		//Zero Extend Byte
+**	6nmD EXTU.W		Rm, Rn		//Zero Extend Word
+**	6nmE EXTS.B		Rm, Rn		//Sign Extend Byte
+**	6nmF EXTS.W		Rm, Rn		//Sign Extend Word
+
+* 7nii ADD./Q		#imm8s, Rn	//Add immediate to register
+
+* 8---
+**	80md -
+**	81nd -
+**	82dd BRA/N		disp8
+**	83dd BSR/N		disp8
+**	84zz -
+**	85zz -
+**	86zz -
+**	87zz -
+**	88ii CMP/EQ		#imm, R0
+**	89dd BT			disp8
+**	8Aii (Reserved)
+**	8Bdd BF			disp8
+**  8Cii LDSH8		#imm8, R0			//R0=(R0<<8)|Imm8
+**	8Ddd BTS		disp8
+**	8Eii (Reserved)
+**	8Fdd BFS		disp8
+
+* 9ndd  MOV.W		@(PC, disp8), Rn	//Load Word PC-Rel
+
+* Addd  BRA			label
+* Bddd  BSR			label
+
+* Czzz  (Reserved)
+**	C0dd -
+**	C1dd -
+**	C2dd -
+**	C3jj TRAPA		#imm
+**	C4dd -
+**	C5dd - 
+**	C6dd - 
+**	C7dd MOVA		@(PC,disp), R0		//Load Address into R0, DWORD aligned.
+**	C8jj TST		#imm, R0
+**	C9jj AND		#imm, R0
+**	CAjj XOR		#imm, R0
+**	CBjj OR			#imm, R0
+**	CCjj !
+**	CDjj !
+**	CEjj !
+**	CFjj !
+
+* Dndd  MOV.L		@(PC, disp8), Rn	//Load DWord PC-Rel
+
+* Enii  MOV			#imm8s, Rn			//Load immediate into register.
+
+* Fzzz  -

@@ -61,17 +61,21 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	shctx->is_le=0;
 	shctx->is_addr64=0;
 	shctx->has_bjx1egpr=0;
+	shctx->is_betav=0;
+	shctx->has_bjx1r3mov=0;
 
 	switch(ctx->sub_arch)
 	{
 	case BGBCC_ARCH_SH_BX6B:
 	case BGBCC_ARCH_SH_BX6L:
+	case BGBCC_ARCH_SH_BX6C:
 		ctx->arch_align_max=8;
 		ctx->arch_sizeof_long=8;
 		ctx->arch_sizeof_ptr=8;
 		ctx->arch_sizeof_valist=128;
 		shctx->is_addr64=1;
 		shctx->has_bjx1egpr=1;
+		shctx->has_bjx1r3mov=1;
 		break;
 
 	case BGBCC_ARCH_SH_BX6U:
@@ -82,6 +86,7 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 		ctx->arch_sizeof_ptr=8;
 		ctx->arch_sizeof_valist=128;
 		shctx->is_addr64=1;
+		shctx->has_bjx1r3mov=1;
 //		shctx->has_bjx1egpr=0;
 		break;
 	default:
@@ -105,6 +110,7 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	case BGBCC_ARCH_SH_BX6L:
 	case BGBCC_ARCH_SH_BX6U:
 	case BGBCC_ARCH_SH_BX6M:
+	case BGBCC_ARCH_SH_BX6C:
 		shctx->is_le=1;
 		break;
 	default:
@@ -143,6 +149,7 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 	case BGBCC_ARCH_SH_BX6L:
 	case BGBCC_ARCH_SH_BX6B:
 	case BGBCC_ARCH_SH_BX6M:
+	case BGBCC_ARCH_SH_BX6C:
 		shctx->has_shad=1;
 //		shctx->has_movi20=0;
 //		shctx->has_bjx1jmp=0;
@@ -160,6 +167,13 @@ ccxl_status BGBCC_SHXC_SetupContextForArch(BGBCC_TransState *ctx)
 
 	default:
 		break;
+	}
+	
+	if(ctx->sub_arch==BGBCC_ARCH_SH_BX6C)
+	{
+		shctx->is_betav=1;
+		shctx->is_mergece=1;
+		shctx->has_bjx1r3mov=0;
 	}
 
 	BGBPP_AddStaticDefine(NULL, "__superh__", "");
@@ -577,7 +591,8 @@ ccxl_status BGBCC_SHXC_PrintVirtOp(BGBCC_TransState *ctx,
 			case CCXL_VOP_VA_START:			s0="VA_START"; break;
 			case CCXL_VOP_VA_END:			s0="VA_END"; break;
 			case CCXL_VOP_VA_ARG:			s0="VA_ARG"; break;
-		
+			case CCXL_VOP_CSELCMP:			s0="CSELCMP"; break;
+			case CCXL_VOP_CSELCMP_Z:		s0="CSELCMP_Z"; break;
 		}
 
 		if(s0)
@@ -646,6 +661,18 @@ ccxl_status BGBCC_SHXC_PrintVirtOp(BGBCC_TransState *ctx,
 //			fprintf(sctx->cgen_log, " srcb=%016llX", op->srcb.val);
 			fprintf(sctx->cgen_log, " srcb=%s", 
 				BGBCC_SHXC_DebugRegToStr(ctx, sctx, op->type, op->srcb));
+		}
+
+		if(op->srcc.val)
+		{
+			fprintf(sctx->cgen_log, " srcc=%s", 
+				BGBCC_SHXC_DebugRegToStr(ctx, sctx, op->type, op->srcc));
+		}
+
+		if(op->srcd.val)
+		{
+			fprintf(sctx->cgen_log, " srcd=%s", 
+				BGBCC_SHXC_DebugRegToStr(ctx, sctx, op->type, op->srcd));
 		}
 
 		if(op->imm.ul)
@@ -1168,7 +1195,8 @@ ccxl_status BGBCC_SHXC_BuildFunction(BGBCC_TransState *ctx,
 //	sctx->dfl_dq=3;
 	sctx->dfl_dq=4;
 
-	if(sctx->is_addr64 && !sctx->has_bjx1egpr)
+	if(sctx->is_addr64 && !sctx->has_bjx1egpr &&
+			!sctx->is_betav)
 		sctx->dfl_dq=2;
 
 	for(np=0; np<6; np++)
@@ -2074,6 +2102,7 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 	int i, j, k;
 
 	en=(sctx->is_le==0);
+	sctx->stat_ovlbl8=0;
 
 	for(i=0; i<sctx->nrlc; i++)
 	{
@@ -2222,6 +2251,11 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 			d1=b1+((d-6)>>1);
 			if((((s32)(d1<<16))>>16)!=d1)
 				__debugbreak();
+				
+			if(((((s32)(d1<<24))>>24)==d1) &&
+				((w1&0xFF00)!=0x8300))
+					sctx->stat_ovlbl8++;
+				
 			w0=(w0&0xFF00)|((d1>>8)&0x00FF);
 			w1=(w1&0xFF00)|((d1   )&0x00FF);
 			bgbcc_setu16en(ctr+0, en, w0);
@@ -2240,6 +2274,10 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 			d1=b1+((d-6)>>1);
 			if((((s32)(d1<<12))>>12)!=d1)
 				__debugbreak();
+
+			if((((s32)(d1<<24))>>24)==d1)
+				sctx->stat_ovlbl8++;
+
 			w0=(w0&0xFF00)|((d1>>12)&0x00FF);
 			w1=(w1&0xF000)|((d1    )&0x0FFF);
 			bgbcc_setu16en(ctr+0, en, w0);
@@ -2276,6 +2314,12 @@ ccxl_status BGBCC_SHXC_ApplyImageRelocs(
 		default:
 			__debugbreak();
 		}
+	}
+	
+	if(sctx->stat_ovlbl8>0)
+	{
+		printf("Overlong Branches %d, EstCost=%dB\n",
+			sctx->stat_ovlbl8, sctx->stat_ovlbl8*2);
 	}
 	
 	return(0);
@@ -2472,6 +2516,20 @@ ccxl_status BGBCC_SHXC_FlattenImage(BGBCC_TransState *ctx,
 		printf("tot imm16 %d\n", sctx->stat_tot_imm16);
 		printf("tot imm8r %d\n", sctx->stat_tot_imm8r);
 		printf("tot imm32 %d\n", sctx->stat_tot_imm32);
+	}
+	
+	if(sctx->stat_opc_tot>0)
+	{
+		k=sctx->stat_opc_tot;
+		printf("16=%.2f%% 8A=%.2f%% 8E=%.2f%% CE=%.2f%% "
+				"CC0=%.2f%% CC3=%.2f%%\n",
+			(100.0*sctx->stat_opc_base16)/k,
+			(100.0*sctx->stat_opc_ext8a)/k,
+			(100.0*sctx->stat_opc_ext8e)/k,
+			(100.0*sctx->stat_opc_extCe)/k,
+			(100.0*sctx->stat_opc_extCC0)/k,
+			(100.0*sctx->stat_opc_extCC3)/k
+			);
 	}
 
 	if(sctx->lvt16_n_idx>0)

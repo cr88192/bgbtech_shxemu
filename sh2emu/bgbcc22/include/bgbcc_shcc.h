@@ -392,7 +392,7 @@
 #define BGBCC_SH_NMID_RTSN			0x7A	//
 #define BGBCC_SH_NMID_LDIF16		0x7B	//
 #define BGBCC_SH_NMID_STHF16		0x7C	//
-
+#define BGBCC_SH_NMID_CSELT			0x7D	//
 #define BGBCC_SH_NMID_EXTUL			0x7E	//
 #define BGBCC_SH_NMID_EXTSL			0x7F	//
 #define BGBCC_SH_NMID_FABS			0x80	//
@@ -427,6 +427,15 @@
 #define BGBCC_SH_NMID_FMOVID		0x9D	//
 #define BGBCC_SH_NMID_FMOVSI		0x9E	//
 #define BGBCC_SH_NMID_FMOVDI		0x9F	//
+
+#define BGBCC_SH_NMID_CMOVTB		0xA0	//CMOVT.B
+#define BGBCC_SH_NMID_CMOVTW		0xA1	//CMOVT.W
+#define BGBCC_SH_NMID_CMOVTL		0xA2	//CMOVT.L
+#define BGBCC_SH_NMID_CMOVTQ		0xA3	//CMOVT.Q
+#define BGBCC_SH_NMID_CMOVFB		0xA4	//CMOVF.B
+#define BGBCC_SH_NMID_CMOVFW		0xA5	//CMOVF.W
+#define BGBCC_SH_NMID_CMOVFL		0xA6	//CMOVF.L
+#define BGBCC_SH_NMID_CMOVFQ		0xA7	//CMOVF.Q
 
 #define BGBCC_SH_NMID_MOVI			0xC0	//
 #define BGBCC_SH_NMID_MOVIV			0xC1	//
@@ -656,6 +665,9 @@ typedef struct BGBCC_SHX_OpcodeArg_s BGBCC_SHX_OpcodeArg;
 typedef struct BGBCC_SHX_VarSpan_s BGBCC_SHX_VarSpan;
 typedef struct BGBCC_SHX_VarSpan2_s BGBCC_SHX_VarSpan2;
 
+typedef struct BGBCC_SHX_EmitQueueOp_s BGBCC_SHX_EmitQueueOp;
+
+
 struct BGBCC_SHX_Context_s {
 char *sec_name[16];
 byte *sec_buf[16];
@@ -683,6 +695,8 @@ byte is_addr64;		//target uses 64-bit addresses
 byte is_rawasm;		//is raw assembler
 byte is_leaf;		//function is a leaf function
 byte is_rom;		//building a ROM image
+byte is_betav;		//uses BetaVe tweaks.
+byte is_mergece;	//merge CC0e/CC3e into CExx
 
 byte has_shad;		//has SHAD/SHLD
 byte has_movi20;	//has MOVI20 and friends
@@ -693,9 +707,12 @@ byte has_bjx1ari;	//has BJX1 Arithmetic I-forms
 byte has_bjx1breq;	//has BJX1 BREQ/BRNE/... I-forms
 byte use_onlyimm;	//use only inline immediates
 byte has_bjx1egpr;	//has BJX1-64 extended GPR ops
+byte has_bjx1r3mov;	//has BJX1 Reg3 ops
 
 byte use_egpr;		//enable use of extended GPRs
 byte maxreg_gpr;	//current number of GPR register-slots
+
+byte use_emitqueue;	//use emit queue
 
 int simfnsz;		//simulation's function size
 int simfnmsz;		//simulation's min function size
@@ -760,6 +777,18 @@ int stat_tot_imm8;
 int stat_tot_imm16;
 int stat_tot_imm8r;
 int stat_tot_imm32;
+
+int stat_ovlbl8;
+
+int stat_opc_tot;
+int stat_opc_base16;
+int stat_opc_ext8a;
+int stat_opc_ext8e;
+int stat_opc_extCe;
+int stat_opc_extCC0;
+int stat_opc_extCC3;
+byte stat_opc_issfx;
+
 
 int sim_voffs;		//est' offset between real PC and sim PC
 
@@ -831,6 +860,9 @@ FILE *cgen_log;
 char *csrept;
 int cnrept;
 
+BGBCC_SHX_EmitQueueOp *eqfree;
+BGBCC_SHX_EmitQueueOp *eqstrt, *eqend;
+
 int *got_gblidx;
 int got_n_gblidx;
 int got_m_gblidx;
@@ -891,4 +923,18 @@ int flag;				//span flags
 
 BGBCC_SHX_VarSpan2 seq[64];
 int nseq;
+};
+
+/*
+ * Used to buffer instructions during emit.
+ */
+struct BGBCC_SHX_EmitQueueOp_s {
+BGBCC_SHX_EmitQueueOp *next;
+u16 nmid;
+byte fmid;
+byte rn;		//Rn
+byte rm;		//Rm or Rs
+byte ro;		//Ro or Rt
+int imm;
+int lbl;
 };

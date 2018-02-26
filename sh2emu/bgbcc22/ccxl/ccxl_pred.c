@@ -292,6 +292,8 @@ ccxl_type BGBCC_CCXL_GetRegReturnType(
 	ccxl_type bty, dty;
 	int i, j, k;
 
+	dty.val=0;
+
 	//HACK
 	if(BGBCC_CCXL_IsRegGlobalP(ctx, reg))
 	{
@@ -322,6 +324,7 @@ ccxl_type BGBCC_CCXL_GetRegReturnType(
 			return(dty);
 		}
 
+		dty.val=0;
 		BGBCC_CCXL_TagError(ctx,
 			CCXL_TERR_STATUS(CCXL_STATUS_ERR_UNHANDLEDTYPE));
 		return(dty);

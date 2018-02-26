@@ -523,6 +523,8 @@ ccxl_status BGBCC_CCXL_EmitLoadInitObjArr(BGBCC_TransState *ctx,ccxl_type type, 
 ccxl_status BGBCC_CCXL_EmitVaStart(BGBCC_TransState *ctx,ccxl_register dreg, ccxl_register sreg);
 ccxl_status BGBCC_CCXL_EmitVaEnd(BGBCC_TransState *ctx,ccxl_register sreg);
 ccxl_status BGBCC_CCXL_EmitVaArg(BGBCC_TransState *ctx,ccxl_type type, ccxl_register dreg, ccxl_register sreg);
+ccxl_status BGBCC_CCXL_EmitCSelCmp(BGBCC_TransState *ctx,ccxl_type type, ccxl_register dst, ccxl_register srca, ccxl_register srcb, ccxl_type ptype, int cmpop, ccxl_register srcc, ccxl_register srcd);
+ccxl_status BGBCC_CCXL_EmitCSelCmpZero(BGBCC_TransState *ctx,ccxl_type type, ccxl_register dst, ccxl_register srca, ccxl_register srcb, ccxl_type ptype, int cmpop, ccxl_register srcc);
 ccxl_status BGBCC_CCXL_FlattenImage(BGBCC_TransState *ctx,byte *obuf, int *rosz, fourcc imgfmt);
 ccxl_status BGBCC_CCXL_SetupContextForArch(BGBCC_TransState *ctx);
 ccxl_status BGBCC_CCXL_SetupParserForArch(BGBCP_ParseState *ctx);
@@ -701,8 +703,13 @@ int BGBCC_CCXL_GetMinMaxSizeofType(BGBCC_TransState *ctx, BCCX_Node *ty,int *rms
 int BGBCC_CCXL_TryGetSizeofName(BGBCC_TransState *ctx, char *name);
 int BGBCC_CCXL_GetMinMaxSizeofName(BGBCC_TransState *ctx, char *name,int *rmsz, int *rnsz, int *rmal, int *rnal);
 int BGBCC_CCXL_GetMinMaxSizeofDerefName(BGBCC_TransState *ctx, char *name,int *rmsz, int *rnsz, int *rmal, int *rnal);
+int BGBCC_CCXL_StackCSelCmp(BGBCC_TransState *ctx, char *op);
+int BGBCC_CCXL_StackCSelCmpZero(BGBCC_TransState *ctx, char *op);
+void BGBCC_CCXL_CompileCSelCmp(BGBCC_TransState *ctx,char *op, BCCX_Node *ln, BCCX_Node *rn);
+void BGBCC_CCXL_CompileCSel(BGBCC_TransState *ctx, BCCX_Node *l);
 //AHSRC:ccxl/ccxl_infer.c
 int BGBCC_CCXL_InferExpr(BGBCC_TransState *ctx,BCCX_Node *l, ccxl_type *rdty);
+int BGBCC_CCXL_InferExprCleanP(BGBCC_TransState *ctx, BCCX_Node *l);
 //AHSRC:ccxl/ccxl_pred.c
 bool BGBCC_CCXL_IsRegBasicP(BGBCC_TransState *ctx, ccxl_register reg);
 bool BGBCC_CCXL_IsRegArgBasicP(BGBCC_TransState *ctx, ccxl_register reg);
@@ -1066,6 +1073,9 @@ int BGBCC_SHXC_EmitCallBuiltinArgs(BGBCC_TransState *ctx, BGBCC_SHX_Context *sct
 int BGBCC_SHXC_EmitCallFcnVReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register fcn);
 int BGBCC_SHXC_EmitCallName(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, char *name);
 int BGBCC_SHXC_EmitCallVReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dst, ccxl_register fcn, int narg, ccxl_register *args);
+int BGBCC_SHXC_EmitCSeltSelectVRegVRegVRegInt(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, ccxl_register treg);
+int BGBCC_SHXC_EmitCSeltCompareVRegVRegInt(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, int cmp, ccxl_register sreg, ccxl_register treg);
+int BGBCC_SHXC_EmitCSeltVRegVRegVRegInt(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, ccxl_register dreg, ccxl_register sreg, ccxl_register treg, ccxl_type ptype, int cmp, ccxl_register ureg, ccxl_register vreg);
 //AHSRC:shcc/shx_bufasm.c
 char *BGBCC_SHXA_EatWhite(char *cs);
 char *BGBCC_SHXA_EatWhiteNoLinebreak(char *cs);
@@ -1150,6 +1160,7 @@ int BGBCC_SHX_SetSectionName(BGBCC_SHX_Context *ctx, char *name);
 int BGBCC_SHX_SetSection(BGBCC_SHX_Context *ctx, int sec);
 int BGBCC_SHX_IsSectionReadOnly(BGBCC_SHX_Context *ctx, int sec);
 int BGBCC_SHX_EmitByte(BGBCC_SHX_Context *ctx, int val);
+int BGBCC_SHX_EmitStatWord(BGBCC_SHX_Context *ctx, int val);
 int BGBCC_SHX_EmitWord(BGBCC_SHX_Context *ctx, int val);
 int BGBCC_SHX_EmitDWord(BGBCC_SHX_Context *ctx, u32 val);
 int BGBCC_SHX_EmitQWord(BGBCC_SHX_Context *ctx, s64 val);
@@ -1194,6 +1205,7 @@ int BGBCC_SHX_EmitRelocAbs16(BGBCC_SHX_Context *ctx, int lbl);
 int BGBCC_SHX_EmitRelocAbs32(BGBCC_SHX_Context *ctx, int lbl);
 int BGBCC_SHX_EmitRelocAbs64(BGBCC_SHX_Context *ctx, int lbl);
 int BGBCC_SHX_EmitRelocRelW12(BGBCC_SHX_Context *ctx, int lbl);
+int BGBCC_SHX_EmitRelocRelW8(BGBCC_SHX_Context *ctx, int lbl);
 int BGBCC_SHX_LookupLabelIndex(BGBCC_SHX_Context *sctx, int lblid);
 int BGBCC_SHX_LookupSimLabelIndex(BGBCC_SHX_Context *sctx, int lblid);
 //AHSRC:shcc/shx_emit_opc.c
@@ -1205,6 +1217,7 @@ int BGBCC_SHX_EmitCheckModeClrDQ_DbgReject(BGBCC_SHX_Context *ctx, int nmid);
 int BGBCC_SHX_EmitCheckModeClrDQ(BGBCC_SHX_Context *ctx, int nmid);
 int BGBCC_SHX_EmitCheckModalReg(BGBCC_SHX_Context *ctx, int reg);
 int BGBCC_SHX_EmitCheckRegQuad(BGBCC_SHX_Context *ctx, int reg);
+int BGBCC_SHX_EmitCheckRegDouble(BGBCC_SHX_Context *ctx, int reg);
 int BGBCC_SHX_EmitCheckRegExt4(BGBCC_SHX_Context *ctx, int reg);
 int BGBCC_SHX_EmitGetRegAsReg3(BGBCC_SHX_Context *ctx, int reg);
 int BGBCC_SHX_EmitOpNone(BGBCC_SHX_Context *ctx, int nmid);
@@ -1215,6 +1228,7 @@ int BGBCC_SHX_EmitCheckRegBaseGPR(BGBCC_SHX_Context *ctx, int reg);
 int BGBCC_SHX_EmitCheckRegNonBaseGPR(BGBCC_SHX_Context *ctx, int reg);
 int BGBCC_SHX_EmitCheckRegExtGPR(BGBCC_SHX_Context *ctx, int reg);
 int BGBCC_SHX_EmitCheckRegFPR(BGBCC_SHX_Context *ctx, int reg);
+int BGBCC_SHX_EmitCheckRegExtFPR(BGBCC_SHX_Context *ctx, int reg);
 int BGBCC_SHX_EmitOpReg(BGBCC_SHX_Context *ctx, int nmid, int reg);
 int BGBCC_SHX_TryEmitOpReg(BGBCC_SHX_Context *ctx, int nmid, int reg);
 int BGBCC_SHX_EmitOpImm(BGBCC_SHX_Context *ctx, int nmid, int imm);
@@ -1438,6 +1452,24 @@ int BGBCC_SHXC_EmitLoadSlotAddrVRegVRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Cont
 int BGBCC_SHXC_EmitValueCopyRegRegSz(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int dreg, int sreg, int sz, int al);
 int BGBCC_SHXC_EmitLoadTypeBRegOfsReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_type type, int sreg, int ofs, int dreg);
 //AHSRC:shcc/shx_vreg.c
+int BGBCC_SHXC_EmitOpNone(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid);
+int BGBCC_SHXC_EmitOpReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int reg);
+int BGBCC_SHXC_EmitOpImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int imm);
+int BGBCC_SHXC_EmitOpMReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int reg);
+int BGBCC_SHXC_EmitOpRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int rn);
+int BGBCC_SHXC_EmitOpRegStReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int rn);
+int BGBCC_SHXC_EmitOpLdRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int rn);
+int BGBCC_SHXC_EmitOpRegStDecReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int rn);
+int BGBCC_SHXC_EmitOpLdIncRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int rn);
+int BGBCC_SHXC_EmitOpRegStRegDisp(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int rn, int disp);
+int BGBCC_SHXC_EmitOpLdRegDispReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int disp, int rn);
+int BGBCC_SHXC_EmitOpRegStReg2(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int ro, int rn);
+int BGBCC_SHXC_EmitOpLdReg2Reg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int ro, int rn);
+int BGBCC_SHXC_EmitOpRegStReg2Disp(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int ro, int rn, int disp);
+int BGBCC_SHXC_EmitOpLdReg2DispReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int ro, int disp, int rn);
+int BGBCC_SHXC_EmitOpRegRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rs, int rt, int rn);
+int BGBCC_SHXC_EmitOpRegImm(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int reg, int imm);
+int BGBCC_SHXC_EmitOpRegImmReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int nmid, int rm, int imm, int rn);
 int BGBCC_SHXC_EmitMovRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, int sreg, int dreg);
 int BGBCC_SHXC_EmitLoadVRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register sreg, int dreg);
 int BGBCC_SHXC_EmitStoreVRegReg(BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx, ccxl_register dreg, int sreg);

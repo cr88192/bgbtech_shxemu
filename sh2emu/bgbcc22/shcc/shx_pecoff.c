@@ -780,7 +780,11 @@ ccxl_status BGBCC_SHXC_FlattenImagePECOFF(BGBCC_TransState *ctx,
 	if(sctx->has_bjx1mov)
 		mach=0xB132;
 	if(sctx->is_addr64)
+	{
 		mach=0xB164;
+		if(sctx->is_betav)
+			mach=0xB64C;
+	}
 
 //	bgbcc_setu16en(ct+0x44, en, 0x14C);		//mMachine
 //	bgbcc_setu16en(ct+0x44, en, 0x1A6);		//mMachine

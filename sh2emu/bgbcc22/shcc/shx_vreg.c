@@ -1,3 +1,207 @@
+
+
+int BGBCC_SHXC_EmitOpNone(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpNone(sctx, nmid);
+	else
+		BGBCC_SHX_EmitOpNone(sctx, nmid);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int reg)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpReg(sctx, nmid, reg);
+	else
+		BGBCC_SHX_EmitOpReg(sctx, nmid, reg);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpImm(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int imm)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpImm(sctx, nmid, imm);
+	else
+		BGBCC_SHX_EmitOpImm(sctx, nmid, imm);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpMReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int reg)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpMReg(sctx, nmid, reg);
+	else
+		BGBCC_SHX_EmitOpMReg(sctx, nmid, reg);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegReg(sctx, nmid, rm, rn);
+	else
+		BGBCC_SHX_EmitOpRegReg(sctx, nmid, rm, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegStReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegStReg(sctx, nmid, rm, rn);
+	else
+		BGBCC_SHX_EmitOpRegStReg(sctx, nmid, rm, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpLdRegReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpLdRegReg(sctx, nmid, rm, rn);
+	else
+		BGBCC_SHX_EmitOpLdRegReg(sctx, nmid, rm, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegStDecReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegStDecReg(sctx, nmid, rm, rn);
+	else
+		BGBCC_SHX_EmitOpRegStDecReg(sctx, nmid, rm, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpLdIncRegReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpLdIncRegReg(sctx, nmid, rm, rn);
+	else
+		BGBCC_SHX_EmitOpLdIncRegReg(sctx, nmid, rm, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegStRegDisp(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int rn, int disp)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegStRegDisp(sctx, nmid, rm, rn, disp);
+	else
+		BGBCC_SHX_EmitOpRegStRegDisp(sctx, nmid, rm, rn, disp);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpLdRegDispReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int disp, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpLdRegDispReg(sctx, nmid, rm, disp, rn);
+	else
+		BGBCC_SHX_EmitOpLdRegDispReg(sctx, nmid, rm, disp, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegStReg2(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int ro, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegStReg2(sctx, nmid, rm, ro, rn);
+	else
+		BGBCC_SHX_EmitOpRegStReg2(sctx, nmid, rm, ro, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpLdReg2Reg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int ro, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpLdReg2Reg(sctx, nmid, rm, ro, rn);
+	else
+		BGBCC_SHX_EmitOpLdReg2Reg(sctx, nmid, rm, ro, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegStReg2Disp(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int ro, int rn, int disp)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegStReg2Disp(sctx, nmid, rm, ro, rn, disp);
+	else
+		BGBCC_SHX_EmitOpRegStReg2Disp(sctx, nmid, rm, ro, rn, disp);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpLdReg2DispReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int ro, int disp, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpLdReg2DispReg(sctx, nmid, rm, ro, disp, rn);
+	else
+		BGBCC_SHX_EmitOpLdReg2DispReg(sctx, nmid, rm, ro, disp, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegRegReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rs, int rt, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegRegReg(sctx, nmid, rs, rt, rn);
+	else
+		BGBCC_SHX_EmitOpRegRegReg(sctx, nmid, rs, rt, rn);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegImm(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int reg, int imm)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegImm(sctx, nmid, reg, imm);
+	else
+		BGBCC_SHX_EmitOpRegImm(sctx, nmid, reg, imm);
+	return(0);
+}
+
+int BGBCC_SHXC_EmitOpRegImmReg(
+	BGBCC_TransState *ctx, BGBCC_SHX_Context *sctx,
+	int nmid, int rm, int imm, int rn)
+{
+	if(sctx->use_emitqueue)
+		BGBCC_SHX_QueueOpRegImmReg(sctx, nmid, rm, imm, rn);
+	else
+		BGBCC_SHX_EmitOpRegImmReg(sctx, nmid, rm, imm, rn);
+	return(0);
+}
+
+
+
+
+
 int BGBCC_SHXC_EmitMovRegReg(
 	BGBCC_TransState *ctx,
 	BGBCC_SHX_Context *sctx,
@@ -11,14 +215,14 @@ int BGBCC_SHXC_EmitMovRegReg(
 	if(BGBCC_SHXC_EmitRegIsGpReg(ctx, sctx, sreg) &&
 		BGBCC_SHXC_EmitRegIsGpReg(ctx, sctx, dreg))
 	{
-		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg, dreg);
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_MOV, sreg, dreg);
 		return(1);
 	}
 	
 	if(BGBCC_SHX_EmitCheckRegExtGPR(sctx, sreg) &&
 		BGBCC_SHX_EmitCheckRegExtGPR(sctx, dreg))
 	{
-		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg, dreg);
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_MOV, sreg, dreg);
 		return(1);
 	}
 
@@ -26,7 +230,7 @@ int BGBCC_SHXC_EmitMovRegReg(
 		BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg))
 	{
 		BGBCC_SHXC_ClearStatusFpscrSz(ctx, sctx);
-		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_FMOV, sreg, dreg);
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_FMOV, sreg, dreg);
 		return(1);
 	}
 
@@ -34,9 +238,9 @@ int BGBCC_SHXC_EmitMovRegReg(
 		BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, dreg))
 	{
 		BGBCC_SHXC_ClearStatusFpscrSz(ctx, sctx);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_LDS, sreg, BGBCC_SH_REG_FPUL);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_FSTS, BGBCC_SH_REG_FPUL, dreg);
 		return(1);
 	}
@@ -45,9 +249,9 @@ int BGBCC_SHXC_EmitMovRegReg(
 		BGBCC_SHXC_EmitRegIsGpReg(ctx, sctx, dreg))
 	{
 		BGBCC_SHXC_ClearStatusFpscrSz(ctx, sctx);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_FLDS, sreg, BGBCC_SH_REG_FPUL);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_STS, BGBCC_SH_REG_FPUL, dreg);
 		return(1);
 	}
@@ -62,11 +266,11 @@ int BGBCC_SHXC_EmitMovRegReg(
 	
 		if(BGBCC_SHXC_GetStatusFpscrSz(ctx, sctx))
 		{
-			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_FMOV, sreg2, dreg2);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_FMOV, sreg2, dreg2);
 		}else
 		{
-			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_FMOV, sreg2+0, dreg2+0);
-			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_FMOV, sreg2+1, dreg2+1);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_FMOV, sreg2+0, dreg2+0);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_FMOV, sreg2+1, dreg2+1);
 		}
 		return(1);
 	}
@@ -76,8 +280,8 @@ int BGBCC_SHXC_EmitMovRegReg(
 	{
 		sreg2=BGBCC_SH_REG_R0+(sreg&15);
 		dreg2=BGBCC_SH_REG_R0+(dreg&15);
-		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg2+0, dreg2+0);
-		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg2+1, dreg2+1);
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_MOV, sreg2+0, dreg2+0);
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_MOV, sreg2+1, dreg2+1);
 		return(1);
 	}
 
@@ -90,14 +294,14 @@ int BGBCC_SHXC_EmitMovRegReg(
 		sw=(sctx->is_le!=0);
 
 		BGBCC_SHXC_ClearStatusFpscrSz(ctx, sctx);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_LDS, sreg2+0, BGBCC_SH_REG_FPUL);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_FSTS, BGBCC_SH_REG_FPUL, dreg2+(0^sw));
 
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_LDS, sreg2+1, BGBCC_SH_REG_FPUL);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_FSTS, BGBCC_SH_REG_FPUL, dreg2+(1^sw));
 		return(1);
 	}
@@ -112,13 +316,13 @@ int BGBCC_SHXC_EmitMovRegReg(
 
 		BGBCC_SHXC_ClearStatusFpscrSz(ctx, sctx);
 		
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_FLDS, sreg2+0, BGBCC_SH_REG_FPUL);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_STS, BGBCC_SH_REG_FPUL, dreg2+(0^sw));
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_FLDS, sreg2+1, BGBCC_SH_REG_FPUL);
-		BGBCC_SHX_EmitOpRegReg(sctx,
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 			BGBCC_SH_NMID_STS, BGBCC_SH_REG_FPUL, dreg2+(1^sw));
 
 		return(1);
@@ -132,7 +336,7 @@ int BGBCC_SHXC_EmitMovRegReg(
 //	nm=BGBCC_SH_NMID_MOV;
 //	if(BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, creg))
 //		nm=BGBCC_SH_NMID_FMOV;
-//	BGBCC_SHX_EmitOpRegReg(sctx, nm, creg, dreg);
+//	BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nm, creg, dreg);
 //	BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
 //	return(1);
 }
@@ -158,7 +362,7 @@ int BGBCC_SHXC_EmitLoadVRegReg(
 //		nm=BGBCC_SH_NMID_MOV;
 //		if(BGBCC_SHXC_EmitRegIsFpReg(ctx, sctx, creg))
 //			nm=BGBCC_SH_NMID_FMOV;
-//		BGBCC_SHX_EmitOpRegReg(sctx, nm, creg, dreg);
+//		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nm, creg, dreg);
 		BGBCC_SHXC_EmitMovRegReg(ctx, sctx, creg, dreg);
 
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
@@ -186,7 +390,7 @@ int BGBCC_SHXC_EmitStoreVRegReg(
 	creg=BGBCC_SHXC_EmitTryGetRegisterWrite(ctx, sctx, dreg);
 	if((creg>=0) && (creg!=BGBCC_SH_REG_ZZR))
 	{
-//		BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, sreg, creg);
+//		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_MOV, sreg, creg);
 		BGBCC_SHXC_EmitMovRegReg(ctx, sctx, sreg, creg);
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 		return(1);
@@ -316,7 +520,7 @@ int BGBCC_SHXC_EmitMovVRegVReg(
 	{
 		if((csreg>=0) && (csreg!=BGBCC_SH_REG_ZZR))
 		{
-//			BGBCC_SHX_EmitOpRegReg(sctx, BGBCC_SH_NMID_MOV, csreg, cdreg);
+//			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, BGBCC_SH_NMID_MOV, csreg, cdreg);
 			BGBCC_SHXC_EmitMovRegReg(ctx, sctx, csreg, cdreg);
 			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
@@ -414,17 +618,17 @@ int BGBCC_SHXC_EmitFpConvVRegVReg(
 //		if(0)
 		{
 			tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
-			BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 				BGBCC_SH_NMID_MOV, csreg, tr0);
-			BGBCC_SHX_EmitOpRegReg(sctx, nm1, tr0, BGBCC_SH_REG_FPUL);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nm1, tr0, BGBCC_SH_REG_FPUL);
 			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
 		}else
 		{
-			BGBCC_SHX_EmitOpRegReg(sctx, nm1, csreg, BGBCC_SH_REG_FPUL);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nm1, csreg, BGBCC_SH_REG_FPUL);
 		}
 	}
 	else
-		{ BGBCC_SHX_EmitOpReg(sctx, nm1, csreg); }
+		{ BGBCC_SHXC_EmitOpReg(ctx, sctx, nm1, csreg); }
 
 	if((nm2==BGBCC_SH_NMID_STS) || (nm2==BGBCC_SH_NMID_FSTS))
 	{
@@ -432,17 +636,17 @@ int BGBCC_SHXC_EmitFpConvVRegVReg(
 //		if(0)
 		{
 			tr0=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, 0);
-			BGBCC_SHX_EmitOpRegReg(sctx, nm2, BGBCC_SH_REG_FPUL, tr0);
-			BGBCC_SHX_EmitOpRegReg(sctx,
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nm2, BGBCC_SH_REG_FPUL, tr0);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx,
 				BGBCC_SH_NMID_MOV, tr0, cdreg);
 			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, tr0);
 		}else
 		{
-			BGBCC_SHX_EmitOpRegReg(sctx, nm2, BGBCC_SH_REG_FPUL, cdreg);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nm2, BGBCC_SH_REG_FPUL, cdreg);
 		}
 	}
 	else
-		{ BGBCC_SHX_EmitOpReg(sctx, nm2, cdreg); }
+		{ BGBCC_SHXC_EmitOpReg(ctx, sctx, nm2, cdreg); }
 
 	BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 	BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
@@ -514,14 +718,14 @@ int BGBCC_SHXC_EmitOpNmidVRegVReg(
 	{
 		if((csreg>=0) && (csreg!=BGBCC_SH_REG_ZZR))
 		{
-			BGBCC_SHX_EmitOpRegReg(sctx, nmid, csreg, cdreg);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nmid, csreg, cdreg);
 			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
 			return(1);
 		}
 		
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, cdreg);
-		BGBCC_SHX_EmitOpRegReg(sctx, nmid, cdreg, cdreg);
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nmid, cdreg, cdreg);
 		BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, dreg);
 		return(1);
 	}else
@@ -529,7 +733,7 @@ int BGBCC_SHXC_EmitOpNmidVRegVReg(
 		if((csreg>=0) && (csreg!=BGBCC_SH_REG_ZZR))
 		{
 			ctreg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_GR);
-			BGBCC_SHX_EmitOpRegReg(sctx, nmid, csreg, ctreg);
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nmid, csreg, ctreg);
 			BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, ctreg);
 			BGBCC_SHXC_EmitReleaseRegister(ctx, sctx, sreg);
 			BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, ctreg);
@@ -538,7 +742,7 @@ int BGBCC_SHXC_EmitOpNmidVRegVReg(
 
 		ctreg=BGBCC_SHXC_ScratchAllocReg(ctx, sctx, BGBCC_SH_REGCLS_GR);
 		BGBCC_SHXC_EmitLoadVRegReg(ctx, sctx, sreg, ctreg);
-		BGBCC_SHX_EmitOpRegReg(sctx, nmid, ctreg, ctreg);
+		BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nmid, ctreg, ctreg);
 		BGBCC_SHXC_EmitStoreVRegReg(ctx, sctx, dreg, ctreg);
 		BGBCC_SHXC_ScratchReleaseReg(ctx, sctx, ctreg);
 		return(1);
@@ -556,11 +760,15 @@ int BGBCC_SHXC_EmitJCmpVRegVRegInt(
 	ccxl_register sreg, ccxl_register treg,
 	int cmp, int lbl)
 {
-	int csreg, ctreg;
+	int csreg, ctreg, flip, noflip;
 	s32 imm;
 	int nm1, nm2, nm3;
 	
-	nm3=-1;
+	noflip=0;
+	if(BGBCC_CCXL_IsRegImmIntP(ctx, treg))
+		noflip=1;
+	
+	nm3=-1; flip=0;
 	switch(cmp)
 	{
 	case CCXL_CMP_EQ:
@@ -574,15 +782,30 @@ int BGBCC_SHXC_EmitJCmpVRegVRegInt(
 		nm3=BGBCC_SH_NMID_BRNE;
 		break;
 	case CCXL_CMP_LT:
-		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		if(!noflip)
 		{
-			nm1=BGBCC_SH_NMID_CMPHS;
-			nm2=BGBCC_SH_NMID_BF;
+			flip=1;
+			if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+			{
+				nm1=BGBCC_SH_NMID_CMPHI;
+				nm2=BGBCC_SH_NMID_BT;
+			}else
+			{
+				nm1=BGBCC_SH_NMID_CMPGT;
+				nm2=BGBCC_SH_NMID_BT;
+			}
 		}else
 		{
-			nm1=BGBCC_SH_NMID_CMPGE;
-			nm2=BGBCC_SH_NMID_BF;
-			nm3=BGBCC_SH_NMID_BRLT;
+			if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+			{
+				nm1=BGBCC_SH_NMID_CMPHS;
+				nm2=BGBCC_SH_NMID_BF;
+			}else
+			{
+				nm1=BGBCC_SH_NMID_CMPGE;
+				nm2=BGBCC_SH_NMID_BF;
+				nm3=BGBCC_SH_NMID_BRLT;
+			}
 		}
 		break;
 	case CCXL_CMP_GT:
@@ -610,15 +833,30 @@ int BGBCC_SHXC_EmitJCmpVRegVRegInt(
 		}
 		break;
 	case CCXL_CMP_GE:
-		if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+		if(!noflip)
 		{
-			nm1=BGBCC_SH_NMID_CMPHS;
-			nm2=BGBCC_SH_NMID_BT;
+			flip=1;
+			if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+			{
+				nm1=BGBCC_SH_NMID_CMPHI;
+				nm2=BGBCC_SH_NMID_BF;
+			}else
+			{
+				nm1=BGBCC_SH_NMID_CMPGT;
+				nm2=BGBCC_SH_NMID_BF;
+			}
 		}else
 		{
-			nm1=BGBCC_SH_NMID_CMPGE;
-			nm2=BGBCC_SH_NMID_BT;
-			nm3=BGBCC_SH_NMID_BRGE;
+			if(BGBCC_CCXL_TypeUnsignedP(ctx, type))
+			{
+				nm1=BGBCC_SH_NMID_CMPHS;
+				nm2=BGBCC_SH_NMID_BT;
+			}else
+			{
+				nm1=BGBCC_SH_NMID_CMPGE;
+				nm2=BGBCC_SH_NMID_BT;
+				nm3=BGBCC_SH_NMID_BRGE;
+			}
 		}
 		break;
 
@@ -640,7 +878,7 @@ int BGBCC_SHXC_EmitJCmpVRegVRegInt(
 	
 	if((nm1>=0) && (nm2>=0))
 	{
-		if(BGBCC_CCXL_IsRegImmIntP(ctx, treg))
+		if(BGBCC_CCXL_IsRegImmIntP(ctx, treg) && !flip)
 		{
 			imm=BGBCC_CCXL_GetRegImmIntValue(ctx, treg);
 
@@ -672,7 +910,7 @@ int BGBCC_SHXC_EmitJCmpVRegVRegInt(
 
 #if 1
 //		if(nm3>=0)
-		if((nm3>=0) && !(sctx->dfl_dq&1) &&
+		if((nm3>=0) && !(sctx->dfl_dq&1) && !flip &&
 			BGBCC_SHX_EmitCheckRegBaseGPR(sctx, csreg) &&
 			BGBCC_SHX_EmitCheckRegBaseGPR(sctx, ctreg))
 		{
@@ -691,7 +929,10 @@ int BGBCC_SHXC_EmitJCmpVRegVRegInt(
 
 		BGBCC_SHXC_CheckSetModeDqClear(ctx, sctx);
 
-		BGBCC_SHX_EmitOpRegReg(sctx, nm1, ctreg, csreg);
+		if(flip)
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nm1, csreg, ctreg);
+		else
+			BGBCC_SHXC_EmitOpRegReg(ctx, sctx, nm1, ctreg, csreg);
 //		if(sctx->need_farjmp)
 //			BGBCC_SHX_EmitOpFarLabel(sctx, nm2, lbl);
 //		else
@@ -855,7 +1096,7 @@ int BGBCC_SHXC_EmitJCmpVRegZeroInt(
 
 		BGBCC_SHXC_SetModeDqClear(ctx, sctx);
 
-		BGBCC_SHX_EmitOpReg(sctx, nm1, csreg);
+		BGBCC_SHXC_EmitOpReg(ctx, sctx, nm1, csreg);
 //		if(sctx->need_farjmp)
 //			BGBCC_SHX_EmitOpFarLabel(sctx, nm2, lbl);
 //		else

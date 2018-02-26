@@ -217,6 +217,7 @@ Machine:
 * SH-5:     0x01A8
 * BJX1-32:  0xB132
 * BJX1-64:  0xB164
+* BJX1-64C: 0xB64C
 
 The main header is followed by sections.
 
